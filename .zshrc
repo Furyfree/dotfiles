@@ -121,6 +121,8 @@ source $ZSH/oh-my-zsh.sh
 
 alias ls='ls -aG'
 alias ll='ls -alhG'
+alias python='python3'
+alias pip='pip3'
 
 # Add Powerlevel10k theme
 source ~/powerlevel10k/powerlevel10k.zsh-theme
@@ -140,3 +142,4 @@ export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
 
 # Add tmux to PATH (if not already in /usr/local/bin)
 export PATH="/usr/local/bin:$PATH"
+
