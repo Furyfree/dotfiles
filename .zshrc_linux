@@ -1,0 +1,94 @@
+# Exports
+export EDITOR=nano  # Set default editor
+export EDITOR="code"  # Use VS Code if installed
+
+# Paths (Adjust for Ubuntu)
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+# eval "$(pyenv virtualenv-init -)"  # Uncomment if using virtualenv
+
+# Starship (Prompt Customization)
+eval "$(starship init zsh)"
+export STARSHIP_CONFIG=$HOME/.config/starship/starship.toml
+
+# Aliases
+alias y='yazi'
+alias ls='eza --icons --grid --group-directories-first'
+alias ll='eza -lah --icons --group-directories-first'
+alias lt='eza --tree --icons --group-directories-first'
+alias la='eza -a --icons --grid --group-directories-first'
+alias lg='lazygit'
+alias help='tldr'
+alias cat='batcat'
+alias c='clear'
+alias e='exit'
+# alias fman='compgen -c | fzf | xargs man'
+alias fzf-find='fd --type f | fzf'
+alias find='fd'
+alias history='history 1'
+alias mkdir='mkdir -p'
+alias updatedb='sudo updatedb'  # Changed for Ubuntu (no `/usr/libexec/`)
+
+# Git Aliases
+alias gt="git"
+alias ga="git add ."
+alias gs="git status -s"
+alias gc='git commit -m'
+alias glog='git log --oneline --graph --all'
+
+# Load zoxide (better cd)
+eval "$(zoxide init zsh)"
+
+# Set up fzf key bindings and fuzzy completion
+# eval "$(fzf --zsh)"
+
+# Increase History Size
+HISTFILE=~/.zsh_history # History file location
+HISTSIZE=100000         # Number of commands stored in memory
+SAVEHIST=100000         # Number of commands saved in the history file
+
+### Zinit (Plugin Manager)
+if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
+    echo "Installing Zinit..."
+    mkdir -p "$HOME/.local/share/zinit" && chmod g-rwX "$HOME/.local/share/zinit"
+    git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" && \
+        echo "Zinit installed." || echo "Failed to install Zinit."
+fi
+
+source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
+
+# Plugins
+zinit light zsh-users/zsh-autosuggestions       # Suggests commands as you type
+zinit light zsh-users/zsh-syntax-highlighting   # Colors commands in real-time
+zinit light zsh-users/zsh-completions           # Extra shell completions
+zinit light zsh-users/zsh-history-substring-search
+zinit snippet OMZL::git.zsh
+zinit snippet OMZP::git
+
+# Tokyo Night Syntax Highlighting
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
+
+typeset -A ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_STYLES[default]='fg=#c0caf5'        # Blue text
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=#f7768e'  # Red for errors
+ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=#bb9af7'  # Purple for keywords
+ZSH_HIGHLIGHT_STYLES[alias]='fg=#7aa2f7'          # Blue for aliases
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=#7dcfff'        # Cyan for built-ins
+ZSH_HIGHLIGHT_STYLES[function]='fg=#9ece6a'       # Green for functions
+ZSH_HIGHLIGHT_STYLES[command]='fg=#7aa2f7'        # Blue for commands
+
+# History Settings
+setopt APPEND_HISTORY            # Append new commands to history file
+setopt INC_APPEND_HISTORY        # Save commands immediately
+setopt SHARE_HISTORY             # Share history across multiple sessions
+setopt HIST_IGNORE_DUPS          # Ignore duplicate commands
+setopt HIST_IGNORE_ALL_DUPS      # Remove duplicates from full history
+setopt HIST_IGNORE_SPACE         # Ignore commands that start with a space
+setopt HIST_REDUCE_BLANKS        # Remove extra spaces before saving
+setopt HIST_VERIFY               # Prevent running history commands accidentally
+
+alias pbcopy="xclip -selection clipboard"
+alias pbpaste="xclip -selection clipboard -o"
