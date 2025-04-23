@@ -30,6 +30,7 @@ alias find='fd'
 alias history='history 1'
 alias mkdir='mkdir -p'
 alias updatedb='sudo /usr/libexec/locate.updatedb'
+alias sshkit="TERM=xterm-256color ssh"
 
 # git aliases
 alias gt="git"
