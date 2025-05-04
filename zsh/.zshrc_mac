@@ -1,8 +1,5 @@
 # Exports
 export EDITOR=nano
-# export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
-# export PATH="/opt/homebrew/bin:$PATH"
-export EDITOR="code"
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
@@ -24,13 +21,11 @@ alias help='tldr'
 alias cat='bat'
 alias c='clear'
 alias e='exit'
-# alias fman='compgen -c | fzf | xargs man'
 alias fzf-find='fd --type f | fzf'
 alias find='fd'
 alias history='history 1'
 alias mkdir='mkdir -p'
 alias updatedb='sudo /usr/libexec/locate.updatedb'
-alias sshkit="TERM=xterm-256color ssh"
 
 # git aliases
 alias gt="git"
