@@ -34,6 +34,14 @@ alias gs="git status -s"
 alias gc='git commit -m'
 alias glog='git log --oneline --graph --all'
 
+# Brew aliases
+alias brewup="brew update && brew upgrade"
+alias brewclean="brew autoremove && brew cleanup"
+alias brews="brew search"
+alias brewi="brew install"
+alias brewu="brew uninstall"
+alias brewl="brew list"
+
 # lazygit
 alias lg="lazygit"
 
