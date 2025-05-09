@@ -1,92 +1,90 @@
-// Zed settings
-//
-// For information on how to configure Zed, see the Zed
-// documentation: https://zed.dev/docs/configuring-zed
-//
-// To see all of Zed's default settings without changing your
-// custom settings, run the `open default settings` command
-// from the command palette or from `Zed` application menu.
 {
-  "assistant": {
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  },
+
+  // Theme & Visual Settings
+  "theme": {
+    "mode": "dark",
+    "light": "Catppuccin Latte",
+    "dark": "Catppuccin Mocha"
+  },
+  "icon_theme": "Catppuccin Mocha",
+  "font_family": "Fira Code Nerd Font",
+  "ui_font_size": 14,
+  "buffer_font_size": 14,
+
+  // Editor Behavior
+  "remove_trailing_whitespace_on_save": true,
+  "ensure_final_newline_on_save": true,
+  "vim_mode": false,
+  "relative_line_numbers": false,
+  "always_treat_brackets_as_autoclosed": false,
+
+  // Panels Configuration
+  "project_panel": {
+    "dock": "left",
+    "default_width": 225,
+    "button": true,
+    "git_status": true
+  },
+  "terminal": {
+    "dock": "bottom",
+    "button": false,
+    "copy_on_select": true
+  },
+  "agent": {
+    "dock": "right",
+    "default_width": 300,
+    "button": true,
+    "auto_hide": false,
+    "always_allow_tool_actions": true,
     "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-3-7-sonnet-latest"
+      "provider": "copilot_chat",
+      "model": "claude-3-7-sonnet"
     },
     "version": "2"
   },
-  "project_panel": {
-    "dock": "right"
+  "notification_panel": {
+    "dock": "right",
+    "default_width": 200
   },
-  "toolbar": {
-    "breadcrumbs": true,
-    "quick_actions": false,
-    "selections_menu": false
-  },
-  "ui_font_family": "JetBrainsMono Nerd Font",
-  "buffer_font_family": "JetBrainsMono Nerd Font",
-  "terminal": {
-    "font_family": "FiraCode Nerd Font",
-    "font_size": 14
-  },
-  "features": {
-    "edit_prediction_provider": "zed",
-    "copilot": false
-  },
-  // Disabling linked edits because of: https://github.com/zed-industries/zed/issues/25586
-  "linked_edits": false,
-  "hide_mouse": "on_typing_and_movement",
-  // Will be triggered manually with `ctrl-x ctrl-c`.
-  "show_edit_predictions": false,
-  "inlay_hints": {
-    "enabled": false
-  },
-  "icon_theme": "Catppuccin Mocha",
-  "base_keymap": "VSCode",
-  "theme": {
-    "mode": "system",
-    "light": "One Light",
-    "dark": "Catppuccin Mocha"
-  },
-  "telemetry": {
-    "metrics": false,
-    "diagnostics": false
-  },
-  "vim_mode": false,
-  "ui_font_size": 14,
-  "buffer_font_size": 14,
-  "cursor_blink": false,
-  "relative_line_numbers": false,
-  "tab_bar": {
-    "show": true
-  },
-  "scrollbar": {
-    "show": "always"
-  },
-  // Rainbow indentation
-  "indent_guides": {
-    "enabled": true,
-    "coloring": "indent_aware"
-  },
-  "preview_tabs": {
-    "enabled": false
-  },
+
+  // Git Integration
   "git": {
     "git_gutter": "tracked_files",
     "inline_blame": {
-      "enabled": true
+      "enabled": true,
+      "position": "right"
     }
   },
-  "vim": {
-    "use_system_clipboard": "never"
+
+  // Tab Settings
+  "tabs": {
+    "show_icons": true,
+    "git_status": true,
+    "close_position": "right"
   },
-  "languages": {
-    "LaTeX": {
-      "soft_wrap": "preferred_line_length"
+
+  // Extension Settings
+  // "auto_install_extensions": {}
+
+  // Python Settings
+  "language_overrides": {
+    "Python": {
+      "language_server": {
+        "name": "pylsp",
+        "initialization_options": {
+          "pylsp": {
+            "plugins": {
+              "jedi": {
+                "environment": "${workspaceFolder}/venv/bin/python"
+              }
+            }
+          }
+        }
+      }
     }
-  },
-  "wrap_guides": [90],
-  "show_wrap_guides": true,
-  "projects": {
-    "open_in_new_window": true
   }
 }

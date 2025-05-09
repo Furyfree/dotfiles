@@ -3,12 +3,16 @@
     "context": "Workspace",
     "use_key_equivalents": true,
     "bindings": {
-      // Example: Override cmd+t to open terminal
       "cmd-t": "workspace::ToggleBottomDock",
+      "ctrl-t": "workspace::ToggleBottomDock",
       "cmd-shift-t": "workspace::NewTerminal",
+      "ctrl-shift-t": "workspace::NewTerminal",
       "cmd-e": "project_panel::ToggleFocus",
+      "ctrl-e": "project_panel::ToggleFocus",
       "cmd-g": "git_panel::ToggleFocus",
-      "cmd-shift-o": ["projects::OpenRecent", { "create_new_window": true }]
+      "ctrl-g": "git_panel::ToggleFocus",
+      "cmd-shift-o": ["projects::OpenRecent", { "create_new_window": true }],
+      "ctrl-shift-o": ["projects::OpenRecent", { "create_new_window": true }]
     }
   },
   {
@@ -16,16 +20,19 @@
     "use_key_equivalents": true,
     "bindings": {
       "cmd-e": "project_panel::ToggleFocus",
+      "ctrl-e": "project_panel::ToggleFocus",
       "cmd-g": "git_panel::ToggleFocus",
-      "cmd-shift-o": "projects::OpenRecent"
+      "ctrl-g": "git_panel::ToggleFocus",
+      "cmd-shift-o": "projects::OpenRecent",
+      "ctrl-shift-o": "projects::OpenRecent"
     }
   },
   {
     "context": "Editor",
     "use_key_equivalents": true,
     "bindings": {
-      // Example: Add your own motion, edit, or cursor stuff here
-      "cmd-d": "editor::SelectNext"
+      "cmd-d": "editor::SelectNext",
+      "ctrl-d": "editor::SelectNext"
     }
   },
   {
@@ -33,23 +40,24 @@
     "use_key_equivalents": true,
     "bindings": {
       // Example: Clear terminal
-      "cmd-k": "terminal::Clear"
+      "cmd-k": "terminal::Clear",
+      "ctrl-k": "terminal::Clear"
     }
   },
   {
     "context": "Pane",
     "use_key_equivalents": true,
     "bindings": {
-      // Example: switch between open tabs
-      "cmd-1": ["workspace::ActivatePane", 0]
+      "cmd-1": ["workspace::ActivatePane", 0],
+      "ctrl-1": ["workspace::ActivatePane", 0]
     }
   },
   {
     "context": "ProjectPanel",
     "use_key_equivalents": true,
     "bindings": {
-      // Example: create new file or folder
-      "cmd-n": "project_panel::NewFile"
+      "cmd-n": "project_panel::NewFile",
+      "ctrl-n": "project_panel::NewFile"
     }
   }
 ]
