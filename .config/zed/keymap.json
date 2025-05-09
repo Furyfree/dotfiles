@@ -11,6 +11,8 @@
       "ctrl-e": "project_panel::ToggleFocus",
       "cmd-g": "git_panel::ToggleFocus",
       "ctrl-g": "git_panel::ToggleFocus",
+      "cmd-j": "workspace::ToggleRightDock",
+      "ctrl-j": "workspace::ToggleRightDock",
       "cmd-shift-o": ["projects::OpenRecent", { "create_new_window": true }],
       "ctrl-shift-o": ["projects::OpenRecent", { "create_new_window": true }]
     }
