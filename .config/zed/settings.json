@@ -67,6 +67,11 @@
     "close_position": "right"
   },
 
+  // Preview Tabs Settings
+  "preview_tabs": {
+    "enabled": false
+  },
+
   // Extension Settings
   // "auto_install_extensions": {}
 
