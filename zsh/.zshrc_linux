@@ -112,7 +112,6 @@ alias lg='lazygit'
 alias ld='lazydocker'
 
 # Maintenance
-alias maintenance='echo "Er du sikker på du vil køre maintenance? (y/n)"; read confirm; if [[ "$confirm" == "y" ]]; then bash ~/maintenance.sh; else echo "Annulleret."; fi'
 alias updategrub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 
 #######################################
@@ -126,6 +125,16 @@ check_timeshift_sizes() {
   echo "Timeshift snapshot-størrelser:" && \
   sudo du -sh "$MOUNT/timeshift-btrfs/snapshots/"* && \
   sudo umount "$MOUNT"
+}
+
+maintenance() {
+  echo "Er du sikker på du vil køre maintenance? (y/n)"
+  read confirm
+  if [[ "$confirm" == "y" ]]; then
+    bash ~/maintenance.sh
+  else
+    echo "Annulleret."
+  fi
 }
 
 #######################################
