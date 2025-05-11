@@ -128,12 +128,12 @@ check_timeshift_sizes() {
 }
 
 maintenance() {
-  echo "Er du sikker på du vil køre maintenance? (y/n)"
+  echo "Er du sikker på du vil køre maintenance? ([Y]/n)"
   read confirm
-  if [[ "$confirm" == "y" ]]; then
-    bash ~/maintenance.sh
-  else
+  if [[ "${confirm:l}" == "n" ]]; then
     echo "Annulleret."
+  else
+    bash ~/maintenance.sh
   fi
 }
 
