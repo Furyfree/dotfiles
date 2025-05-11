@@ -31,6 +31,14 @@ alias mkdir='mkdir -p'
 alias updatedb='sudo updatedb'  # Changed for Ubuntu (no `/usr/libexec/`)
 alias sshkit="TERM=xterm-256color ssh"
 
+# Maven aliases for Java projects
+alias mvn-run='./mvnw spring-boot:run'
+alias mvn-clean='./mvnw clean'
+alias mvn-test='./mvnw test'
+alias mvn-package='./mvnw package'
+alias mvn-install='./mvnw install'
+alias mvn-compile='./mvnw compile'
+
 # Git Aliases
 alias gt="git"
 alias ga="git add ."

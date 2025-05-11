@@ -8,6 +8,13 @@ eval "$(pyenv init -)"
 # Java
 export PATH="$HOME/.jenv/bin:$PATH"
 eval "$(jenv init -)"
+# Maven aliases for Java projects
+alias mvn-run='./mvnw spring-boot:run'
+alias mvn-clean='./mvnw clean'
+alias mvn-test='./mvnw test'
+alias mvn-package='./mvnw package'
+alias mvn-install='./mvnw install'
+alias mvn-compile='./mvnw compile'
 
 # Starship
 eval "$(starship init zsh)"
