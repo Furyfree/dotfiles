@@ -12,6 +12,10 @@ end
 
 config.automatically_reload_config = true
 config.scrollback_lines = 10000
+-- config.window_decorations = "TITLE|RESIZE"
+-- config.window_decorations = "INTEGRATED_BUTTONS|RESIZE"
+
+
 
 -- === Font ===
 config.font = wezterm.font_with_fallback {
