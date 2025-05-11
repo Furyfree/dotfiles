@@ -92,18 +92,6 @@ zinit snippet OMZP::git
 zinit light Aloxaf/fzf-tab
 zinit load junegunn/fzf
 
-# Tokyo Night Syntax Highlighting
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
-
-typeset -A ZSH_HIGHLIGHT_STYLES
-ZSH_HIGHLIGHT_STYLES[default]='fg=#c0caf5'        # Blue text
-ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=#f7768e'  # Red for errors
-ZSH_HIGHLIGHT_STYLES[reserved-word]='fg=#bb9af7'  # Purple for keywords
-ZSH_HIGHLIGHT_STYLES[alias]='fg=#7aa2f7'          # Blue for aliases
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=#7dcfff'        # Cyan for built-ins
-ZSH_HIGHLIGHT_STYLES[function]='fg=#9ece6a'       # Green for functions
-ZSH_HIGHLIGHT_STYLES[command]='fg=#7aa2f7'        # Blue for commands
-
 setopt APPEND_HISTORY            # Append new commands to history file
 setopt INC_APPEND_HISTORY        # Save commands immediately
 setopt SHARE_HISTORY             # Share history across multiple sessions
