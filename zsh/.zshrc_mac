@@ -1,6 +1,7 @@
 # Exports
 export EDITOR=nano
 export PATH="$HOME/.pyenv/bin:$PATH"
+export FZF_CTRL_R_OPTS="--preview 'bat <<< {}' --preview-window=down:3:wrap"
 eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 # eval "$(pyenv virtualenv-init -)"
@@ -86,6 +87,8 @@ zinit light zsh-users/zsh-completions           # Extra shell completions
 zinit light zsh-users/zsh-history-substring-search
 zinit snippet OMZL::git.zsh
 zinit snippet OMZP::git
+zinit light Aloxaf/fzf-tab
+zinit load junegunn/fzf
 
 # Tokyo Night Syntax Highlighting
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
