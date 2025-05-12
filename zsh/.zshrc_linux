@@ -99,13 +99,20 @@ alias gs="git status -s"
 alias gc='git commit -m'
 alias glog='git log --oneline --graph --all'
 
-# Maven
-alias mvn-run='./mvnw spring-boot:run'
-alias mvn-clean='./mvnw clean'
-alias mvn-test='./mvnw test'
-alias mvn-package='./mvnw package'
-alias mvn-install='./mvnw install'
-alias mvn-compile='./mvnw compile'
+# Generic Maven aliases
+alias mvn-build='mvn clean package'
+alias mvn-run='java -cp target/classes $(grep -oPm1 "(?<=<mainClass>)[^<]+" pom.xml)'
+alias mvn-clean='mvn clean'
+alias mvn-test='mvn test'
+alias mvn-install='mvn install'
+
+# Spring Boot Maven (uses ./mvnw)
+alias sb-run='./mvnw spring-boot:run'
+alias sb-clean='./mvnw clean'
+alias sb-test='./mvnw test'
+alias sb-package='./mvnw package'
+alias sb-install='./mvnw install'
+alias sb-compile='./mvnw compile'
 
 # Docker
 alias lg='lazygit'
