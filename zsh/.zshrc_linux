@@ -118,6 +118,12 @@ alias sb-compile='./mvnw compile'
 alias lg='lazygit'
 alias ld='lazydocker'
 
+# Brightness
+alias bright25='ddcutil --bus=14 setvcp 10 25 && ddcutil --bus=15 setvcp 10 25'
+alias bright50='ddcutil --bus=14 setvcp 10 50 && ddcutil --bus=15 setvcp 10 50'
+alias bright75='ddcutil --bus=14 setvcp 10 75 && ddcutil --bus=15 setvcp 10 75'
+alias bright100='ddcutil --bus=14 setvcp 10 100 && ddcutil --bus=15 setvcp 10 100'
+
 # Maintenance
 alias updategrub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 
