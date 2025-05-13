@@ -1,0 +1,10 @@
+{
+  "layer": "overlay",
+  "position": "top-right",
+  "control-center-margin-top": 30,
+  "control-center-width": 400,
+  "control-center-height": 500,
+  "notification-window-width": 380,
+  "notification-icon-size": 40,
+  "theme": "style.css"
+}
