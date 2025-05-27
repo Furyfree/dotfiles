@@ -117,9 +117,9 @@
         ];
         # Mac App Store apps
         masApps = {
-          # "Xcode" = 497799835;
-          # "WireGuard" = 1451685025;
-          # "1Password for Safari" = 1569813296;
+          "Xcode" = 497799835;
+          "WireGuard" = 1451685025;
+          "1Password for Safari" = 1569813296;
           # "Final Cut Pro" = 424389933;
         };
       };
