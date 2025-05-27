@@ -22,7 +22,7 @@
     };
   };
 
-  outputs = { self, nix-darwin, nixpkgs, nix-homebrew, homebrew-core, homebrew-cask, ... }@inputs:
+  outputs = { self, nix-darwin, nixpkgs, nix-homebrew, homebrew-core, homebrew-cask, ... }:
   let
     system = "aarch64-darwin";
     user = "pby";
@@ -30,6 +30,7 @@
     configuration = { pkgs, ... }: {
       environment.systemPackages = with pkgs; [
         nixd
+        nil
         # Packages are now managed through Homebrew
         # Add other packages as needed
       ];
