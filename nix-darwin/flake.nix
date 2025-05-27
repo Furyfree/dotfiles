@@ -114,6 +114,7 @@
           "wireshark"                    # Network analyzer
           "oracle-jdk@21"                # Java Development Kit (LTS version)
           "github"                       # GitHub Desktop client
+          "hyperkey"                     # Keyboard customization
         ];
         # Mac App Store apps
         masApps = {
@@ -193,14 +194,14 @@
           ShowDate = 1;                   # Show compact date
           ShowSeconds = true;             # Show seconds
         };
-        
+
         # Display and brightness settings
         CustomUserPreferences = {
           # Prevent display from automatically dimming on battery
           "com.apple.BezelServices" = {
             "kDim" = false;
           };
-          
+
           # Disable automatic brightness adjustment
           "com.apple.CoreBrightness" = {
             "CBDisplaySelfSustainLevel" = 0;
@@ -208,13 +209,13 @@
               "CBAdaptiveDisplayEnabled" = 0;
             };
           };
-          
+
           # Disable ambient light sensor adjustments
           "com.apple.iokit.AmbientLightSensor" = {
             "Automatic Display Enabled" = false;
             "Automatic Keyboard Enabled" = false;
           };
-          
+
           # Night Shift configuration
           "com.apple.CoreBrightness" = {
             "CBBlueLightReductionCCTTarget" = 2700; # Warmest setting (~2700K)
