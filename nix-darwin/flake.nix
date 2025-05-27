@@ -29,6 +29,7 @@
 
     configuration = { pkgs, ... }: {
       environment.systemPackages = with pkgs; [
+        nixd
         # Packages are now managed through Homebrew
         # Add other packages as needed
       ];
@@ -113,6 +114,7 @@
           "utm"                          # Virtual machines UI
           "wireshark"                    # Network analyzer
           "oracle-jdk@21"                # Java Development Kit (LTS version)
+          "oracle-jdk"                   # Java Development Kit (latest version)
           "github"                       # GitHub Desktop client
           "hyperkey"                     # Keyboard customization
         ];
