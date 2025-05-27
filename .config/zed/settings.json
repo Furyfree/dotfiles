@@ -80,6 +80,9 @@
   // "restore_on_startup": "last_session",
   // "restore_on_startup": "none",
 
+  // Folder opening behavior - "window" will open folders in new windows
+  "folder_opener": "window",
+
   // Extension Settings
   // "auto_install_extensions": {}
 
