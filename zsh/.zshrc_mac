@@ -112,3 +112,9 @@ alias brewl="brew list"
 
 # Lazy
 alias lg="lazygit"
+
+# Nix
+alias drs='sudo nix run github:lnl7/nix-darwin --extra-experimental-features nix-command --extra-experimental-features flakes -- switch --flake ~/nix-darwin'
+alias drb='darwin-rebuild build --flake ~/nix-darwin'
+alias dre='vim ~/nix-darwin/flake.nix'
+alias drc='darwin-rebuild changelog'
