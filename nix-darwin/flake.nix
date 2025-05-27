@@ -78,7 +78,7 @@
           "1password"                    # Password manager
           "raycast"                      # Launcher
           "alt-tab"                      # Window switcher
-          "cleanshot"                    # Screenshot tool
+          # "cleanshot"                    # Screenshot tool
           "docker"                       # Containerization
           "font-fira-code-nerd-font"     # Developer font
           "hammerspoon"                  # Automation
@@ -120,7 +120,9 @@
           "Xcode" = 497799835;
           "WireGuard" = 1451685025;
           "1Password for Safari" = 1569813296;
-          # "Final Cut Pro" = 424389933;
+          "Final Cut Pro" = 424389933;
+          "rcmd" = 1596283165;
+          "CrystalFetch ISO Downloader" = 6454431289;
         };
       };
 
@@ -169,7 +171,7 @@
           "com.apple.keyboard.fnState" = false; # Use Mac-specific functions for F-keys
           "com.apple.sound.beep.volume" = 0.0; # Silent alert sound
           "com.apple.sound.beep.feedback" = 0; # Disable sound on volume change
-          "com.apple.swipescrolldirection" = false; # Disable natural scrolling
+          "com.apple.swipescrolldirection" = true; # Disable natural scrolling
           AppleKeyboardUIMode = 3;        # Full keyboard access
           InitialKeyRepeat = 15;          # Shorter delay for key repeat
           KeyRepeat = 2;                  # Faster key repeat
@@ -181,7 +183,7 @@
         trackpad = {
           Clicking = true;                # Enable tap to click
           TrackpadRightClick = true;      # Enable two-finger right click
-          TrackpadThreeFingerDrag = true; # Enable three-finger drag
+          TrackpadThreeFingerDrag = false; # Enable three-finger drag
         };
 
         # Menu bar settings
