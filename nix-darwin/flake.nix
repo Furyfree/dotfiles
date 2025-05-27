@@ -193,6 +193,42 @@
           ShowDate = 1;                   # Show compact date
           ShowSeconds = true;             # Show seconds
         };
+        
+        # Display and brightness settings
+        CustomUserPreferences = {
+          # Prevent display from automatically dimming on battery
+          "com.apple.BezelServices" = {
+            "kDim" = false;
+          };
+          
+          # Disable automatic brightness adjustment
+          "com.apple.CoreBrightness" = {
+            "CBDisplaySelfSustainLevel" = 0;
+            "CBUser-0" = {
+              "CBAdaptiveDisplayEnabled" = 0;
+            };
+          };
+          
+          # Disable ambient light sensor adjustments
+          "com.apple.iokit.AmbientLightSensor" = {
+            "Automatic Display Enabled" = false;
+            "Automatic Keyboard Enabled" = false;
+          };
+          
+          # Night Shift configuration
+          "com.apple.CoreBrightness" = {
+            "CBBlueLightReductionCCTTarget" = 2700; # Warmest setting (~2700K)
+            "CBBlueLightReductionStatus" = {
+              "AutoBlueLight" = true; # Enable automatic Night Shift
+              "BlueLightReductionEnabled" = true; # Enable Night Shift
+              "BlueLightReductionMode" = 2; # 0: Off, 1: Manual, 2: Sunrise/Sunset
+              "BlueLightReductionSchedule" = {
+                "DawnTime" = 0; # Sunrise time (0 = use actual sunrise)
+                "DuskTime" = 0; # Sunset time (0 = use actual sunset)
+              };
+            };
+          };
+        };
       };
 
       # Keyboard settings
