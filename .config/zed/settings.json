@@ -4,6 +4,11 @@
     "metrics": false
   },
 
+  // Disable inline AI completions
+  "copilot": {
+    "enable_completions": false
+  },
+
   // Theme & Visual Settings
   "theme": {
     "mode": "dark",
@@ -42,7 +47,6 @@
     "dock": "right",
     "default_width": 300,
     "button": true,
-    "auto_hide": false,
     "always_allow_tool_actions": true,
     "default_model": {
       "provider": "copilot_chat",
