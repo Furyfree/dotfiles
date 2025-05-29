@@ -1,0 +1,206 @@
+Pacman packages:
+1password
+1password-cli
+adwaita-dark
+base
+base-devel
+bat
+blueman
+bridge-utils
+brightnessctl
+btrfs-progs
+catppuccin-gtk-theme-mocha
+coolercontrol
+coolercontrol-liqctld
+cpupower
+ddcutil
+dkms
+dmidecode
+dnsmasq
+docker
+docker-buildx
+docker-compose
+edk2-ovmf
+efibootmgr
+eww
+eza
+fastfetch
+firefox
+flatpak
+fzf
+gammastep
+gdm
+gimp
+git
+github-desktop-bin
+gnome-keyring
+gnome-software
+gnome-themes-extra
+gnome-tweaks
+grim
+grimblast-git
+grub
+gst-plugin-pipewire
+gum
+htop
+hypridle
+hyprland
+hyprlock
+hyprpaper
+hyprpicker
+hyprshot
+hyprswitch
+imv
+intel-ucode
+iw
+iwd
+jdk-openjdk
+jdk21-openjdk
+jetbrains-toolbox
+kanata
+kvantum
+lazydocker
+less
+libpulse
+libreoffice-fresh
+libva-nvidia-driver
+libvirt
+linux
+linux-firmware
+linux-headers
+liquidctl
+loupe
+ly
+maven
+mpv
+nano
+nautilus
+neovim
+network-manager-applet
+networkmanager
+nvidia-dkms
+nvidia-settings
+nvtop
+obs-studio
+openbsd-netcat
+os-prober
+pacman-contrib
+pandoc-bin
+papirus-icon-theme
+pavucontrol
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+polkit-kde-agent
+preload
+proton-mail
+proton-vpn-gtk-app
+qemu-full
+qpdf
+qt5-wayland
+qt5ct
+qt6-wayland
+qt6ct
+ripgrep
+signal-desktop
+slurp
+smartmontools
+sof-firmware
+steam
+stow
+swaync
+swtpm
+tcl
+texlive-basic
+texlive-bibtexextra
+texlive-binextra
+texlive-context
+texlive-fontsextra
+texlive-fontsrecommended
+texlive-fontutils
+texlive-formatsextra
+texlive-games
+texlive-humanities
+texlive-latex
+texlive-latexextra
+texlive-latexrecommended
+texlive-luatex
+texlive-mathscience
+texlive-metapost
+texlive-music
+texlive-pictures
+texlive-plaingeneric
+texlive-pstricks
+texlive-publishers
+texlive-xetex
+timeshift
+tk
+tmux
+vde2
+vim
+virt-manager
+virt-viewer
+virtio-win
+visual-studio-code-bin
+waybar
+wezterm
+wget
+wireless_tools
+wireplumber
+wlogout
+wofi
+wootility5-appimage
+xclip
+xdg-desktop-portal-gnome
+xdg-desktop-portal-hyprland
+xdg-user-dirs
+xdg-user-dirs-gtk
+xdg-utils
+xorg-server
+xorg-server-devel
+xorg-xhost
+xorg-xinit
+yay
+yay-debug
+yazi
+zellij
+zen-browser-bin
+zoxide
+zram-generator
+zsh
+
+AUR packages:
+1password 8.10.76-34
+1password-cli 2.31.0-1
+adwaita-dark 1.0-1
+catppuccin-gtk-theme-mocha 1.0.3-1
+coolercontrol 2.1.0-1
+coolercontrol-liqctld 2.1.0-1
+coolercontrold 2.1.0-1
+eww 0.6.0-1
+github-desktop-bin 3.4.13_linux1-1
+grimblast-git r127.bc2ad24-1
+hyprshot 1.3.0-2
+hyprswitch 3.3.2-1
+jetbrains-toolbox 2.6.2.41321-1
+kanata 1.8.1-1
+lazydocker 0.24.1-1
+pandoc-bin 3.7.0.1-1
+preload 0.6.4-9
+proton-mail 1.8.0-1
+virtio-win 0.1.271.1-1
+visual-studio-code-bin 1.100.2-1
+wlogout 1.2.2-0
+wootility5-appimage 5.0.6-1
+yay 12.5.0-1
+yay-debug 12.5.0-1
+zen-browser-bin 1.12.8b-1
+
+Flatpak apps:
+com.ml4w.hyprlandsettings
+com.spotify.Client
+md.obsidian.Obsidian
+
+Snap packages:
+No Snap packages found
