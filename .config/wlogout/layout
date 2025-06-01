@@ -1,7 +1,7 @@
 {
     "label" : "lock",
     "action" : "hyprlock",
-    "text" : "Lock [E}",
+    "text" : "Lock [E]",
     "keybind" : "e"
 },
 {
