@@ -43,7 +43,7 @@
     "copy_on_select": true
   },
   "agent": {
-    "default_profile": "ask",
+    "default_profile": "minimal",
     "dock": "right",
     "default_width": 300,
     "button": true,
