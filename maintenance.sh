@@ -14,11 +14,11 @@ echo "===== Arch System Maintenance Startet: $(date) ====="
 echo "Tager Timeshift snapshot før evt. vedligeholdelse..."
 sudo timeshift --create --comments "Pre-maintenance snapshot" --tags D
 
-echo "Opdaterer systemet (pacman og AUR via yay)..."
-if command -v yay >/dev/null 2>&1; then
-  yay -Syu --noconfirm
+echo "Opdaterer systemet (pacman og AUR via paru)..."
+if command -v paru >/dev/null 2>&1; then
+  paru -Syu --noconfirm
 else
-  echo "⚠️  yay ikke fundet — kun pacman opdateres"
+  echo "⚠️  paru ikke fundet — kun pacman opdateres"
   sudo pacman -Syu --noconfirm
 fi
 
