@@ -86,6 +86,9 @@ alias help='tldr'
 alias history='history 1'
 alias mkdir='mkdir -p'
 
+# DTU VPN
+alias dtuvpn='sudo openconnect --useragent=AnyConnect --user=s224338 vpn.dtu.dk'
+
 # Finder and SSH
 alias fman='compgen -c | fzf | xargs man'
 alias fzf-find='fd --type f | fzf'
