@@ -61,19 +61,20 @@ config.colors = {
         background = "#1e1e2e",
 
         active_tab = {
-            bg_color = "#89b4fa",
-            fg_color = "#1e1e2e",
+            bg_color = "#1e1e2e", -- Samme farve som terminal baggrund
+            fg_color = "#cdd6f4", -- Lysere tekst for bedre kontrast
             intensity = "Bold",
+            underline = "Single", -- Underline for at markere aktiv tab
         },
 
         inactive_tab = {
-            bg_color = "#313244",
-            fg_color = "#cdd6f4",
+            bg_color = "#282838", -- Mere neutral grå farve
+            fg_color = "#a0a0b0", -- Dæmpet tekst farve
         },
 
         inactive_tab_hover = {
-            bg_color = "#89dceb",
-            fg_color = "#1e1e2e",
+            bg_color = "#353545", -- Mørkere grå ved hover
+            fg_color = "#cdd6f4", -- Lysere tekst ved hover
             italic = true,
         },
 
@@ -83,8 +84,8 @@ config.colors = {
         },
 
         new_tab_hover = {
-            bg_color = "#89dceb",
-            fg_color = "#1e1e2e",
+            bg_color = "#353545",
+            fg_color = "#cdd6f4",
         },
     },
 }
