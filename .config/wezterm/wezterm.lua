@@ -92,12 +92,34 @@ config.colors = {
 
 -- === Icon Tab Titles ===
 wezterm.on("format-tab-title", function(tab)
+    -- Get the current working directory
+    local process_info = tab.active_pane.user_vars
+    local cwd = tab.active_pane.current_working_dir
     local title = tab.active_pane.title
-    local icon = ""
+    local folder_name = title
+    
+    -- Extract folder name from the path if available
+    if cwd then
+        -- Convert URI to path if needed
+        local path = cwd.file_path or cwd.path or ""
+        
+        -- Extract the last part of the path (folder name)
+        if path and path ~= "" then
+            -- Remove trailing slash if present
+            if path:sub(-1) == "/" then
+                path = path:sub(1, -2)
+            end
+            
+            -- Get the last component of the path
+            folder_name = path:match("([^/]+)$") or title
+        end
+    end
+    
+    local icon = ""
     if tab.is_active then
-        return { { Text = "  " .. icon .. " " .. title .. "  " } }
+        return { { Text = "  " .. icon .. " " .. folder_name .. "  " } }
     else
-        return { { Text = "  " .. title .. "  " } }
+        return { { Text = "  " .. folder_name .. "  " } }
     end
 end)
 
