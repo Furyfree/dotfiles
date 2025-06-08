@@ -118,3 +118,8 @@ alias drs='sudo nix run github:lnl7/nix-darwin --extra-experimental-features nix
 alias drb='darwin-rebuild build --flake ~/nix-darwin'
 alias dre='vim ~/nix-darwin/flake.nix'
 alias drc='darwin-rebuild changelog'
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/pby/.lmstudio/bin"
+# End of LM Studio CLI section
+
