@@ -118,6 +118,8 @@
           "oracle-jdk"                   # Java Development Kit (latest version)
           "github"                       # GitHub Desktop client
           "hyperkey"                     # Keyboard customization
+          "lm-studio"                    # Language model studio
+          "karabiner-elements"           # Keyboard customization
         ];
         # Mac App Store apps
         masApps = {
