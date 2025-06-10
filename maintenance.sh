@@ -18,7 +18,7 @@ echo "Opdaterer systemet (pacman og AUR via paru)..."
 if command -v paru >/dev/null 2>&1; then
   paru -Syu --noconfirm
 else
-  echo "⚠️  paru ikke fundet — kun pacman opdateres"
+  echo "paru ikke fundet — kun pacman opdateres"
   sudo pacman -Syu --noconfirm
 fi
 
