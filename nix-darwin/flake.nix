@@ -82,6 +82,7 @@
               "stow" # Software organizer
               "yazi" # Terminal file manager
               "postgresql@16" # PostgreSQL database (LTS version)
+              # "wireshark" # Network analyzer
             ];
             casks = [
               "zen" # Browser
@@ -124,7 +125,7 @@
               "signal" # Secure messaging
               "spotify" # Music streaming
               "utm" # Virtual machines UI
-              "wireshark" # Network analyzer
+              "wireshark-app" # Network analyzer
               "oracle-jdk@21" # Java Development Kit (LTS version)
               "oracle-jdk" # Java Development Kit (latest version)
               "github" # GitHub Desktop client
