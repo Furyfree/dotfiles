@@ -117,9 +117,9 @@ alias lg="lazygit"
 alias drs='sudo nix run github:lnl7/nix-darwin --extra-experimental-features nix-command --extra-experimental-features flakes -- switch --flake ~/nix-darwin'
 alias drb='darwin-rebuild build --flake ~/nix-darwin'
 alias dre='vim ~/nix-darwin/flake.nix'
-alias drc='darwin-rebuild changelog'
+alias drc='sudo darwin-rebuild check --flake ~/nix-darwin'
+alias dru='sudo darwin-rebuild switch --flake ~/nix-darwin && brew update && brew upgrade'
 
 # Added by LM Studio CLI (lms)
 export PATH="$PATH:/Users/pby/.lmstudio/bin"
 # End of LM Studio CLI section
-
