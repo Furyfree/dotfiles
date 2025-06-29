@@ -104,11 +104,15 @@ alias mvn-compile='./mvnw compile'
 
 # Homebrew
 alias brewup="brew update && brew upgrade"
-alias brewclean="brew autoremove && brew cleanup"
+alias brewclean="brew autoremove && brew cleanup -s --prune=all"
 alias brews="brew search"
 alias brewi="brew install"
-alias brewu="brew uninstall"
+alias brewrm="brew uninstall"
 alias brewl="brew list"
+alias brewoutdated="brew outdated"
+alias brewuses="brew uses --installed"
+alias brewd="brew doctor"
+alias brewdeps="brew deps --tree"
 
 # Lazy
 alias lg="lazygit"
