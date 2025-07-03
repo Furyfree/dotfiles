@@ -1,0 +1,94 @@
+[user]
+    name = Patrick Byrne
+    email = pby@byrne.dk
+
+[commit]
+    template = ~/.config/git/template
+    verbose = true
+
+[core]
+    autocrlf = input
+    compression = 9
+    # whitespace = error
+    preloadindex = true
+
+[blame]
+    coloring = highlightRecent
+    date = relative
+
+[diff]
+    context = 3
+    renames = copies
+    interHunkContext = 10
+
+[init]
+   # defaultBranch = dev
+
+[log]
+    abbrevCommit = true
+    graphColors = blue,yellow,cyan,magenta,green,red
+
+[status]
+    branch = true
+    short = true
+    showStash = true
+    showUntrackedFiles = all
+
+[pager]
+    branch = false
+    tag = false
+    diff = diff-so-fancy | $PAGER
+
+[push]
+    autoSetupRemote = true
+    default = current
+    followTags = true
+
+[pull]
+    rebase = true
+    default = current
+
+[submodule]
+    fetchJobs = 16
+
+[rebase]
+    autoStash = true
+    missingCommitsCheck = warn
+
+[pack]
+    # threads = 0
+    # windowMemory = 1g
+    # packSizeLimit = 1g
+
+[transfer]
+    fsckObjects = true
+
+[receive]
+    fsckObjects = true
+
+[fetch]
+    fsckObjects = true
+
+[branch]
+    sort = -committerdate
+
+[tag]
+    sort = -taggerdate
+
+[color "blame"]
+[color "branch"]
+[color "diff"]
+[color.decorate]
+
+[interactive]
+    diffFilter = diff-so-fancy --patch
+
+[diff-so-fancy]
+    markEmptyLines = false
+
+[url "git@github.com:"]
+    insteadOf = "gh:"
+
+
+[url "git@github.com:Furyfree/"]
+    insteadOf = "pby:"
