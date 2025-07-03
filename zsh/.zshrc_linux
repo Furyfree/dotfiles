@@ -61,8 +61,14 @@ zinit light Aloxaf/fzf-tab
 #######################################
 # FZF CONFIG
 #######################################
+source <(fzf --zsh)
 [ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
 [ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
+
+export FZF_CTRL_R_OPTS="
+  --bind 'ctrl-y:execute-silent(echo -n {2..} | wl-copy)+abort'
+  --color header:italic
+  --header 'Press CTRL-Y to copy command into clipboard'"
 
 #######################################
 # ZOXIDE (better cd)
