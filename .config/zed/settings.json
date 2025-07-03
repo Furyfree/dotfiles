@@ -99,6 +99,34 @@
   // Extension Settings
   // "auto_install_extensions": {}
 
+  // LSP Settings
+  "lsp": {
+    "jdtls": {
+      "initialization_options": {
+        "settings": {
+          "java": {
+            "import": {
+              "maven": {
+                "enabled": true
+              },
+              "gradle": {
+                "enabled": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "java": {
+      "initialization_options": {
+        "settings": {
+          "java.import.maven.enabled": true,
+          "java.import.gradle.enabled": false
+        }
+      }
+    }
+  },
+
   // Python Settings
   "language_overrides": {
     "Python": {
