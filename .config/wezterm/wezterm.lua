@@ -22,8 +22,12 @@ config.font = wezterm.font_with_fallback {
     "FiraCode Nerd Font",
     "JetBrainsMono Nerd Font",
     "SF Mono",
+    "Noto Color Emoji",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
 }
 config.font_size = config.font_size or 14.0
+config.warn_about_missing_glyphs = false
 
 -- === Theme ===
 config.color_scheme = "Catppuccin Mocha"
