@@ -25,7 +25,13 @@
     "dark": "Catppuccin Mocha"
   },
   "icon_theme": "Catppuccin Mocha",
-  "font_family": ["Fira Code Nerd Font", "FiraCode Nerd Font"],
+  "font_family": [
+    "FiraCode Nerd Font",
+    "JetBrainsMono Nerd Font",
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Noto Color Emoji"
+  ],
   "ui_font_size": 14,
   "buffer_font_size": 14,
   // Line height options: "comfortable" (1.618), "standard" (1.3), or { "custom": 1.5 }
