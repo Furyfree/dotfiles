@@ -1,21 +1,41 @@
-dtumathtools # Comment out for 3.13
-unitgrade
-matplotlib
+# Matematik & Statistik
 numpy
-sympy
 scipy
+sympy
 pandas
-django
+statsmodels
+
+# DTU Specific Packages
+dtumathtools # Comment out for Python 3.13
+unitgrade
+
+# Machine Learning & AI
+scikit-learn # Comment out for Python 3.13
+tensorflow # Comment out for Python 3.13
+torch
+
+# Data Visualisering
+matplotlib
+seaborn
+
+# Web & API frameworks
 fastapi
 flask
+django
+httpx
+requests
+
+# GUI & Packaging
 pyqt6
 pyinstaller
-requests
-scikit-learn # Comment out for 3.13
-tensorflow # Comment out for 3.13
-torch
-statsmodels
+
+# Jupyter & Notebooks
 notebook
 jupyterlab
-seaborn
+
+# FastAPI + Database dependencies
+uvicorn[standard]
+sqlalchemy
 alembic
+psycopg2-binary
+pydantic
