@@ -1,0 +1,21 @@
+dtumathtools # Comment out for 3.13
+unitgrade
+matplotlib
+numpy
+sympy
+scipy
+pandas
+django
+fastapi
+flask
+pyqt6
+pyinstaller
+requests
+scikit-learn # Comment out for 3.13
+tensorflow # Comment out for 3.13
+torch
+statsmodels
+notebook
+jupyterlab
+seaborn
+alembic
