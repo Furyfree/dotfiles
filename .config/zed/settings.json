@@ -30,7 +30,9 @@
     "JetBrainsMono Nerd Font",
     "Apple Color Emoji",
     "Segoe UI Emoji",
-    "Noto Color Emoji"
+    "Noto Color Emoji",
+    "Font Awesome 6 Free",
+    "Font Awesome 6 Brands"
   ],
   "ui_font_size": 14,
   "buffer_font_size": 14,
