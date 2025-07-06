@@ -148,7 +148,7 @@
   "menus.clock.weather.location": "55.8125,12.4688",
   "menus.clock.time.military": true,
   "menus.clock.time.hideSeconds": true,
-  "menus.clock.weather.enabled": true,
+  "menus.clock.weather.enabled": false,
   "menus.clock.weather.unit": "metric",
   "menus.clock.weather.interval": 900000,
   "notifications.active_monitor": false,
