@@ -1,0 +1,157 @@
+{
+  "bar.customModules.storage.paths": [
+    "/"
+  ],
+  "theme.font.weight": 500,
+  "theme.font.size": "1rem",
+  "theme.font.name": "FiraCode Nerd Font",
+  "theme.font.label": "FiraCode Nerd Font Bold",
+  "theme.font.style": "normal",
+  "theme.bar.scaling": 90,
+  "theme.notification.scaling": 100,
+  "theme.bar.floating": false,
+  "theme.bar.enableShadow": false,
+  "bar.workspaces.show_icons": false,
+  "bar.workspaces.show_numbered": true,
+  "bar.workspaces.workspaceMask": false,
+  "bar.workspaces.showWsIcons": false,
+  "bar.workspaces.showApplicationIcons": false,
+  "bar.workspaces.applicationIconOncePerWorkspace": true,
+  "bar.workspaces.showAllActive": true,
+  "bar.workspaces.workspaces": 1,
+  "theme.bar.buttons.windowtitle.enableBorder": false,
+  "bar.windowtitle.custom_title": true,
+  "bar.windowtitle.label": true,
+  "bar.windowtitle.icon": true,
+  "bar.windowtitle.truncation": true,
+  "theme.bar.buttons.volume.enableBorder": false,
+  "theme.bar.buttons.network.enableBorder": false,
+  "bar.battery.label": true,
+  "theme.bar.buttons.modules.ram.enableBorder": false,
+  "theme.bar.location": "top",
+  "bar.autoHide": "never",
+  "theme.bar.buttons.enableBorders": false,
+  "bar.workspaces.monitorSpecific": true,
+  "theme.bar.menus.monochrome": false,
+  "theme.bar.transparent": false,
+  "menus.transition": "crossfade",
+  "bar.layouts": {
+    "0": {
+      "left": [
+        "dashboard",
+        "workspaces",
+        "windowtitle"
+      ],
+      "middle": [
+        "clock"
+      ],
+      "right": [
+        "updates",
+        "volume",
+        "network",
+        "ram",
+        "cpu",
+        "bluetooth",
+        "systray",
+        "notifications"
+      ]
+    },
+    "1": {
+      "left": [
+        "dashboard",
+        "workspaces",
+        "windowtitle"
+      ],
+      "middle": [
+        "clock"
+      ],
+      "right": [
+        "updates",
+        "volume",
+        "network",
+        "ram",
+        "cpu",
+        "bluetooth",
+        "systray",
+        "notifications"
+      ]
+    },
+    "2": {
+      "left": [
+        "dashboard",
+        "workspaces",
+        "windowtitle"
+      ],
+      "middle": [
+        "clock"
+      ],
+      "right": [
+        "updates",
+        "volume",
+        "network",
+        "ram",
+        "cpu",
+        "bluetooth",
+        "systray",
+        "notifications"
+      ]
+    }
+  },
+  "theme.bar.menus.popover.scaling": 90,
+  "theme.tooltip.scaling": 90,
+  "theme.bar.menus.menu.power.scaling": 90,
+  "theme.bar.menus.menu.notifications.scaling": 90,
+  "theme.bar.menus.menu.clock.scaling": 90,
+  "theme.bar.menus.menu.battery.scaling": 90,
+  "theme.bar.menus.menu.bluetooth.scaling": 90,
+  "theme.bar.menus.menu.network.scaling": 90,
+  "theme.bar.menus.menu.volume.scaling": 90,
+  "theme.bar.menus.menu.media.scaling": 90,
+  "theme.bar.menus.menu.dashboard.confirmation_scaling": 90,
+  "theme.bar.menus.menu.dashboard.scaling": 90,
+  "theme.osd.scaling": 90,
+  "menus.dashboard.shortcuts.left.shortcut2.command": "spotify-launcher",
+  "menus.dashboard.shortcuts.left.shortcut4.command": "rofi -show drun",
+  "menus.dashboard.directories.left.directory1.command": "nautilus \"Downloads\"",
+  "menus.dashboard.directories.left.directory2.command": "nautilus \"Videos\"",
+  "menus.dashboard.directories.left.directory3.command": "nautilus \"git\"",
+  "menus.dashboard.directories.left.directory3.label": "󰚝 Git",
+  "menus.dashboard.directories.right.directory1.command": "nautilus \"Documents\"",
+  "menus.dashboard.directories.right.directory2.command": "nautilus \"Pictures\"",
+  "menus.dashboard.directories.right.directory3.command": "nautilus",
+  "menus.dashboard.shortcuts.right.shortcut3.command": "bash -c \"/usr/share/hyprpanel/scripts/snapshot.sh\"",
+  "menus.dashboard.shortcuts.left.shortcut1.icon": "󰇩",
+  "menus.dashboard.shortcuts.left.shortcut1.tooltip": "Microsoft Edge",
+  "menus.dashboard.shortcuts.left.shortcut1.command": "microsoft-edge-stable",
+  "notifications.autoDismiss": true,
+  "theme.osd.orientation": "vertical",
+  "theme.osd.location": "right",
+  "menus.dashboard.shortcuts.left.shortcut4.icon": "",
+  "menus.dashboard.shortcuts.left.shortcut4.tooltip": "Search Apps",
+  "menus.dashboard.shortcuts.right.shortcut1.command": "sleep 0.5 && hyprpicker -a",
+  "menus.dashboard.shortcuts.right.shortcut1.tooltip": "Color Picker",
+  "menus.dashboard.shortcuts.right.shortcut3.icon": "󰄀",
+  "menus.dashboard.shortcuts.right.shortcut3.tooltip": "Screenshot",
+  "menus.dashboard.powermenu.avatar.image": "/home/pby/Pictures/Profile_Picture.jpg",
+  "menus.dashboard.shortcuts.enabled": false,
+  "menus.dashboard.directories.enabled": false,
+  "menus.dashboard.shortcuts.right.shortcut1.icon": "",
+  "menus.dashboard.shortcuts.left.shortcut3.tooltip": "Discord",
+  "menus.dashboard.shortcuts.left.shortcut3.command": "discord",
+  "menus.dashboard.shortcuts.left.shortcut3.icon": "",
+  "menus.dashboard.shortcuts.left.shortcut2.tooltip": "Spotify",
+  "menus.dashboard.shortcuts.left.shortcut2.icon": "",
+  "menus.dashboard.controls.enabled": true,
+  "bar.customModules.ram.labelType": "used/total",
+  "bar.customModules.updates.label": true,
+  "bar.customModules.updates.autoHide": true,
+  "menus.clock.weather.location": "55.8125,12.4688",
+  "menus.clock.time.military": true,
+  "menus.clock.time.hideSeconds": true,
+  "menus.clock.weather.enabled": true,
+  "menus.clock.weather.unit": "metric",
+  "menus.clock.weather.interval": 900000,
+  "notifications.active_monitor": false,
+  "notifications.monitor": 1,
+  "menus.clock.weather.key": "04cca95cf0f8142bce4538fd15ae5ca3"
+}
