@@ -1,7 +1,5 @@
 {
-  "bar.customModules.storage.paths": [
-    "/"
-  ],
+  "bar.customModules.storage.paths": ["/"],
   "theme.font.weight": 500,
   "theme.font.size": "1rem",
   "theme.font.name": "FiraCode Nerd Font",
@@ -37,18 +35,13 @@
   "menus.transition": "crossfade",
   "bar.layouts": {
     "0": {
-      "left": [
-        "dashboard",
-        "workspaces",
-        "windowtitle"
-      ],
-      "middle": [
-        "clock"
-      ],
+      "left": ["dashboard", "workspaces", "windowtitle"],
+      "middle": ["clock"],
       "right": [
         "updates",
         "volume",
         "network",
+        "storage",
         "ram",
         "cpu",
         "bluetooth",
@@ -57,18 +50,13 @@
       ]
     },
     "1": {
-      "left": [
-        "dashboard",
-        "workspaces",
-        "windowtitle"
-      ],
-      "middle": [
-        "clock"
-      ],
+      "left": ["dashboard", "workspaces", "windowtitle"],
+      "middle": ["clock"],
       "right": [
         "updates",
         "volume",
         "network",
+        "storage",
         "ram",
         "cpu",
         "bluetooth",
@@ -77,18 +65,13 @@
       ]
     },
     "2": {
-      "left": [
-        "dashboard",
-        "workspaces",
-        "windowtitle"
-      ],
-      "middle": [
-        "clock"
-      ],
+      "left": ["dashboard", "workspaces", "windowtitle"],
+      "middle": ["clock"],
       "right": [
         "updates",
         "volume",
         "network",
+        "storage",
         "ram",
         "cpu",
         "bluetooth",
@@ -153,5 +136,6 @@
   "menus.clock.weather.interval": 900000,
   "notifications.active_monitor": false,
   "notifications.monitor": 1,
-  "menus.clock.weather.key": "04cca95cf0f8142bce4538fd15ae5ca3"
+  "menus.clock.weather.key": "04cca95cf0f8142bce4538fd15ae5ca3",
+  "bar.customModules.storage.labelType": "percentage"
 }
