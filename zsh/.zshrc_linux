@@ -4,6 +4,8 @@
 export EDITOR=vim
 export GTK_THEME=catppuccin-mocha-blue-standard+default
 export PATH=$PATH:/usr/local/go/bin:$HOME/.local/bin
+export POETRY_HOME=/opt/poetry
+export PATH="$POETRY_HOME/bin:$PATH"
 
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
