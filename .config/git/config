@@ -90,6 +90,8 @@
 [url "git@github.com:"]
     insteadOf = "gh:"
 
-
 [url "git@github.com:Furyfree/"]
     insteadOf = "pby:"
+
+[url "git@github.com:"]
+	insteadOf = https://github.com/
