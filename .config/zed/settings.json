@@ -60,7 +60,7 @@
     "copy_on_select": true
   },
   "agent": {
-    "default_profile": "ask",
+    "default_profile": "write",
     "dock": "right",
     "default_width": 300,
     "button": true,
@@ -69,7 +69,6 @@
       "provider": "copilot_chat",
       "model": "claude-sonnet-4"
     },
-    "version": "2"
   },
   "notification_panel": {
     "dock": "right",
