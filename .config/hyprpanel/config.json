@@ -1,5 +1,7 @@
 {
-  "bar.customModules.storage.paths": ["/"],
+  "bar.customModules.storage.paths": [
+    "/"
+  ],
   "theme.font.weight": 500,
   "theme.font.size": "1rem",
   "theme.font.name": "FiraCode Nerd Font",
@@ -35,8 +37,14 @@
   "menus.transition": "crossfade",
   "bar.layouts": {
     "0": {
-      "left": ["dashboard", "workspaces", "windowtitle"],
-      "middle": ["clock"],
+      "left": [
+        "dashboard",
+        "workspaces",
+        "windowtitle"
+      ],
+      "middle": [
+        "clock"
+      ],
       "right": [
         "updates",
         "volume",
@@ -50,8 +58,14 @@
       ]
     },
     "1": {
-      "left": ["dashboard", "workspaces", "windowtitle"],
-      "middle": ["clock"],
+      "left": [
+        "dashboard",
+        "workspaces",
+        "windowtitle"
+      ],
+      "middle": [
+        "clock"
+      ],
       "right": [
         "updates",
         "volume",
@@ -65,8 +79,14 @@
       ]
     },
     "2": {
-      "left": ["dashboard", "workspaces", "windowtitle"],
-      "middle": ["clock"],
+      "left": [
+        "dashboard",
+        "workspaces",
+        "windowtitle"
+      ],
+      "middle": [
+        "clock"
+      ],
       "right": [
         "updates",
         "volume",
