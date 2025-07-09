@@ -1,58 +1,73 @@
 #!/bin/bash
 
-# Arch Linux system maintenance script med logfil, snapshots og Btrfs scrub
+# Arch Linux system maintenance script with log file, snapshots and Btrfs scrub
 
-# Setup logfil med dato
+# Setup log directory and file with timestamp
 LOG_DIR="$HOME/system-maintenance-logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/maintenance-$(date +'%Y-%m-%d_%H-%M-%S').log"
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-echo "===== Arch System Maintenance Startet: $(date) ====="
+# Temporarily disable pyenv and use system Python
+echo "[INFO] Temporarily disabling pyenv and using system Python"
+ORIG_PATH="$PATH"
+unset PYENV_ROOT
+export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v '\.pyenv' | command paste -sd ':' -)
+hash -r
 
-echo "Tager Timeshift snapshot før evt. vedligeholdelse..."
+echo "===== Arch System Maintenance Started: $(date) ====="
+
+echo "Creating Timeshift snapshot before maintenance..."
 sudo timeshift --create --comments "Pre-maintenance snapshot" --tags D
 
-echo "Opdaterer systemet (pacman og AUR via paru)..."
+echo "Updating system packages (pacman and AUR via paru)..."
 if command -v paru >/dev/null 2>&1; then
   paru -Syu --noconfirm
 else
-  echo "paru ikke fundet — kun pacman opdateres"
+  echo "paru not found — only pacman will be used"
   sudo pacman -Syu --noconfirm
 fi
 
-echo "Rydder op i forældreløse pakker..."
+echo "Removing orphaned packages..."
 orphans=$(pacman -Qtdq)
 if [[ -n "$orphans" ]]; then
   echo "$orphans" | sudo pacman -Rns - --noconfirm
 else
-  echo "Ingen orphans."
+  echo "No orphans found."
 fi
 
-echo "Rydder op i pakkecache (beholder seneste 3 versioner)..."
+echo "Cleaning up package cache (keeping latest 3 versions)..."
 sudo paccache -r -k3
 
-echo "Opdaterer Flatpak apps..."
-flatpak update -y || echo "Flatpak opdatering fejlede."
+echo "Updating Flatpak apps..."
+flatpak update -y || echo "Flatpak update failed."
 
-echo "Tjekker diskforbrug..."
+echo "Checking disk usage..."
 df -h
 
-echo "Tjekker systemstatus (kritiske fejl)..."
+echo "Checking system logs for critical errors..."
 sudo journalctl -p 3 -xb
 
-echo "Tjekker SMART-status på diske..."
+echo "Checking SMART status of drives..."
 sudo smartctl --scan | awk '{print $1}' | while read disk; do
-  echo "SMART-status for $disk:"
+  echo "SMART status for $disk:"
   sudo smartctl -H "$disk"
 done
 
-echo "Kører Btrfs scrub på mounted btrfs-enheder..."
+echo "Running Btrfs scrub on mounted btrfs filesystems..."
 for mount in $(findmnt -t btrfs -n -o TARGET -r); do
-  echo "Scrubber $mount ..."
+  echo "Scrubbing $mount ..."
   sudo btrfs scrub start -Bd "$mount"
 done
 
-echo "===== Arch System Maintenance Færdig: $(date) ====="
-echo "Log gemt i: $LOG_FILE"
+# Re-enable pyenv
+echo "[INFO] Re-enabling pyenv"
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$ORIG_PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+hash -r
+
+echo "===== Arch System Maintenance Finished: $(date) ====="
+echo "Log saved to: $LOG_FILE"
