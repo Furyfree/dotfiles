@@ -1,6 +1,6 @@
 [user]
     name = Patrick Byrne
-    email = pby@byrne.dk
+    email = pby.software@byrne.dk
 
 [commit]
     template = ~/.config/git/template
@@ -23,7 +23,7 @@
     interHunkContext = 10
 
 [init]
-   # defaultBranch = dev
+   defaultBranch = main
 
 [log]
     abbrevCommit = true
