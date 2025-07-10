@@ -82,8 +82,9 @@
               "stow" # Software organizer
               "yazi" # Terminal file manager
               "postgresql@16" # PostgreSQL database (LTS version)
-              # "wireshark", # Network analyzer
+              # "wireshark" # Network analyzer
               "lima-additional-guestagents"
+              "poetry"
             ];
             casks = [
               "zen" # Browser
