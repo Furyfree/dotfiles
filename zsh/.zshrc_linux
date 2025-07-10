@@ -120,6 +120,14 @@ alias mvn-clean='mvn clean'
 alias mvn-test='mvn test'
 alias mvn-install='mvn install'
 
+# Paru shortcuts
+alias s='paru -Ss'
+alias i='paru -S'
+alias r='paru -Rns'
+alias u='paru -Syu'
+alias q='paru -Q'
+alias qi='paru -Qi'
+
 # Spring Boot Maven (uses ./mvnw)
 alias sb-run='./mvnw spring-boot:run'
 alias sb-clean='./mvnw clean'
