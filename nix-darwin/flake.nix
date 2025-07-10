@@ -84,7 +84,7 @@
               "postgresql@16" # PostgreSQL database (LTS version)
               # "wireshark" # Network analyzer
               "lima-additional-guestagents"
-              "poetry"
+              # "poetry"
             ];
             casks = [
               "zen" # Browser
