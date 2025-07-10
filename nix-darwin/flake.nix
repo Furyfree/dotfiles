@@ -97,7 +97,7 @@
               # "cleanshot"                  # Screenshot tool
               "docker-desktop" # Containerization
               "font-fira-code-nerd-font" # Developer font
-              "hammerspoon" # Automation
+              # "hammerspoon" # Automation
               "iina" # Media player
               "obsidian" # Note-taking
               "the-unarchiver" # Archive utility
@@ -131,7 +131,7 @@
               "oracle-jdk@21" # Java Development Kit (LTS version)
               "oracle-jdk" # Java Development Kit (latest version)
               "github" # GitHub Desktop client
-              "hyperkey" # Keyboard customization
+              # "hyperkey" # Keyboard customization
               "lm-studio" # Language model studio
               "karabiner-elements" # Keyboard customization
             ];
