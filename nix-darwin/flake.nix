@@ -85,6 +85,18 @@
               # "wireshark" # Network analyzer
               "lima-additional-guestagents"
               # "poetry"
+              # Ladybird dependencies
+              "autoconf"
+              "autoconf-archive"
+              "automake"
+              "ccache"
+              "cmake"
+              "nasm"
+              "ninja"
+              "pkg-config"
+              "llvm@20"
+              "qt"
+
             ];
             casks = [
               "zen" # Browser
@@ -97,7 +109,7 @@
               # "cleanshot"                  # Screenshot tool
               "docker-desktop" # Containerization
               "font-fira-code-nerd-font" # Developer font
-              # "hammerspoon" # Automation
+              "hammerspoon" # Automation
               "iina" # Media player
               "obsidian" # Note-taking
               "the-unarchiver" # Archive utility
