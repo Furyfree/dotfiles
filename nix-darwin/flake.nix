@@ -239,16 +239,7 @@
                 "CBUser-0" = {
                   "CBAdaptiveDisplayEnabled" = 0;
                 };
-              };
-
-              # Disable ambient light sensor adjustments
-              "com.apple.iokit.AmbientLightSensor" = {
-                "Automatic Display Enabled" = false;
-                "Automatic Keyboard Enabled" = false;
-              };
-
-              # Night Shift configuration
-              "com.apple.CoreBrightness" = {
+                # Night Shift configuration
                 "CBBlueLightReductionCCTTarget" = 2700; # Warmest setting (~2700K)
                 "CBBlueLightReductionStatus" = {
                   "AutoBlueLight" = true; # Enable automatic Night Shift
@@ -259,6 +250,46 @@
                     "DuskTime" = 0; # Sunset time (0 = use actual sunset)
                   };
                 };
+              };
+
+              # Disable ambient light sensor adjustments
+              "com.apple.iokit.AmbientLightSensor" = {
+                "Automatic Display Enabled" = false;
+                "Automatic Keyboard Enabled" = false;
+              };
+
+              # Control Center Module Configuration
+              "com.apple.controlcenter" = {
+                # Control Center Modules - 0 = Don't Show, 1 = Show When Active, 2 = Always Show
+                "NSStatusItem Visible WiFi" = 1; # Wi-Fi - Show in Menu Bar
+                "NSStatusItem Visible Bluetooth" = 0; # Bluetooth - Don't Show in Menu Bar
+                "NSStatusItem Visible AirDrop" = 0; # AirDrop - Don't Show in Menu Bar
+                "NSStatusItem Visible FocusModes" = 1; # Focus - Show When Active
+                "NSStatusItem Visible StageManager" = 0; # Stage Manager - Don't Show in Menu Bar
+                "NSStatusItem Visible ScreenMirroring" = 1; # Screen Mirroring - Show When Active
+                "NSStatusItem Visible Display" = 1; # Display - Show When Active
+                "NSStatusItem Visible Sound" = 2; # Sound - Always Show in Menu Bar
+                "NSStatusItem Visible NowPlaying" = 1; # Now Playing - Show When Active
+
+                # Other Modules (can be added to Control Center and Menu Bar)
+                "NSStatusItem Visible AccessibilityShortcuts" = 1; # Show in Menu Bar and Control Center
+                "NSStatusItem Visible Battery" = 1; # Show in Menu Bar and Control Center
+                "NSStatusItem Visible MusicRecognition" = 1; # Show in Menu Bar only
+                "NSStatusItem Visible Hearing" = 1; # Show in Menu Bar and Control Center
+                "NSStatusItem Visible UserSwitcher" = 0; # Fast User Switching - Don't Show in Menu Bar
+                "NSStatusItem Visible KeyboardBrightness" = 1; # Show in Menu Bar only
+
+                # Menu Bar Only items
+                "NSStatusItem Visible Clock" = 1; # Clock is always shown
+                "NSStatusItem Visible Spotlight" = 0; # Spotlight - Don't Show in Menu Bar
+                "NSStatusItem Visible Siri" = 0; # Siri - Don't Show in Menu Bar
+                "NSStatusItem Visible TimeMachine" = 0; # Time Machine - Don't Show in Menu Bar
+                "NSStatusItem Visible Weather" = 1; # Weather - Show in Menu Bar
+              };
+
+              # Menu Bar configuration
+              "com.apple.menuextra.battery" = {
+                "ShowPercent" = "YES"; # Show battery percentage
               };
             };
           };
