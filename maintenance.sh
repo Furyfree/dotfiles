@@ -21,12 +21,12 @@ echo "===== Arch System Maintenance Started: $(date) ====="
 echo "Creating Timeshift snapshot before maintenance..."
 sudo timeshift --create --comments "Pre-maintenance snapshot" --tags D
 
-echo "Cleaning up old Timeshift snapshots (keep latest 10)..."
 keep=5
+echo "Cleaning up old Timeshift snapshots (keeping latest $keep)..."
 all_snapshots=($(sudo timeshift --list | awk '/Pre-maintenance/ { print ($(2) == ">" ? $3 : $2) }'))
 
 if (( ${#all_snapshots[@]} > keep )); then
-  to_delete=("${all_snapshots[@]:0:${#all_snapshots[@]}-keep}")
+  to_delete=("${all_snapshots[@]:0:${#all_snapshots[@]}-$keep}")
   for snap in "${to_delete[@]}"; do
     echo "Deleting snapshot: $snap"
 
@@ -39,6 +39,9 @@ if (( ${#all_snapshots[@]} > keep )); then
 else
   echo "No snapshots to delete."
 fi
+
+echo "Updating GRUB to reflect snapshot deletions..."
+sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "===== Timeshift Snapshot Sizes ====="
 sudo btrfs qgroup show -cr --human-readable /
