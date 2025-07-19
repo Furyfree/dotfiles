@@ -117,6 +117,10 @@ alias brewdeps="brew deps --tree"
 # Lazy
 alias lg="lazygit"
 
+# Ladybird
+alias ladybird='(cd ~/ladybird && PYTHONPATH=. python3 Meta/ladybird.py run ladybird)'
+
+
 # Nix
 alias drs='sudo nix run github:lnl7/nix-darwin --extra-experimental-features nix-command --extra-experimental-features flakes -- switch --flake ~/nix-darwin'
 alias drb='darwin-rebuild build --flake ~/nix-darwin'
