@@ -21,6 +21,28 @@ echo "===== Arch System Maintenance Started: $(date) ====="
 echo "Creating Timeshift snapshot before maintenance..."
 sudo timeshift --create --comments "Pre-maintenance snapshot" --tags D
 
+echo "Cleaning up old Timeshift snapshots (keep latest 10)..."
+keep=5
+all_snapshots=($(sudo timeshift --list | awk '/Pre-maintenance/ { print ($(2) == ">" ? $3 : $2) }'))
+
+if (( ${#all_snapshots[@]} > keep )); then
+  to_delete=("${all_snapshots[@]:0:${#all_snapshots[@]}-keep}")
+  for snap in "${to_delete[@]}"; do
+    echo "Deleting snapshot: $snap"
+
+    sudo timeshift --delete --snapshot "$snap"
+  done
+
+  # Clear stale qgroups after deletions
+  echo "Clearing stale qgroups..."
+  sudo btrfs qgroup clear-stale /
+else
+  echo "No snapshots to delete."
+fi
+
+echo "===== Timeshift Snapshot Sizes ====="
+sudo btrfs qgroup show -cr --human-readable /
+
 echo "Updating system packages (pacman and AUR via paru)..."
 if command -v paru >/dev/null 2>&1; then
   paru -Syu --noconfirm
@@ -50,10 +72,12 @@ echo "Checking system logs for critical errors..."
 sudo journalctl -p 3 -xb
 
 echo "Checking SMART status of drives..."
-sudo smartctl --scan | awk '{print $1}' | while read disk; do
+sudo smartctl --scan | awk '{print $1}' | while read -r disk; do
+  [[ -z "$disk" ]] && continue
   echo "SMART status for $disk:"
-  sudo smartctl -H "$disk"
+  sudo smartctl -H "$disk" || echo "Failed to read SMART for $disk"
 done
+
 
 echo "Running Btrfs scrub on mounted btrfs filesystems..."
 for mount in $(findmnt -t btrfs -n -o TARGET -r); do
