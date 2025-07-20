@@ -136,9 +136,12 @@ alias sb-package='./mvnw package'
 alias sb-install='./mvnw install'
 alias sb-compile='./mvnw compile'
 
-# Docker
+# Git and Docker
 alias lg='lazygit'
 alias ld='lazydocker'
+
+# Ladybird
+alias ladybird='(cd ~/git/ladybird && PYTHONPATH=. python3 Meta/ladybird.py run ladybird)'
 
 # Brightness
 alias bright25='ddcutil --bus=14 setvcp 10 25 && ddcutil --bus=15 setvcp 10 25'
