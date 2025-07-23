@@ -1,0 +1,18 @@
+font-family = "JetBrainsMono Nerd Font"
+font-size = 13.0
+
+background-opacity = 0.5
+background-blur = true
+
+window-padding-x = 10
+window-padding-y = 8
+
+window-decoration = "auto"
+gtk-titlebar-hide-when-maximized = true
+
+theme = "catppuccin-mocha"
+
+# Keybinds
+
+# Allow closing the current tab (with all splits) via Ctrl+Shift+W
+keybind = "ctrl+shift+w=close_tab"
