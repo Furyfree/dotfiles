@@ -102,7 +102,7 @@
               "zen" # Browser
               "zed" # Code editor
               "visual-studio-code" # Code editor
-              "wezterm" # Terminal
+              # "wezterm" # Terminal
               "1password" # Password manager
               "raycast" # Launcher
               "alt-tab" # Window switcher
@@ -146,6 +146,9 @@
               # "hyperkey" # Keyboard customization
               "lm-studio" # Language model studio
               "karabiner-elements" # Keyboard customization
+              "dotnet-sdk"
+              "corretto@21"
+              "ghostty"
             ];
             # Mac App Store apps
             masApps = {
