@@ -5,6 +5,7 @@ export EDITOR=vim
 export PATH="$HOME/.pyenv/bin:$HOME/.jenv/bin:$PATH"
 export FZF_CTRL_R_OPTS="--preview 'bat <<< {}' --preview-window=down:3:wrap"
 export STARSHIP_CONFIG=$HOME/.config/starship/starship.toml
+export TERM=xterm-256color
 
 # Pyenv
 eval "$(pyenv init --path)"
