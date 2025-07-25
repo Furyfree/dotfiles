@@ -23,7 +23,10 @@ yabai -m rule --add app="AlDente" manage=off
 yabai -m rule --add app="MediaMate" manage=off
 yabai -m rule --add app="CleanShot X" manage=off
 yabai -m rule --add app="CleanMyMac" manage=off
-yabai -m rule --add app="Activity Monitor" manage=off
+yabai -m rule --add app="PyCharm" title=".*Settings.*" manage=off
+yabai -m rule --add app="IntelliJ IDEA" title=".*Settings.*" manage=off
+yabai -m rule --add app="IntelliJ IDEA" title="Welcome to IntelliJ IDEA" manage=off
+
 
 # global settings
 yabai -m config                                 \
