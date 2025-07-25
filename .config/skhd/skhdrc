@@ -2,7 +2,7 @@
 # SPACE MANAGEMENT
 #############################################
 
-# Switch to spaces 1–9 on active display (lalt)
+# Focus spaces 1–9 on active display (lalt)
 lalt - 1 : yabai -m space --focus 1
 lalt - 2 : yabai -m space --focus 2
 lalt - 3 : yabai -m space --focus 3
@@ -13,7 +13,7 @@ lalt - 7 : yabai -m space --focus 7
 lalt - 8 : yabai -m space --focus 8
 lalt - 9 : yabai -m space --focus 9
 
-# Move focused window to space 1–9 and follow it (shift + lalt)
+# Move window to space 1–9 and follow it (shift + lalt)
 shift + lalt - 1 : yabai -m window --space 1 && yabai -m space --focus 1
 shift + lalt - 2 : yabai -m window --space 2 && yabai -m space --focus 2
 shift + lalt - 3 : yabai -m window --space 3 && yabai -m space --focus 3
@@ -28,26 +28,22 @@ shift + lalt - 9 : yabai -m window --space 9 && yabai -m space --focus 9
 # WINDOW FOCUS & MOVEMENT
 #############################################
 
-# Vim-style window navigation
+# Vim-style navigation (hyper)
 hyper - h : yabai -m window --focus west
 hyper - j : yabai -m window --focus south
 hyper - k : yabai -m window --focus north
 hyper - l : yabai -m window --focus east
 
-# Arrow key window navigation
+# Arrow key navigation (hyper)
 hyper - left  : yabai -m window --focus west
 hyper - down  : yabai -m window --focus south
 hyper - up    : yabai -m window --focus north
 hyper - right : yabai -m window --focus east
 
-# Focus previously focused window
+# Focus last used window
 hyper - tab : yabai -m window --focus recent
 
-# Move windows in direction
-lctrl - h : yabai -m window --warp west
-lctrl - j : yabai -m window --warp south
-lctrl - k : yabai -m window --warp north
-lctrl - l : yabai -m window --warp east
+# Move window (lctrl + arrow)
 lctrl - left  : yabai -m window --warp west
 lctrl - down  : yabai -m window --warp south
 lctrl - up    : yabai -m window --warp north
@@ -57,34 +53,33 @@ lctrl - right : yabai -m window --warp east
 # WINDOW STATE
 #############################################
 
-# Toggle float
-hyper - v : yabai -m window --toggle float
+# Toggle float (centered 2x2 in 4x4 grid)
+hyper - v : yabai -m window --toggle float --grid 4:4:1:1:2:2
 
-# Center floating window
+# Center window (4x4 in 6x6 grid)
 hyper - c : yabai -m window --grid 6:6:1:1:4:4
 
 # Maximize window
 hyper - m : yabai -m window --toggle zoom-fullscreen
 
-# Toggle split type
+# Toggle split horizontal/vertical
 hyper - s : yabai -m window --toggle split
 
 #############################################
 # APP LAUNCHING
 #############################################
 
-rcmd - z : open -na "Zed"
-rcmd - b : open -na "Zen"
-rcmd - return : open -na "iTerm"
-rcmd - p : open -na "1Password"
-rcmd - f : open -na "Finder" && osascript -e 'tell application "Finder" to activate' -e 'tell application "System Events" to keystroke "n" using command down'
+rcmd - z      : open -na "Zed"
+rcmd - b      : open -na "Zen"
+rcmd - p      : open -na "1Password"
+rcmd - f      : open -na "Finder" && osascript -e 'tell application "Finder" to activate' -e 'tell application "System Events" to keystroke "n" using command down'
+rcmd - c      : open -na "ChatGPT"
+rcmd - e      : open -na "Proton Mail"
+hyper - return: open -na "Wezterm"
 
 #############################################
 # CONFIG RELOAD
 #############################################
 
-# Reload skhd config
-hyper - r : skhd --reload
-
-# Reload yabai config
+hyper - r : skhd --restart-service
 hyper - y : yabai --restart-service
