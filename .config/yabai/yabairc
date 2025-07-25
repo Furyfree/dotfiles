@@ -9,7 +9,6 @@
 #
 yabai -m signal --add event=dock_did_restart action="sudo yabai --load-sa"
 sudo yabai --load-sa
-#
 
 # Window rules
 yabai -m rule --add app="Finder" manage=off
@@ -17,6 +16,14 @@ yabai -m rule --add app="System Settings" manage=off
 yabai -m rule --add app="App Store" manage=off
 yabai -m rule --add app="Spotify" manage=off
 yabai -m rule --add app="1Password" manage=off
+yabai -m rule --add app="Proton VPN" manage=off
+yabai -m rule --add app="Raycast" manage=off
+yabai -m rule --add app="IINA" manage=off
+yabai -m rule --add app="AlDente" manage=off
+yabai -m rule --add app="MediaMate" manage=off
+yabai -m rule --add app="CleanShot X" manage=off
+yabai -m rule --add app="CleanMyMac" manage=off
+yabai -m rule --add app="Activity Monitor" manage=off
 
 # global settings
 yabai -m config                                 \
