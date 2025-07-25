@@ -33,12 +33,12 @@ config.warn_about_missing_glyphs = false
 config.color_scheme = "Catppuccin Mocha"
 
 -- === Appearance ===
-config.window_background_opacity = 0.90
+config.window_background_opacity = 0.50
 config.window_decorations = "TITLE|RESIZE"
 config.window_close_confirmation = "NeverPrompt"
 
 if platform:find("apple") then
-    config.macos_window_background_blur = 20
+    config.macos_window_background_blur = 50
     config.font_size = 19.0
 end
 
