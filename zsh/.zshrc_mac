@@ -88,6 +88,12 @@ alias updatedb='sudo /usr/libexec/locate.updatedb'
 alias find='fd'
 alias fzf-find='fd --type f | fzf'
 
+# Tmux aliases
+alias tm="tmux attach -t main 2>/dev/null || tmux new -s main"  # attach/create main
+alias ta='tmux attach -t'    # attach to a named session
+alias tls='tmux ls'          # list all tmux sessions
+alias t='tmux attach'        # attach (will prompt if no -t)
+
 # Git
 alias gt="git"
 alias ga="git add ."
