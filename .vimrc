@@ -11,6 +11,9 @@ set shiftwidth=4
 set expandtab             " Use spaces instead of tabs
 set smartindent           " Auto indenting
 set autoindent
+" Tell Vim to set the terminal title to the file name
+set title
+set titlestring=%t
 
 " ---------------------
 " UI
@@ -48,3 +51,14 @@ if !isdirectory(expand(&undodir))
   call mkdir(expand(&undodir), "p", 0700)
 endif
 
+" ---------------------
+" Keybinds
+" ---------------------
+nnoremap <Space> :nohlsearch<CR>   " Clear search highlight
+
+" Escape insert mode quickly
+inoremap jj <Esc>
+inoremap jk <Esc>
+
+" Make double-key escape responsive
+set timeoutlen=300
