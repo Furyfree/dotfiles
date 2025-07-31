@@ -75,7 +75,7 @@ rcmd - p      : open -na "1Password"
 rcmd - f      : open -na "Finder" && osascript -e 'tell application "Finder" to activate' -e 'tell application "System Events" to keystroke "n" using command down'
 rcmd - c      : open -na "ChatGPT"
 rcmd - e      : open -na "Proton Mail"
-hyper - return: open -na "Wezterm"
+hyper - return: open -na "Ghostty"
 
 #############################################
 # CONFIG RELOAD
