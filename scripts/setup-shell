@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# setup-shell: Install zsh and change default shell
+# Usage: ./setup-shell
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+WHITE='\033[1;37m'
+NC='\033[0m' # No Color
+
+print_step() {
+    echo -e "${BLUE}[STEP]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+echo -e "${BLUE}═══════════════════════════════════════${NC}"
+echo -e "${WHITE}  🐚 Shell Setup${NC}"
+echo -e "${BLUE}═══════════════════════════════════════${NC}"
+
+# Check current shell
+current_shell=$(basename "$SHELL")
+print_step "Current shell: $current_shell"
+
+# Install zsh if not present
+if ! command -v zsh &>/dev/null; then
+    print_step "Installing zsh..."
+    sudo pacman -S --needed --noconfirm zsh
+    print_success "zsh installed"
+else
+    print_success "zsh already installed"
+fi
+
+# Get zsh path
+ZSH_PATH=$(which zsh)
+print_success "Found zsh at: $ZSH_PATH"
+
+# Check if zsh is in /etc/shells
+if ! grep -q "$ZSH_PATH" /etc/shells; then
+    print_step "Adding zsh to /etc/shells..."
+    echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+    print_success "zsh added to /etc/shells"
+else
+    print_success "zsh already in /etc/shells"
+fi
+
+# Change shell to zsh if not already using it
+if [[ "$current_shell" != "zsh" ]]; then
+    print_step "Changing default shell to zsh..."
+
+    # Change shell for current user
+    if chsh -s "$ZSH_PATH"; then
+        print_success "Shell changed to zsh successfully"
+        echo -e "${WHITE}Note: You need to log out and log back in for the change to take effect.${NC}"
+    else
+        print_error "Failed to change shell to zsh"
+        exit 1
+    fi
+else
+    print_success "Already using zsh as default shell"
+fi
+
+print_success "Shell setup completed!"
+echo -e "${WHITE}zsh is now your default shell. Log out and log back in to use it.${NC}"

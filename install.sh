@@ -139,5 +139,15 @@ else
     exit 1
 fi
 
+# Set up shell
+print_step "Setting up shell..."
+if [[ -x "$SCRIPTS_DIR/setup-shell" ]]; then
+    "$SCRIPTS_DIR/setup-shell"
+    print_success "Shell configured"
+else
+    print_error "setup-shell script not found or not executable"
+    exit 1
+fi
+
 print_success "Dotfiles installation completed!"
 echo -e "${WHITE}You may need to restart some applications for all changes to take effect.${NC}"
