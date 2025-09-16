@@ -42,16 +42,25 @@ SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 
 print_header
 
-# Check if paru is installed
+# Install paru if not present
 print_step "Checking for paru..."
 if ! command -v paru &>/dev/null; then
-    print_error "paru is not installed. Please install paru first."
-    echo -e "${WHITE}Install paru with:${NC}"
-    echo -e "${YELLOW}  git clone https://aur.archlinux.org/paru.git${NC}"
-    echo -e "${YELLOW}  cd paru${NC}"
-    echo -e "${YELLOW}  makepkg -si${NC}"
-    echo -e "${YELLOW}  cd && rm -rf paru${NC}"
-    exit 1
+    print_step "Installing paru..."
+
+    # Install base-devel if not present
+    sudo pacman -S --needed --noconfirm base-devel git
+
+    # Clone and build paru
+    cd /tmp
+    git clone https://aur.archlinux.org/paru.git
+    cd paru
+    makepkg -si --noconfirm
+
+    # Clean up
+    cd "$HOME"
+    rm -rf /tmp/paru
+
+    print_success "paru installed successfully"
 else
     print_success "paru found"
 fi
