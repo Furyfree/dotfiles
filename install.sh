@@ -61,6 +61,12 @@ if ! command -v paru &>/dev/null; then
     # Install base-devel if not present
     sudo pacman -S --needed --noconfirm base-devel git
 
+    # Clean up any existing paru folder
+    if [[ -d "/tmp/paru" ]]; then
+        print_warning "Removing existing paru folder..."
+        rm -rf /tmp/paru
+    fi
+
     # Clone and build paru
     cd /tmp
     git clone https://aur.archlinux.org/paru.git
