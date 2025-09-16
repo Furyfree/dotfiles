@@ -84,12 +84,8 @@ desktop_count=0
 for desktop_file in "$DESKTOP_ENTRIES_DIR"/*.desktop; do
     if [[ -f "$desktop_file" ]]; then
         filename="$(basename "$desktop_file")"
-        print_step "Processing desktop file: $filename"
         create_symlink "$desktop_file" "$APPLICATIONS_DIR/$filename"
         ((desktop_count++))
-        print_success "Processed $filename ($desktop_count files so far)"
-    else
-        print_warning "Skipping non-file: $desktop_file"
     fi
 done
 
@@ -100,7 +96,6 @@ else
 fi
 
 # Link icons directory
-print_step "Checking for icons directory at: $DESKTOP_ENTRIES_DIR/icons"
 if [[ -d "$DESKTOP_ENTRIES_DIR/icons" ]]; then
     print_step "Setting up application icons..."
     create_symlink "$DESKTOP_ENTRIES_DIR/icons" "$HOME/.local/share/applications/icons"
@@ -115,7 +110,7 @@ fi
 # Update desktop database
 print_step "Updating desktop database..."
 if command -v update-desktop-database &>/dev/null; then
-    update-desktop-database "$APPLICATIONS_DIR"
+    update-desktop-database "$APPLICATIONS_DIR" 2>/dev/null || print_warning "Desktop database update failed, continuing..."
     print_success "Desktop database updated"
 else
     print_warning "update-desktop-database not found, skipping..."
