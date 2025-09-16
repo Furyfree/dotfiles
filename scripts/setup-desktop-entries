@@ -32,7 +32,7 @@ print_error() {
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
-DESKTOP_ENTRIES_DIR="$DOTFILES_DIR/linux/desktop-entries"
+DESKTOP_ENTRIES_DIR="$DOTFILES_DIR/linux/.local/share/applications"
 
 # Create symlink function
 create_symlink() {
