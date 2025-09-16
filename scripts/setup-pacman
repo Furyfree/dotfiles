@@ -68,8 +68,10 @@ print_step "Enabling multilib repository..."
 if grep -q "^\[multilib\]" "$PACMAN_CONF"; then
     print_success "multilib repository already enabled"
 elif grep -q "^#\[multilib\]" "$PACMAN_CONF"; then
-    # Uncomment [multilib] and the following Include line
-    sudo sed -i '/^#\[multilib\]/,/^#Include.*multilib/ s/^#//' "$PACMAN_CONF"
+    # Uncomment [multilib] line
+    sudo sed -i 's/^#\[multilib\]/[multilib]/' "$PACMAN_CONF"
+    # Uncomment the Include line that follows multilib
+    sudo sed -i '/^\[multilib\]/,/^Include.*multilib/ { /^#Include.*multilib/ s/^#// }' "$PACMAN_CONF"
     print_success "multilib repository enabled"
 else
     # Add multilib section at the end

@@ -42,44 +42,29 @@ SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 
 print_header
 
-# Install rustup
-print_step "Installing rustup..."
+# Check if rustup is installed
+print_step "Checking for rustup..."
 if ! command -v rustup &>/dev/null; then
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source "$HOME/.cargo/env"
-    export PATH="$HOME/.cargo/bin:$PATH"
-    rustup install stable
-    rustup default stable
-    print_success "rustup installed successfully"
+    print_error "rustup is not installed. Please install rustup first."
+    echo -e "${WHITE}Install rustup with:${NC}"
+    echo -e "${YELLOW}  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh${NC}"
+    echo -e "${YELLOW}  source ~/.cargo/env${NC}"
+    echo -e "${YELLOW}  rustup default stable${NC}"
+    exit 1
 else
-    print_success "rustup already installed"
+    print_success "rustup found"
 fi
 
-# Install paru if not present
+# Check if paru is installed
 print_step "Checking for paru..."
 if ! command -v paru &>/dev/null; then
-    print_step "Installing paru..."
-
-    # Install base-devel if not present
-    sudo pacman -S --needed --noconfirm base-devel git
-
-    # Clean up any existing paru folder
-    if [[ -d "/tmp/paru" ]]; then
-        print_warning "Removing existing paru folder..."
-        rm -rf /tmp/paru
-    fi
-
-    # Clone and build paru
-    cd /tmp
-    git clone https://aur.archlinux.org/paru.git
-    cd paru
-    makepkg -si --noconfirm
-
-    # Clean up
-    cd "$HOME"
-    rm -rf /tmp/paru
-
-    print_success "paru installed successfully"
+    print_error "paru is not installed. Please install paru first."
+    echo -e "${WHITE}Install paru with:${NC}"
+    echo -e "${YELLOW}  git clone https://aur.archlinux.org/paru.git${NC}"
+    echo -e "${YELLOW}  cd paru${NC}"
+    echo -e "${YELLOW}  makepkg -si${NC}"
+    echo -e "${YELLOW}  cd && rm -rf paru${NC}"
+    exit 1
 else
     print_success "paru found"
 fi
