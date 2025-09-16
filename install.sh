@@ -47,6 +47,7 @@ print_step "Installing rustup..."
 if ! command -v rustup &>/dev/null; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
     source "$HOME/.cargo/env"
+    rustup install stable
     rustup default stable
     print_success "rustup installed successfully"
 else
