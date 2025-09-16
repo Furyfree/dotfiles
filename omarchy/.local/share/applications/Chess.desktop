@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=Chess.com
-Comment=Chess
-Exec=omarchy-launch-webapp https://www.chess.com/
-Terminal=false
-Type=Application
-Icon=/home/pby/.local/share/applications/icons/Chess.png
-StartupNotify=true

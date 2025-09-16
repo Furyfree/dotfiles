@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Netflix
+Comment=Netflix Streaming
+Exec=google-chrome --new-window --ozone-platform=wayland --app=https://www.netflix.com/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/Netflix.png
+StartupNotify=true

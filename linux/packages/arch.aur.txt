@@ -1,0 +1,8 @@
+# AUR packages (install with paru)
+zen-browser-bin
+spotify
+1password
+1password-cli
+typora
+sddm-theme-catppuccin
+ttf-ia-writer

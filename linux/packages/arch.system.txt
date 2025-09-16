@@ -1,0 +1,17 @@
+# System services & extras
+sddm
+ufw
+ufw-docker
+cups
+cups-browsed
+cups-filters
+cups-pdf
+avahi
+nss-mdns
+pwr-profiles-daemon
+timeshift
+network-manager-applet
+proton-vpn-gtk-app
+protonvpn-cli
+flatpak
+glib2

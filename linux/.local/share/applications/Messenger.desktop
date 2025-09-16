@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Messenger
+Comment=Messenger
+Exec=google-chrome --new-window --ozone-platform=wayland --app=https://www.messenger.com/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/messenger.png
+StartupNotify=true

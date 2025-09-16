@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=ChatGPT
+Comment=ChatGPT
+Exec=google-chrome --new-window --ozone-platform=wayland --app=https://www.chatgpt.com/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/ChatGPT.png
+StartupNotify=true

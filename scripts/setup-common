@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# setup-common: Setup symlinks for common configurations
+# Usage: ./setup-common
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+WHITE='\033[1;37m'
+NC='\033[0m' # No Color
+
+print_step() {
+    echo -e "${BLUE}[STEP]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+COMMON_DIR="$DOTFILES_DIR/common"
+
+# Create symlink function
+create_symlink() {
+    local source="$1"
+    local target="$2"
+    local target_dir="$(dirname "$target")"
+
+    # Create target directory if it doesn't exist
+    if [[ ! -d "$target_dir" ]]; then
+        mkdir -p "$target_dir"
+        print_success "Created directory: $target_dir"
+    fi
+
+    # Remove existing file/symlink if it exists
+    if [[ -e "$target" || -L "$target" ]]; then
+        if [[ -L "$target" ]]; then
+            print_warning "Removing existing symlink: $target"
+        else
+            print_warning "Backing up existing file: $target -> $target.backup"
+            mv "$target" "$target.backup"
+        fi
+        rm -f "$target"
+    fi
+
+    # Create symlink
+    ln -sf "$source" "$target"
+    print_success "Linked: $target -> $source"
+}
+
+echo -e "${BLUE}═══════════════════════════════════════${NC}"
+echo -e "${WHITE}  🔗 Common Configuration Setup${NC}"
+echo -e "${BLUE}═══════════════════════════════════════${NC}"
+
+# Check if common directory exists
+if [[ ! -d "$COMMON_DIR" ]]; then
+    print_error "Common directory not found: $COMMON_DIR"
+    exit 1
+fi
+
+print_step "Symlinking common configurations..."
+
+# Walk through all files and directories in common/
+find "$COMMON_DIR" -type f -o -type d | while read -r item; do
+    # Get relative path from common directory
+    relative_path="${item#$COMMON_DIR/}"
+
+    # Skip the common directory itself
+    [[ "$relative_path" == "." ]] && continue
+
+    # Target path in home directory
+    target="$HOME/$relative_path"
+
+    if [[ -d "$item" ]]; then
+        # Create directory if it doesn't exist
+        if [[ ! -d "$target" ]]; then
+            mkdir -p "$target"
+            print_success "Created directory: $target"
+        fi
+    else
+        # Create symlink for files
+        create_symlink "$item" "$target"
+    fi
+done
+
+print_success "Common configuration setup completed!"
+echo -e "${WHITE}All common configurations have been symlinked automatically.${NC}"
+echo -e "${WHITE}You may need to restart your shell or applications for changes to take effect.${NC}"

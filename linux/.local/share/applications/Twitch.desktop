@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Twitch
+Comment=Twitch Live Streaming
+Exec=google-chrome --new-window --ozone-platform=wayland --app=https://www.twitch.tv/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/Twitch.png
+StartupNotify=true

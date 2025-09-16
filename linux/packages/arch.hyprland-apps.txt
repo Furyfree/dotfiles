@@ -1,0 +1,9 @@
+# Hyprland ecosystem apps
+hypridle
+hyprlock
+hyprpanel
+hyprpicker
+hyprshot
+hyprpaper
+hyprsunset
+wlogout

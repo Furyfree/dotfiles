@@ -1,0 +1,14 @@
+# Developer tools
+clang
+llvm
+docker
+docker-compose
+docker-buildx
+lazydocker
+lazygit
+pyenv
+jdk-openjdk
+amazon-corretto-21-bin
+amazon-corretto-17
+nodejs
+npm
