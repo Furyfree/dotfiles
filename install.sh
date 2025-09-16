@@ -66,6 +66,16 @@ else
     exit 1
 fi
 
+# Set up XDG user directories
+print_step "Setting up XDG user directories..."
+if [[ -x "$SCRIPTS_DIR/setup-xdg-dirs" ]]; then
+    "$SCRIPTS_DIR/setup-xdg-dirs"
+    print_success "XDG directories configured"
+else
+    print_error "setup-xdg-dirs script not found or not executable"
+    exit 1
+fi
+
 # Install packages
 print_step "Installing packages..."
 if [[ -x "$SCRIPTS_DIR/install-packages" ]]; then
