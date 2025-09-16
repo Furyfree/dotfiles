@@ -120,14 +120,14 @@ else
 fi
 
 # Set up desktop entries
-print_step "Setting up desktop entries..."
-if [[ -x "$SCRIPTS_DIR/setup-desktop-entries" ]]; then
-    "$SCRIPTS_DIR/setup-desktop-entries"
-    print_success "Desktop entries configured"
-else
-    print_error "setup-desktop-entries script not found or not executable"
-    exit 1
-fi
+# print_step "Setting up desktop entries..."
+# if [[ -x "$SCRIPTS_DIR/setup-desktop-entries" ]]; then
+#     "$SCRIPTS_DIR/setup-desktop-entries"
+#     print_success "Desktop entries configured"
+# else
+#     print_error "setup-desktop-entries script not found or not executable"
+#     exit 1
+# fi
 
 # Set up system theme
 print_step "Setting up system theme..."
