@@ -12,3 +12,4 @@ amazon-corretto-21-bin
 amazon-corretto-17
 nodejs
 npm
+ghostty
