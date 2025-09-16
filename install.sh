@@ -42,6 +42,16 @@ SCRIPTS_DIR="$SCRIPT_DIR/scripts"
 
 print_header
 
+# Install rustup
+print_step "Installing rustup..."
+if ! command -v rustup &>/dev/null; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source "$HOME/.cargo/env"
+    print_success "rustup installed successfully"
+else
+    print_success "rustup already installed"
+fi
+
 # Install paru if not present
 print_step "Checking for paru..."
 if ! command -v paru &>/dev/null; then
