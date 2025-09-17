@@ -24,3 +24,7 @@ paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-b
 # Outcomment multilib in /etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
+
+# Change grub to -1 timeout and turn on os-prober
+GRUB_TIMEOUT=-1
+GRUB_DISABLE_OS_PROBER=false
