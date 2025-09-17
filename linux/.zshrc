@@ -17,7 +17,7 @@ eval "$(pyenv init -)"
 # eval "$(pyenv virtualenv-init -)"  # Uncomment if needed
 
 # NVM
-source /usr/share/nvm/init-nvm.sh
+# source /usr/share/nvm/init-nvm.sh
 
 # Starship
 export STARSHIP_CONFIG=$HOME/.config/starship/starship.toml
