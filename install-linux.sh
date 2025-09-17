@@ -82,15 +82,21 @@ setup_configs() {
 
     print_step "Setting up $config_name configurations..."
 
-    # Walk through all files in the config directory
-    find "$config_dir" -type f | while read -r item; do
+    # Walk through all items in the config directory
+    for item in "$config_dir"/.* "$config_dir"/*; do
+        # Skip . and .. entries
+        [[ "$(basename "$item")" == "." || "$(basename "$item")" == ".." ]] && continue
+
+        # Skip if item doesn't exist (glob didn't match anything)
+        [[ ! -e "$item" ]] && continue
+
         # Get relative path from config directory
         relative_path="${item#$config_dir/}"
 
         # Target path in home directory
         target="$HOME/$relative_path"
 
-        # Create symlink for files
+        # Create symlink for directories and files
         create_symlink "$item" "$target"
     done
 
