@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=LazyGit
+Comment=LazyGit
+Exec=alacritty --class TUI.tile --working-directory=/home/pby/git/DTU -e lazygit
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/LazyGit.png
+StartupNotify=true
