@@ -20,3 +20,7 @@ cd && rm -rf paru
 # Paru installation
 paru -Syy
 paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin
+
+# Outcomment multilib in /etc/pacman.conf
+[multilib]
+Include = /etc/pacman.d/mirrorlist
