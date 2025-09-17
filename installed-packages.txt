@@ -1,3 +1,7 @@
+# Change to zsh
+sudo pacman -S zsh
+chsh -s $(which zsh)
+
 # Important
 sudo pacman -S --needed base-devel
 
