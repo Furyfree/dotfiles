@@ -189,3 +189,8 @@ maintenance() {
 #######################################
 autoload -Uz compinit
 compinit
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/pby/.lmstudio/bin"
+# End of LM Studio CLI section
+
