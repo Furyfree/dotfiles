@@ -1,5 +1,5 @@
 # Change to zsh
-sudo pacman -S zsh nano
+sudo pacman -S zsh nano tmux
 chsh -s $(which zsh)
 
 # Important
