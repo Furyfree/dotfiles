@@ -25,7 +25,7 @@ cd && rm -rf paru
 
 # Paru installation
 paru -Syy
-paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin os-prober wlogout
+paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin 1password os-prober wlogout
 
 # Outcomment multilib in /etc/pacman.conf
 [multilib]
