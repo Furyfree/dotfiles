@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=DTU Learn
+Comment=DTU Learn
+Exec=omarchy-launch-webapp https://learn.inside.dtu.dk/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/DTU.png
+StartupNotify=true
