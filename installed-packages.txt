@@ -5,13 +5,6 @@ chsh -s $(which zsh)
 # Important
 sudo pacman -S --needed base-devel
 
-# AMD Drivers for Elitebook
-sudo pacman -S --needed mesa lib32-mesa \
-  vulkan-radeon lib32-vulkan-radeon \
-  vulkan-icd-loader lib32-vulkan-icd-loader \
-  libva-mesa-driver lib32-libva-mesa-driver \
-  vulkan-tools mesa-demos
-
 # Pyenv
 curl -fsSL https://pyenv.run | bash
 pyenv install 3.11 && pyenv install 3.12 && pyenv install 3.13
@@ -20,7 +13,7 @@ pyenv global 3.12
 # Zed Editor
 curl -f https://zed.dev/install.sh | sh
 
-# Rustup
+# Rustup (not if using Omarchy)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup default stable
 
@@ -32,12 +25,20 @@ cd && rm -rf paru
 
 # Paru installation
 paru -Syy
-paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin
+paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin os-prober
 
 # Outcomment multilib in /etc/pacman.conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 
+# AMD Drivers for Elitebook
+sudo pacman -S --needed mesa lib32-mesa \
+  vulkan-radeon lib32-vulkan-radeon \
+  vulkan-icd-loader lib32-vulkan-icd-loader \
+  libva-mesa-driver lib32-libva-mesa-driver \
+  vulkan-tools mesa-demos
+
 # Change grub to -1 timeout and turn on os-prober
 GRUB_TIMEOUT=-1
 GRUB_DISABLE_OS_PROBER=false
+sudo grub-mkconfig -o /boot/grub/grub.cfg
