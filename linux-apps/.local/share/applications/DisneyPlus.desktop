@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Disney+
+Comment=Disney+ Streaming
+Exec=omarchy-launch-webapp https://www.disneyplus.com/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/Disneyplus.png
+StartupNotify=true

@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=YouTube
-Comment=YouTube Video Platform
-Exec=google-chrome --new-window --ozone-platform=wayland --app=https://www.youtube.com/
-Terminal=false
-Type=Application
-Icon=/home/pby/.local/share/applications/icons/YouTube.png
-StartupNotify=true

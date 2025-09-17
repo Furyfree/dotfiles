@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Prime Video
+Comment=Amazon Prime Video Streaming
+Exec=omarchy-launch-webapp https://www.primevideo.com/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/PrimeVideo.png
+StartupNotify=true

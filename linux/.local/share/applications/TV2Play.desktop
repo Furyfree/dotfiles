@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=TV2 Play
-Comment=TV2 Play Streaming
-Exec=google-chrome --new-window --ozone-platform=wayland --app=https://play.tv2.dk/
-Terminal=false
-Type=Application
-Icon=/home/pby/.local/share/applications/icons/TV2Play.png
-StartupNotify=true

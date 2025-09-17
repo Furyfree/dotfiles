@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=Prime Video
-Comment=Amazon Prime Video Streaming
-Exec=google-chrome --new-window --ozone-platform=wayland --app=https://www.primevideo.com/
-Terminal=false
-Type=Application
-Icon=/home/pby/.local/share/applications/icons/PrimeVideo.png
-StartupNotify=true

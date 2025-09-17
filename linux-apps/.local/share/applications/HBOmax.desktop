@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=HBO Max
+Comment=HBO Max Streaming
+Exec=omarchy-launch-webapp https://www.max.com/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/HBOmax.png
+StartupNotify=true

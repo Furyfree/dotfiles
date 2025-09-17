@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Viaplay
+Comment=Viaplay Streaming
+Exec=omarchy-launch-webapp https://viaplay.dk/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/Viaplay.png
+StartupNotify=true

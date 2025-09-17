@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=Disney+
-Comment=Disney+ Streaming
-Exec=google-chrome --new-window --ozone-platform=wayland --app=https://www.disneyplus.com/
-Terminal=false
-Type=Application
-Icon=/home/pby/.local/share/applications/icons/Disneyplus.png
-StartupNotify=true

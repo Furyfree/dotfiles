@@ -1,0 +1,22 @@
+# Important
+sudo pacman -S --needed base-devel
+
+# Pyenv
+curl -fsSL https://pyenv.run | bash
+
+# Zed Editor
+curl -f https://zed.dev/install.sh | sh
+
+# Rustup
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+rustup default stable
+
+# Paru
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
+cd && rm -rf paru
+
+# Paru installation
+paru -Syy
+paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin
