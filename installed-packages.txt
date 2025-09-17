@@ -3,12 +3,7 @@ sudo pacman -S zsh nano tmux
 chsh -s $(which zsh)
 
 # Important
-sudo pacman -S --needed base-devel
-
-# Pyenv
-curl -fsSL https://pyenv.run | bash
-pyenv install 3.11 && pyenv install 3.12 && pyenv install 3.13
-pyenv global 3.12
+sudo pacman -S --needed base-devel tk bzip2 zlib xz libffi sqlite gdbm openssl
 
 # Zed Editor
 curl -f https://zed.dev/install.sh | sh
@@ -42,3 +37,16 @@ sudo pacman -S --needed mesa lib32-mesa \
 GRUB_TIMEOUT=-1
 GRUB_DISABLE_OS_PROBER=false
 sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+# After dotfiles
+
+# Pyenv
+curl -fsSL https://pyenv.run | bash
+pyenv install 3.11 && pyenv install 3.12 && pyenv install 3.13
+pyenv global 3.12
+
+# Desktop apps
+cp git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Jetbrains-Toolbox.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop} .local/share/applications
+
+# Logos
+cp git/dotfiles/.local/share/applications/icons/{Chess.png,Disneyplus.png,HBOmax.png,Jetbrains-Toolbox.png,Messenger.png,Netflix.png,PrimeVideo.png,ProtonApps.png,ProtonMail.png,TV2Play.png,Twitch.png,Viaplay.png,Wifi.png} .local/share/applications/icons
