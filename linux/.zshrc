@@ -98,6 +98,7 @@ alias f='fastfetch'
 alias help='tldr'
 alias history='history 1'
 alias mkdir='mkdir -p'
+alias cd='z'
 
 # DTU VPN
 alias dtuvpn='sudo openconnect --useragent=AnyConnect --user=s224338 vpn.dtu.dk'
