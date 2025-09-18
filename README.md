@@ -80,12 +80,16 @@ pyenv global 3.13
 ## 9. Desktop Integrations
 Copy custom `.desktop` launchers:
 ```bash
-cp git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Jetbrains-Toolbox.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop,1password.desktop,jetbrains-toolbox.desktop} ~/.local/share/applications
+cp ~/git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop,1password.desktop,jetbrains-toolbox.desktop} ~/.local/share/applications
 ```
 
 Copy icons:
 ```bash
-cp git/dotfiles/.local/share/applications/icons/{Chess.png,Disneyplus.png,HBOmax.png,Jetbrains-Toolbox.png,Messenger.png,Netflix.png,PrimeVideo.png,ProtonApps.png,ProtonMail.png,TV2Play.png,Twitch.png,Viaplay.png,Wifi.png} ~/.local/share/applications/icons
+cp ~/git/dotfiles/.local/share/applications/icons/{Chess.png,Disneyplus.png,HBOmax.png,Messenger.png,Netflix.png,PrimeVideo.png,ProtonApps.png,ProtonMail.png,TV2Play.png,Twitch.png,Viaplay.png,Wifi.png} ~/.local/share/applications/icons
+```
+JetBrains Toolbox icon:
+```bash
+sudo cp ~/git/dotfiles/.local/share/applications/icons/toolbox.svg /opt/jetbrains-toolbox/
 ```
 
 ## 10. After Dotfiles
