@@ -1,13 +1,9 @@
 #######################################
 # ENVIRONMENT VARIABLES
 #######################################
-export EDITOR=vim
-export GTK_THEME=catppuccin-mocha-blue-standard+default
-export PATH=$PATH:/usr/local/go/bin:$HOME/.local/bin
-export POETRY_HOME=/opt/poetry
-export PATH="$POETRY_HOME/bin:$PATH"
+export EDITOR=nvim
 export PATH="$HOME/.local/share/JetBrains/Toolbox/scripts:$PATH"
-export TERM=xterm-256color
+# export TERM=xterm-256color
 
 # Pyenv
 export PYENV_ROOT="$HOME/.pyenv"
