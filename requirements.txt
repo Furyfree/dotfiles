@@ -6,12 +6,12 @@ pandas
 statsmodels
 
 # DTU Specific Packages
-dtumathtools # Comment out for Python 3.13
+dtumathtools
 unitgrade
 
 # Machine Learning & AI
-scikit-learn # Comment out for Python 3.13
-tensorflow # Comment out for Python 3.13
+scikit-learn
+tensorflow
 torch
 
 # Data Visualisering
