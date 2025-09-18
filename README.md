@@ -10,9 +10,9 @@ git clone git@github.com:Furyfree/dotfiles.git
 ```
 
 ## 1. Shell & Essentials
-Install `zsh`, `nano`, `tmux`, and `kdeconnect` (for device integration):
+Install `zsh`, `nano`, `tmux`, `seahorse` and `kdeconnect` (for device integration):
 ```bash
-sudo pacman -S zsh nano tmux kdeconnect
+sudo pacman -S zsh nano tmux seahorse kdeconnect
 chsh -s $(which zsh)
 ```
 
