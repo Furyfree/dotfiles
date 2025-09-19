@@ -12,7 +12,8 @@ gtk-titlebar-hide-when-maximized = true
 
 theme = "catppuccin-mocha"
 
-# Keybinds
+confirm-close-surface = false
 
+# Keybinds
 # Allow closing the current tab (with all splits) via Ctrl+Shift+W
 keybind = "ctrl+shift+w=close_tab"
