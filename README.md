@@ -9,20 +9,24 @@ mkdir -p git
 git clone git@github.com:Furyfree/dotfiles.git
 ```
 
-## 1. Shell & Essentials
+## 1. Essentials
 Install `zsh`, `nano`, `tmux`, `seahorse`, `pacman-contrib`, `mono` and `kdeconnect` (for device integration):
 ```bash
 sudo pacman -S zsh nano tmux seahorse pacman-contrib mono kdeconnect
+```
+
+## 2. Shell
+```bash
 chsh -s $(which zsh)
 ```
 
-## 2. Development Dependencies
+## 3. Development Dependencies
 Install core development libraries and headers required for building packages and Python:
 ```bash
 sudo pacman -S --needed base-devel tk bzip2 zlib xz libffi sqlite gdbm openssl
 ```
 
-## 3. Editors
+## 4. Editors
 **Zed Editor**
 ```bash
 curl -f https://zed.dev/install.sh | sh
@@ -33,7 +37,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 rustup default stable
 ```
 
-## 4. AUR Helper (Paru)
+## 5. AUR Helper (Paru)
 Install paru from AUR:
 ```bash
 git clone https://aur.archlinux.org/paru.git
@@ -48,20 +52,20 @@ paru -Syy
 paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin 1password os-prober wlogout
 ```
 
-## 5. Pacman Configuration
+## 6. Pacman Configuration
 Enable multilib (for 32-bit packages):
 ```bash
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 ```
 
-## 6. AMD Drivers (HP EliteBook)
+## 7. AMD Drivers (HP EliteBook)
 Install drivers and Vulkan support:
 ```bash
 sudo pacman -S --needed mesa lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader libva-mesa-driver lib32-libva-mesa-driver vulkan-tools mesa-demos
 ```
 
-## 7. GRUB Configuration
+## 8. GRUB Configuration
 Set GRUB timeout to -1 (no timeout) and enable `os-prober`:
 ```bash
 GRUB_TIMEOUT=-1
@@ -69,7 +73,7 @@ GRUB_DISABLE_OS_PROBER=false
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-## 8. Python (Pyenv)
+## 9. Python (Pyenv)
 Install Pyenv and multiple Python versions:
 ```bash
 curl -fsSL https://pyenv.run | bash
@@ -77,7 +81,7 @@ pyenv install 3.11 && pyenv install 3.12 && pyenv install 3.13
 pyenv global 3.13
 ```
 
-## 9. Desktop Integrations
+## 10. Desktop Integrations
 Copy custom `.desktop` launchers:
 ```bash
 cp ~/git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop,1password.desktop,jetbrains-toolbox.desktop} ~/.local/share/applications
@@ -92,5 +96,5 @@ JetBrains Toolbox icon:
 sudo cp ~/git/dotfiles/.local/share/applications/icons/toolbox.svg /opt/jetbrains-toolbox/
 ```
 
-## 10. After Dotfiles
+## 11. After Dotfiles
 Once your dotfiles are symlinked/applied, most configs should be ready to use.
