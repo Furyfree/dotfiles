@@ -12,6 +12,9 @@ eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 # eval "$(pyenv virtualenv-init -)"  # Uncomment if needed
 
+# Turn on vim-mode terminal
+bindkey -v
+
 # NVM
 # source /usr/share/nvm/init-nvm.sh
 
@@ -22,18 +25,24 @@ eval "$(starship init zsh)"
 #######################################
 # HISTORY CONFIG
 #######################################
-HISTFILE=~/.zsh_history
-HISTSIZE=100000
-SAVEHIST=100000
+HISTSIZE=10000               # number of commands kept in memory
+SAVEHIST=10000               # number of commands saved to file
+HISTFILE=~/.zsh_history      # history file path
 
-setopt APPEND_HISTORY
-setopt INC_APPEND_HISTORY
-setopt SHARE_HISTORY
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_ALL_DUPS
-setopt HIST_IGNORE_SPACE
-setopt HIST_REDUCE_BLANKS
-setopt HIST_VERIFY
+setopt APPEND_HISTORY         # append to history file, don't overwrite
+setopt INC_APPEND_HISTORY     # write to history immediately
+setopt SHARE_HISTORY          # share history across terminals
+
+setopt HIST_IGNORE_DUPS       # ignore duplicate of the previous command
+setopt HIST_IGNORE_ALL_DUPS   # remove older duplicate commands
+setopt HIST_SAVE_NO_DUPS      # don't save dups in history file
+setopt HIST_EXPIRE_DUPS_FIRST # expire duplicates before unique entries
+
+setopt HIST_FIND_NO_DUPS      # skip duplicates when searching history
+setopt HIST_IGNORE_SPACE      # don't record commands starting with space
+setopt HIST_REDUCE_BLANKS     # remove superfluous blanks
+setopt HIST_LEX_WORDS         # better parsing of complex/multiline commands
+setopt HIST_VERIFY            # don't run recalled command immediately
 
 #######################################
 # ZINIT (PLUGIN MANAGER)
@@ -191,3 +200,4 @@ compinit
 export PATH="$PATH:/home/pby/.lmstudio/bin"
 # End of LM Studio CLI section
 
+export PATH="$PATH:$HOME/.dotnet/tools"
