@@ -135,8 +135,18 @@ sudo ln -s /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
    # Then restart Helium from your application launcher
    ```
 
-## 15. Make Helium standard for opening webapps
+## 15. Make Helium standard browser
 ```bash
+# symlink din custom webapp launcher
 ln -s ~/git/dotfiles/.local/bin/omarchy-launch-webapp ~/.local/bin
+
+# sæt Helium som systemets default browser
+xdg-settings set default-web-browser helium-browser.desktop
+
+# sørg for at alle http/https-links åbner i Helium
+xdg-mime default helium-browser.desktop x-scheme-handler/http
+xdg-mime default helium-browser.desktop x-scheme-handler/https
+
+# reload Hyprland så ændringer træder i kraft
 hyprctl reload
 ```
