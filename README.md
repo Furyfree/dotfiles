@@ -49,7 +49,7 @@ cd .. && rm -rf paru
 Update package databases and install apps:
 ```bash
 paru -Syy
-paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin 1password os-prober wlogout helium-browser-bin chromium-widevine
+paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin 1password os-prober wlogout helium-browser-bin chromium-widevine handlr mimeo
 ```
 
 ## 6. Add Helium and Zen Browser to 1Password trusted
@@ -135,39 +135,53 @@ sudo ln -s /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
    # Then restart Helium from your application launcher
    ```
 
-## 15. Make Helium standard browser
+## 15. Make Helium Default Browser
 ```bash
-# symlink din custom webapp launcher
+# symlink your custom webapp launcher
 ln -s ~/git/dotfiles/.local/bin/omarchy-launch-webapp ~/.local/bin
 
-# sæt Helium som systemets default browser
+# set Helium as the system's default browser
 xdg-settings set default-web-browser helium-browser.desktop
 
-# sørg for at alle http/https-links åbner i Helium
-xdg-mime default helium-browser.desktop x-scheme-handler/http
-xdg-mime default helium-browser.desktop x-scheme-handler/https
+# ensure all MIME types are set to Helium
+handlr set x-scheme-handler/http        helium-browser.desktop
+handlr set x-scheme-handler/https       helium-browser.desktop
+handlr set x-scheme-handler/chrome      helium-browser.desktop
+handlr set x-scheme-handler/about       helium-browser.desktop
+handlr set x-scheme-handler/unknown     helium-browser.desktop
 
-# reload Hyprland så ændringer træder i kraft
+
+handlr set text/html                    helium-browser.desktop
+handlr set application/xhtml+xml        helium-browser.desktop
+handlr set application/x-extension-htm  helium-browser.desktop
+handlr set application/x-extension-html helium-browser.desktop
+handlr set application/x-extension-shtml helium-browser.desktop
+handlr set application/x-extension-xht   helium-browser.desktop
+handlr set application/x-extension-xhtml helium-browser.desktop
+
+
+# reload Hyprland so changes take effect
 hyprctl reload
 ```
-## 16. Synkronisering af bookmarks med BookmarkHub
 
-For at dele bookmarks mellem Helium (Chromium) og Zen (Gecko) på tværs af computere bruges [BookmarkHub](https://github.com/dudor/BookmarkHub).
-Backend er en **GitHub Gist**, og credentials gemmes i **1Password**.
+## 16. Bookmark Synchronization with BookmarkHub
 
-### Opsætning
+To share bookmarks between Helium (Chromium) and Zen (Gecko) across computers, use [BookmarkHub](https://github.com/dudor/BookmarkHub).
+The backend is a **GitHub Gist**, and credentials are stored in **1Password**.
 
-1. **Installer extension**
-   - Download BookmarkHub fra Chrome Web Store.
-   - Installer i både Helium og Zen.
+### Setup
 
-2. **Konfigurer BookmarkHub i browseren**
-   - Åbn extension settings.
+1. **Install extension**
+   - Download BookmarkHub from Chrome Web Store.
+   - Install in both Helium and Zen.
+
+2. **Configure BookmarkHub in browser**
+   - Open extension settings.
    - **1Password Entry**: `GitHub Personal Access Token GIST Bookmark Hub`
-   - **Github Token**: hentes fra 1Password (`bookmarkhub-gist.token`).
-   - **Gist ID**: hentes fra 1Password (`bookmarkhub-gist.gist-id`).
+   - **Github Token**: retrieve from 1Password (`bookmarkhub-gist.token`).
+   - **Gist ID**: retrieve from 1Password (`bookmarkhub-gist.gist-id`).
 
 4. **Initial sync**
-   - Klik **Delete all bookmarks** i BookmarkHub (så du starter rent).
-   - Klik **Download bookmarks** for at hente fra gisten.
-   - Fremover: tilføjer du et bookmark i én browser, kan du **Upload bookmarks** → og derefter **Download bookmarks** i den anden.
+   - Click **Delete all bookmarks** in BookmarkHub (to start clean).
+   - Click **Download bookmarks** to fetch from the gist.
+   - Going forward: when you add a bookmark in one browser, you can **Upload bookmarks** → then **Download bookmarks** in the other.
