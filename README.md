@@ -110,3 +110,27 @@ Once your dotfiles are symlinked/applied, most configs should be ready to use.
 ```bash
 bat cache --build
 ```
+
+## 14. Enable Widevine DRM in Helium Browser
+**Create symbolic link for Widevine DRM module:**
+```bash
+sudo ln -s /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
+```
+
+**Verify and configure Widevine:**
+
+1. **Check Widevine component status:**
+   - Open `chrome://components` in Helium
+   - Verify "Widevine Content Decryption Module" is listed with a version number
+   - **Note:** Status may show "Update error" - this is expected for non-Google builds
+   - Updates will be handled through the `chromium-widevine` package
+
+2. **Enable protected content:**
+   - Navigate to: `chrome://settings/content/protectedContent`
+   - Ensure "Allow sites to play protected content" is enabled
+
+3. **Apply changes:**
+   ```bash
+   pkill chrome  # Completely close Helium
+   # Then restart Helium from your application launcher
+   ```
