@@ -135,21 +135,28 @@ sudo ln -s /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
    # Then restart Helium from your application launcher
    ```
 
-## 15. Make Helium Default Browser
+## 15. Set default browser
+Choose either Zen Browser or Helium Browser
+
+**Symlink your custom webapp launcher**
 ```bash
-# symlink your custom webapp launcher
 ln -s ~/git/dotfiles/.local/bin/omarchy-launch-webapp ~/.local/bin
+```
 
-# set Helium as the system's default browser
+### Make Helium Default Browser
+
+**Set Helium as the system's default browser**
+```bash
 xdg-settings set default-web-browser helium-browser.desktop
+```
 
-# ensure all MIME types are set to Helium
+**Ensure all MIME types are set to Helium**
+```bash
 handlr set x-scheme-handler/http        helium-browser.desktop
 handlr set x-scheme-handler/https       helium-browser.desktop
 handlr set x-scheme-handler/chrome      helium-browser.desktop
 handlr set x-scheme-handler/about       helium-browser.desktop
 handlr set x-scheme-handler/unknown     helium-browser.desktop
-
 
 handlr set text/html                    helium-browser.desktop
 handlr set application/xhtml+xml        helium-browser.desktop
@@ -158,9 +165,37 @@ handlr set application/x-extension-html helium-browser.desktop
 handlr set application/x-extension-shtml helium-browser.desktop
 handlr set application/x-extension-xht   helium-browser.desktop
 handlr set application/x-extension-xhtml helium-browser.desktop
+```
 
+**Reload Hyprland so changes take effect**
+```
+hyprctl reload
+```
+### Make Zen Default Browser
+**Set Zen as the system's default browser**
+```bash
+xdg-settings set default-web-browser zen.desktop
+```
 
-# reload Hyprland so changes take effect
+**Ensure all MIME types are set to Zen**
+```bash
+handlr set x-scheme-handler/http         zen.desktop
+handlr set x-scheme-handler/https        zen.desktop
+handlr set x-scheme-handler/chrome       zen.desktop
+handlr set x-scheme-handler/about        zen.desktop
+handlr set x-scheme-handler/unknown      zen.desktop
+
+handlr set text/html                     zen.desktop
+handlr set application/xhtml+xml         zen.desktop
+handlr set application/x-extension-htm   zen.desktop
+handlr set application/x-extension-html  zen.desktop
+handlr set application/x-extension-shtml zen.desktop
+handlr set application/x-extension-xht   zen.desktop
+handlr set application/x-extension-xhtml zen.desktop
+```
+
+**Reload Hyprland so changes take effect**
+```
 hyprctl reload
 ```
 
