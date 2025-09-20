@@ -150,3 +150,24 @@ xdg-mime default helium-browser.desktop x-scheme-handler/https
 # reload Hyprland så ændringer træder i kraft
 hyprctl reload
 ```
+## 16. Synkronisering af bookmarks med BookmarkHub
+
+For at dele bookmarks mellem Helium (Chromium) og Zen (Gecko) på tværs af computere bruges [BookmarkHub](https://github.com/dudor/BookmarkHub).
+Backend er en **GitHub Gist**, og credentials gemmes i **1Password**.
+
+### Opsætning
+
+1. **Installer extension**
+   - Download BookmarkHub fra Chrome Web Store.
+   - Installer i både Helium og Zen.
+
+2. **Konfigurer BookmarkHub i browseren**
+   - Åbn extension settings.
+   - **1Password Entry**: `GitHub Personal Access Token GIST Bookmark Hub`
+   - **Github Token**: hentes fra 1Password (`bookmarkhub-gist.token`).
+   - **Gist ID**: hentes fra 1Password (`bookmarkhub-gist.gist-id`).
+
+4. **Initial sync**
+   - Klik **Delete all bookmarks** i BookmarkHub (så du starter rent).
+   - Klik **Download bookmarks** for at hente fra gisten.
+   - Fremover: tilføjer du et bookmark i én browser, kan du **Upload bookmarks** → og derefter **Download bookmarks** i den anden.
