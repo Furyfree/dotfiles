@@ -49,7 +49,7 @@ cd .. && rm -rf paru
 Update package databases and install apps:
 ```bash
 paru -Syy
-paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin 1password os-prober wlogout helium-browser-bin
+paru -S jetbrains-toolbox ghostty visual-studio-code-bin wootility zen-browser-bin 1password os-prober wlogout helium-browser-bin chromium-widevine
 ```
 
 ## 6. Add Helium and Zen Browser to 1Password trusted
