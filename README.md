@@ -134,3 +134,9 @@ sudo ln -s /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
    pkill chrome  # Completely close Helium
    # Then restart Helium from your application launcher
    ```
+
+## 15. Make Helium standard for opening webapps
+```bash
+ln -s ~/git/dotfiles/.local/bin/omarchy-launch-webapp ~/.local/bin
+hyprctl reload
+```
