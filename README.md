@@ -179,7 +179,7 @@ nmcli connection up unifi-wg
 nmcli connection down unifi-wg
 ```
 
-## 10. Python (Pyenv)
+## 12. Python (Pyenv)
 Install Pyenv and multiple Python versions:
 ```bash
 curl -fsSL https://pyenv.run | bash
@@ -187,7 +187,7 @@ pyenv install 3.11 && pyenv install 3.12 && pyenv install 3.13
 pyenv global 3.13
 ```
 
-## 11. Desktop Integrations
+## 13. Desktop Integrations
 Copy custom `.desktop` launchers:
 ```bash
 cp ~/git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop,1password.desktop,jetbrains-toolbox.desktop,signal-desktop.desktop} ~/.local/share/applications
@@ -202,15 +202,15 @@ JetBrains Toolbox icon:
 sudo cp ~/git/dotfiles/.local/share/applications/icons/toolbox.svg /opt/jetbrains-toolbox/
 ```
 
-## 12. After Dotfiles
+## 14. After Dotfiles
 Once your dotfiles are symlinked/applied, most configs should be ready to use.
 
-## 13. After all configs
+## 15. After all configs
 ```bash
 bat cache --build
 ```
 
-## 14. Enable Widevine DRM in Helium Browser
+## 16. Enable Widevine DRM in Helium Browser
 **Create symbolic link for Widevine DRM module:**
 ```bash
 sudo ln -s /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
@@ -234,7 +234,7 @@ sudo ln -s /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
    # Then restart Helium from your application launcher
    ```
 
-## 15. Set default browser
+## 17. Set default browser
 Choose either Zen Browser or Helium Browser
 
 **Symlink your custom webapp launcher**
@@ -298,7 +298,7 @@ handlr set application/x-extension-xhtml zen.desktop
 hyprctl reload
 ```
 
-## 16. Bookmark Synchronization with BookmarkHub
+## 18. Bookmark Synchronization with BookmarkHub
 
 To share bookmarks between Helium (Chromium) and Zen (Gecko) across computers, use [BookmarkHub](https://github.com/dudor/BookmarkHub).
 The backend is a **GitHub Gist**, and credentials are stored in **1Password**.
@@ -320,7 +320,7 @@ The backend is a **GitHub Gist**, and credentials are stored in **1Password**.
    - Click **Download bookmarks** to fetch from the gist.
    - Going forward: when you add a bookmark in one browser, you can **Upload bookmarks** → then **Download bookmarks** in the other.
 
-## 17. Setup btrfs-grub Snapshots
+## 19. Setup btrfs-grub Snapshots
 
 1. Download snapshot packages
 ```bash
@@ -403,7 +403,7 @@ sudo snapper -c root delete <snapshot-ID>
 - This step is optional: Snapper’s cleanup rules (`NUMBER_LIMIT`, `NUMBER_MIN_AGE`) will eventually remove older snapshots automatically.
 
 # Not necessary
-## 18. Steps if long shutdown time
+## 20. Steps if long shutdown time
 
 ### Reduce systemd shutdown timeout to 15s
 1. Edit system.conf:
