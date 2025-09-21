@@ -228,7 +228,7 @@ The backend is a **GitHub Gist**, and credentials are stored in **1Password**.
 sudo pacman -S grub-btrfs snapper snap-pac
 ```
 
-2. Remove all timeshift backups if any
+2. Remove all timeshift backups if any - Abort if it asks to abort
 ```bash
 sudo timeshift --delete-all
 ```
