@@ -397,6 +397,7 @@ sudo snapper -c root delete <snapshot-ID>
 ```
 - This step is optional: Snapper’s cleanup rules (`NUMBER_LIMIT`, `NUMBER_MIN_AGE`) will eventually remove older snapshots automatically.
 
+# Not necessary
 ## 18. Steps if long shutdown time
 
 ### Reduce systemd shutdown timeout to 15s
