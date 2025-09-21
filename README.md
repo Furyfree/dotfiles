@@ -80,6 +80,21 @@ GRUB_DISABLE_OS_PROBER=false
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
+## 10. Move to NetworkManager
+```bash
+sudo pacman -S networkmanager network-manager-applet
+sudo systemctl disable --now iwd.service
+sudo systemctl enable --now NetworkManager.service
+sudo reboot
+```
+```bash
+nmcli device
+nmcli connection show
+nmcli device wifi list
+nmcli device wifi connect "Byrnes Wifi"
+paru -S proton-vpn-gtk-app
+```
+
 ## 10. Python (Pyenv)
 Install Pyenv and multiple Python versions:
 ```bash
