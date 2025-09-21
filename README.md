@@ -334,6 +334,8 @@ systemctl --user daemon-reexec
 ```
 
 4. Verify
+
+For system services:
 ```bash
 systemctl show -p DefaultTimeoutStopUSec
 ```
@@ -341,6 +343,7 @@ Expected output:
 ```bash
 DefaultTimeoutStopUSec=15s
 ```
+For user services:
 ```bash
 systemctl --user show -p DefaultTimeoutStopUSec
 ```
