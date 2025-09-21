@@ -193,8 +193,15 @@ Copy custom `.desktop` launchers:
 cp ~/git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop,1password.desktop,jetbrains-toolbox.desktop,signal-desktop.desktop} ~/.local/share/applications
 ```
 
-Add personal background:
+Remove not needed desktop entries:
+```bash
+for f in ~/.local/share/applications/{Basecamp.desktop,dropbox.desktop,Figma.desktop,Google\ Contacts.desktop,Google\ Messages.desktop,Google\ Photos.desktop,HEY.desktop,Impala.desktop,WhatsApp.desktop}; do
+  [ -e "$f" ] && mv "$f" "$f.bak"
+done
 ```
+
+Add personal background:
+```bash
 cp ~/git/dotfiles/.local/share/omarchy/themes/catppuccin/backgrounds/benjamin-voros-phIFdC6lA4E-unsplash.jpg .local/share/omarchy/themes/catppuccin/backgrounds
 ```
 
