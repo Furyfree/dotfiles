@@ -10,9 +10,9 @@ git clone git@github.com:Furyfree/dotfiles.git
 ```
 
 ## 1. Essentials
-Install `zsh`, `nano`, `tmux`, `seahorse`, `pacman-contrib`, `mono` `grub-btrfs` and `kdeconnect` (for device integration):
+Install `zsh`, `nano`, `tmux`, `seahorse`, `pacman-contrib`, `mono` and `kdeconnect` (for device integration):
 ```bash
-sudo pacman -S zsh nano tmux seahorse pacman-contrib mono kdeconnect grub-btrfs snapper snap-pac
+sudo pacman -S zsh nano tmux seahorse pacman-contrib mono kdeconnect
 ```
 
 ## 2. Shell
@@ -223,58 +223,63 @@ The backend is a **GitHub Gist**, and credentials are stored in **1Password**.
 
 ## 17. Setup btrfs-grub Snapshots
 
-1. Remove all timeshift backups if any
+1. Download snapshot packages
+```bash
+sudo pacman -S grub-btrfs snapper snap-pac
 ```
+
+2. Remove all timeshift backups if any
+```bash
 sudo timeshift --delete-all
 ```
 
-2. Remove timeshift
+3. Remove timeshift
 ```bash
 sudo pacman -Rns timeshift
 ```
 
-3. Create snapper config for root:
+4. Create snapper config for root:
 ```bash
 sudo snapper -c root create-config /
 ```
 
-4. Delete standard config
+5. Delete standard config
 ```bash
 sudo rm -f /etc/snapper/configs/root
 ```
 
-5. Symlink dotfiles config
+6. Symlink dotfiles config
 ```bash
 sudo cp ~/git/dotfiles/etc/snapper/configs/root /etc/snapper/configs/root
 ```
 
-6. Give correct permissions
+7. Give correct permissions
 ```bash
 sudo chown root:root /etc/snapper/configs/root
 sudo chmod 640 /etc/snapper/configs/root
 ```
 
-7. Enable quotas (required for proper space reporting and cleanup):
+8. Enable quotas (required for proper space reporting and cleanup):
 ```bash
 sudo btrfs quota enable /
 ```
 
-8. Create initial snapshots
+9. Create initial snapshots
 ```bash
 sudo snapper -c root create -d "initial"
 ```
 
-9. Enable grub-btrfs
+10. Enable grub-btrfs
 ```bash
 sudo systemctl enable --now grub-btrfsd.service
 ```
 
-10. Rebuild GRUB
+11. Rebuild GRUB
 ```bash
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-11. Verify
+12. Verify
 ```bash
 sudo snapper -c root get-config
 ```
