@@ -84,9 +84,47 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```bash
 sudo pacman -S networkmanager network-manager-applet
 sudo systemctl disable --now iwd.service
+sudo systemctl mask iwd
+sudo systemctl enable --now wpa_supplicant
 sudo systemctl enable --now NetworkManager.service
+
+sudo systemctl disable --now iwd systemd-networkd systemd-networkd-wait-online
+```
+
+sudo nano /etc/NetworkManager/conf.d/wifi_backend.conf
+```bash
+[device]
+wifi.backend=wpa_supplicant
+```
+
+sudo nano /etc/NetworkManager/NetworkManager.conf
+```bash
+[main]
+plugins=keyfile
+
+[device]
+wifi.backend=wpa_supplicant
+```
+```bash
+sudo systemctl restart NetworkManager
+```
+
+```bash
+nmcli networking on
+nmcli radio wifi on
+```
+
+Verify:
+```bash
+nmcli general status
+nmcli device status
+```
+
+```bash
 sudo reboot
 ```
+
+Connect to wifi:
 ```bash
 nmcli device
 nmcli connection show
