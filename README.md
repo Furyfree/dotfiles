@@ -109,6 +109,11 @@ wifi.backend=wpa_supplicant
 sudo systemctl restart NetworkManager
 ```
 
+Verify (Should only show wpa):
+```bash
+ps -e | grep -E "iwd|wpa"
+```
+
 ```bash
 nmcli networking on
 nmcli radio wifi on
