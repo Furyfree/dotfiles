@@ -302,3 +302,49 @@ sudo reboot
 sudo snapper -c root delete <snapshot-ID>
 ```
 - This step is optional: Snapper’s cleanup rules (`NUMBER_LIMIT`, `NUMBER_MIN_AGE`) will eventually remove older snapshots automatically.
+
+## Reduce systemd shutdown timeout to 15s
+1. Edit system.conf:
+```bash
+sudo nano /etc/systemd/system.conf
+```
+Uncomment or add the line:
+```bash
+DefaultTimeoutStopSec=15s
+```
+Save and exit.
+
+2. Edit user.conf
+```bash
+sudo nano /etc/systemd/user.conf
+```
+Add or uncomment the same line:
+```bash
+DefaultTimeoutStopSec=15s
+```
+
+3. Reload systemd
+For system services:
+```bash
+sudo systemctl daemon-reexec
+```
+For user services:
+```bash
+systemctl --user daemon-reexec
+```
+
+4. Verify
+```bash
+systemctl show -p DefaultTimeoutStopUSec
+```
+Expected output:
+```bash
+DefaultTimeoutStopUSec=15s
+```
+```bash
+systemctl --user show -p DefaultTimeoutStopUSec
+```
+Expected output:
+```bash
+DefaultTimeoutStopUSec=15s
+```
