@@ -235,13 +235,13 @@ sudo rm -f /etc/snapper/configs/root
 
 3. Symlink dotfiles config
 ```bash
-sudo ln -s ~/git/dotfiles/etc/snapper/configs/root /etc/snapper/configs/root
+sudo cp ~/git/dotfiles/etc/snapper/configs/root /etc/snapper/configs/root
 ```
 
 4. Give correct permissions
 ```bash
-sudo chown root:root /home/pby/git/dotfiles/etc/snapper/configs/root
-sudo chmod 640 /home/pby/git/dotfiles/etc/snapper/configs/root
+sudo chown root:root /etc/snapper/configs/root
+sudo chmod 640 /etc/snapper/configs/root
 ```
 
 5. Enable quotas (required for proper space reporting and cleanup):
