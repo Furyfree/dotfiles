@@ -92,7 +92,48 @@ nmcli device
 nmcli connection show
 nmcli device wifi list
 nmcli device wifi connect "Byrnes Wifi"
+```
+
+## 11. Download VPNs
+1. Download Proton VPN
+```bash
 paru -S proton-vpn-gtk-app
+```
+
+2. Download DTU VPNs
+```bash
+sudo pacman -S openconnect networkmanager-openconnect
+```
+Add DTU VPN
+```bash
+nmcli connection add type vpn vpn-type openconnect con-name dtu-vpn +vpn.data "gateway=vpn.dtu.dk,protocol=anyconnect"
+```
+Go to tray and edit dtu-vpn and add to User Agent: `AnyConnect`
+
+Now you can connect and disconnectvia:
+```bash
+nmcli connection up dtu-vpn
+nmcli connection down dtu-vpn
+```
+
+3. Download Unifi VPN
+Go to Unifi Website --> Settings --> VPN --> VPN Server --> Byrne VPN Wireguard --> Add Client --> Name first before Download:
+```bash
+mv ~/Downloads/Byrne-VPN-Wireguard-* ~/Downloads/wg0.conf
+```
+
+Create connection:
+```bash
+nmcli connection import type wireguard file ~/Downloads/wg0.conf
+```
+Rename:
+```bash
+nmcli connection modify wg0 connection.id "unifi-wg"
+```
+Connect and disconnect:
+```bash
+nmcli connection up unifi-wg
+nmcli connection down unifi-wg
 ```
 
 ## 10. Python (Pyenv)
