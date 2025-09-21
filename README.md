@@ -223,51 +223,77 @@ The backend is a **GitHub Gist**, and credentials are stored in **1Password**.
 
 ## 17. Setup btrfs-grub Snapshots
 
-1. Create snapper config for root:
+1. Remove all timeshift backups if any
+```
+sudo timeshift --delete-all
+```
+
+2. Remove timeshift
+```bash
+sudo pacman -Rns timeshift
+```
+
+3. Create snapper config for root:
 ```bash
 sudo snapper -c root create-config /
 ```
 
-2. Delete standard config
+4. Delete standard config
 ```bash
 sudo rm -f /etc/snapper/configs/root
 ```
 
-3. Symlink dotfiles config
+5. Symlink dotfiles config
 ```bash
 sudo cp ~/git/dotfiles/etc/snapper/configs/root /etc/snapper/configs/root
 ```
 
-4. Give correct permissions
+6. Give correct permissions
 ```bash
 sudo chown root:root /etc/snapper/configs/root
 sudo chmod 640 /etc/snapper/configs/root
 ```
 
-5. Enable quotas (required for proper space reporting and cleanup):
+7. Enable quotas (required for proper space reporting and cleanup):
 ```bash
 sudo btrfs quota enable /
 ```
 
-6. Create initial snapshots
+8. Create initial snapshots
 ```bash
 sudo snapper -c root create -d "initial"
 ```
 
-7. Enable grub-btrfs
+9. Enable grub-btrfs
 ```bash
 sudo systemctl enable --now grub-btrfsd.service
 ```
 
-8. Rebuild GRUB
+10. Rebuild GRUB
 ```bash
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-9. Verify
+11. Verify
 ```bash
 sudo snapper -c root get-config
 ```
 ```bash
 sudo snapper -c root list
 ```
+
+### Rollback workflow
+1. Reboot → select **"Arch Linux snapshots"** in GRUB and boot into the snapshot from before the update.
+2. Once you’ve confirmed the system works, make the rollback permanent:
+```bash
+sudo snapper -c root rollback <snapshot-ID>
+sudo reboot
+```
+
+### Cleanup
+- After a rollback, the snapshot you restored from will still exist in `/.snapshots`
+- You can delete it manually if you don’t need it anymore:
+```bash
+sudo snapper -c root delete <snapshot-ID>
+```
+- This step is optional: Snapper’s cleanup rules (`NUMBER_LIMIT`, `NUMBER_MIN_AGE`) will eventually remove older snapshots automatically.
