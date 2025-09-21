@@ -90,14 +90,20 @@ sudo systemctl enable --now NetworkManager.service
 
 sudo systemctl disable --now iwd systemd-networkd systemd-networkd-wait-online
 ```
-
+Edit this file:
+```bash
 sudo nano /etc/NetworkManager/conf.d/wifi_backend.conf
+```
+And add this to it:
 ```bash
 [device]
 wifi.backend=wpa_supplicant
 ```
-
+Edit this file:
+```bash
 sudo nano /etc/NetworkManager/NetworkManager.conf
+```
+And add this to it:
 ```bash
 [main]
 plugins=keyfile
