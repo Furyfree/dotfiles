@@ -193,6 +193,11 @@ Copy custom `.desktop` launchers:
 cp ~/git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop,1password.desktop,jetbrains-toolbox.desktop,signal-desktop.desktop} ~/.local/share/applications
 ```
 
+Add personal background:
+```
+cp ~/git/dotfiles/.local/share/omarchy/themes/catppuccin/backgrounds/benjamin-voros-phIFdC6lA4E-unsplash.jpg .local/share/omarchy/themes/catppuccin/backgrounds
+```
+
 Copy icons:
 ```bash
 cp ~/git/dotfiles/.local/share/applications/icons/{Chess.png,Disneyplus.png,HBOmax.png,Messenger.png,Netflix.png,PrimeVideo.png,ProtonApps.png,ProtonMail.png,TV2Play.png,Twitch.png,Viaplay.png,Wifi.png} ~/.local/share/applications/icons
