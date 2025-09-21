@@ -10,9 +10,9 @@ git clone git@github.com:Furyfree/dotfiles.git
 ```
 
 ## 1. Essentials
-Install `zsh`, `nano`, `tmux`, `seahorse`, `pacman-contrib`, `mono` and `kdeconnect` (for device integration):
+Install `zsh`, `nano`, `tmux`, `seahorse`, `pacman-contrib`, `mono` `grub-btrfs` and `kdeconnect` (for device integration):
 ```bash
-sudo pacman -S zsh nano tmux seahorse pacman-contrib mono kdeconnect
+sudo pacman -S zsh nano tmux seahorse pacman-contrib mono kdeconnect grub-btrfs snapper snap-pac
 ```
 
 ## 2. Shell
@@ -220,3 +220,54 @@ The backend is a **GitHub Gist**, and credentials are stored in **1Password**.
    - Click **Delete all bookmarks** in BookmarkHub (to start clean).
    - Click **Download bookmarks** to fetch from the gist.
    - Going forward: when you add a bookmark in one browser, you can **Upload bookmarks** → then **Download bookmarks** in the other.
+
+## 17. Setup btrfs-grub Snapshots
+
+1. Create snapper config for root:
+```bash
+sudo snapper -c root create-config /
+```
+
+2. Delete standard config
+```bash
+sudo rm -f /etc/snapper/configs/root
+```
+
+3. Symlink dotfiles config
+```bash
+sudo ln -s ~/git/dotfiles/etc/snapper/configs/root /etc/snapper/configs/root
+```
+
+4. Give correct permissions
+```bash
+sudo chown root:root /home/pby/git/dotfiles/etc/snapper/configs/root
+sudo chmod 640 /home/pby/git/dotfiles/etc/snapper/configs/root
+```
+
+5. Enable quotas (required for proper space reporting and cleanup):
+```bash
+sudo btrfs quota enable /
+```
+
+6. Create initial snapshots
+```bash
+sudo snapper -c root create -d "initial"
+```
+
+7. Enable grub-btrfs
+```bash
+sudo systemctl enable --now grub-btrfsd.service
+```
+
+8. Rebuild GRUB
+```bash
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+9. Verify
+```bash
+sudo snapper -c root get-config
+```
+```bash
+sudo snapper -c root list
+```
