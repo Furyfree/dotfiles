@@ -140,7 +140,7 @@ Connect to wifi:
 nmcli device
 nmcli connection show
 nmcli device wifi list
-nmcli device wifi connect "Byrnes Wifi"
+nmcli device wifi connect "SSID"
 ```
 
 ## 11. Download VPNs
