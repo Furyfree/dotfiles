@@ -5,5 +5,5 @@ Comment=Messenger
 Exec=omarchy-launch-webapp https://www.messenger.com/
 Terminal=false
 Type=Application
-Icon=/home/pby/.local/share/applications/icons/messenger.png
+Icon=/home/pby/.local/share/applications/icons/Messenger.png
 StartupNotify=true
