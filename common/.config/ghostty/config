@@ -9,6 +9,7 @@ window-padding-y = 8
 
 window-decoration = "auto"
 gtk-titlebar-hide-when-maximized = true
+term = xterm-256color
 
 theme = "catppuccin-mocha"
 
