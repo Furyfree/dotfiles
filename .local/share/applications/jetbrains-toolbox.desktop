@@ -1,5 +1,5 @@
 [Desktop Entry]
-Icon=/opt/jetbrains-toolbox/toolbox.svg
+Icon=/home/pby/.local/share/applications/icons/toolbox.png
 Exec=/opt/jetbrains-toolbox/jetbrains-toolbox %u
 Version=1.0
 Type=Application

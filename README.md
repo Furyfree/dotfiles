@@ -213,11 +213,7 @@ cp ~/git/dotfiles/.local/share/omarchy/themes/catppuccin/backgrounds/benjamin-vo
 
 Copy icons:
 ```bash
-cp ~/git/dotfiles/.local/share/applications/icons/{Chess.png,Disneyplus.png,HBOmax.png,Messenger.png,Netflix.png,PrimeVideo.png,ProtonApps.png,ProtonMail.png,TV2Play.png,Twitch.png,Viaplay.png,Wifi.png,GoogleMaps.png,LazyGit.png} ~/.local/share/applications/icons
-```
-JetBrains Toolbox icon:
-```bash
-sudo cp ~/git/dotfiles/.local/share/applications/icons/toolbox.svg /opt/jetbrains-toolbox/
+cp ~/git/dotfiles/.local/share/applications/icons/{Chess.png,Disneyplus.png,HBOmax.png,Messenger.png,Netflix.png,PrimeVideo.png,ProtonApps.png,ProtonMail.png,TV2Play.png,Twitch.png,Viaplay.png,Wifi.png,GoogleMaps.png,LazyGit.png,toolbox.png} ~/.local/share/applications/icons
 ```
 
 ## 14. After Dotfiles
