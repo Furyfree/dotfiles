@@ -124,6 +124,25 @@ alias dtuvpn='sudo openconnect --useragent=AnyConnect --user=s224338 vpn.dtu.dk'
 # System Maintenance
 alias updategrub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 
+# Toggle pyenv (disable → enable)
+function toggle-pyenv() {
+  if [[ -n "$PYENV_ROOT" ]]; then
+    echo "[INFO] Disabling pyenv"
+    export ORIG_PATH="$PATH"
+    unset PYENV_ROOT
+    export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v '\.pyenv' | command paste -sd ':' -)
+    hash -r
+  else
+    echo "[INFO] Re-enabling pyenv"
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$ORIG_PATH"
+    eval "$(pyenv init --path)"
+    eval "$(pyenv init -)"
+    hash -r
+  fi
+}
+
+
 #######################################
 # COMPLETION
 #######################################
