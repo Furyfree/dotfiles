@@ -223,6 +223,22 @@ sudo cp ~/git/dotfiles/.local/share/applications/icons/toolbox.svg /opt/jetbrain
 ## 14. After Dotfiles
 Once your dotfiles are symlinked/applied, most configs should be ready to use.
 
+## 15. Download pwvucontrol
+Disable pyenv using function from .zshrc:
+```bash
+ toggle-pyenv
+ ```
+
+Install pwvucontrol:
+```bash
+paru -S pwvucontrol
+```
+
+Enable pyenv again:
+```bash
+ toggle-pyenv
+ ```
+
 ## 15. After all configs
 ```bash
 bat cache --build
