@@ -196,7 +196,7 @@ pyenv global 3.13
 ## 13. Desktop Integrations
 Copy custom `.desktop` launchers:
 ```bash
-cp ~/git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop,1password.desktop,jetbrains-toolbox.desktop,signal-desktop.desktop,GoogleMaps.desktop,LazyGit.desktop} ~/.local/share/applications
+cp ~/git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop,1password.desktop,jetbrains-toolbox.desktop,signal-desktop.desktop,GoogleMaps.desktop,LazyGit.desktop,Rider.desktop,PyCharm.desktop,IntelliJ.desktop} ~/.local/share/applications
 ```
 
 Remove not needed desktop entries:
@@ -213,7 +213,14 @@ cp ~/git/dotfiles/.local/share/omarchy/themes/catppuccin/backgrounds/benjamin-vo
 
 Copy icons:
 ```bash
-cp ~/git/dotfiles/.local/share/applications/icons/{Chess.png,Disneyplus.png,HBOmax.png,Messenger.png,Netflix.png,PrimeVideo.png,ProtonApps.png,ProtonMail.png,TV2Play.png,Twitch.png,Viaplay.png,Wifi.png,GoogleMaps.png,LazyGit.png,toolbox.png} ~/.local/share/applications/icons
+cp ~/git/dotfiles/.local/share/applications/icons/{Chess.png,Disneyplus.png,HBOmax.png,Messenger.png,Netflix.png,PrimeVideo.png,ProtonApps.png,ProtonMail.png,TV2Play.png,Twitch.png,Viaplay.png,Wifi.png,GoogleMaps.png,LazyGit.png,toolbox.png,IntelliJ.png,PyCharm.png,Rider.png} ~/.local/share/applications/icons
+```
+
+Remove display of all jetbrains desktop apps:
+```bash
+for f in ~/.local/share/applications/jetbrains-*-*.desktop; do
+  grep -q "^NoDisplay=true" "$f" || echo "NoDisplay=true" >> "$f"
+done
 ```
 
 ## 14. After Dotfiles
