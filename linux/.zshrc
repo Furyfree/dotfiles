@@ -35,7 +35,6 @@ bindkey '^[[6~' undefined-key            # PageDown
 # Editing: Delete / Backspace variations
 bindkey '^[[3~' delete-char              # Delete -> remove character under cursor
 bindkey '^H' backward-kill-word          # Ctrl+Backspace -> delete previous word
-bindkey '^?' backward-kill-word          # (alt variant for Ctrl+Backspace on some terminals)
 bindkey '^[[3;5~' kill-word              # Ctrl+Delete -> delete next word
 
 # Word-wise navigation
