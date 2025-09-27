@@ -48,7 +48,7 @@ mise use -g java@corretto-21
 #### Initialize environment
 Run the following commands once to create the local Python environment and install dependencies:
 ```bash
-mise use python@3.13 # or mise use python@3.12
+mise install # if mise.toml exists or use: mise use python@3.12 #3.13?
 uv venv
 uv pip install -r requirements.txt
 uv run python -V
