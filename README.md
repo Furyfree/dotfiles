@@ -25,6 +25,43 @@ Install core development libraries and headers required for building packages an
 ```bash
 sudo pacman -S --needed base-devel tk bzip2 zlib xz libffi sqlite gdbm openssl
 ```
+Use mise to manage development:
+```bash
+mise use --global go@latest
+mise use --global python@latest
+curl -fsSL https://astral.sh/uv/install.sh | sh
+mise use --global java@latest
+mise use --global zig@latest
+mise use -g zls@latest
+mise use --global dotnet@latest
+```
+
+To use specific versions of any language:
+```bash
+mise ls-remote java | head
+mise use -g java@21
+mise use -g java@corretto-25
+mise use -g java@corretto-21
+```
+
+### Python specific guide `mise` + `uv`
+#### Initialize environment
+Run the following commands once to create the local Python environment and install dependencies:
+```bash
+uv venv
+uv pip install -r requirements.txt
+uv run python -V
+```
+
+#### Run a Python script
+Example with `main.py`:
+```bash
+uv run python main.py
+```
+
+#### Notes
+- No manual source `.venv/bin/activate` is required — `uv` will auto-detect the environment.
+- Global language versions are managed with `mise`; Python dependencies are handled locally with `uv`.
 
 ## 4. Editors
 **Zed Editor**

@@ -10,11 +10,8 @@ export PATH="$PATH:$HOME/.lmstudio/bin"
 export PATH="$PATH:$HOME/.dotnet/tools"
 export PATH="$PATH:$HOME/.local/share/omarchy/bin:$PATH"
 
-# Pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
+# Mise (Environment manager for multiple languages)
+eval "$(mise activate zsh)"
 
 # Turn on vim-mode terminal
 bindkey -v
@@ -148,3 +145,5 @@ function toggle-pyenv() {
 #######################################
 autoload -Uz compinit
 compinit
+
+. "$HOME/.local/share/../bin/env"
