@@ -34,6 +34,7 @@ mise use --global java@latest
 mise use --global zig@latest
 mise use -g zls@latest
 mise use --global dotnet@latest
+bash -c "$(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs)" -- -y
 ```
 
 To use specific versions of any language:
@@ -67,11 +68,6 @@ uv run python main.py
 **Zed Editor**
 ```bash
 curl -f https://zed.dev/install.sh | sh
-```
-**Rustup (skip if using Omarchy)**
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-rustup default stable
 ```
 
 ## 5. AUR Helper (Paru)
