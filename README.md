@@ -27,11 +27,11 @@ sudo pacman -S --needed base-devel tk bzip2 zlib xz libffi sqlite gdbm openssl
 ```
 Use mise to manage development:
 ```bash
-mise use --global go@latest
+# mise use --global go@latest
 curl -fsSL https://astral.sh/uv/install.sh | sh
 mise use --global java@latest
-mise use --global zig@latest
-mise use -g zls@latest
+# mise use --global zig@latest
+# mise use -g zls@latest
 bash -c "$(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs)" -- -y
 sudo pacman -S dotnet-sdk
 ```
