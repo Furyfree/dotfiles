@@ -15,6 +15,12 @@ theme = "catppuccin-mocha"
 
 confirm-close-surface = false
 
-# Keybinds
+############
+# Keybinds #
+############
 # Allow closing the current tab (with all splits) via Ctrl+Shift+W
 keybind = "ctrl+shift+w=close_tab"
+
+# Scroll the scrollback with PgUp/PgDn
+keybind = page_up=scroll_page_up
+keybind = page_down=scroll_page_down

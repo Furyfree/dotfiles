@@ -13,8 +13,20 @@ export PATH="$PATH:$HOME/.local/share/omarchy/bin:$PATH"
 # Mise (Environment manager for multiple languages)
 eval "$(mise activate zsh)"
 
-# Turn on vim-mode terminal
-bindkey -v
+# Make zsh keybindings like Bash
+bindkey -e # use emacs bindings (Bash default)
+
+# Home / End
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+
+# PageUp / PageDown disabled so terminal handles them
+bindkey '^[[5~' undefined-key   # PageUp
+bindkey '^[[6~' undefined-key   # PageDown
+
+# Delete
+bindkey '^[[3~' delete-char
+
 
 # Starship
 export STARSHIP_CONFIG=$HOME/.config/starship/starship.toml
