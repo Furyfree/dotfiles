@@ -12,7 +12,7 @@ git clone git@github.com:Furyfree/dotfiles.git
 ## 1. Essentials
 Install `zsh`, `nano`, `tmux`, `seahorse`, `pacman-contrib`, `mono` and `kdeconnect` (for device integration):
 ```bash
-sudo pacman -S zsh nano tmux seahorse pacman-contrib mono kdeconnect
+sudo pacman -S zsh nano tmux seahorse pacman-contrib mono kdeconnect python-sphinx python-sphinx_rtd_theme python-breathe python-graphviz graphviz
 ```
 
 ## 2. Shell
