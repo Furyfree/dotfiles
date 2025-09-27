@@ -28,7 +28,6 @@ sudo pacman -S --needed base-devel tk bzip2 zlib xz libffi sqlite gdbm openssl
 Use mise to manage development:
 ```bash
 mise use --global go@latest
-mise use --global python@latest
 curl -fsSL https://astral.sh/uv/install.sh | sh
 mise use --global java@latest
 mise use --global zig@latest
@@ -49,6 +48,7 @@ mise use -g java@corretto-21
 #### Initialize environment
 Run the following commands once to create the local Python environment and install dependencies:
 ```bash
+mise use python@3.13 # or mise use python@3.12
 uv venv
 uv pip install -r requirements.txt
 uv run python -V
@@ -218,15 +218,7 @@ nmcli connection up unifi-wg
 nmcli connection down unifi-wg
 ```
 
-## 12. Python (Pyenv)
-Install Pyenv and multiple Python versions:
-```bash
-curl -fsSL https://pyenv.run | bash
-pyenv install 3.11 && pyenv install 3.12 && pyenv install 3.13
-pyenv global 3.13
-```
-
-## 13. Desktop Integrations
+## 12. Desktop Integrations
 Copy custom `.desktop` launchers:
 ```bash
 cp ~/git/dotfiles/.local/share/applications/{Chess.desktop,DisneyPlus.desktop,HBOmax.desktop,Impala.desktop,Messenger.desktop,Netflix.desktop,nvim.desktop,PrimeVideo.desktop,ProtonApps.desktop,ProtonMail.desktop,TV2Play.desktop,Twitch.desktop,Viaplay.desktop,1password.desktop,jetbrains-toolbox.desktop,signal-desktop.desktop,GoogleMaps.desktop,LazyGit.desktop,Rider.desktop,PyCharm.desktop,IntelliJ.desktop,Todoist.desktop} ~/.local/share/applications
@@ -256,24 +248,14 @@ for f in ~/.local/share/applications/jetbrains-*-*.desktop; do
 done
 ```
 
-## 14. After Dotfiles
+## 13. After Dotfiles
 Once your dotfiles are symlinked/applied, most configs should be ready to use.
 
-## 15. Download pwvucontrol
-Disable pyenv using function from .zshrc:
-```bash
- toggle-pyenv
- ```
-
+## 14. Download pwvucontrol
 Install pwvucontrol:
 ```bash
 paru -S pwvucontrol
 ```
-
-Enable pyenv again:
-```bash
- toggle-pyenv
- ```
 
 ## 15. After all configs
 ```bash
