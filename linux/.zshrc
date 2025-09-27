@@ -11,7 +11,7 @@ export PATH="$PATH:$HOME/.dotnet/tools"
 export PATH="$PATH:$HOME/.local/share/omarchy/bin:$PATH"
 
 # Mise (Environment manager for multiple languages)
-eval "$(mise activate zsh)"
+# eval "$(mise activate zsh)"
 
 # Starship
 export STARSHIP_CONFIG=$HOME/.config/starship/starship.toml
