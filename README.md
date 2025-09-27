@@ -47,8 +47,18 @@ mise use -g java@corretto-21
 ### Python specific guide `mise` + `uv`
 #### Initialize environment
 Run the following commands once to create the local Python environment and install dependencies:
+
+**If mise.toml exists in project**
 ```bash
-mise install # if mise.toml exists or use: mise use python@3.12 #3.13?
+mise install
+mise trust
+```
+**Else specify Python version:**
+```bash
+mise use 3.13
+```
+Create env and install requirements
+```bash
 uv venv
 uv pip install -r requirements.txt
 uv run python -V
