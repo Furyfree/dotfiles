@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=PyCharm
-Exec="/home/pby/.local/share/JetBrains/Toolbox/apps/pycharm/bin/pycharm" %u
+Exec="/home/pby/.local/share/JetBrains/Toolbox/apps/pycharm-2/bin/pycharm" %u
 Version=1.0
 Type=Application
 Categories=Development;IDE;

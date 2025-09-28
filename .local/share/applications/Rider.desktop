@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Rider
-Exec="/home/pby/.local/share/JetBrains/Toolbox/apps/rider/bin/rider" %u
+Exec="/home/pby/.local/share/JetBrains/Toolbox/apps/rider-2/bin/rider" %u
 Version=1.0
 Type=Application
 Categories=Development;IDE;

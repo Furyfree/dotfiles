@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=IntelliJ IDEA Ultimate
-Exec="/home/pby/.local/share/JetBrains/Toolbox/apps/intellij-idea-ultimate/bin/idea" %u
+Exec="/home/pby/.local/share/JetBrains/Toolbox/apps/intellij-idea-ultimate-2/bin/idea" %u
 Version=1.0
 Type=Application
 Categories=Development;IDE;
