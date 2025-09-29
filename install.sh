@@ -209,7 +209,8 @@ EOF
   nmcli networking on || true
   nmcli radio wifi on || true
 
-  read -r -p "Reboot is needed - Want to reboot? [y/N] " ans; [[ $ans == [Yy]* ]] && sudo reboot
+  # read -r -p "Reboot is needed - Want to reboot? [y/N] " ans; [[ $ans == [Yy]* ]] && sudo reboot
+  rfkill unblock wifi
 }
 
 # Add personal background to Omarchy
