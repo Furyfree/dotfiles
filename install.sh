@@ -253,7 +253,7 @@ setup_helium_default_browser() {
 trusted_1password_browsers() {
     sudo mkdir /etc/1password
     sudo touch /etc/1password/custom_allowed_browsers
-    echo -e "zen-bin\nchrome" | sudo tee -a /etc/1password/custom_allowed_browsers
+    printf "zen-bin\nchrome\nhelium-browser\n" | sudo tee /etc/1password/custom_allowed_browsers >/dev/null
 }
 
 setup_linux_configs() {
