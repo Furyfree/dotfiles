@@ -112,7 +112,7 @@ setup_desktop_entries() {
     ICONS_DIR="$APPLICATION_DIR/icons"
 
     log "Making Desktop Entries"
-    mkdir -p "$HOME/.local/share/applications"
+    mkdir -p -- "$HOME/.local/share/applications"
     for file in "$APPLICATION_DIR"/*.desktop; do
         if [ -f "$file" ]; then
             log "Copying $file to $HOME/.local/share/applications/$(basename "$file")"
@@ -120,7 +120,7 @@ setup_desktop_entries() {
         fi
     done
 
-    mkdir -p ~/.local/share/applications/icons
+    mkdir -p -- "$HOME/.local/share/applications/icons"
     for file in "$ICONS_DIR"/*.png; do
         if [ -f "$file" ]; then
             log "Copying $file to $HOME/.local/share/applications/icons/$(basename "$file")"
@@ -262,12 +262,12 @@ setup_linux_configs() {
     SRC_DIR="$SCRIPT_DIR/linux/.config"
     DST_DIR="$HOME/.config"
 
-    mkdir -p "$DST_DIR"
+    mkdir -p -- "$DST_DIR"
 
     for folder in "$SRC_DIR"/*; do
         [ -e "$folder" ] || continue
         base=$(basename "$folder")
-        ln -sfn "$SRC_DIR/$base" "$DST_DIR/$base"
+        ln -sfn -- "$SRC_DIR/$base" "$DST_DIR/$base"
     done
 }
 
@@ -277,12 +277,12 @@ setup_common_configs() {
     SRC_DIR="$SCRIPT_DIR/common/.config"
     DST_DIR="$HOME/.config"
 
-    mkdir -p "$DST_DIR"
+    mkdir -p -- "$DST_DIR"
 
     for folder in "$SRC_DIR"/*; do
         [ -e "$folder" ] || continue
         base=$(basename "$folder")
-        ln -sfn "$SRC_DIR/$base" "$DST_DIR/$base"
+        ln -sfn -- "$SRC_DIR/$base" "$DST_DIR/$base"
     done
 
     bat cache --build
