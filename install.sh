@@ -69,11 +69,16 @@ install_pkgs() {
         openconnect \
         networkmanager-openconnect \
         bat \
-        mise
+        mise \
+        lmstudio
 
     log "Installing Zed via Curl"
     if ! command -v zed &>/dev/null; then
-        curl -f https://zed.dev/install.sh | sh
+        if curl -f https://zed.dev/install.sh | sh; then
+            log "Zed installed successfully"
+        else
+            log "WARNING: Failed to install Zed"
+        fi
     else
         log "Zed already installed, skipping..."
     fi
@@ -118,15 +123,17 @@ install_java() {
 # Application setup
 setup_desktop_entries() {
 
-    APPLICATION_DIR="$SCRIPT_DIR/.local/share/applications"
-    ICONS_DIR="$APPLICATION_DIR/icons"
+    local APPLICATION_DIR="$SCRIPT_DIR/.local/share/applications"
+    local ICONS_DIR="$APPLICATION_DIR/icons"
 
     log "Making Desktop Entries"
     mkdir -p -- "$HOME/.local/share/applications"
+
     for file in "$APPLICATION_DIR"/*.desktop; do
         if [ -f "$file" ]; then
-            log "Copying $file to $HOME/.local/share/applications/$(basename "$file")"
-            cp -- "$file" "$HOME/.local/share/applications/"
+            local basename_file="$(basename "$file")"
+            log "Templating $file to $HOME/.local/share/applications/$basename_file"
+            sed "s|/home/pby|$HOME|g" "$file" > "$HOME/.local/share/applications/$basename_file"
         fi
     done
 
@@ -262,7 +269,7 @@ setup_helium_default_browser() {
 }
 
 trusted_1password_browsers() {
-    sudo mkdir /etc/1password
+    sudo mkdir -p /etc/1password
     sudo touch /etc/1password/custom_allowed_browsers
     printf "zen-bin\nchrome\nhelium-browser\n" | sudo tee /etc/1password/custom_allowed_browsers >/dev/null
 }
@@ -270,14 +277,14 @@ trusted_1password_browsers() {
 setup_linux_configs() {
     log "Setting up Linux specific dotfiles..."
 
-    SRC_DIR="$SCRIPT_DIR/linux/.config"
-    DST_DIR="$HOME/.config"
+    local SRC_DIR="$SCRIPT_DIR/linux/.config"
+    local DST_DIR="$HOME/.config"
 
     mkdir -p -- "$DST_DIR"
 
     for folder in "$SRC_DIR"/*; do
         [ -e "$folder" ] || continue
-        base=$(basename "$folder")
+        local base=$(basename "$folder")
         ln -sfn -- "$SRC_DIR/$base" "$DST_DIR/$base"
     done
 }
@@ -285,14 +292,14 @@ setup_linux_configs() {
 setup_common_configs() {
     log "Setting up common dotfiles..."
 
-    SRC_DIR="$SCRIPT_DIR/common/.config"
-    DST_DIR="$HOME/.config"
+    local SRC_DIR="$SCRIPT_DIR/common/.config"
+    local DST_DIR="$HOME/.config"
 
     mkdir -p -- "$DST_DIR"
 
     for folder in "$SRC_DIR"/*; do
         [ -e "$folder" ] || continue
-        base=$(basename "$folder")
+        local base=$(basename "$folder")
         ln -sfn -- "$SRC_DIR/$base" "$DST_DIR/$base"
     done
 
@@ -301,8 +308,8 @@ setup_common_configs() {
 
 setting_up_zsh() {
     log "Setting up zsh..."
-    file="$SCRIPT_DIR/linux/.zshrc"
-    dst="$HOME/.zshrc"
+    local file="$SCRIPT_DIR/linux/.zshrc"
+    local dst="$HOME/.zshrc"
     if [ -f "$file" ]; then
         log "Symlinking $file to $dst"
         ln -sf -- "$file" "$dst"
@@ -312,13 +319,14 @@ setting_up_zsh() {
 setup_jetbrains_launch_scripts() {
     log "Setting up launch scripts for jetbrains IDEs"
 
-    LAUNCH_DIR="$SCRIPT_DIR/.local/bin"
+    local LAUNCH_DIR="$SCRIPT_DIR/.local/bin"
+    local DST_DIR="$HOME/.local/bin"
 
-    mkdir -p -- "$HOME/.local/bin"
+    mkdir -p -- "$DST_DIR"
     for file in "$LAUNCH_DIR"/*; do
         if [ -f "$file" ]; then
-            dst="$DST_DIR/$(basename "$file")"
-            log "Copying $file to $DST_DIR"
+            local dst="$DST_DIR/$(basename "$file")"
+            log "Copying $file to $dst"
             cp -- "$file" "$dst"
             chmod +x "$dst"
         fi
@@ -338,6 +346,12 @@ hide_toolbox_entries() {
       printf '\nNoDisplay=true\n' >> "$file"
     fi
   done
+}
+
+update_desktop_database() {
+  if command -v update-desktop-database >/dev/null 2>&1; then
+    update-desktop-database "$HOME/.local/share/applications" || true
+  fi
 }
 
 section "Starting PBY custom setup on top of Omarchy"
@@ -362,6 +376,9 @@ setup_jetbrains_launch_scripts
 
 section "Disabling old Jetbrains IDE desktop entries"
 hide_toolbox_entries
+
+section "Updating desktop database"
+update_desktop_database
 
 section "Setting up Development languages"
 install_python_tools
