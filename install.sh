@@ -153,7 +153,7 @@ network_manager_setup() {
   sudo systemctl enable --now wpa_supplicant.service || true
 
   local FILE="/etc/NetworkManager/conf.d/NetworkManager.conf"
-  sudo mkdir -p "$(dirname "$FILE")"
+  sudo mkdir -p -- "$(dirname "$FILE")"
 
   log "Ensuring WiFi backend config in $FILE"
   if ! sudo grep -Fxq "plugins=keyfile" "$FILE" 2>/dev/null || \
@@ -211,7 +211,7 @@ add_personal_background() {
     local SRC="$SRC_DIR/benjamin-voros-phIFdC6lA4E-unsplash.jpg"
     local DST="$DST_DIR/$(basename "$SRC")"
 
-    mkdir -p "$DST_DIR"
+    mkdir -p -- "$DST_DIR"
 
     if [ -f "$DST" ]; then
         log "Background already exists at $DST, skipping copy"
@@ -244,7 +244,7 @@ setup_helium_default_browser() {
 
     log "Adding DRM support for Helium Browser"
     if [ -d /usr/lib/chromium/WidevineCdm ] && [ -d /opt/helium-browser-bin ]; then
-        sudo ln -sfn /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
+        sudo ln -sfn -- /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
     else
         log "WidevineCdm or Helium dir missing; skipping DRM link"
     fi
@@ -294,7 +294,7 @@ setting_up_zsh() {
     dst="$HOME/.zshrc"
     if [ -f "$file" ]; then
         log "Symlinking $file to $dst"
-        ln -sf "$file" "$dst"
+        ln -sf -- "$file" "$dst"
     fi
 }
 
