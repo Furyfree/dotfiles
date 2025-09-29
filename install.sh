@@ -12,6 +12,13 @@ log() { echo -e "\e[32m[*]\e[0m $1"; }
 # Simple section helper
 section() { echo -e "\n\e[1;34m==>\e[0m $1"; }
 
+check_connectivity() {
+    if ! ping -c 1 8.8.8.8 &>/dev/null; then
+        log "ERROR: No internet connectivity detected"
+        exit 1
+    fi
+}
+
 # Paru setup
 install_paru() {
     if ! command -v paru &>/dev/null; then
@@ -60,13 +67,16 @@ install_pkgs() {
         network-manager-applet \
         proton-vpn-gtk-app \
         openconnect \
-        networkmanager-openconnect
+        networkmanager-openconnect \
+        bat \
+        mise
 
     log "Installing Zed via Curl"
     if ! command -v zed &>/dev/null; then
         curl -f https://zed.dev/install.sh | sh
     else
         log "Zed already installed, skipping..."
+    fi
 }
 
 
@@ -300,6 +310,9 @@ setting_up_zsh() {
 
 
 section "Starting PBY custom setup on top of Omarchy"
+
+section "Checking Network Connectivity"
+check_connectivity
 
 section "AMD GPU setup"
 install_amd_gpu_stack
