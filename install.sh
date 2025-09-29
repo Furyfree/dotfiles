@@ -5,6 +5,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# HELPERS
 # Simple log helper
 log() { echo -e "\e[32m[*]\e[0m $1"; }
 
@@ -59,7 +60,7 @@ install_pkgs() {
         network-manager-applet \
         proton-vpn-gtk-app \
         openconnect \
-        networkmanager-openconnect \
+        networkmanager-openconnect
 
     log "Installing Zed via Curl"
     if ! command -v zed &>/dev/null; then
@@ -90,6 +91,11 @@ install_rustup() {
 
 install_java() {
     log "Installing different Java versions via mise..."
+    if ! command -v mise &>/dev/null; then
+        log "mise not found; install_pkgs should have installed mise-bin. Aborting Java setup."
+        return 1
+    fi
+
     mise use -g java@latest
     mise use -g java@21
     mise use -g java@25
@@ -106,19 +112,19 @@ setup_desktop_entries() {
     ICONS_DIR="$APPLICATION_DIR/icons"
 
     log "Making Desktop Entries"
-    mkdir -p ~/.local/share/applications
+    mkdir -p "$HOME/.local/share/applications"
     for file in "$APPLICATION_DIR"/*.desktop; do
         if [ -f "$file" ]; then
-            log "Copying $file to ~/.local/share/applications/$(basename "$file")"
-            cp $file ~/.local/share/applications/
+            log "Copying $file to $HOME/.local/share/applications/$(basename "$file")"
+            cp -- "$file" "$HOME/.local/share/applications/"
         fi
     done
 
     mkdir -p ~/.local/share/applications/icons
     for file in "$ICONS_DIR"/*.png; do
         if [ -f "$file" ]; then
-            log "Copying $file to ~/.local/share/applications/icons/$(basename "$file")"
-            cp $file ~/.local/share/applications/icons/
+            log "Copying $file to $HOME/.local/share/applications/icons/$(basename "$file")"
+            cp -- "$file" "$HOME/.local/share/applications/icons/"
         fi
     done
 }
@@ -226,7 +232,6 @@ setup_helium_default_browser() {
     handlr set x-scheme-handler/chrome      helium-browser.desktop
     handlr set x-scheme-handler/about       helium-browser.desktop
     handlr set x-scheme-handler/unknown     helium-browser.desktop
-
     handlr set text/html                    helium-browser.desktop
     handlr set application/xhtml+xml        helium-browser.desktop
     handlr set application/x-extension-htm  helium-browser.desktop
@@ -235,10 +240,14 @@ setup_helium_default_browser() {
     handlr set application/x-extension-xht   helium-browser.desktop
     handlr set application/x-extension-xhtml helium-browser.desktop
 
-    hyprctl reload
+    command -v hyprctl &>/dev/null && hyprctl reload || true
 
     log "Adding DRM support for Helium Browser"
-    sudo ln -s /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
+    if [ -d /usr/lib/chromium/WidevineCdm ] && [ -d /opt/helium-browser-bin ]; then
+        sudo ln -sfn /usr/lib/chromium/WidevineCdm /opt/helium-browser-bin/WidevineCdm
+    else
+        log "WidevineCdm or Helium dir missing; skipping DRM link"
+    fi
 }
 
 trusted_1password_browsers() {
@@ -249,17 +258,44 @@ trusted_1password_browsers() {
 
 setup_linux_configs() {
     log "Setting up Linux specific dotfiles..."
+
+    SRC_DIR="$SCRIPT_DIR/linux/.config"
+    DST_DIR="$HOME/.config"
+
+    mkdir -p "$DST_DIR"
+
+    for folder in "$SRC_DIR"/*; do
+        [ -e "$folder" ] || continue
+        base=$(basename "$folder")
+        ln -sfn "$SRC_DIR/$base" "$DST_DIR/$base"
+    done
 }
 
 setup_common_configs() {
     log "Setting up common dotfiles..."
 
+    SRC_DIR="$SCRIPT_DIR/common/.config"
+    DST_DIR="$HOME/.config"
+
+    mkdir -p "$DST_DIR"
+
+    for folder in "$SRC_DIR"/*; do
+        [ -e "$folder" ] || continue
+        base=$(basename "$folder")
+        ln -sfn "$SRC_DIR/$base" "$DST_DIR/$base"
+    done
 
     bat cache --build
 }
 
 setting_up_zsh() {
     log "Setting up zsh..."
+    file="$SCRIPT_DIR/linux/.zshrc"
+    dst="$HOME/.zshrc"
+    if [ -f "$file" ]; then
+        log "Symlinking $file to $dst"
+        ln -sf "$file" "$dst"
+    fi
 }
 
 
