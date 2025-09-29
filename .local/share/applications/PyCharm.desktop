@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=PyCharm
+Exec="/home/pby/.local/bin/pycharm-launch" %u
+Version=1.0
+Type=Application
+Categories=Development;IDE;
+Terminal=false
+Icon=/home/pby/.local/share/applications/icons/PyCharm.png
+Comment=The Only Python IDE you need
+StartupWMClass=jetbrains-pycharm
+StartupNotify=true
+NoDisplay=true

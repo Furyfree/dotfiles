@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=IntelliJ IDEA Ultimate
+Exec="/home/pby/.local/bin/intellij-launch" %u
+Version=1.0
+Type=Application
+Categories=Development;IDE;
+Terminal=false
+Icon=/home/pby/.local/share/applications/icons/IntelliJ.png
+Comment=The IDE for pro Java and Kotlin development
+StartupWMClass=jetbrains-idea
+StartupNotify=true

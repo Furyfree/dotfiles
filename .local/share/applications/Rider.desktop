@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Rider
+Exec="/home/pby/.local/bin/rider-launch" %u
+Version=1.0
+Type=Application
+Categories=Development;IDE;
+Terminal=false
+Icon=/home/pby/.local/share/applications/icons/Rider.png
+Comment=All-in-one IDE for .NET and game development
+StartupWMClass=jetbrains-rider
+StartupNotify=true
+NoDisplay=true

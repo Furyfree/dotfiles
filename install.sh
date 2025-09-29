@@ -309,6 +309,36 @@ setting_up_zsh() {
     fi
 }
 
+setup_jetbrains_launch_scripts() {
+    log "Setting up launch scripts for jetbrains IDEs"
+
+    LAUNCH_DIR="$SCRIPT_DIR/.local/bin"
+
+    mkdir -p -- "$HOME/.local/bin"
+    for file in "$LAUNCH_DIR"/*; do
+        if [ -f "$file" ]; then
+            dst="$DST_DIR/$(basename "$file")"
+            log "Copying $file to $DST_DIR"
+            cp -- "$file" "$dst"
+            chmod +x "$dst"
+        fi
+    done
+}
+
+hide_toolbox_entries() {
+  local DIR="$HOME/.local/share/applications"
+  shopt -s nullglob
+  for file in "$DIR"/jetbrains-*-*.desktop; do
+    # only hide if Exec references Toolbox installs
+    grep -q "$HOME/.local/share/JetBrains/Toolbox/apps" "$file" || continue
+
+    if grep -q '^[[:space:]]*NoDisplay=' "$file"; then
+      sed -i 's/^[[:space:]]*NoDisplay=.*/NoDisplay=true/' "$file"
+    else
+      printf '\nNoDisplay=true\n' >> "$file"
+    fi
+  done
+}
 
 section "Starting PBY custom setup on top of Omarchy"
 
@@ -326,6 +356,12 @@ install_pkgs
 
 section "Application setup"
 setup_desktop_entries
+
+section "Jetbrains launch scripts setup"
+setup_jetbrains_launch_scripts
+
+section "Disabling old Jetbrains IDE desktop entries"
+hide_toolbox_entries
 
 section "Setting up Development languages"
 install_python_tools
