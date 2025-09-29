@@ -337,4 +337,4 @@ trusted_1password_browsers
 section "Setting up NetworkManager"
 network_manager_setup
 
-section "Installation of PBY custom setup on top of Omarchy"
+section "Installation of PBY custom setup on top of Omarchy complete"
