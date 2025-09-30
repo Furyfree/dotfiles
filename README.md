@@ -91,7 +91,7 @@ git remote set-url origin git@github.com:Furyfree/dotfiles.git
 **JetBrains IDEs Setup:**
 Hide individual IDE desktop entries (use Toolbox launcher instead):
 ```bash
-~/.local/bin/hide-toolbox-entries
+~/./git/dotfiles/.local/bin/hide-toolbox-entries
 ```
 
 **JetBrains Settings Synchronization:**
