@@ -464,4 +464,7 @@ trusted_1password_browsers
 section "Setting up NetworkManager + iwd"
 nm_iwd
 
+section "Reloading Hyprland"
+hyprctl reload
+
 section "Installation of PBY custom setup on top of Omarchy complete"
