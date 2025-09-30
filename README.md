@@ -84,7 +84,7 @@ git remote set-url origin git@github.com:Furyfree/dotfiles.git
 **Helium Browser Extensions:**
 - **Bookmarkhub** - Centralized bookmark management
 - **1Password** - Secure password manager integration
-- **Dark Reader** - Universal dark mode (disable built-in dark theme)
+- **Dark Reader** - Universal dark mode (disable dark reader turning on by default)
 
 ### 🛠️ Development Environment
 
