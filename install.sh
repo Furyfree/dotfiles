@@ -326,12 +326,20 @@ setup_linux_configs() {
     for folder in "$SRC_DIR"/*; do
         [ -e "$folder" ] || continue
         local base=$(basename "$folder")
-        ln -sfn -- "$SRC_DIR/$base" "$DST_DIR/$base"
+        local dst_path="$DST_DIR/$base"
+
+        # Remove existing file/directory if it exists and isn't our symlink
+        if [[ -e "$dst_path" && ! -L "$dst_path" ]]; then
+            log "Removing existing $dst_path"
+            rm -rf -- "$dst_path"
+        fi
+
+        ln -sfn -- "$SRC_DIR/$base" "$dst_path"
     done
 }
 
 setup_common_configs() {
-    log "Setting up common dotfiles..."
+    log "Setting up Common dotfiles..."
 
     local SRC_DIR="$SCRIPT_DIR/common/.config"
     local DST_DIR="$HOME/.config"
@@ -341,8 +349,15 @@ setup_common_configs() {
     for folder in "$SRC_DIR"/*; do
         [ -e "$folder" ] || continue
         local base=$(basename "$folder")
-        ln -sfn -- "$SRC_DIR/$base" "$DST_DIR/$base"
-    done
+        local dst_path="$DST_DIR/$base"
+
+        # Remove existing file/directory if it exists and isn't our symlink
+        if [[ -e "$dst_path" && ! -L "$dst_path" ]]; then
+            log "Removing existing $dst_path"
+            rm -rf -- "$dst_path"
+        fi
+
+        ln -sfn -- "$SRC_DIR/$base" "$dst_path"
 
     bat cache --build
 }
