@@ -191,7 +191,7 @@ nm_iwd() {
         echo "Done installing."
 
         echo "Disabling wpa_supplicant + systemd-networkd"
-        sudo systemctl disable --now wpa_supplicant.service systemd-networkd.service systemd-networkd-wait-online.service || true
+        sudo systemctl disable --now wpa_supplicant.service systemd-networkd.service systemd-networkd-wait-online.service systemd-networkd.socket systemd-networkd-varlink.socket || true
         sudo systemctl mask wpa_supplicant.service || true
 
         echo "Unmasking + enabling iwd"
