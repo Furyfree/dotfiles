@@ -161,9 +161,23 @@ setup_desktop_entries() {
     done
 
     log "Backing up unwanted desktop entries..."
-    for f in "$HOME/.local/share/applications/{Basecamp.desktop,dropbox.desktop,Figma.desktop,Google\ Contacts.desktop,Google\ Messages.desktop,Google\ Photos.desktop,HEY.desktop,Impala.desktop,WhatsApp.desktop}"; do
-      [ -e "$f" ] && mv "$f" "$f.bak" || true
+    files=(
+        "Basecamp.desktop"
+        "dropbox.desktop"
+        "Figma.desktop"
+        "Google Contacts.desktop"
+        "Google Messages.desktop"
+        "Google Photos.desktop"
+        "HEY.desktop"
+        "Impala.desktop"
+        "WhatsApp.desktop"
+    )
+
+    for filename in "${files[@]}"; do
+        f="$HOME/.local/share/applications/$filename"
+        [ -e "$f" ] && mv "$f" "$f.bak" || true
     done
+
 }
 
 has_amd_gpu() {

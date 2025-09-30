@@ -1,0 +1,21 @@
+#!/bin/bash
+unwanted_desktop_entries() {
+echo "Backing up unwanted desktop entries..."
+    files=(
+        "Basecamp.desktop"
+        "dropbox.desktop"
+        "Figma.desktop"
+        "Google Contacts.desktop"
+        "Google Messages.desktop"
+        "Google Photos.desktop"
+        "HEY.desktop"
+        "Impala.desktop"
+        "WhatsApp.desktop"
+    )
+
+    for filename in "${files[@]}"; do
+        f="$HOME/.local/share/applications/$filename"
+        [ -e "$f" ] && mv "$f" "$f.bak" || true
+    done
+}
+unwanted_desktop_entries
