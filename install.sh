@@ -398,6 +398,7 @@ update_desktop_database() {
 detect_backend() {
   if systemctl is-active --quiet NetworkManager; then
     if systemctl is-active --quiet iwd; then
+        if ! systemctl is-active --quiet systemd-networkd.service; then
       echo "nm-iwd"
     else
       echo "nm-wpa"
