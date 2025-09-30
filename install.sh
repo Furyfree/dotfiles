@@ -358,6 +358,7 @@ setup_common_configs() {
         fi
 
         ln -sfn -- "$SRC_DIR/$base" "$dst_path"
+    done
 
     bat cache --build
 }
