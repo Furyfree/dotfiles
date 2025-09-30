@@ -12,3 +12,5 @@ hide_toolbox_entries() {
       printf '\nNoDisplay=true\n' >> "$file"
     fi
   done
+}
+hide_toolbox_entries
