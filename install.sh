@@ -157,6 +157,11 @@ setup_desktop_entries() {
             cp -- "$file" "$HOME/.local/share/applications/icons/"
         fi
     done
+
+    log "Backing up unwanted desktop entries..."
+    for f in "$HOME/.local/share/applications/{Basecamp.desktop,dropbox.desktop,Figma.desktop,Google\ Contacts.desktop,Google\ Messages.desktop,Google\ Photos.desktop,HEY.desktop,Impala.desktop,WhatsApp.desktop}"; do
+      [ -e "$f" ] && mv "$f" "$f.bak" || true
+    done
 }
 
 has_amd_gpu() {
@@ -450,8 +455,8 @@ setup_desktop_entries
 section "Jetbrains launch scripts setup"
 setup_jetbrains_launch_scripts
 
-section "Disabling old Jetbrains IDE desktop entries"
-hide_toolbox_entries
+# section "Disabling old Jetbrains IDE desktop entries"
+# hide_toolbox_entries
 
 section "Updating desktop database"
 update_desktop_database
