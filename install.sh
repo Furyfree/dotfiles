@@ -81,6 +81,7 @@ install_pkgs() {
         proton-vpn-gtk-app \
         openconnect \
         networkmanager-openconnect \
+        network-manager-applet \
         bat \
         mise \
         lmstudio \
