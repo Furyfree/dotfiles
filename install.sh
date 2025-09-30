@@ -43,7 +43,12 @@ install_paru() {
 
 
 install_pkgs() {
-    paru -R 1password-beta --noconfirm
+    log "Making sure paru cache doesn't stop Helium Browser installation"
+    rm -rf ~/.cache/paru/clone/helium-browser-bin
+    
+    log "Removing 1password-beta to make room for 1password"
+    paru -Rns 1password-beta --noconfirm
+    
     log "Installing packages with paru..."
     paru -S --needed --noconfirm \
         zsh \
