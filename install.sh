@@ -47,7 +47,10 @@ install_pkgs() {
     rm -rf ~/.cache/paru/clone/helium-browser-bin
 
     log "Removing 1password-beta to make room for 1password"
-    paru -Rns 1password-beta --noconfirm
+    if pacman -Q 1password-beta &>/dev/null; then
+        log "Removing conflicting 1password-beta..."
+        paru -Rns 1password-beta --noconfirm
+    fi
 
     log "Installing packages with paru..."
     paru -S --needed --noconfirm \
