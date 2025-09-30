@@ -140,7 +140,7 @@ Configure User Agent:
 
 **Usage:**
 
-Need to restart before:
+Need to reboot before proper prompt works:
 ```bash
 nmcli connection up dtu-vpn
 ```
