@@ -128,7 +128,6 @@ nmcli connection down unifi-wg
 
 **DTU VPN Setup:**
 ```bash
-# Add DTU VPN connection
 nmcli connection add type vpn vpn-type openconnect con-name dtu-vpn +vpn.data "gateway=vpn.dtu.dk,protocol=anyconnect"
 ```
 
