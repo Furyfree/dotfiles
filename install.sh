@@ -161,6 +161,25 @@ install_amd_gpu_stack() {
     fi
 }
 
+has_amd_gpu() {
+  lspci | grep -iE "VGA|3D|Display" | grep -qi "AMD"
+}
+
+install_amd_gpu_stack() {
+  if has_amd_gpu; then
+    log "AMD GPU detected — installing Mesa/Vulkan drivers"
+    sudo pacman -S --needed --noconfirm \
+      mesa lib32-mesa \
+      vulkan-radeon lib32-vulkan-radeon \
+      vulkan-icd-loader lib32-vulkan-icd-loader \
+      libva-mesa-driver lib32-libva-mesa-driver \
+      vulkan-tools mesa-demos
+  else
+    log "No AMD GPU detected — skipping Mesa/Vulkan install"
+  fi
+}
+
+
 
 nm_iwd() {
     local backend
