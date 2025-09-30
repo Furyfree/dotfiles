@@ -69,14 +69,15 @@ install_pkgs() {
         jetbrains-toolbox \
         ghostty \
         visual-studio-code-bin \
-        wootility 1password wlogout \
+        wootility \
+        1password \
+        wlogout \
         helium-browser-bin \
         chromium-widevine \
         handlr \
         mimeo \
         standardnotes-bin \
         networkmanager \
-        network-manager-applet \
         proton-vpn-gtk-app \
         openconnect \
         networkmanager-openconnect \
