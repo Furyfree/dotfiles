@@ -138,8 +138,8 @@ alias tm="tmux attach -t main 2>/dev/null || tmux new -s main"  # attach/create 
 
 # Network/VPN
 # DTU VPN
-alias dtuvpn-up='nmcli connection up dtu-vpn'
-alias dtuvpn-down='nmcli connection down dtu-vpn'
+alias vpn-dtu-up='nmcli connection up dtu-vpn'
+alias vpn-dtu-down='nmcli connection down dtu-vpn'
 
 # Own VPN
 alias vpn-up='nmcli connection up unifi-wg'
