@@ -24,11 +24,14 @@ install_paru() {
     if ! command -v paru &>/dev/null; then
         log "Updating system and cloning paru from AUR"
         sudo pacman -Syu --noconfirm --needed git base-devel
+        rm -rf /tmp/paru
         git clone https://aur.archlinux.org/paru.git /tmp/paru
 
         cd /tmp/paru
         log "Building package..."
-        makepkg -si --noconfirm
+        makepkg -s --noconfirm
+        log "Installing package..."
+        sudo pacman -U --noconfirm *.pkg.tar.zst
 
         log "Deleting paru directory"
         cd -
