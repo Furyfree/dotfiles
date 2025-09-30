@@ -45,10 +45,10 @@ install_paru() {
 install_pkgs() {
     log "Making sure paru cache doesn't stop Helium Browser installation"
     rm -rf ~/.cache/paru/clone/helium-browser-bin
-    
+
     log "Removing 1password-beta to make room for 1password"
     paru -Rns 1password-beta --noconfirm
-    
+
     log "Installing packages with paru..."
     paru -S --needed --noconfirm \
         zsh \
@@ -154,20 +154,6 @@ setup_desktop_entries() {
             cp -- "$file" "$HOME/.local/share/applications/icons/"
         fi
     done
-}
-
-install_amd_gpu_stack() {
-    if lspci | grep -qi 'vga.*amd'; then
-        log "AMD GPU detected — installing Mesa/Vulkan drivers"
-        sudo pacman -S --needed --noconfirm \
-            mesa lib32-mesa \
-            vulkan-radeon lib32-vulkan-radeon \
-            vulkan-icd-loader lib32-vulkan-icd-loader \
-            libva-mesa-driver lib32-libva-mesa-driver \
-            vulkan-tools mesa-demos
-    else
-        log "No AMD GPU detected — skipping Mesa/Vulkan install"
-    fi
 }
 
 has_amd_gpu() {
