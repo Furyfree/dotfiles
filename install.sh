@@ -43,6 +43,7 @@ install_paru() {
 
 
 install_pkgs() {
+    paru -R 1password-beta --noconfirm
     log "Installing packages with paru..."
     paru -S --needed --noconfirm \
         zsh \
