@@ -186,13 +186,13 @@ nm_iwd() {
 
         echo "Writing NetworkManager config"
         sudo install -d /etc/NetworkManager/conf.d
-        sudo tee /etc/NetworkManager/NetworkManager.conf >/dev/null <<'EOF'
+        sudo sh -c 'cat > /etc/NetworkManager/NetworkManager.conf' <<EOF
 [main]
 plugins=keyfile
 dns=systemd-resolved
 rc-manager=symlink
 EOF
-        sudo tee /etc/NetworkManager/conf.d/wifi_backend.conf >/dev/null <<'EOF'
+        sudo sh -c 'cat > /etc/NetworkManager/conf.d/wifi_backend.conf' <<EOF
 [device]
 wifi.backend=iwd
 EOF
@@ -378,6 +378,20 @@ update_desktop_database() {
   fi
 }
 
+detect_backend() {
+  if systemctl is-active --quiet NetworkManager; then
+    if systemctl is-active --quiet iwd; then
+      echo "nm-iwd"
+    else
+      echo "nm-wpa"
+    fi
+  elif systemctl is-active --quiet iwd; then
+    echo "systemd-iwd"
+  else
+    echo "none"
+  fi
+}
+
 section "Starting PBY custom setup on top of Omarchy"
 
 section "Checking Network Connectivity"
@@ -425,7 +439,7 @@ setting_up_zsh
 section "1Password trusted browsers setup"
 trusted_1password_browsers
 
-section "Setting up NetworkManager"
-network_manager_setup
+section "Setting up NetworkManager + iwd"
+nm_iwd
 
 section "Installation of PBY custom setup on top of Omarchy complete"
