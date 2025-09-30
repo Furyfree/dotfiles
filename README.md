@@ -123,6 +123,8 @@ nmcli connection modify wg0 connection.id "unifi-wg"
 **Usage:**
 ```bash
 nmcli connection up unifi-wg
+```
+```bash
 nmcli connection down unifi-wg
 ```
 
@@ -137,8 +139,11 @@ Configure User Agent:
 - Set User Agent field to: `AnyConnect`
 
 **Usage:**
+Need to restart before:
 ```bash
 nmcli connection up dtu-vpn
+```
+```bash
 nmcli connection down dtu-vpn
 ```
 

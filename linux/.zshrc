@@ -137,7 +137,13 @@ alias find='fd'
 alias tm="tmux attach -t main 2>/dev/null || tmux new -s main"  # attach/create main
 
 # Network/VPN
-alias dtuvpn='sudo openconnect --useragent=AnyConnect --user=s224338 vpn.dtu.dk'
+# DTU VPN
+alias dtuvpn-up='nmcli connection up dtu-vpn'
+alias dtuvpn-down='nmcli connection down dtu-vpn'
+
+# Own VPN
+alias vpn-up='nmcli connection up unifi-wg'
+alias vpn-down='nmcli connection down unifi-wg'
 
 # System Maintenance
 alias updategrub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
