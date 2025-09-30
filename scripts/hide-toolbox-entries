@@ -1,0 +1,14 @@
+#!/bin/bash
+hide_toolbox_entries() {
+  local DIR="$HOME/.local/share/applications"
+  shopt -s nullglob
+  for file in "$DIR"/jetbrains-*-*.desktop; do
+    # only hide if Exec references Toolbox installs
+    grep -q "$HOME/.local/share/JetBrains/Toolbox/apps" "$file" || continue
+
+    if grep -q '^[[:space:]]*NoDisplay=' "$file"; then
+      sed -i 's/^[[:space:]]*NoDisplay=.*/NoDisplay=true/' "$file"
+    else
+      printf '\nNoDisplay=true\n' >> "$file"
+    fi
+  done
