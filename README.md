@@ -66,10 +66,21 @@ If you're the repository owner and have SSH keys set up:
 git remote set-url origin git@github.com:Furyfree/dotfiles.git
 ```
 
+### Browser Extensions Setup
+Install these Helium Browser extensions:
+- **Bookmarkhub** - Bookmark management
+- **1Password** - Password manager integration  
+- **Dark Reader** - Dark mode for websites (disable default dark theme)
+
+### JetBrains IDEs Setup
+After installing Rider, PyCharm, and IntelliJ through JetBrains Toolbox:
+```bash
+# Hide individual IDE desktop entries (use Toolbox instead)
+~/.local/bin/hide-toolbox-entries
+```
+
 ## Post-Installation
 
 1. **Reboot required** after running install.sh
 2. Configure the Hyprland files mentioned above
 3. Adjust any other configs as needed
-
-
