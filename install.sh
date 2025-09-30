@@ -70,7 +70,8 @@ install_pkgs() {
         networkmanager-openconnect \
         bat \
         mise \
-        lmstudio
+        lmstudio \
+        dotnet-sdk
 
     log "Installing Zed via Curl"
     if ! command -v zed &>/dev/null; then
@@ -160,64 +161,87 @@ install_amd_gpu_stack() {
     fi
 }
 
-network_manager_setup() {
-  log "Disabling iwd / systemd-networkd"
-  sudo systemctl disable --now iwd.service systemd-networkd.service systemd-networkd-wait-online.service || true
-  sudo systemctl mask iwd.service || true
 
-  log "Enabling NetworkManager (and wpa_supplicant)"
-  sudo systemctl enable --now NetworkManager.service
-  sudo systemctl enable --now wpa_supplicant.service || true
+nm_iwd() {
+    local backend
+    backend=$(detect_backend)
+    echo "Active backend: $backend"  # DEBUG
 
-  local FILE="/etc/NetworkManager/conf.d/NetworkManager.conf"
-  sudo mkdir -p -- "$(dirname "$FILE")"
+    if [[ "$backend" == "nm-iwd" ]]; then
+        echo "NetworkManager with iwd is already active"
+    else
+        echo "Switching to NetworkManager with iwd..."
 
-  log "Ensuring WiFi backend config in $FILE"
-  if ! sudo grep -Fxq "plugins=keyfile" "$FILE" 2>/dev/null || \
-     ! sudo grep -Fxq "wifi.backend=wpa_supplicant" "$FILE" 2>/dev/null; then
-    sudo tee -a "$FILE" >/dev/null <<'EOF'
+        echo "Installing dependencies..."
+        sudo pacman -S --needed networkmanager iwd --noconfirm
+        echo "Done installing."
+
+        echo "Disabling wpa_supplicant + systemd-networkd"
+        sudo systemctl disable --now wpa_supplicant.service systemd-networkd.service systemd-networkd-wait-online.service || true
+        sudo systemctl mask wpa_supplicant.service || true
+
+        echo "Unmasking + enabling iwd"
+        sudo systemctl unmask iwd.service || true
+        sudo systemctl enable --now iwd.service
+
+        echo "Writing NetworkManager config"
+        sudo install -d /etc/NetworkManager/conf.d
+        sudo tee /etc/NetworkManager/NetworkManager.conf >/dev/null <<'EOF'
 [main]
 plugins=keyfile
-
-[device]
-wifi.backend=wpa_supplicant
+dns=systemd-resolved
+rc-manager=symlink
 EOF
-    log "Appended config block to $FILE"
-  else
-    log "Config already present in $FILE"
-  fi
-
-  local FILE="/etc/NetworkManager/conf.d/wifi_backend.conf"
-  sudo mkdir -p "$(dirname "$FILE")"
-
-  log "Ensuring WiFi backend config in $FILE"
-  if ! sudo grep -Fxq "wifi.backend=wpa_supplicant" "$FILE" 2>/dev/null; then
-    sudo tee -a "$FILE" >/dev/null <<'EOF'
+        sudo tee /etc/NetworkManager/conf.d/wifi_backend.conf >/dev/null <<'EOF'
 [device]
-wifi.backend=wpa_supplicant
+wifi.backend=iwd
 EOF
-    log "Appended config block to $FILE"
-  else
-    log "Config already present in $FILE"
-  fi
 
+        echo "Enabling + restarting NetworkManager"
+        sudo systemctl enable --now NetworkManager.service
+        sudo systemctl restart NetworkManager.service
+    fi
 
-  log "Restarting NetworkManager"
-  sudo systemctl restart NetworkManager.service
+    rfkill unblock wifi || true
+    nmcli networking on >/dev/null 2>&1 || true
+    nmcli radio wifi on >/dev/null 2>&1 || true
 
-  # Sanity checks (more reliable than ps/grep)
-  if systemctl is-active --quiet NetworkManager.service && \
-     systemctl is-active --quiet wpa_supplicant.service; then
-    log "NetworkManager and wpa_supplicant are active"
-  else
-    log "Warning: services not active as expected"
-  fi
+    if systemctl is-active --quiet iwd; then
+        echo "iwd: active"
+    else
+        echo "iwd: not active but should be active"
+    fi
 
-  nmcli networking on || true
-  nmcli radio wifi on || true
+    if systemctl is-active --quiet systemd-networkd; then
+        echo "systemd-networkd: active but should not be active"
+    else
+        echo "systemd-networkd: not active"
+    fi
 
-  # read -r -p "Reboot is needed - Want to reboot? [y/N] " ans; [[ $ans == [Yy]* ]] && sudo reboot
-  rfkill unblock wifi
+    if systemctl is-active --quiet wpa_supplicant; then
+        echo "wpa_supplicant: active but should not be active"
+    else
+        echo "wpa_supplicant: not active"
+    fi
+
+    if systemctl is-active --quiet NetworkManager; then
+        echo "NetworkManager: active"
+    else
+        echo "NetworkManager: not active but should be active"
+    fi
+
+    # Validation
+    if systemctl is-active --quiet iwd &&
+        systemctl is-active --quiet NetworkManager &&
+        systemctl is-active --quiet systemd-resolved &&
+        ! systemctl is-active --quiet wpa_supplicant &&
+        ! systemctl is-active --quiet systemd-networkd; then
+        echo "Netstack is now nm-iwd"
+        echo "Verification: $(detect_backend)"
+        resolvectl status | sed -n '1,8p' || true
+    else
+        echo "Netstack validation failed"
+    fi
 }
 
 # Add personal background to Omarchy
