@@ -396,19 +396,23 @@ update_desktop_database() {
 }
 
 detect_backend() {
-  if systemctl is-active --quiet NetworkManager; then
-    if systemctl is-active --quiet iwd; then
-        if ! systemctl is-active --quiet systemd-networkd.service; then
-            echo "nm-iwd"
+    if systemctl is-active --quiet NetworkManager; then
+        if systemctl is-active --quiet iwd; then
+            if systemctl is-active --quiet systemd-networkd; then
+                echo "systemd-iwd"
+            else
+                echo "nm-iwd"
+            fi
+        else
+            echo "nm-wpa"
+        fi
+    elif systemctl is-active --quiet iwd && systemctl is-active --quiet systemd-networkd; then
+        echo "systemd-iwd"
     else
-      echo "nm-wpa"
+        echo "none"
     fi
-  elif systemctl is-active --quiet iwd; then
-    echo "systemd-iwd"
-  else
-    echo "none"
-  fi
 }
+
 
 section "Starting PBY custom setup on top of Omarchy"
 
