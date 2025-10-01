@@ -125,6 +125,7 @@ alias paste="wl-paste"
 
 # Development Tools
 alias nvimconfig="cd ~/.config/nvim && nvim ."
+alias n="nvim"
 alias lg='lazygit'
 alias ld='lazydocker'
 
