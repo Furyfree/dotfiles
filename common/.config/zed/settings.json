@@ -139,7 +139,17 @@
 
   // Python Settings
   "language_overrides": {
+    "JSON": {
+      "format_on_save": "off"
+    },
+    "JavaScript": {
+      "format_on_save": "off"
+    },
+    "TypeScript": {
+      "format_on_save": "off"
+    },
     "Python": {
+      "format_on_save": "off",
       "language_server": {
         "name": "pylsp",
         "initialization_options": {
