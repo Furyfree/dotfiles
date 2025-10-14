@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Mail
+Comment=Nextcloud Mail App
+Exec=omarchy-launch-webapp https://cloud.byrne.dk/apps/mail/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/NextcloudMail.png
+StartupNotify=true

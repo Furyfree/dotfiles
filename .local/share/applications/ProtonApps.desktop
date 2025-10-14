@@ -1,9 +1,0 @@
-[Desktop Entry]
-Version=1.0
-Name=Proton Apps
-Comment=Proton
-Exec=omarchy-launch-webapp https://account.proton.me/apps
-Terminal=false
-Type=Application
-Icon=/home/pby/.local/share/applications/icons/ProtonApps.png
-StartupNotify=true

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Dashboard
+Comment=Nextcloud Dashboard App
+Exec=omarchy-launch-webapp https://cloud.byrne.dk/apps/dashboard/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/NextcloudDashboard.png
+StartupNotify=true

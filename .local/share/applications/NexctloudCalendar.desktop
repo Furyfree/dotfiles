@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Calendar
+Comment=Nextcloud Calendar App
+Exec=omarchy-launch-webapp https://cloud.byrne.dk/apps/calendar/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/NextcloudCalendar.png
+StartupNotify=true

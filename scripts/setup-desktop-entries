@@ -1,0 +1,51 @@
+#!/bin/bash
+set -euo pipefail
+
+log() { echo -e "\e[32m[*]\e[0m $1"; }
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd)"
+
+setup_desktop_entries() {
+
+    local APPLICATION_DIR="$SCRIPT_DIR/.local/share/applications"
+    local ICONS_DIR="$APPLICATION_DIR/icons"
+
+    log "Making Desktop Entries"
+    mkdir -p -- "$HOME/.local/share/applications"
+
+    for file in "$APPLICATION_DIR"/*.desktop; do
+        if [ -f "$file" ]; then
+            local basename_file="$(basename "$file")"
+            log "Templating $file to $HOME/.local/share/applications/$basename_file"
+            sed "s|/home/pby|$HOME|g" "$file" > "$HOME/.local/share/applications/$basename_file"
+        fi
+    done
+
+    mkdir -p -- "$HOME/.local/share/applications/icons"
+    for file in "$ICONS_DIR"/*.png; do
+        if [ -f "$file" ]; then
+            log "Copying $file to $HOME/.local/share/applications/icons/$(basename "$file")"
+            cp -- "$file" "$HOME/.local/share/applications/icons/"
+        fi
+    done
+
+    log "Backing up unwanted desktop entries..."
+    files=(
+        "Basecamp.desktop"
+        "dropbox.desktop"
+        "Figma.desktop"
+        "Google Contacts.desktop"
+        "Google Messages.desktop"
+        "Google Photos.desktop"
+        "HEY.desktop"
+        "Impala.desktop"
+        "WhatsApp.desktop"
+    )
+
+    for filename in "${files[@]}"; do
+        f="$HOME/.local/share/applications/$filename"
+        [ -e "$f" ] && mv "$f" "$f.bak" || true
+    done
+
+}
+setup_desktop_entries

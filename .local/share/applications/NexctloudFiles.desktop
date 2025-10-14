@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Files
+Comment=Nextcloud Files App
+Exec=omarchy-launch-webapp https://cloud.byrne.dk/apps/files/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/NextcloudFiles.png
+StartupNotify=true

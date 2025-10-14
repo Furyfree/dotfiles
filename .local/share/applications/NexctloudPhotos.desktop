@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=Photos
+Comment=Nextcloud Photos App
+Exec=omarchy-launch-webapp https://cloud.byrne.dk/apps/photos/
+Terminal=false
+Type=Application
+Icon=/home/pby/.local/share/applications/icons/NextcloudPhotos.png
+StartupNotify=true
