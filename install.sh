@@ -86,7 +86,9 @@ install_pkgs() {
         mise \
         lmstudio \
         dotnet-sdk \
-        bind
+        bind \
+        go \
+
 
     log "Installing Zed via Curl"
     if ! command -v zed &>/dev/null; then
