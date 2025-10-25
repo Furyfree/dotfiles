@@ -9,6 +9,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$PATH:$HOME/.lmstudio/bin"
 export PATH="$PATH:$HOME/.dotnet/tools"
 export PATH="$PATH:$HOME/.local/share/omarchy/bin:$PATH"
+export PATH=$PATH:$(go env GOPATH)/bin
 
 # Mise (Environment manager for multiple languages)
 # eval "$(mise activate zsh)"
@@ -114,6 +115,7 @@ alias la='eza -a --icons --grid --group-directories-first'
 alias cat='bat'
 alias mkdir='mkdir -p'
 alias cd='z'
+alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
 
 # System Utilities
 alias c='clear'
@@ -173,5 +175,3 @@ function toggle-pyenv() {
 #######################################
 autoload -Uz compinit
 compinit
-
-. "$HOME/.local/share/../bin/env"
