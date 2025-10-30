@@ -24,3 +24,5 @@ keybind = "ctrl+shift+w=close_tab"
 # Scroll the scrollback with Shift + PgUp/PgDn
 keybind = shift+page_up=scroll_page_up
 keybind = shift+page_down=scroll_page_down
+# Send ESC + CR sequence for multi-line editing or shell compatibility
+keybind = shift+enter=text:\x1b\r
