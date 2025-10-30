@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (Local Models)",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "mistral:7b": {
+          "name": "Local Assistant - Mistral"
+        },
+        "deepseek-coder:6.7b": {
+          "name": "Local Coder - Deepseek-Coder"
+        },
+        "gemma3:12b": {
+          "name": "Local Reasoner - Gemma",
+        },
+        "gpt-oss:20b": {
+          "name": "Local Heavy - GPT"
+        }
+      }
+    }
+  }
+}

@@ -84,7 +84,6 @@ install_pkgs() {
         network-manager-applet \
         bat \
         mise \
-        lmstudio \
         dotnet-sdk \
         bind \
         go \

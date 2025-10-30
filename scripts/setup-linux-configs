@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Fail safety
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd)"
+
+# HELPERS
+# Simple log helper
+log() { echo -e "\e[32m[*]\e[0m $1"; }
+
+# Simple section helper
+section() { echo -e "\n\e[1;34m==>\e[0m $1"; }
+
+setup_linux_configs() {
+    log "Setting up Linux specific dotfiles..."
+
+    local SRC_DIR="$SCRIPT_DIR/linux/.config"
+    local DST_DIR="$HOME/.config"
+
+    mkdir -p -- "$DST_DIR"
+
+    for folder in "$SRC_DIR"/*; do
+        [ -e "$folder" ] || continue
+        local base=$(basename "$folder")
+        local dst_path="$DST_DIR/$base"
+
+        # Remove existing file/directory if it exists and isn't our symlink
+        if [[ -e "$dst_path" && ! -L "$dst_path" ]]; then
+            log "Removing existing $dst_path"
+            rm -rf -- "$dst_path"
+        fi
+
+        ln -sfn -- "$SRC_DIR/$base" "$dst_path"
+        echo "Symlinking $SRC_DIR/$base to $dst_path"
+    done
+}
+setup_linux_configs
