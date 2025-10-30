@@ -11,12 +11,6 @@
         "mistral:7b": {
           "name": "Local Assistant - Mistral"
         },
-        "deepseek-coder:6.7b": {
-          "name": "Local Coder - Deepseek-Coder"
-        },
-        "gemma3:12b": {
-          "name": "Local Reasoner - Gemma",
-        },
         "gpt-oss:20b": {
           "name": "Local Heavy - GPT"
         }

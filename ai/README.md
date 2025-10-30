@@ -28,9 +28,7 @@ sudo npm i -g opencode-ai
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull gpt-oss:20b
-ollama pull gemma3:12b
 ollama pull mistral:7b
-ollama pull deepseek-coder:6.7b
 ```
 
 ### 3. Configure OpenCode
