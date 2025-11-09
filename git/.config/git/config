@@ -1,0 +1,14 @@
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+[pull]
+	rebase = true
+[init]
+	defaultBranch = master
+[user]
+	name = Patrick Byrne
+	email = pby.software@byrne.dk
+[core]
+    excludesfile = ~/.config/git/ignore

@@ -1,0 +1,5 @@
+# bat cache --build
+--theme="Catppuccin Mocha"
+--paging=auto
+--pager=less
+--style=full
