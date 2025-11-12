@@ -33,8 +33,8 @@ keybind = ctrl+space>down=goto_split:bottom
 keybind = ctrl+space>up=goto_split:top
 keybind = ctrl+space>right=goto_split:right
 
-keybind = ctrl+space>+=resize_split:right,100
-keybind = ctrl+space>-=resize_split:left,100
+keybind = ctrl+space>shift++=resize_split:right,100
+keybind = ctrl+space>shift+-=resize_split:left,100
 keybind = ctrl+space>escape=equalize_splits
 
 keybind = ctrl+space>page_up=move_tab:-1
@@ -80,8 +80,8 @@ keybind = alt+down=goto_split:bottom
 keybind = alt+up=goto_split:top
 keybind = alt+right=goto_split:right
 
-keybind = alt++=resize_split:right,100
-keybind = alt+-=resize_split:left,100
+keybind = alt+shift++=resize_split:right,100
+keybind = alt+shift+-=resize_split:left,100
 keybind = alt+escape=equalize_splits
 
 keybind = alt+page_up=move_tab:-1
@@ -90,3 +90,7 @@ keybind = alt+home=goto_tab:1
 keybind = alt+end=goto_tab:9
 
 keybind = alt+r=reload_config
+
+# Ctrl
+keybind = ctrl+t=new_tab
+keybind = ctrl+w=close_tab
