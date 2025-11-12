@@ -137,11 +137,6 @@ alias fman='compgen -c | fzf | xargs man'
 alias fzf-find='fd --type f | fzf'
 alias find='fd'
 
-# Terminal/Session Management
-alias zj="zellij attach -c" # Creates session if no session is active or else it attaches
-alias zjx="zellij action quit" # Quits all sessions
-
-
 # Network/VPN
 # DTU VPN
 alias vpn-dtu-up='nmcli connection up dtu-vpn'
