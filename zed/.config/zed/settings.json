@@ -1,4 +1,6 @@
 {
+  "restore_on_startup": "none",
+  "on_last_window_closed": "quit_app",
   "autosave": "on_focus_change",
   "buffer_font_weight": 400.0,
   "agent": {
