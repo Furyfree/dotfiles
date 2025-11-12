@@ -89,6 +89,11 @@ keybind = alt+page_down=move_tab:1
 keybind = alt+home=goto_tab:1
 keybind = alt+end=goto_tab:9
 
+keybind = alt+shift+left=move_tab:-1
+keybind = alt+shift+right=move_tab:1
+keybind = alt+shift+down=goto_tab:1
+keybind = alt+shift+up=goto_tab:9
+
 keybind = alt+r=reload_config
 
 # Ctrl
