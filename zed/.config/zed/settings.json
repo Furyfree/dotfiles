@@ -1,4 +1,6 @@
 {
+  "autosave": "on_focus_change",
+  "buffer_font_weight": 400.0,
   "agent": {
     "default_profile": "ask",
     "dock": "right",
@@ -24,11 +26,7 @@
     "diagnostics": false,
     "metrics": false
   },
-  "theme": {
-    "mode": "dark",
-    "light": "Catppuccin Latte",
-    "dark": "Catppuccin Mocha"
-  },
+  "theme": "Catppuccin Mocha",
   "icon_theme": "Catppuccin Mocha",
   "ui_font_family": "CaskaydiaMono Nerd Font",
   "ui_font_fallbacks": ["Noto Color Emoji", "FontAwesome"],
@@ -51,7 +49,7 @@
   "remove_trailing_whitespace_on_save": true,
   "ensure_final_newline_on_save": true,
   "vim_mode": false,
-  "relative_line_numbers": false,
+  "relative_line_numbers": true,
   "always_treat_brackets_as_autoclosed": false,
   "project_panel": {
     "dock": "left",
