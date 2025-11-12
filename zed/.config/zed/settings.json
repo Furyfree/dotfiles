@@ -31,9 +31,9 @@
   "theme": "Catppuccin Mocha",
   "icon_theme": "Catppuccin Mocha",
   "ui_font_family": "CaskaydiaMono Nerd Font",
-  "ui_font_fallbacks": ["Noto Color Emoji", "FontAwesome"],
+  "ui_font_fallbacks": ["Noto Color Emoji"],
   "buffer_font_family": "CaskaydiaMono Nerd Font",
-  "buffer_font_fallbacks": ["Noto Color Emoji", "FontAwesome"],
+  "buffer_font_fallbacks": ["Noto Color Emoji"],
   "ui_font_features": {
     "calt": false,
     "liga": false,
