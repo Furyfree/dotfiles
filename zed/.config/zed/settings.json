@@ -51,7 +51,7 @@
   "remove_trailing_whitespace_on_save": true,
   "ensure_final_newline_on_save": true,
   "vim_mode": false,
-  "relative_line_numbers": true,
+  "relative_line_numbers": "enabled",
   "always_treat_brackets_as_autoclosed": false,
   "project_panel": {
     "dock": "left",
