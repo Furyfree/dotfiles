@@ -4,14 +4,14 @@
   "autosave": "on_focus_change",
   "buffer_font_weight": 400.0,
   "agent": {
-    "default_profile": "ask",
+    "default_profile": "write",
     "dock": "right",
     "default_width": 300,
     "button": true,
     "always_allow_tool_actions": true,
     "default_model": {
-      "provider": "ollama",
-      "model": "qwen2.5-coder:3b"
+      "provider": "copilot_chat",
+      "model": "gpt-4.1"
     },
     "model_parameters": []
   },
