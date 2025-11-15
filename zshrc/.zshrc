@@ -197,3 +197,6 @@ clean() {
 #######################################
 autoload -Uz compinit
 compinit
+
+# opencode
+export PATH=/home/pby/.opencode/bin:$PATH
