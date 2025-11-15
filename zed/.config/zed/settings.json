@@ -10,8 +10,8 @@
     "button": true,
     "always_allow_tool_actions": true,
     "default_model": {
-      "provider": "copilot_chat",
-      "model": "gpt-5-mini"
+      "provider": "ollama",
+      "model": "qwen2.5-coder:7b"
     },
     "model_parameters": []
   },
