@@ -11,7 +11,7 @@
     "always_allow_tool_actions": true,
     "default_model": {
       "provider": "ollama",
-      "model": "qwen2.5-coder:7b"
+      "model": "qwen2.5-coder:3b"
     },
     "model_parameters": []
   },
