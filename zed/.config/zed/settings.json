@@ -4,7 +4,7 @@
   "autosave": "on_focus_change",
   "buffer_font_weight": 400.0,
   "agent": {
-    "default_profile": "write",
+    "default_profile": "ask",
     "dock": "right",
     "default_width": 300,
     "button": true,
