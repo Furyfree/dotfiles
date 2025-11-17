@@ -1,2 +1,0 @@
-[keymap]
-"V" = ":shell code {pwd} &"
