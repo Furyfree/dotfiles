@@ -151,12 +151,14 @@ alias updategrub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 
 # Neovim repo jump
 function nr() {
-  z $1 && n .
+  z -- $1 
+  n .
 }
 
 # Zed repo jump
 function zr() {
-  z $1 && zed .
+  z -- $1 
+  zed .
 }
 
 # Arch clean
