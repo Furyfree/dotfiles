@@ -1,65 +1,87 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
 [
   {
     "context": "Workspace",
-    "use_key_equivalents": true,
     "bindings": {
-      "cmd-t": "workspace::ToggleBottomDock",
-      "ctrl-t": "workspace::ToggleBottomDock",
-      "cmd-shift-t": "workspace::NewTerminal",
-      "ctrl-shift-t": "workspace::NewTerminal",
-      "cmd-e": "project_panel::ToggleFocus",
-      "ctrl-e": "project_panel::ToggleFocus",
-      "cmd-g": "git_panel::ToggleFocus",
-      "ctrl-g": "git_panel::ToggleFocus",
-      "cmd-j": "workspace::ToggleRightDock",
-      "ctrl-j": "workspace::ToggleRightDock",
-      "cmd-shift-o": ["projects::OpenRecent", { "create_new_window": true }],
-      "ctrl-shift-o": ["projects::OpenRecent", { "create_new_window": true }]
+      // "shift shift": "file_finder::Toggle"
     }
   },
   {
-    "context": "Editor && mode == full",
-    "use_key_equivalents": true,
+    "context": "Editor && vim_mode == insert",
     "bindings": {
-      "cmd-e": "project_panel::ToggleFocus",
-      "ctrl-e": "project_panel::ToggleFocus",
-      "cmd-g": "git_panel::ToggleFocus",
-      "ctrl-g": "git_panel::ToggleFocus",
-      "cmd-shift-o": "projects::OpenRecent",
-      "ctrl-shift-o": "projects::OpenRecent"
+      // "j k": "vim::NormalBefore"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-k ctrl-k": "zed::OpenKeymap"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-k ctrl-s": null
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-k ctrl-t": "theme_selector::Toggle"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-shift-t": "terminal_panel::Toggle"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "": "file_finder::Toggle"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-k ctrl-x": "zed::Extensions"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-shift-x": null
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-shift-j": "agent::ToggleFocus"
     }
   },
   {
     "context": "Editor",
-    "use_key_equivalents": true,
     "bindings": {
-      "cmd-d": "editor::SelectNext",
-      "ctrl-d": "editor::SelectNext"
+      "ctrl-shift-j": null
     }
   },
   {
-    "context": "Terminal",
-    "use_key_equivalents": true,
+    "context": "Workspace",
     "bindings": {
-      // Example: Clear terminal
-      "cmd-k": "terminal::Clear",
-      "ctrl-k": "terminal::Clear"
+      "ctrl-shift-b": "workspace::ToggleRightDock"
     }
   },
   {
-    "context": "Pane",
-    "use_key_equivalents": true,
+    "context": "Workspace",
     "bindings": {
-      "cmd-1": ["workspace::ActivatePane", 0],
-      "ctrl-1": ["workspace::ActivatePane", 0]
-    }
-  },
-  {
-    "context": "ProjectPanel",
-    "use_key_equivalents": true,
-    "bindings": {
-      "cmd-n": "project_panel::NewFile",
-      "ctrl-n": "project_panel::NewFile"
+      "ctrl-alt-b": "outline_panel::ToggleFocus"
     }
   }
 ]
