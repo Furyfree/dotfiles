@@ -61,15 +61,8 @@
     }
   },
   {
-    "context": "Workspace",
     "bindings": {
       "ctrl-shift-j": "agent::ToggleFocus"
-    }
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "ctrl-shift-j": null
     }
   },
   {
@@ -109,6 +102,12 @@
   {
     "bindings": {
       "ctrl-p": null
+    }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-shift-j": "agent::ToggleFocus"
     }
   }
 ]
