@@ -83,5 +83,32 @@
     "bindings": {
       "ctrl-alt-b": "outline_panel::ToggleFocus"
     }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "alt-open": null
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-alt-o": null
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-shift-o": [
+        "projects::OpenRecent",
+        {
+          "create_new_window": true
+        }
+      ]
+    }
+  },
+  {
+    "bindings": {
+      "ctrl-p": null
+    }
   }
 ]
