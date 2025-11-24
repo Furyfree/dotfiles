@@ -97,5 +97,5 @@ keybind = alt+shift+up=goto_tab:9
 keybind = alt+r=reload_config
 
 # Ctrl
-keybind = ctrl+t=new_tab
-keybind = ctrl+w=close_tab
+# keybind = ctrl+t=new_tab
+# keybind = ctrl+w=close_tab
