@@ -1,7 +1,7 @@
 {
   // --- Tab bar UI ---
   "tab_bar": {
-    "show": false, // you like it clean, keep the bar hidden
+    "show": true, // you like it clean, keep the bar hidden
     "show_nav_history_buttons": false,
     "show_tab_bar_buttons": false
   },
@@ -18,7 +18,7 @@
 
   // --- Preview tabs (THIS is what made tabs auto-close) ---
   "preview_tabs": {
-    "enabled": true // disable preview tabs → every file opens as a real tab
+    "enabled": false // disable preview tabs → every file opens as a real tab
   },
 
   // --- STARTUP ---
@@ -26,6 +26,7 @@
 
   // --- AI AGENT DEFAULT MODEL ---
   "agent": {
+    "always_allow_tool_actions": true,
     "default_model": {
       "provider": "copilot_chat",
       "model": "gpt-4.1"
