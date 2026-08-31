@@ -1,5 +1,12 @@
 {{- $profiles := list "common" -}}
 {{- $desktopStack := "none" -}}
+{{- $onePasswordSsh := false -}}
+
+{{- if lookPath "op" -}}
+{{-   $onePasswordSsh = promptBoolOnce
+        . "onePasswordSsh" "Enable 1Password SSH integration" false
+-}}
+{{- end -}}
 
 {{- if eq .chezmoi.os "linux" -}}
 {{-   $profiles = append $profiles "unix" -}}
@@ -33,6 +40,7 @@ Deferred until their configs are maintained:
 {{- end -}}
 [data]
 desktopStack = {{ $desktopStack | quote }}
+onePasswordSsh = {{ $onePasswordSsh }}
 profiles = [
 {{- range $profiles }}
   {{ . | quote }},

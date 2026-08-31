@@ -9,6 +9,8 @@ Before architecture or ownership changes, read:
 
 Keep repository metadata at the root and Chezmoi source state in `home/`.
 Manage only intentional files below the current user's `$HOME`.
+Keep user-facing commands in `README.md`; planning documents should link to it
+instead of duplicating usage instructions.
 
 Nimbus owns packages and system state. Until its profile handoff exists,
 Chezmoi may use a flat local profile list. Do not add imports, dependencies,
