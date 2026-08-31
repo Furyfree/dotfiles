@@ -4,8 +4,9 @@ Cross-platform user configuration managed by Chezmoi. Linux is developed
 first, with macOS and Windows target paths kept ready.
 
 Chezmoi owns selected files below `~`. Nimbus owns packages, services, system
-files, privileged changes, and the final Linux profile resolver. Secrets and
-private keys never enter Git.
+files, privileged changes, and the machine profile handoff. Machine manifests
+live in `machines/` at the checkout root, outside the Chezmoi source state;
+Chezmoi never deploys or edits them. Secrets and private keys never enter Git.
 
 The repository is currently a safe scaffold. Empty configs remain ignored
 until they are implemented and reviewed.
@@ -71,8 +72,9 @@ its platform rule.
 
 ## 1Password SSH
 
-Bootstrap asks whether to enable the 1Password SSH integration when the `op`
-CLI is available. The local `onePasswordSsh` value controls:
+Bootstrap asks whether to enable the 1Password SSH integration. The prompt
+records intent only and does not require the `op` CLI to be present. The local
+`onePasswordSsh` value controls:
 
 - private `~/.ssh/config` rendered from 1Password
 - `agent.toml` at the Linux/macOS or Windows target path
@@ -91,6 +93,6 @@ chezmoi --skip-secrets verify
 
 After enabling or unlocking 1Password, run the normal preview before applying.
 
-See [PROFILES.md](PROFILES.md) for the temporary profile vocabulary,
+See [PROFILES.md](PROFILES.md) for the profile vocabulary,
 [CONFIG_INVENTORY.md](CONFIG_INVENTORY.md) for migration scope, and
 [ROADMAP.md](ROADMAP.md) for implementation order.

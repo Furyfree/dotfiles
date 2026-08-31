@@ -1,46 +1,48 @@
-{{- $profiles := list "common" -}}
-{{- $desktopStack := "none" -}}
+{{- $platformProfiles := list -}}
+{{- $machineProfiles := list -}}
 {{- $onePasswordSsh := false -}}
 
-{{- if lookPath "op" -}}
-{{-   $onePasswordSsh = promptBoolOnce
-        . "onePasswordSsh" "Enable 1Password SSH integration" false
--}}
-{{- end -}}
-
-{{- if eq .chezmoi.os "linux" -}}
-{{-   $profiles = append $profiles "unix" -}}
-{{-   $profiles = append $profiles "linux" -}}
-{{-   $choices := list
-        "none"
-        "hyprland-noctalia"
+{{- $machineChoices := list
+      "common"
+      "development"
+      "gaming"
+      "hyprland-noctalia"
 -}}
 {{- /*
-Deferred until their configs are maintained:
-  niri-noctalia
-  niri-dms
-  hyprland-dms
+Deferred machine profiles stay out of the choices until their configs are
+maintained: niri-noctalia, niri-dms, hyprland-dms.
 */ -}}
-{{-   $desktopStack = promptChoiceOnce
-        . "desktopStack" "Linux desktop stack" $choices "none"
+{{- $onePasswordSsh = promptBoolOnce
+      . "onePasswordSsh" "Enable 1Password SSH integration" false
 -}}
-{{-   if not (has $desktopStack $choices) -}}
-{{-     fail (printf "invalid Linux desktop stack %q" $desktopStack) -}}
-{{-   end -}}
-{{-   if ne $desktopStack "none" -}}
-{{-     $profiles = append $profiles $desktopStack -}}
+
+{{- if eq .chezmoi.os "linux" -}}
+{{-   $platformProfiles = list "unix" "linux" -}}
+{{-   $machineProfiles = promptMultichoiceOnce
+        . "Profiles" "Profiles" $machineChoices (list "common")
+-}}
+{{-   range $profile := $machineProfiles -}}
+{{-     if not (has $profile $machineChoices) -}}
+{{-       fail (printf "invalid machine profile %q" $profile) -}}
+{{-     end -}}
 {{-   end -}}
 {{- else if eq .chezmoi.os "darwin" -}}
-{{-   $profiles = append $profiles "unix" -}}
-{{-   $profiles = append $profiles "macos" -}}
+{{-   $platformProfiles = list "unix" "macos" -}}
 {{- else if eq .chezmoi.os "windows" -}}
-{{-   $profiles = append $profiles "windows" -}}
+{{-   $platformProfiles = list "windows" -}}
 {{- else -}}
 {{-   fail (printf "unsupported operating system %q" .chezmoi.os) -}}
 {{- end -}}
+
+{{- $profiles := uniq (concat (list "common") $platformProfiles $machineProfiles) -}}
+
 [data]
-desktopStack = {{ $desktopStack | quote }}
 onePasswordSsh = {{ $onePasswordSsh }}
+Profiles = [
+{{- range $machineProfiles }}
+  {{ . | quote }},
+{{- end }}
+]
 profiles = [
 {{- range $profiles }}
   {{ . | quote }},

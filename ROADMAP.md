@@ -1,19 +1,17 @@
 # Roadmap
 
-This file owns dotfiles order and design. Nimbus architecture remains in:
-
-- `~/git/docs/setup/dotfiles/README.md`
-- `~/git/docs/setup/nimbus/README.md`
-- `~/git/docs/setup/nimbus/home.md`
-- `~/git/docs/setup/nimbus/plan.md`
+This file owns dotfiles order and design. The active Nimbus contracts live in
+the Nimbus repository's `SPEC.md` and `CLI.md`. `~/git/docs` is history, not a
+source of truth.
 
 ## Rules
 
 - Keep metadata at the repository root and Chezmoi source state in `home/`.
 - Keep user-facing commands in `README.md`; planning documents should link to it.
 - Manage user files only. Nimbus owns packages and system state.
-- Use a flat local profile list until Nimbus can supply one. Do not build a
-  profile graph or resolver.
+- Nimbus supplies machine profile IDs through `chezmoi init
+  --promptMultichoice`; the template consumes them and derives platform
+  profiles from `.chezmoi.os`. Do not build a profile graph or resolver.
 - Support direct Chezmoi use when Nimbus is absent.
 - Rewrite one configuration at a time; never copy this machine or Niriland
   wholesale.
@@ -43,10 +41,11 @@ syntax, but not roles or profiles.
 
 ## Profiles
 
-Chezmoi has no built-in profile system. Until Nimbus exists,
-`home/.chezmoi.toml.tmpl` will create a flat `profiles` list in the local
-Chezmoi config. [PROFILES.md](PROFILES.md) owns the names and constraints.
-Nimbus can later replace the producer after both repositories reconcile them.
+Chezmoi has no built-in profile system. `home/.chezmoi.toml.tmpl` derives
+platform profiles from `.chezmoi.os`, consumes Nimbus' machine profile
+selection with `promptMultichoiceOnce` under the stable `Profiles` key, and
+writes one resolved `profiles` list into the local Chezmoi config.
+[PROFILES.md](PROFILES.md) owns the names and constraints.
 
 ## Shell loading
 
@@ -66,7 +65,7 @@ Current state:
 - `.chezmoiversion` sets the minimum version.
 - `home/.chezmoi.toml.tmpl` creates the local profile list.
 - `home/.chezmoiignore` selects platform paths, optional features, and the
-  chosen desktop stack.
+  selected machine profiles.
 - Empty files reserve accepted config targets without copying live content.
 - Empty config targets are listed explicitly in `.chezmoiignore`; remove only
   the matching placeholder rule when a config slice is implemented.
@@ -130,8 +129,8 @@ other system state here.
 Start with `hyprland-noctalia`. Nimbus owns packages, services, portals,
 greeters, and other system integration.
 
-The desktop-stack choice gates only Hyprland and Noctalia. Other Linux user
-configuration remains available when the choice is `none`.
+The machine profile selection gates only Hyprland and Noctalia. Other Linux
+user configuration remains available without it.
 
 Test the real setup before structuring `~/.config/hypr/`. Identify which files
 are shared Hyprland config and which settings depend on Noctalia or DMS. Prefer
@@ -156,8 +155,9 @@ Planned SSH model:
 - `~/.ssh/config` is a private 1Password document rendered by Chezmoi.
 - One canonical `agent.toml` selects and orders the SSH keys exposed by the
   1Password agent. Thin wrappers target Linux, macOS, and Windows paths.
-- Local data key `onePasswordSsh` gates both SSH targets. Missing `op` disables
-  the integration; temporary vault locks do not change the managed set.
+- Local data key `onePasswordSsh` gates both SSH targets. The init prompt
+  records intent without requiring `op`; temporary vault locks do not change
+  the managed set.
 - Nimbus owns 1Password installation. Agent enablement stays in the app.
 - `github-auth` and `homelab-user` are daily keys in 1Password.
 - The same keys are available on trusted Windows, Linux, and macOS clients.
