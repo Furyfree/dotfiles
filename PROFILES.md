@@ -27,6 +27,9 @@ A Linux machine may select this desktop stack or none:
 The profile does not imply a greeter. Greeters and system integration belong
 to Nimbus.
 
+Selecting no desktop stack excludes only Hyprland and Noctalia. Other Linux
+user configuration still follows the `linux` profile.
+
 ## Deferred Linux desktop profiles
 
 These names are reserved but disabled in the initial setup:
@@ -55,11 +58,3 @@ Linux only:    common, unix, linux
 MacBook:       common, unix, macos
 Windows:       common, windows
 ```
-
-On Linux, select or change the desktop stack with:
-
-```sh
-chezmoi init --prompt
-```
-
-This updates local Chezmoi data only unless `--apply` is added.

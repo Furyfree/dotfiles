@@ -1,0 +1,126 @@
+{{- $profiles := list "common" -}}
+{{- if hasKey . "profiles" -}}
+{{-   $profiles = .profiles -}}
+{{- end -}}
+{{- $hyprlandNoctalia := has "hyprland-noctalia" $profiles -}}
+{{- $onePasswordSsh := false -}}
+{{- if hasKey . "onePasswordSsh" -}}
+{{-   $onePasswordSsh = .onePasswordSsh -}}
+{{- end -}}
+
+# Platform target trees
+{{ if ne .chezmoi.os "windows" -}}
+AppData/**
+Documents/**
+{{ end -}}
+{{ if ne .chezmoi.os "darwin" -}}
+Library/**
+{{ end -}}
+
+# Mixed root and .config targets
+{{ if eq .chezmoi.os "windows" -}}
+.zshenv
+.profile
+.bash_profile
+.bashrc
+.bash_logout
+.blerc
+.config/1Password/**
+.config/VSCodium/**
+.config/bash/**
+.config/btop/**
+.config/gh/**
+.config/ghostty/**
+.config/mise/**
+.config/nix/**
+.config/nvim/**
+.config/sheldon/**
+.config/topgrade.toml
+.config/zed/**
+.config/zsh/**
+{{ end -}}
+{{ if eq .chezmoi.os "darwin" -}}
+.config/VSCodium/**
+{{ end -}}
+
+# Hyprland and Noctalia targets
+{{ if or (ne .chezmoi.os "linux") (not $hyprlandNoctalia) -}}
+.config/hypr/**
+.config/noctalia/**
+{{ end -}}
+
+# Other Linux user targets
+{{ if ne .chezmoi.os "linux" -}}
+.config/udiskie/**
+.config/vm-curator/**
+.config/zathura/**
+.local/share/applications/**
+.local/share/backgrounds/**
+.local/share/icons/**
+{{ end -}}
+
+# Deferred desktop targets
+.config/niri/**
+.config/DankMaterialShell/**
+
+# Optional 1Password SSH integration
+{{ if not $onePasswordSsh -}}
+.ssh/config
+.config/1Password/ssh/agent.toml
+AppData/Local/1Password/config/ssh/agent.toml
+{{ end -}}
+
+# Placeholder files remain unmanaged until their config slice is implemented.
+**/.keep
+.config
+.local
+.local/share
+.ssh
+AppData
+AppData/Local
+AppData/Roaming
+Documents
+Library
+Library/Application Support
+.gitconfig
+.gitignore
+.zshenv
+.profile
+.bash_profile
+.bashrc
+.bash_logout
+.blerc
+.ssh/config
+.config/1Password/**
+.config/DankMaterialShell/**
+.config/VSCodium/**
+.config/bash/**
+.config/btop/**
+.config/fastfetch/**
+.config/gh/**
+.config/ghostty/**
+.config/hypr/**
+.config/mise/**
+.config/niri/**
+.config/nix/**
+.config/noctalia/**
+.config/nvim/**
+.config/sheldon/**
+.config/starship.toml
+.config/topgrade.toml
+.config/udiskie/**
+.config/vm-curator/**
+.config/zathura/**
+.config/zed/**
+.config/zsh/**
+.local/share/applications/**
+.local/share/backgrounds/**
+.local/share/icons/**
+AppData/Local/1Password/**
+AppData/Local/nvim/**
+AppData/Roaming/GitHub CLI/**
+AppData/Roaming/VSCodium/**
+AppData/Roaming/Zed/**
+AppData/Roaming/topgrade.toml
+Documents/PowerShell/**
+Library/Application Support/VSCodium/**

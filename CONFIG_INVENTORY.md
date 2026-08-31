@@ -10,6 +10,7 @@ reviewed before Chezmoi manages it.
 |---|---|
 | Git | Shared config with small platform or identity differences. |
 | SSH client | Render private `~/.ssh/config` from 1Password. Key design is in [ROADMAP.md](ROADMAP.md). |
+| 1Password SSH agent | Track selected-key filters only. Nimbus owns installation; enable the agent in 1Password. |
 | Neovim | Shared Lua config; isolate platform commands in Lua. |
 | Zed | Manage settings and keymap only. Exclude themes and backups. Verify macOS modifiers. |
 | VSCodium | Settings and keybindings only. Exclude empty snippets and runtime state. |
@@ -28,7 +29,7 @@ that fallback. VSIX files remain another option.
 | Config | Plan |
 |---|---|
 | Zsh | Small home entrypoint and XDG modules. Do not depend on `/etc/zsh/zshenv`. |
-| Bash | Native login and interactive files with optional `ble.sh`; must work without extras. |
+| Bash | Small standard entrypoints load modules from `~/.config/bash`; optional `ble.sh` must degrade cleanly. |
 | Ghostty | Shared config with small platform differences. |
 | Sheldon | Review as the Zsh plugin manager. |
 | Mise | Review versions and machine-specific paths. |
@@ -75,7 +76,7 @@ inventory. WSL has its own Linux home and Chezmoi instance.
 
 Do not adopt config for:
 
-- Lazygit, Poetry, JGit, OpenCode, or the 1Password app
+- Lazygit, Poetry, JGit, OpenCode, or other 1Password app settings
 - Cava, Lazydocker, or Fish
 - Octopi or CachyOS tools
 - browsers, Signal, Obsidian, ChatGPT, Vesktop, and other app-data trees

@@ -1,52 +1,33 @@
 # dotfiles
 
-Personal user configuration managed by Chezmoi. Linux comes first; macOS and
-Windows remain supported targets.
+Cross-platform user configuration managed by Chezmoi. Linux is developed
+first, with macOS and Windows target paths kept ready.
 
-## Ownership
+Chezmoi owns selected files below `~`. Nimbus owns packages, services, system
+files, privileged changes, and the final Linux profile resolver. Secrets and
+private keys never enter Git.
 
-- Chezmoi owns selected files below the user's home directory.
-- Nimbus owns packages, services, system files, privileged work, and profile
-  resolution.
-- Chezmoi starts with a flat local profile list. Nimbus may later supply the
-  resolved list on Linux; direct use remains supported everywhere.
-- Secrets stay out of Git and may later be rendered from 1Password.
+The repository is currently a safe scaffold. Empty configs remain ignored
+until they are implemented and reviewed.
 
-Chezmoi does not manage `/etc`, root's home, packages, services, or the login
-shell.
+## Bootstrap
 
-## Layout
+On a new machine with access to the private repository:
 
-`.chezmoiroot` points to `home/`:
-
-```text
-.
-|-- AGENTS.md
-|-- CONFIG_INVENTORY.md
-|-- PROFILES.md
-|-- README.md
-|-- ROADMAP.md
-`-- home/               # Chezmoi source state
-    |-- .chezmoi.toml.tmpl
-    |-- .chezmoiignore.tmpl
-    |-- .chezmoitemplates/ # canonical cross-platform config content
-    |-- dot_*            # shared home entrypoints
-    |-- dot_config/      # shared and Linux/Unix application config
-    |-- dot_local/       # selected user assets
-    |-- Library/         # macOS target paths
-    |-- AppData/         # Windows application target paths
-    `-- Documents/       # Windows PowerShell target path
+```sh
+chezmoi init --prompt https://github.com/Furyfree/dotfiles.git
 ```
 
-Existing home files and Niriland are references only. Adopt one reviewed
-configuration at a time. Empty scaffold targets stay in
-`.chezmoiignore.tmpl` until their content is implemented and reviewed.
+From an existing source checkout:
 
-When one config has different target paths across operating systems, edit its
-single canonical file below `.chezmoitemplates/configs/`. Target files are
-thin wrappers only.
+```sh
+chezmoi init --prompt
+```
 
-## Checks
+`--prompt` selects local options and regenerates the Chezmoi config. It does
+not modify home files unless `--apply` is added.
+
+Preview before applying:
 
 ```sh
 chezmoi managed
@@ -56,7 +37,60 @@ chezmoi verify
 git diff --check
 ```
 
-Do not run `chezmoi apply`, commit, or push without explicit permission.
+Apply only after reviewing the diff:
 
-See [ROADMAP.md](ROADMAP.md) for order, [PROFILES.md](PROFILES.md) for profiles,
-and [CONFIG_INVENTORY.md](CONFIG_INVENTORY.md) for scope.
+```sh
+chezmoi apply
+```
+
+## Update
+
+Pull without applying, review, then apply:
+
+```sh
+chezmoi update --apply=false
+chezmoi diff
+chezmoi apply
+```
+
+## Edit
+
+Use `chezmoi edit` for normal targets:
+
+```sh
+chezmoi edit ~/.config/zsh/.zshrc
+```
+
+Cross-platform configs have one canonical file below
+`home/.chezmoitemplates/configs/`. Files in OS-specific target directories are
+thin wrappers and should not contain duplicated config.
+
+`home/.chezmoiignore` selects platform paths and keeps placeholder targets
+unmanaged. When a config is implemented, remove its placeholder rule but keep
+its platform rule.
+
+## 1Password SSH
+
+Bootstrap asks whether to enable the 1Password SSH integration when the `op`
+CLI is available. The local `onePasswordSsh` value controls:
+
+- private `~/.ssh/config` rendered from 1Password
+- `agent.toml` at the Linux/macOS or Windows target path
+
+When disabled, those targets are ignored but existing files are not deleted.
+Run `chezmoi init --prompt` to change the choice; this still does not apply.
+
+If 1Password is only temporarily locked, inspect the remaining files without
+requesting secrets:
+
+```sh
+chezmoi --skip-secrets status
+chezmoi --skip-secrets diff
+chezmoi --skip-secrets verify
+```
+
+After enabling or unlocking 1Password, run the normal preview before applying.
+
+See [PROFILES.md](PROFILES.md) for the temporary profile vocabulary,
+[CONFIG_INVENTORY.md](CONFIG_INVENTORY.md) for migration scope, and
+[ROADMAP.md](ROADMAP.md) for implementation order.

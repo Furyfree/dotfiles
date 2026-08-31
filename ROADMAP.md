@@ -10,6 +10,7 @@ This file owns dotfiles order and design. Nimbus architecture remains in:
 ## Rules
 
 - Keep metadata at the repository root and Chezmoi source state in `home/`.
+- Keep user-facing commands in `README.md`; planning documents should link to it.
 - Manage user files only. Nimbus owns packages and system state.
 - Use a flat local profile list until Nimbus can supply one. Do not build a
   profile graph or resolver.
@@ -25,7 +26,7 @@ Use the simplest source form that works:
 
 1. Regular files for shared content.
 2. Templates only for real content or path differences.
-3. `.chezmoiignore.tmpl` when a target exists only on some profiles.
+3. `.chezmoiignore` when a target exists only on some platforms or profiles.
 4. Symlinks only when the target must be a symlink.
 5. Scripts only for narrow user actions that file state cannot express.
 
@@ -47,6 +48,16 @@ Chezmoi has no built-in profile system. Until Nimbus exists,
 Chezmoi config. [PROFILES.md](PROFILES.md) owns the names and constraints.
 Nimbus can later replace the producer after both repositories reconcile them.
 
+## Shell loading
+
+- Root entrypoints load their XDG entrypoint only when it is readable.
+- Bash and Zsh each define one namespaced `source_if_readable` helper for
+  optional integrations and local files such as work overrides.
+- Required tracked modules are sourced explicitly; a missing core module is a
+  validation failure rather than a silent skip.
+- Missing optional files are silent. Errors inside an existing file remain
+  visible.
+
 ## Phase 0 - Foundation
 
 Current state:
@@ -54,10 +65,11 @@ Current state:
 - `.chezmoiroot` points to `home/`.
 - `.chezmoiversion` sets the minimum version.
 - `home/.chezmoi.toml.tmpl` creates the local profile list.
-- `home/.chezmoiignore.tmpl` selects the chosen desktop stack.
+- `home/.chezmoiignore` selects platform paths, optional features, and the
+  chosen desktop stack.
 - Empty files reserve accepted config targets without copying live content.
-- Empty config trees are ignored until their first slice is implemented; the
-  broad rule is then narrowed around the files that remain empty.
+- Empty config targets are listed explicitly in `.chezmoiignore`; remove only
+  the matching placeholder rule when a config slice is implemented.
 - `.keep` files reserve directories only and are never deployed.
 - Repository rules, scope, and validation are documented.
 - No user configuration is managed yet.
@@ -81,8 +93,8 @@ are missing. Do not change the login shell or apply the files.
 
 Build a native Bash setup instead of translating Zsh:
 
-- portable login environment
-- interactive `.bashrc`
+- small standard entrypoints in `~`
+- portable login and interactive modules below `~/.config/bash`
 - optional `ble.sh`, completion, Starship, fzf, and zoxide
 - clean behavior on servers where optional tools are absent
 
@@ -118,6 +130,9 @@ other system state here.
 Start with `hyprland-noctalia`. Nimbus owns packages, services, portals,
 greeters, and other system integration.
 
+The desktop-stack choice gates only Hyprland and Noctalia. Other Linux user
+configuration remains available when the choice is `none`.
+
 Test the real setup before structuring `~/.config/hypr/`. Identify which files
 are shared Hyprland config and which settings depend on Noctalia or DMS. Prefer
 a shared base plus a small shell-specific include or template. Do not duplicate
@@ -139,6 +154,11 @@ Design one secret-backed target before adding any:
 Planned SSH model:
 
 - `~/.ssh/config` is a private 1Password document rendered by Chezmoi.
+- One canonical `agent.toml` selects and orders the SSH keys exposed by the
+  1Password agent. Thin wrappers target Linux, macOS, and Windows paths.
+- Local data key `onePasswordSsh` gates both SSH targets. Missing `op` disables
+  the integration; temporary vault locks do not change the managed set.
+- Nimbus owns 1Password installation. Agent enablement stays in the app.
 - `github-auth` and `homelab-user` are daily keys in 1Password.
 - The same keys are available on trusted Windows, Linux, and macOS clients.
 - Only public keys are installed on GitHub and homelab targets.
@@ -149,15 +169,6 @@ Do not migrate or delete existing SSH keys during foundation work.
 
 ## Validation
 
-Before every handoff:
-
-```sh
-chezmoi managed
-chezmoi status
-chezmoi diff
-chezmoi verify
-git diff --check
-```
-
-Use isolated destinations for bootstrap or template tests. Never overwrite the
-active Chezmoi configuration during development.
+Use the checks in [README.md](README.md) before every handoff. Use isolated
+destinations for bootstrap or template tests. Never overwrite the active
+Chezmoi configuration during development.
