@@ -1,0 +1,40 @@
+{{- $profiles := list "common" -}}
+{{- $desktopStack := "none" -}}
+
+{{- if eq .chezmoi.os "linux" -}}
+{{-   $profiles = append $profiles "unix" -}}
+{{-   $profiles = append $profiles "linux" -}}
+{{-   $choices := list
+        "none"
+        "hyprland-noctalia"
+-}}
+{{- /*
+Deferred until their configs are maintained:
+  niri-noctalia
+  niri-dms
+  hyprland-dms
+*/ -}}
+{{-   $desktopStack = promptChoiceOnce
+        . "desktopStack" "Linux desktop stack" $choices "none"
+-}}
+{{-   if not (has $desktopStack $choices) -}}
+{{-     fail (printf "invalid Linux desktop stack %q" $desktopStack) -}}
+{{-   end -}}
+{{-   if ne $desktopStack "none" -}}
+{{-     $profiles = append $profiles $desktopStack -}}
+{{-   end -}}
+{{- else if eq .chezmoi.os "darwin" -}}
+{{-   $profiles = append $profiles "unix" -}}
+{{-   $profiles = append $profiles "macos" -}}
+{{- else if eq .chezmoi.os "windows" -}}
+{{-   $profiles = append $profiles "windows" -}}
+{{- else -}}
+{{-   fail (printf "unsupported operating system %q" .chezmoi.os) -}}
+{{- end -}}
+[data]
+desktopStack = {{ $desktopStack | quote }}
+profiles = [
+{{- range $profiles }}
+  {{ . | quote }},
+{{- end }}
+]
