@@ -8,4 +8,4 @@ packages = []
 package_exclusions = []
 
 [dotfiles]
-repo = "git@github.com:Furyfree/dotfiles.git"
+repo = "https://github.com/Furyfree/dotfiles.git"
