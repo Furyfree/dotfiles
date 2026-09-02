@@ -4,9 +4,10 @@ Cross-platform user configuration managed by Chezmoi. Linux is developed
 first, with macOS and Windows target paths kept ready.
 
 Chezmoi owns selected files below `~`. Nimbus owns packages, services, system
-files, privileged changes, and the machine profile handoff. Machine manifests
-live in `machines/` at the checkout root, outside the Chezmoi source state;
-Chezmoi never deploys or edits them. Secrets and private keys never enter Git.
+files, and privileged changes on a Fedora workstation, and may run the first
+`chezmoi init` with the machine ID and selected profiles. Machine manifests
+live in the Nimbus repository, not here. Secrets and private keys never enter
+Git.
 
 The repository is currently a safe scaffold. Empty configs remain ignored
 until they are implemented and reviewed.
@@ -24,6 +25,10 @@ From an existing source checkout:
 ```sh
 chezmoi init --prompt
 ```
+
+Nimbus runs the same command non-interactively for the handoff values; see
+[PROFILES.md](PROFILES.md). Every other Chezmoi command stays direct, with or
+without Nimbus.
 
 `--prompt` selects local options and regenerates the Chezmoi config. It does
 not modify home files unless `--apply` is added.

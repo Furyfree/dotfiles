@@ -1,18 +1,19 @@
 # Roadmap
 
 This file owns dotfiles order and design. The active Nimbus contracts live in
-the Nimbus repository's `SPEC.md` and `CLI.md`. `~/git/docs` is history, not a
-source of truth.
+the Nimbus repository's `docs/SPEC.md`. `~/git/docs` is history, not a source
+of truth.
 
 ## Rules
 
 - Keep metadata at the repository root and Chezmoi source state in `home/`.
 - Keep user-facing commands in `README.md`; planning documents should link to it.
 - Manage user files only. Nimbus owns packages and system state.
-- Nimbus supplies machine profile IDs through `chezmoi init
-  --promptMultichoice`; the template consumes them and derives platform
-  profiles from `.chezmoi.os`. Do not build a profile graph or resolver.
-- Support direct Chezmoi use when Nimbus is absent.
+- Nimbus supplies `machine`, `managed_by_nimbus`, and the machine profile IDs
+  through `chezmoi init` prompt flags; the template consumes them and derives
+  platform profiles from `.chezmoi.os`. Do not build a profile graph,
+  resolver, or machine manifest here.
+- Support direct Chezmoi use when Nimbus is absent, on every platform.
 - Rewrite one configuration at a time; never copy this machine or Niriland
   wholesale.
 - Keep secrets and application state out of Git.
@@ -42,10 +43,10 @@ syntax, but not roles or profiles.
 ## Profiles
 
 Chezmoi has no built-in profile system. `home/.chezmoi.toml.tmpl` derives
-platform profiles from `.chezmoi.os`, consumes Nimbus' machine profile
-selection with `promptMultichoiceOnce` under the stable `Profiles` key, and
-writes one resolved `profiles` list into the local Chezmoi config.
-[PROFILES.md](PROFILES.md) owns the names and constraints.
+platform profiles from `.chezmoi.os`, consumes the machine name, Nimbus flag,
+and machine profile selection with the `prompt*Once` functions, and writes one
+resolved `profiles` list into the local Chezmoi config.
+[PROFILES.md](PROFILES.md) owns the names, keys, and constraints.
 
 ## Shell loading
 
@@ -137,9 +138,13 @@ are shared Hyprland config and which settings depend on Noctalia or DMS. Prefer
 a shared base plus a small shell-specific include or template. Do not duplicate
 the whole Hyprland tree or invent the split before the differences are known.
 
-Keep monitor and host differences small. Pass only explicit, non-secret values
-from Nimbus. Niri and DMS profiles remain disabled until their configs are
-maintained as separate slices.
+Keep monitor and host differences small; key them on `machine`. Pass only
+explicit, non-secret values from Nimbus. Niri and DMS profiles remain disabled
+until their configs are maintained as separate slices.
+
+A desktop entry that calls `nimbus windows connect` is the first target gated
+on both the `windows-vm` profile and `managed_by_nimbus`. It carries no VM
+logic and waits for the Nimbus Windows component to exist.
 
 ## Phase 6 - 1Password and SSH
 

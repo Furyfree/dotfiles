@@ -1,5 +1,6 @@
 {{- $platformProfiles := list -}}
 {{- $machineProfiles := list -}}
+{{- $managedByNimbus := false -}}
 {{- $onePasswordSsh := false -}}
 
 {{- $machineChoices := list
@@ -7,17 +8,25 @@
       "development"
       "gaming"
       "hyprland-noctalia"
+      "windows-vm"
 -}}
 {{- /*
 Deferred machine profiles stay out of the choices until their configs are
 maintained: niri-noctalia, niri-dms, hyprland-dms.
 */ -}}
+{{- $machine := promptStringOnce . "machine" "Machine" .chezmoi.hostname -}}
+{{- if eq (trim $machine) "" -}}
+{{-   fail "machine must not be empty" -}}
+{{- end -}}
 {{- $onePasswordSsh = promptBoolOnce
       . "onePasswordSsh" "Enable 1Password SSH integration" false
 -}}
 
 {{- if eq .chezmoi.os "linux" -}}
 {{-   $platformProfiles = list "unix" "linux" -}}
+{{-   $managedByNimbus = promptBoolOnce
+        . "managed_by_nimbus" "ManagedByNimbus" false
+-}}
 {{-   $machineProfiles = promptMultichoiceOnce
         . "Profiles" "Profiles" $machineChoices (list "common")
 -}}
@@ -37,6 +46,8 @@ maintained: niri-noctalia, niri-dms, hyprland-dms.
 {{- $profiles := uniq (concat (list "common") $platformProfiles $machineProfiles) -}}
 
 [data]
+machine = {{ $machine | quote }}
+managed_by_nimbus = {{ $managedByNimbus }}
 onePasswordSsh = {{ $onePasswordSsh }}
 Profiles = [
 {{- range $machineProfiles }}

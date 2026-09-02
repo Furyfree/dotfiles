@@ -3,7 +3,7 @@
 Before architecture or ownership changes, read:
 
 - this repository's `README.md` and `PROFILES.md`
-- the Nimbus repository's `SPEC.md` and `CLI.md`
+- the Nimbus repository's `docs/SPEC.md`
 
 `~/git/docs` is history, not a source of truth. It records past decisions,
 superseded plans, and previous implementations such as niriland.
@@ -13,15 +13,16 @@ Manage only intentional files below the current user's `$HOME`.
 Keep user-facing commands in `README.md`; planning documents should link to it
 instead of duplicating usage instructions.
 
-Nimbus owns packages and system state. It supplies machine profile IDs through
-`chezmoi init --promptMultichoice`; the config template consumes them with
-`promptMultichoiceOnce` and derives platform profiles from `.chezmoi.os`. Do
-not add imports, dependencies, aliases, or another resolver. `PROFILES.md`
-owns the vocabulary and documents which IDs change managed files.
+Nimbus owns packages and system state on Linux. It supplies `machine`,
+`managed_by_nimbus`, and the machine profile IDs through `chezmoi init`
+prompt flags; the config template consumes them with the `prompt*Once`
+functions and derives platform profiles from `.chezmoi.os`. Do not add
+imports, dependencies, aliases, another resolver, or a machine manifest.
+`PROFILES.md` owns the vocabulary and documents which IDs change managed files.
 
-Nimbus owns the `machines/` manifests at the checkout root, outside the
-Chezmoi source state. Chezmoi owns the surrounding checkout and all Git
-operations and never deploys or edits those files.
+This repository must work without Nimbus on Linux, macOS, and Windows. Gate a
+target on `managed_by_nimbus` only when it calls Nimbus; Hyprland and Noctalia
+are selected by profile, not by Nimbus.
 
 Treat the current machine and Niriland as references. Rewrite and review one
 configuration at a time; never import either wholesale.
@@ -38,8 +39,9 @@ databases. Design 1Password rendering before adding secret-backed targets, and
 never print their contents during validation.
 
 Chezmoi scripts must stay exceptional and user-scoped. They must not install
-packages, use privilege elevation, change `/etc`, manage services, or select a
-login shell.
+system packages, use privilege elevation, change `/etc`, manage services, or
+select a login shell. User-scope runtime installation through Mise is the one
+accepted exception.
 
 Do not use the HTML skill unless the user explicitly asks for it.
 
