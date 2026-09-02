@@ -60,6 +60,7 @@ Shared vocabulary; the Nimbus machine manifest selects them:
 | `common` | Base user configuration |
 | `development` | Development tool configuration (no managed files yet) |
 | `gaming` | Gaming tool configuration (no managed files yet) |
+| `laptop-gaming` | Light gaming configuration (no managed files yet) |
 | `hyprland-noctalia` | Hyprland and Noctalia |
 | `windows-vm` | Windows guest integration, gated with `managed_by_nimbus` |
 
