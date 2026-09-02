@@ -5,7 +5,8 @@ first, with macOS and Windows target paths kept ready.
 
 Chezmoi owns selected files below `~`. Nimbus owns packages, services, system
 files, and privileged changes on a Fedora workstation, and may run the first
-`chezmoi init` with the machine ID and selected profiles. Machine manifests
+`chezmoi init` with the machine ID, a managed-by-Nimbus flag, and the selected
+profiles. Machine manifests
 live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
@@ -97,6 +98,13 @@ chezmoi --skip-secrets verify
 ```
 
 After enabling or unlocking 1Password, run the normal preview before applying.
+
+## Development
+
+```sh
+just check     # git diff --check and markdownlint
+just preview   # read-only chezmoi managed, status, diff, verify
+```
 
 See [PROFILES.md](PROFILES.md) for the profile vocabulary,
 [CONFIG_INVENTORY.md](CONFIG_INVENTORY.md) for migration scope, and

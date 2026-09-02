@@ -3,6 +3,7 @@
 {{-   $profiles = .profiles -}}
 {{- end -}}
 {{- $hyprlandNoctalia := has "hyprland-noctalia" $profiles -}}
+{{- $virtualization := has "virtualization" $profiles -}}
 {{- $onePasswordSsh := false -}}
 {{- if hasKey . "onePasswordSsh" -}}
 {{-   $onePasswordSsh = .onePasswordSsh -}}
@@ -49,10 +50,14 @@ Library/**
 .config/noctalia/**
 {{ end -}}
 
+# Virtualization targets
+{{ if or (ne .chezmoi.os "linux") (not $virtualization) -}}
+.config/vm-curator/**
+{{ end -}}
+
 # Other Linux user targets
 {{ if ne .chezmoi.os "linux" -}}
 .config/udiskie/**
-.config/vm-curator/**
 .config/zathura/**
 .local/share/applications/**
 .local/share/backgrounds/**

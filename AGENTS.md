@@ -3,7 +3,9 @@
 Before architecture or ownership changes, read:
 
 - this repository's `README.md` and `PROFILES.md`
-- the Nimbus repository's `docs/SPEC.md`
+- the Nimbus repository's `docs/SPEC.md` for the handoff and ownership, and
+  its `docs/SECURITY.md` for which tools Nimbus installs and which the user
+  installs below `~/.local`
 
 `~/git/docs` is history, not a source of truth. It records past decisions,
 superseded plans, and previous implementations such as niriland.
@@ -45,6 +47,6 @@ accepted exception.
 
 Do not use the HTML skill unless the user explicitly asks for it.
 
-Before handoff, run `chezmoi managed`, `chezmoi status`, `chezmoi diff`,
-`chezmoi verify`, and `git diff --check`. Do not run `chezmoi apply`, commit,
-push, or create remote resources without explicit permission.
+Before handoff, run `just check` and `just preview`. Do not run
+`chezmoi apply`, commit, push, or create remote resources without explicit
+permission.

@@ -7,13 +7,13 @@ reviewed before Chezmoi manages it.
 ## Linux, macOS, and Windows
 
 | Config | Plan |
-|---|---|
+| --- | --- |
 | Git | Shared config with small platform or identity differences. |
-| SSH client | Render private `~/.ssh/config` from 1Password. Key design is in [ROADMAP.md](ROADMAP.md). |
-| 1Password SSH agent | Track selected-key filters only. Nimbus owns installation; enable the agent in 1Password. |
+| SSH client | Private `~/.ssh/config` from 1Password; see [ROADMAP.md](ROADMAP.md). |
+| 1Password SSH agent | Selected-key filters only. Nimbus installs the app. |
 | Neovim | Shared Lua config; isolate platform commands in Lua. |
-| Zed | Manage settings and keymap only. Exclude themes and backups. Verify macOS modifiers. |
-| VSCodium | Settings and keybindings only. Exclude empty snippets and runtime state. |
+| Zed | Settings and keymap only; no themes or backups. Check macOS keys. |
+| VSCodium | Settings and keybindings only; no snippets or runtime state. |
 | Starship | One prompt config for Zsh, Bash, and PowerShell. |
 | Fastfetch | Shared config with OS-specific output or artwork where needed. |
 | Topgrade | Review each OS config. Share only matching settings. |
@@ -27,14 +27,14 @@ that fallback. VSIX files remain another option.
 ## Linux and macOS
 
 | Config | Plan |
-|---|---|
-| Zsh | Small home entrypoint and XDG modules. Do not depend on `/etc/zsh/zshenv`. |
-| Bash | Small standard entrypoints load modules from `~/.config/bash`; optional `ble.sh` must degrade cleanly. |
+| --- | --- |
+| Zsh | Small home entrypoint and XDG modules; no `/etc/zsh/zshenv`. |
+| Bash | Standard entrypoints load `~/.config/bash`; `ble.sh` optional. |
 | Ghostty | Shared config with small platform differences. |
 | Sheldon | Review as the Zsh plugin manager. |
 | Mise | Review versions and machine-specific paths. |
-| Nix | Manage user config only; installation and daemon state stay outside Chezmoi. |
-| btop | Create a deliberate config from chosen settings, not generated defaults. |
+| Nix | User config only. Nimbus installs Fedora's `nix` and its daemon. |
+| btop | Deliberate config from chosen settings, not generated defaults. |
 | Environment | Review each variable. Share only portable values. |
 
 fzf and zoxide have no standalone config. Shell initialization may use them
@@ -44,14 +44,14 @@ scope.
 ## Linux desktop
 
 | Config | Plan |
-|---|---|
-| Hyprland | Test with Noctalia before splitting shared and shell-specific files below `~/.config/hypr/`. Nimbus owns system integration. |
-| Noctalia | Curated v5 `config.toml` only. Exclude GUI state, caches, and downloaded plugins. |
-| Noctalia Greeter | Nimbus owns it and its files below `/var/lib`. |
+| --- | --- |
+| Hyprland | Split shared and shell-specific files only after testing. |
+| Noctalia | Curated v5 `config.toml` only; no GUI state, caches, plugins. |
+| Noctalia Greeter | Nimbus owns it and its system configuration. |
 | udiskie | Manage its user config on the relevant workstation profile. |
 | Zathura | Manage its user config on the relevant workstation profile. |
-| VM Curator | Manage after removing machine-specific paths. |
-| Launchers and icons | Remove stale and duplicate web apps before adopting selected files. |
+| VM Curator | On the `virtualization` profile, without machine paths. |
+| Launchers and icons | Remove stale and duplicate web apps first. |
 | Wallpapers | Manage selected user assets for the Linux desktop. |
 
 Review GTK, Qt, XDG portals, MIME defaults, autostart, and user systemd units

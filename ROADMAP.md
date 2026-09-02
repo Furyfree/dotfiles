@@ -107,6 +107,14 @@ Adopt one family at a time from [CONFIG_INVENTORY.md](CONFIG_INVENTORY.md).
 Start with low-risk files such as Git, Starship, editor settings, or terminal
 configuration.
 
+The Mise slice is the one with a script. When the `development` profile is
+selected, `run_onchange_after_install-mise-runtimes.sh.tmpl` runs
+`MISE_SYSTEM_DEPS=warn mise -C "$HOME" install` as the user after
+`~/.config/mise/config.toml` is applied, keyed on that file's rendered
+checksum. Nimbus installs `mise` itself; Chezmoi never does. Tools the user
+installs with a maker's script, such as Zed, are installed by the user and
+only configured here.
+
 Each slice must define:
 
 - exact target files and platform paths
@@ -142,9 +150,12 @@ Keep monitor and host differences small; key them on `machine`. Pass only
 explicit, non-secret values from Nimbus. Niri and DMS profiles remain disabled
 until their configs are maintained as separate slices.
 
-A desktop entry that calls `nimbus windows connect` is the first target gated
-on both the `windows-vm` profile and `managed_by_nimbus`. It carries no VM
-logic and waits for the Nimbus Windows component to exist.
+Two targets depend on Nimbus. Hyprland's browser keybindings call
+`nimbus launch browser` when `managed_by_nimbus` is true and `xdg-open`
+otherwise, so the same `hyprland-noctalia` profile works on a Linux machine
+without Nimbus. A desktop entry that calls `nimbus windows connect` is gated on
+both the `windows-vm` profile and `managed_by_nimbus`, carries no VM logic, and
+waits for the Nimbus Windows component to exist.
 
 ## Phase 6 - 1Password and SSH
 

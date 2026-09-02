@@ -61,6 +61,7 @@ Shared vocabulary; the Nimbus machine manifest selects them:
 | `development` | Development tool configuration (no managed files yet) |
 | `gaming` | Gaming tool configuration (no managed files yet) |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |
+| `virtualization` | VM Curator configuration for QEMU/KVM guests |
 | `hyprland-noctalia` | Hyprland and Noctalia |
 | `windows-vm` | Windows guest integration, gated with `managed_by_nimbus` |
 
@@ -95,9 +96,13 @@ their configs are maintained.
 Examples:
 
 ```text
-Nimbus desktop: common, development, hyprland-noctalia
-  resolved:     common, unix, linux, development, hyprland-noctalia
-Direct Linux:  common, unix, linux
-MacBook:       common, unix, macos
-Windows:       common, windows
+Nimbus desktop: common, development, gaming, hyprland-noctalia, windows-vm
+  resolved:     common, unix, linux, development, gaming, hyprland-noctalia,
+                windows-vm
+Nimbus laptop:  common, development, laptop-gaming, hyprland-noctalia
+  resolved:     common, unix, linux, development, laptop-gaming,
+                hyprland-noctalia
+Direct Linux:   common, unix, linux
+MacBook:        common, unix, macos
+Windows:        common, windows
 ```
