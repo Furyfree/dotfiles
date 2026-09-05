@@ -74,6 +74,17 @@ its platform rule.
 
 ## Zsh
 
+Run the local regression checks without changing the live configuration:
+
+```sh
+zsh -f tests/zsh-foundation.zsh
+```
+
+They check syntax, history-directory permissions and failure handling, and the
+Nimbus handoff with an isolated `chezmoi init --dry-run`. For prompt behavior,
+use this real initialization path: `execute-template --init` simulates prompts
+differently and rejects unknown multichoice values that real `init` accepts.
+
 ### Environment and shell options
 
 Interactive startup initializes Mise when installed, then loads environment
@@ -296,7 +307,8 @@ memory, and saves up to 10,000 entries in `$XDG_STATE_HOME/zsh/history`
 commands prefixed with a space are omitted from saved history. A leading space
 is a convenience, not a guarantee that sensitive input stays private.
 
-The history directory is created with private permissions on first startup.
+The history directory is created or tightened to private permissions on startup.
+History saving is disabled if creating or securing the directory fails.
 These settings are shared by Linux and macOS; the history itself is unmanaged.
 Existing `~/.zsh_history` is left untouched and is not imported automatically.
 Review a separate backup and migration before applying if you want to carry
