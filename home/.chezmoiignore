@@ -51,6 +51,8 @@ Library/**
 
 # Other Linux user targets
 {{ if ne .chezmoi.os "linux" -}}
+.config/mise/conf.d
+.config/mise/conf.d/cargo.toml
 .config/udiskie/**
 .config/vm-curator/**
 .config/zathura/**
@@ -75,9 +77,7 @@ AppData/Local/1Password/config/ssh/agent.toml
 .local
 .local/share
 .ssh
-AppData
 AppData/Local
-AppData/Roaming
 Documents
 Library
 Library/Application Support
@@ -93,27 +93,20 @@ Library/Application Support
 .config/DankMaterialShell/**
 .config/VSCodium/**
 .config/bash/**
-.config/btop/**
 .config/fastfetch/**
-.config/gh/**
 .config/ghostty/**
 .config/hypr/**
-.config/mise/**
 .config/niri/**
-.config/nix/**
 .config/noctalia/**
 .config/nvim/**
 .config/topgrade.toml
-.config/udiskie/**
 .config/vm-curator/**
-.config/zathura/**
 .config/zed/**
 .local/share/applications/**
 .local/share/backgrounds/**
 .local/share/icons/**
 AppData/Local/1Password/**
 AppData/Local/nvim/**
-AppData/Roaming/GitHub CLI/**
 AppData/Roaming/VSCodium/**
 AppData/Roaming/Zed/**
 AppData/Roaming/topgrade.toml

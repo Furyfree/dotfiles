@@ -1,0 +1,13 @@
+# Linux CLI tools, installed with the other Mise tools after Chezmoi apply.
+[tools]
+"cargo:caligula" = "latest"
+"cargo:typst-cli" = "latest"
+"cargo:tinymist" = "latest"
+"cargo:cargo-update" = "latest"
+"cargo:sheldon" = "latest"
+"cargo:resvg" = "latest"
+"cargo:vm-curator" = "latest"
+
+[settings]
+# Build through Cargo instead of selecting prebuilt cargo-binstall artifacts.
+cargo.binstall = false

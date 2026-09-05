@@ -1,0 +1,33 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+#!/bin/sh
+set -eu
+
+user_id=$(id -u)
+if [ "$user_id" = 0 ]; then
+    printf '%s\n' 'dotfiles: run chezmoi apply as your normal user, not root.' >&2
+    exit 1
+fi
+
+mise_config_dir="$HOME/.config/mise"
+if [ ! -r "$mise_config_dir/config.toml" ]; then
+    printf '%s\n' "dotfiles: missing Mise configuration: $mise_config_dir/config.toml" >&2
+    exit 1
+fi
+
+mise_binary="$HOME/.local/bin/mise"
+if [ ! -x "$mise_binary" ]; then
+    mise_binary=$(command -v mise) || {
+        printf '%s\n' 'dotfiles: Mise is required; install Mise, then rerun chezmoi apply.' >&2
+        exit 1
+    }
+fi
+
+printf '%s\n' 'dotfiles: installing configured Mise runtimes and tools'
+cd "$HOME"
+export MISE_CONFIG_DIR="$mise_config_dir"
+# Selecting an individual global file would skip the Cargo config fragment.
+unset MISE_GLOBAL_CONFIG_FILE
+export MISE_SYSTEM_DEPS=warn
+export MISE_AUTO_UPDATE=false
+exec "$mise_binary" -C "$HOME" install
+{{ end -}}

@@ -18,7 +18,7 @@ evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 | Starship | Shared basic prompt config is managed; Zsh initialization is implemented, Bash and PowerShell initialization are deferred. |
 | Fastfetch | Shared config with OS-specific output or artwork where needed. |
 | Topgrade | Wait for the installed setup; review user-scope update ownership and each OS config. Windows remains deferred. |
-| GitHub CLI | Minimal SSH-preference config; explain and verify authentication separately. Never track `hosts.yml`. |
+| GitHub CLI | Managed canonical config: SSH, editor prompts, and `co` alias; platform wrappers. Verify authentication separately. Never track `hosts.yml`. |
 
 VSCodium uses Open VSX by default. Check required extensions there first. If
 it is insufficient, VSCodium's `product.json` can point `extensionsGallery` at
@@ -33,9 +33,9 @@ that fallback. VSIX files remain another option.
 | Bash | Small standard entrypoints load modules from `~/.config/bash`; optional `ble.sh` must degrade cleanly. |
 | Ghostty | Shared config with small platform differences. |
 | Sheldon | Manages `zsh-completions`, `fzf-tab`, `zsh-autosuggestions`, and `zsh-syntax-highlighting`; review additional plugins individually. |
-| Mise | Review versions and machine-specific paths. |
-| Nix | Manage user config only; installation and daemon state stay outside Chezmoi. |
-| btop | Create a deliberate config from chosen settings, not generated defaults. |
+| Mise | Managed runtime/CLI selections and minimal settings; LTS where available. No installs, credentials, or trust state. |
+| Nix | Managed user feature flags only; installation and daemon state stay outside Chezmoi. |
+| btop | Managed minimal terminal-palette config; no generated defaults, hardware paths, or persistent UI rewrites. |
 | Environment | Review each variable. Share only portable values. |
 
 fzf and zoxide have no standalone config. Shell initialization may use them
@@ -50,8 +50,8 @@ their settings and runtime state remain unmanaged.
 | Hyprland | Test with Noctalia before splitting shared and shell-specific files below `~/.config/hypr/`. Nimbus owns system integration. |
 | Noctalia | Configure through the GUI after installation, then capture reviewed portable preferences from the actual version's files. Exclude generated themes, runtime state, caches, and downloaded plugins. |
 | Noctalia Greeter | Nimbus owns it and its files below `/var/lib`. |
-| udiskie | Manage its user config on the relevant workstation profile. |
-| Zathura | Manage its user config on the relevant workstation profile. |
+| udiskie | Managed Linux-only user config: automount, notifications, smart tray, default file manager. No profile gate or autostart. |
+| Zathura | Managed Linux-only reading defaults, dark UI, and shortcuts. No profile gate or document state. |
 | VM Curator | Manage after removing machine-specific paths. |
 | Launchers and icons | Remove stale and duplicate web apps before adopting selected files. |
 | Wallpapers | Manage selected user assets for the Linux desktop. |

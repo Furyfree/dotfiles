@@ -3,15 +3,53 @@
 Cross-platform user configuration managed by Chezmoi. Linux is developed
 first, with macOS and Windows target paths kept ready.
 
-Chezmoi owns selected files below `~`. Nimbus owns packages, services, system
+Chezmoi owns selected files below `~`. Nimbus owns system packages, services, system
 files, privileged changes, and the machine profile handoff: it performs the
 first `chezmoi init` with the machine ID, a managed-by-Nimbus flag, and the
 selected profiles, as [PROFILES.md](PROFILES.md) documents. Machine manifests
 live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
-The repository currently manages Zsh setup, Sheldon, and Starship configuration.
+The repository currently manages Zsh setup, Sheldon, Starship, Mise, Nix,
+udiskie, Zathura, GitHub CLI, and btop configuration.
 Other empty configs remain ignored until they are implemented and reviewed.
+
+## Cargo tools
+
+On Linux, Chezmoi manages `~/.config/mise/conf.d/cargo.toml` alongside the main
+Mise configuration. It declares Caligula, Typst, Tinymist, cargo-update, Sheldon,
+resvg, and VM Curator through Mise's native Cargo backend. This file is ignored
+on macOS and Windows; the existing runtime selections remain in
+`~/.config/mise/config.toml`.
+
+Every full `chezmoi apply` on Linux and macOS writes configuration, then runs
+`mise install` as the current user from the home directory. This works with or
+without Nimbus. Nimbus installs Mise itself before its first Chezmoi apply;
+standalone users must install Mise before applying. The script prefers
+`~/.local/bin/mise`, then finds Mise on `PATH`, and reads the managed config in
+`~/.config/mise`.
+
+Run Chezmoi as your normal user; the install script refuses root execution.
+
+The [after-apply script](home/run_after_install-mise-tools.sh.tmpl) runs even
+when configuration is unchanged, so another apply repairs missing tools.
+Native output stays visible; a missing Mise binary, missing config, or failed
+install fails the apply. Fix the reported problem and rerun the full apply to
+retry. Files already written and tools already installed are retained after a
+failure. Only the native Mise tool declarations request installation; an app
+config elsewhere in this repository does not install that app.
+
+The script sets `MISE_SYSTEM_DEPS=warn` and `MISE_AUTO_UPDATE=false`: system
+dependencies stay outside Chezmoi, and this install step does not request
+runtime upgrades or a Mise self-update. It does not install Mise itself or run
+on Windows. Shell startup still only activates tools.
+
+Mise builds these tools through Cargo and keeps their binaries under its data
+directory, normally `~/.local/share/mise/installs`. `mise activate zsh` exposes
+the selected versions. Use `mise upgrade` for updates; `cargo-update` is for
+separate direct Cargo installations. Native `~/.cargo/config.toml` contains
+Cargo build settings, not an install list, so no such file is added here.
+Existing tools under `~/.cargo/bin` are left untouched.
 
 ## Bootstrap
 
@@ -46,6 +84,12 @@ Apply only after reviewing the diff:
 chezmoi apply
 ```
 
+`chezmoi diff` shows the install script and `chezmoi status` reports it as a
+script to run, including when the config files already match. Neither these
+preview commands nor `chezmoi apply --dry-run` installs tools. A full apply is
+the supported configuration-and-install flow; applying individual files need
+not run the after-apply script.
+
 ## Update
 
 Pull without applying, review, then apply:
@@ -74,12 +118,16 @@ its platform rule.
 
 ## Zsh
 
-The regression suite is pending integration from `config/tooling-apps`; main
-does not currently contain the previously documented `tests/zsh-foundation.zsh`.
-See [TASKS.md](TASKS.md#evidence-and-limitations) for the validation gap. Use the
-read-only preview checks above, but do not treat them as shell behavior tests.
+Run just the Zsh regression checks without changing the live configuration:
 
-For prompt tests, use an isolated `chezmoi init --dry-run`:
+```sh
+python3 tests/zsh-foundation.py
+```
+
+They execute Zsh with temporary state and fake clipboard, Yazi, and tool
+integrations. They check syntax, environment defaults, quoted paths, history
+permissions, startup fallbacks, and error handling. The complete suite below
+also checks the Nimbus handoff with an isolated `chezmoi init --dry-run`.
 `execute-template --init` simulates prompts differently and rejects unknown
 multichoice values that real `init` accepts.
 
@@ -88,8 +136,9 @@ multichoice values that real `init` accepts.
 Interactive startup initializes Mise when installed, then loads environment
 defaults and shell options. Mise manages its own tool versions, project trust,
 and runtime state; this repository only adds `mise activate zsh`. Generation
-errors remain visible and failed output is not evaluated. No tools are installed
-by the dotfiles, and missing Mise is harmless.
+errors remain visible and failed output is not evaluated. Shell startup does
+not install tools, and missing Mise is harmless during shell startup. A full
+Chezmoi apply requires Mise for the install step described above.
 
 Existing nonempty `EDITOR`, `VISUAL`, and `PAGER` choices are preserved.
 Otherwise the editor defaults to the first available `nvim`, `vim`, or `vi`,
@@ -312,6 +361,181 @@ Existing `~/.zsh_history` is left untouched and is not imported automatically.
 Review a separate backup and migration before applying if you want to carry
 over existing history. Back up the current startup files before applying too:
 setting `ZDOTDIR` switches new shells away from the old home `.zshrc`.
+
+## Tooling and applications
+
+These configs are independent of the Bash branch. Mise, Nix, and btop deploy
+on Linux and macOS. udiskie and Zathura deploy on Linux without a desktop
+profile gate. GitHub CLI uses one canonical template with Linux/macOS and
+Windows wrappers. Only the deliberate config files are managed, never whole
+application state directories.
+
+### Mise
+
+The global config retains your selected runtimes, agent CLIs, LiteParse,
+markdownlint, and gopls. It fixes the quoted Grok package key. Runtime policy
+was checked on 2026-09-05:
+
+| Runtime | Selection | Policy |
+|---|---|---|
+| .NET | `10` | Latest patch in the current LTS family |
+| Java | `corretto-25` | Latest patch in Corretto's current LTS family |
+| Node | `lts` | Follow the latest LTS family, currently 24 |
+| Go | `latest` | Latest stable release; no separate LTS channel |
+| Rust | `stable` | Stable release channel |
+
+The [Node release schedule](https://nodejs.org/en/about/previous-releases),
+[.NET support policy](https://dotnet.microsoft.com/en-us/platform/support/policy),
+and [Corretto support calendar](https://aws.amazon.com/corretto/faqs/) own
+release status. .NET and Java major families need a deliberate edit when a
+new LTS arrives. Selectors do not automatically upgrade already installed
+runtimes; project configs can override these global defaults.
+
+`auto_update = true` follows Nimbus's contract and enables Mise's own update
+mechanism, not runtime upgrades. `system_deps = "warn"` reports missing system
+dependencies without offering to install them. Python's uv integration uses
+`"source"`: activate an existing project `.venv`, but do not create one simply
+by entering a directory. The old boolean `true` is deprecated. Forced Python
+and Ruby compilation was removed; neither runtime is declared globally here.
+See [Mise settings](https://mise.jdx.dev/configuration/settings.html).
+
+Your CLI selections remain on `latest`. Keep Claude's package-specific build
+allowlist; no blanket npm build permission or trusted-directory list is added.
+Antigravity, OpenCode, and Herdr use Mise's registry. Their login, agent
+configuration, hooks, and session data are not managed. This requires a recent
+Mise; the config and registry names were checked with 2026.9.0. Chezmoi's
+after-apply script invokes the native installation lifecycle without requesting
+upgrades or blanket trust. Mise's own configuration and trust checks still
+apply.
+
+### Nix
+
+The user config keeps only `extra-experimental-features = nix-command flakes`.
+The `extra-` form adds to system features instead of replacing them. No caches,
+access tokens, trusted users, automatic flake trust, daemon options, or store
+maintenance are introduced. Installation and system policy remain outside
+Chezmoi. See [Nix configuration](https://nix.dev/manual/nix/stable/command-ref/conf-file.html).
+
+### udiskie
+
+Use automount, notifications, a flat menu, and the smart tray. Settings live
+under `program_options`; the smart-tray value is `auto`, not `smart`.
+`xdg-open` follows the default file manager instead of requiring Nautilus.
+These correct the live/Niriland reference structure using the
+[upstream configuration example](https://github.com/coldfix/udiskie/blob/master/doc/udiskie.8.txt).
+No device rules, key files, password caching, startup entries, or service
+changes are added. This config takes effect when udiskie is started; it does
+not start the daemon itself.
+
+### Zathura
+
+The palette keeps the live/Niriland charcoal background and blue highlights,
+extending them to completions and the document index. A generic sans-serif
+font replaces the Inter dependency. Documents open fitted to width, page-sized
+scrolls respect page boundaries, and selected text goes to the clipboard
+without a notification. Recolor stays off initially so document colors are
+preserved. Bookmarks, reading positions, and databases stay unmanaged.
+
+Keep the [native Zathura shortcuts](https://pwmt.org/projects/zathura/documentation/)
+instead of overriding useful navigation:
+
+| Keys | Action |
+|---|---|
+| `h/j/k/l`, `J/K`, `gg/G` | Scroll, next/previous page, first/last page |
+| `a` / `s` | Fit page / fit width |
+| `/`, `n/N` | Search, next/previous match |
+| `Tab`, `f`, `r` | Document index, follow links, rotate |
+| `Ctrl-O` / `Ctrl-I` | Back/forward through jump history |
+| `Ctrl-R` or `F4` | Toggle recolor |
+| `R` | Reload document |
+| `d` or `F6` | Toggle one/two-page layout |
+| `b` | Toggle status bar |
+| `F5` / `F11` | Presentation / fullscreen |
+
+This deliberately replaces the old Ctrl-R reload / Ctrl-I recolor mappings.
+Only the three additional shortcuts are configured; the rest are application
+defaults. [Alex Balgavy's config](https://git.alex.balgavy.eu/dotfiles/file/zathura/zathurarc.html)
+also demonstrates the small status-bar toggle. No editor-specific SyncTeX
+command or default PDF-handler change is made.
+
+### GitHub CLI
+
+Prefer SSH for Git operations, your editor for longer interactive input, and
+keep `gh co` for `gh pr checkout`. Editor, pager, and browser choices otherwise
+follow the environment and application defaults. SSH keys and authentication
+must already work; this does not configure them or rewrite existing remotes.
+Host-specific preferences in the unmanaged `hosts.yml` can override the global
+Git protocol. See [gh configuration](https://cli.github.com/manual/gh_config).
+The directory and config use Chezmoi's private attributes so applying does not
+loosen the existing GitHub config directory's permissions on Unix.
+
+The Windows wrapper targets `%AppData%/GitHub CLI/config.yml`; Linux/macOS
+use `~/.config/gh/config.yml`. Custom `GH_CONFIG_DIR` or Windows XDG overrides
+need the config in that location instead. Credentials, `hosts.yml`, extensions,
+and caches are excluded.
+
+### btop
+
+Use the built-in `TTY` color theme for the terminal's ANSI palette and disable
+the theme background. This is not forced TTY mode: normal rounded borders and
+high-resolution graphs remain available. CPU, memory/disks, and processes are
+shown; the network panel starts hidden. A single CPU graph, plain process-list
+colors, and no clock reduce visual noise. Defaults retain the two-second
+refresh and stable CPU sorting. No theme file or hardware-specific paths are
+needed. The behavior is defined in [btop's theme code](https://github.com/aristocratos/btop/blob/main/src/btop_theme.cpp).
+
+`j/k` navigate processes; `H` opens help and `K` opens the kill dialog in Vim
+key mode. `1/2/3/4` toggle CPU/memory/network/process panels. Settings changed
+in the menus last only for that session: `save_config_on_exit = false` prevents
+btop from expanding or overwriting the curated file. Persist preferences by
+editing the source config. Checked with btop 1.4.7.
+
+### Validation and recovery
+
+Run all checks with Python 3.11+ and PyYAML:
+
+```sh
+python3 tests/check.py
+```
+
+The runner collects the standalone Python test files in `tests/`. Python
+organizes the checks; Zsh executes the shell behavior tests. No extra test
+framework is needed. Tests protect validity and safety, not exact versions,
+colors, or other personal preferences.
+
+Coverage includes TOML/YAML syntax, native Mise/Nix/gh/udiskie/Starship parsing,
+Sheldon inline shell syntax, btop's supported keys and types, Zathura's
+documented settings, and the Zsh checks above. Chezmoi checks Linux/macOS/Windows
+target selection, canonical templates, private gh permissions, empty scaffold
+exclusion, and the native host's real Nimbus initialization path.
+
+Native checks are explicitly skipped when their tools are absent; a skipped
+check is not validation of that app. Empty scaffolds and the separate, unmerged
+Bash implementation are not covered. Add relevant tests as those configs land.
+Native macOS/Windows behavior, visual appearance, and real desktop shortcuts
+still need manual checking on those systems.
+
+Optionally include Zathura startup on an isolated GTK Broadway display:
+
+```sh
+DOTFILES_GUI_TESTS=1 python3 tests/check.py
+```
+
+This requires Linux Zathura and its matching Broadway server. It uses a private
+Unix socket, not the live desktop or a TCP listener.
+
+The install suite runs Chezmoi against a tiny synthetic source and temporary
+home with a fake Mise binary. It checks config-before-install ordering,
+repeated apply and repair, failure/retry, missing prerequisites, platform
+rendering, and previews that never invoke the installer. It never applies this
+repository or downloads tools. None of these checks authenticates, mounts
+devices, accesses the real clipboard, or writes live configuration.
+
+Use the repository preview commands before applying. Back up the six existing
+config files first (if present); applying replaces files rather than merging
+their settings. To undo an applied preference, restore that file from backup
+and reopen the application. Removing an ignore exception stops future
+management but does not restore or delete an already deployed file.
 
 ## 1Password SSH
 
