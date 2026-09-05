@@ -4,22 +4,48 @@ Chezmoi derives platform profiles from `.chezmoi.os` and receives machine
 profiles from Nimbus. Profiles select user configuration only; they do not
 install software or change system state.
 
-## Supplying machine profiles
+## The Nimbus handoff
 
-Nimbus passes the resolved profile selection to `chezmoi init` through
-Chezmoi's native `--promptMultichoice` flag:
+Nimbus performs the first `chezmoi init` once and passes three values through
+Chezmoi's prompt flags, whose keys are the template's prompt texts:
 
 ```sh
 chezmoi init \
+  --promptString Machine=<machine id> \
+  --promptBool ManagedByNimbus=true \
   --promptMultichoice 'Profiles=common/development/hyprland-noctalia' \
   <repo>
 ```
 
-The flag value is the selected list, slash-separated. Its key must match the
-template's prompt text exactly, which is `Profiles`. The config template
-consumes the selection with `promptMultichoiceOnce` and persists it in the
-generated config, so a later `chezmoi init` without Nimbus restores the same
-selection. Direct `chezmoi init` prompts for the same profiles interactively.
+| Key | Meaning |
+|---|---|
+| `Machine` | The Nimbus machine ID, such as `desktop` |
+| `ManagedByNimbus` | `true` when Nimbus performed the initialization |
+| `Profiles` | The ordered Nimbus profile IDs, slash-separated |
+
+The template consumes them with the `prompt*Once` functions and stores them
+in the generated config as `Machine`, `ManagedByNimbus`, and `Profiles`, which
+`chezmoi data` shows. The profile list is stored as sent, without checking it
+against a fixed set, so a new Nimbus profile never breaks the handoff. Only
+`hyprland-noctalia` and the targets that call Nimbus, gated on
+`ManagedByNimbus`, depend on those values; every other Linux config deploys
+unconditionally.
+
+Direct `chezmoi init --prompt` asks the same questions: the machine name
+defaults to the hostname, `ManagedByNimbus` to `false`, and the profiles are
+chosen from the list below.
+
+When Nimbus's profile selection changes later, Nimbus prints the refresh
+command, which supplies every value so the `Once` prompts do not reuse their
+stored answers:
+
+```sh
+chezmoi init --prompt \
+  --promptString Machine=<machine id> \
+  --promptBool ManagedByNimbus=true \
+  --promptBool 'Enable 1Password SSH integration=<current>' \
+  --promptMultichoice 'Profiles=<id>/<id>/...'
+```
 
 ## Platform profiles
 
@@ -41,8 +67,11 @@ Nimbus vocabulary; the machine manifest selects them:
 |---|---|
 | `common` | Base user configuration |
 | `development` | Development tool configuration (no managed files yet) |
+| `virtualization` | VM Curator configuration (no managed files yet) |
 | `gaming` | Gaming tool configuration (no managed files yet) |
+| `laptop-gaming` | Light gaming configuration (no managed files yet) |
 | `hyprland-noctalia` | Hyprland and Noctalia |
+| `windows-vm` | The Windows guest entries (no managed files yet) |
 
 The profile does not imply a greeter. Greeters and system integration belong
 to Nimbus.
@@ -69,7 +98,8 @@ their configs are maintained.
   aliases, or dependencies.
 - Consume Nimbus-supplied IDs unchanged.
 - Do not add `all`, `desktop`, `laptop`, or `nimbus` profiles.
-- Add a profile only when it changes managed files.
+- The vocabulary is Nimbus's; gate files on a profile only when it changes
+  managed files.
 
 Examples:
 

@@ -50,8 +50,8 @@ writes one resolved `profiles` list into the local Chezmoi config.
 ## Shell loading
 
 - Root entrypoints load their XDG entrypoint only when it is readable.
-- Bash and Zsh each define one namespaced `source_if_readable` helper for
-  optional integrations and local files such as work overrides.
+- When optional integrations or local overrides are added, use one namespaced
+  `source_if_readable` helper per shell.
 - Required tracked modules are sourced explicitly; a missing core module is a
   validation failure rather than a silent skip.
 - Missing optional files are silent. Errors inside an existing file remain
@@ -71,19 +71,51 @@ Current state:
   the matching placeholder rule when a config slice is implemented.
 - `.keep` files reserve directories only and are never deployed.
 - Repository rules, scope, and validation are documented.
-- No user configuration is managed yet.
+- Zsh startup, history, completion, and Sheldon are managed. Remaining behavior
+  is deferred to Phase 1.
 
-The foundation is complete. Stop before adding or applying user configuration.
+The repository foundation is complete. Phase 1 has started with Zsh startup,
+history, completion, and Sheldon; stop before applying or adding further modules.
 
 ## Phase 1 - Zsh
 
 Rewrite the current Zsh setup as the first bounded slice:
 
-- minimal `~/.zshenv`, optionally setting `ZDOTDIR`
-- login setup in `.zprofile`
-- interactive setup in `.zshrc` and small modules below `~/.config/zsh`
-- guarded Sheldon, Starship, fzf, zoxide, and completion integration
+- minimal `~/.zshenv` setting the XDG defaults and `ZDOTDIR` (implemented)
+- login PATH setup in `.zprofile` (implemented)
+- `.zshrc` loads Mise, environment defaults, shell options, history,
+  keybindings, functions, fzf, the prompt, the plugin loader, then aliases;
+  Sheldon orders completion definitions, completion initialization, fzf-tab, zoxide,
+  autosuggestions, and highlighting (implemented). The loader supplies standard
+  completion and zoxide if Sheldon is absent or fails to generate its script.
+- shared XDG history with 20,000 in-memory and 10,000 saved entries (implemented)
+- one completion initialization with an XDG cache, security checks, menu
+  selection, and case-insensitive fallback matching (implemented)
+- Emacs-style editing with terminal-aware Home/End/Delete, word navigation,
+  and word deletion before fzf and plugins; Backspace is preserved (implemented)
+- guarded Sheldon integration with `zsh-completions` loaded before `compinit`
+  and default `zsh-autosuggestions` and `zsh-syntax-highlighting` settings
+  (implemented); other plugins remain deferred
+- `fzf-tab` loads after `compinit` when `fzf` exists; otherwise the normal
+  completion menu remains enabled (implemented)
+- guarded fzf Ctrl-R history search, Ctrl-T path insertion, and Alt-C directory
+  switching before line-editor plugins, shared by Linux and macOS
+  with optional bat/batcat Ctrl-T previews and Ctrl-Y clipboard copying inside
+  history search (implemented)
+- guarded listing, editor, and utility aliases after initialization, plus
+  clipboard copy/paste functions using macOS, Wayland, or X11 tools (implemented);
+  Yazi directory switching, Git-root navigation, and path copying (implemented)
+- guarded Mise activation in its own module (implemented)
+- environment defaults preserving existing editor/pager choices and shared
+  AUTOCD, NOBEEP, and NUMERIC_GLOB_SORT preferences (implemented)
+- guarded zoxide integration with default `z` and `zi` commands; ordinary `cd`
+  is unchanged and the directory database remains unmanaged (implemented)
+- guarded Starship initialization before line-editor plugins and a shared
+  basic prompt config with matching success/error arrows (implemented)
 - no dependency on `/etc/zsh/zshenv`
+
+History uses shared Linux/macOS settings. Existing history is not migrated;
+see the backup and migration boundary in [README.md](README.md#history).
 
 Test syntax, login and interactive startup, and behavior when optional tools
 are missing. Do not change the login shell or apply the files.
