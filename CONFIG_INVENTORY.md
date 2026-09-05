@@ -15,7 +15,7 @@ evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 | Neovim | Small advanced-Vim Lua setup first; incremental IDE features, not a distribution. Isolate platform commands in Lua. |
 | Zed | Manage settings and keymap only. Exclude themes and backups. Verify macOS modifiers. |
 | VSCodium | Settings and keybindings only. Exclude empty snippets and runtime state. |
-| Starship | Shared basic prompt config is managed; Zsh initialization is implemented, Bash and PowerShell initialization are deferred. |
+| Starship | Shared basic prompt config is managed; Bash and Zsh initialization are implemented, PowerShell initialization is deferred. |
 | Fastfetch | Managed shared config: native OS logo, compact hardware/software groups, inherited terminal foreground; no commands or custom artwork. |
 | Topgrade | Wait for the installed setup; review user-scope update ownership and each OS config. Windows remains deferred. |
 | GitHub CLI | Managed canonical config: SSH, editor prompts, and `co` alias; platform wrappers. Verify authentication separately. Never track `hosts.yml`. |
@@ -30,7 +30,7 @@ that fallback. VSIX files remain another option.
 | Config | Plan |
 |---|---|
 | Zsh | Core startup, environment, options, tool integrations, and selected helpers are managed. Do not depend on `/etc/zsh/zshenv`; optional personal integrations remain deferred. |
-| Bash | Small standard entrypoints load modules from `~/.config/bash`; optional `ble.sh` must degrade cleanly. |
+| Bash | Implemented: standard entrypoints and explicit `~/.config/bash` modules mirror Zsh behavior with native Bash integrations and optional `ble.sh`. |
 | Ghostty | Shared config with small platform differences. |
 | Sheldon | Manages `zsh-completions`, `fzf-tab`, `zsh-autosuggestions`, and `zsh-syntax-highlighting`; review additional plugins individually. |
 | Mise | Managed runtime/CLI selections and minimal settings; LTS where available. No installs, credentials, or trust state. |

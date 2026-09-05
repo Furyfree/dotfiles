@@ -1,0 +1,23 @@
+#!/bin/bash
+# Test doubles never access the real clipboard or tool state.
+case ${0##*/} in
+  pbcopy|wl-copy|xclip)
+    if [[ $* == *-out* ]]; then
+      command cat "$TEST_CLIPBOARD"
+    else
+      command cat > "$TEST_CLIPBOARD"
+    fi
+    ;;
+  pbpaste|wl-paste) command cat "$TEST_CLIPBOARD" ;;
+  yazi)
+    for arg in "$@"; do
+      case $arg in --cwd-file=*) printf '%s' "$TEST_YAZI_CWD" > "${arg#*=}" ;; esac
+    done
+    exit "${TEST_YAZI_STATUS:-0}"
+    ;;
+  mise|zoxide|starship|fzf)
+    # A failing generator must never have its partial output evaluated.
+    printf '%s\n' 'dotfiles_bad_eval=yes'
+    exit 1
+    ;;
+esac

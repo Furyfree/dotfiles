@@ -76,6 +76,8 @@ writes one resolved `profiles` list into the local Chezmoi config.
   validation failure rather than a silent skip.
 - Missing optional files are silent. Errors inside an existing file remain
   visible.
+- Exception: source ble.sh at top level, not through a function, as its
+  startup contract requires.
 
 ## Phase 0 - Foundation
 
@@ -142,7 +144,7 @@ are missing. Do not change the login shell or apply the files.
 
 ## Phase 2 - Bash
 
-Preserve Zsh's user-facing workflow using native Bash mechanisms:
+Implemented with native Bash mechanisms preserving Zsh's user-facing workflow:
 
 - small standard entrypoints in `~`
 - portable login and interactive modules below `~/.config/bash`
@@ -151,6 +153,8 @@ Preserve Zsh's user-facing workflow using native Bash mechanisms:
 
 Compare Bash and Zsh in daily use before choosing a default. Nimbus owns any
 package installation or login-shell change.
+See [README.md](README.md#bash) for differences and validation. Native macOS
+and installed ble.sh interactive validation remain pending.
 
 The implementation already exists on the branch tracked in TASKS. Integrate
 and validate it rather than creating another Bash implementation.
