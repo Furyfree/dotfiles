@@ -14,7 +14,7 @@ reviewed before Chezmoi manages it.
 | Neovim | Shared Lua config; isolate platform commands in Lua. |
 | Zed | Manage settings and keymap only. Exclude themes and backups. Verify macOS modifiers. |
 | VSCodium | Settings and keybindings only. Exclude empty snippets and runtime state. |
-| Starship | One prompt config for Zsh, Bash, and PowerShell. |
+| Starship | Shared basic prompt config is managed; Zsh initialization is implemented, Bash and PowerShell initialization are deferred. |
 | Fastfetch | Shared config with OS-specific output or artwork where needed. |
 | Topgrade | Review each OS config. Share only matching settings. |
 | GitHub CLI | Add a config later. Never track `hosts.yml`. |
@@ -28,18 +28,19 @@ that fallback. VSIX files remain another option.
 
 | Config | Plan |
 |---|---|
-| Zsh | Small home entrypoint and XDG modules. Do not depend on `/etc/zsh/zshenv`. |
+| Zsh | Core startup, environment, options, tool integrations, and selected helpers are managed. Do not depend on `/etc/zsh/zshenv`; optional personal integrations remain deferred. |
 | Bash | Small standard entrypoints load modules from `~/.config/bash`; optional `ble.sh` must degrade cleanly. |
 | Ghostty | Shared config with small platform differences. |
-| Sheldon | Review as the Zsh plugin manager. |
+| Sheldon | Manages `zsh-completions`, `fzf-tab`, `zsh-autosuggestions`, and `zsh-syntax-highlighting`; review additional plugins individually. |
 | Mise | Review versions and machine-specific paths. |
 | Nix | Manage user config only; installation and daemon state stay outside Chezmoi. |
 | btop | Create a deliberate config from chosen settings, not generated defaults. |
 | Environment | Review each variable. Share only portable values. |
 
 fzf and zoxide have no standalone config. Shell initialization may use them
-when installed; never track zoxide's database. Cava and Lazydocker are out of
-scope.
+when installed; never track zoxide's database. Cava and Lazydocker configs are
+out of scope. Zsh launcher aliases for Lazygit and Lazydocker are allowed;
+their settings and runtime state remain unmanaged.
 
 ## Linux desktop
 

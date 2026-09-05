@@ -72,7 +72,6 @@ AppData/Local/1Password/config/ssh/agent.toml
 
 # Placeholder files remain unmanaged until their config slice is implemented.
 **/.keep
-.config
 .local
 .local/share
 .ssh
@@ -84,7 +83,6 @@ Library
 Library/Application Support
 .gitconfig
 .gitignore
-.zshenv
 .profile
 .bash_profile
 .bashrc
@@ -105,14 +103,11 @@ Library/Application Support
 .config/nix/**
 .config/noctalia/**
 .config/nvim/**
-.config/sheldon/**
-.config/starship.toml
 .config/topgrade.toml
 .config/udiskie/**
 .config/vm-curator/**
 .config/zathura/**
 .config/zed/**
-.config/zsh/**
 .local/share/applications/**
 .local/share/backgrounds/**
 .local/share/icons/**

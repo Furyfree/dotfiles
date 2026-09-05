@@ -2,16 +2,28 @@
 {{- $machineProfiles := list -}}
 {{- $onePasswordSsh := false -}}
 
+{{- /*
+The Nimbus profile vocabulary, offered by the interactive prompt. Nimbus
+supplies the list through --promptMultichoice and it is stored as sent, so a
+new Nimbus profile never breaks the handoff. Deferred profiles stay out of
+the choices until their configs are maintained: niri-noctalia, niri-dms,
+hyprland-dms.
+*/ -}}
 {{- $machineChoices := list
       "common"
       "development"
+      "virtualization"
       "gaming"
+      "laptop-gaming"
       "hyprland-noctalia"
+      "windows-vm"
 -}}
 {{- /*
-Deferred machine profiles stay out of the choices until their configs are
-maintained: niri-noctalia, niri-dms, hyprland-dms.
+The three Nimbus handoff keys. Direct initialization answers them by hand:
+the machine name defaults to the hostname and ManagedByNimbus to false.
 */ -}}
+{{- $machine := promptStringOnce . "Machine" "Machine" .chezmoi.hostname -}}
+{{- $managedByNimbus := promptBoolOnce . "ManagedByNimbus" "ManagedByNimbus" false -}}
 {{- $onePasswordSsh = promptBoolOnce
       . "onePasswordSsh" "Enable 1Password SSH integration" false
 -}}
@@ -21,11 +33,6 @@ maintained: niri-noctalia, niri-dms, hyprland-dms.
 {{-   $machineProfiles = promptMultichoiceOnce
         . "Profiles" "Profiles" $machineChoices (list "common")
 -}}
-{{-   range $profile := $machineProfiles -}}
-{{-     if not (has $profile $machineChoices) -}}
-{{-       fail (printf "invalid machine profile %q" $profile) -}}
-{{-     end -}}
-{{-   end -}}
 {{- else if eq .chezmoi.os "darwin" -}}
 {{-   $platformProfiles = list "unix" "macos" -}}
 {{- else if eq .chezmoi.os "windows" -}}
@@ -37,6 +44,8 @@ maintained: niri-noctalia, niri-dms, hyprland-dms.
 {{- $profiles := uniq (concat (list "common") $platformProfiles $machineProfiles) -}}
 
 [data]
+Machine = {{ $machine | quote }}
+ManagedByNimbus = {{ $managedByNimbus }}
 onePasswordSsh = {{ $onePasswordSsh }}
 Profiles = [
 {{- range $machineProfiles }}
