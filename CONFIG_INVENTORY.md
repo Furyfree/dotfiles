@@ -2,7 +2,8 @@
 
 Reviewed scope from the Linux laptop on 2026-08-31. This is migration input,
 not permission to copy live files. Every selected config must be rewritten and
-reviewed before Chezmoi manages it.
+reviewed before Chezmoi manages it. Current implementation status and branch
+evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 
 ## Linux, macOS, and Windows
 
@@ -11,13 +12,13 @@ reviewed before Chezmoi manages it.
 | Git | Shared config with small platform or identity differences. |
 | SSH client | Render private `~/.ssh/config` from 1Password. Key design is in [ROADMAP.md](ROADMAP.md). |
 | 1Password SSH agent | Track selected-key filters only. Nimbus owns installation; enable the agent in 1Password. |
-| Neovim | Shared Lua config; isolate platform commands in Lua. |
+| Neovim | Small advanced-Vim Lua setup first; incremental IDE features, not a distribution. Isolate platform commands in Lua. |
 | Zed | Manage settings and keymap only. Exclude themes and backups. Verify macOS modifiers. |
 | VSCodium | Settings and keybindings only. Exclude empty snippets and runtime state. |
 | Starship | Shared basic prompt config is managed; Zsh initialization is implemented, Bash and PowerShell initialization are deferred. |
 | Fastfetch | Shared config with OS-specific output or artwork where needed. |
-| Topgrade | Review each OS config. Share only matching settings. |
-| GitHub CLI | Add a config later. Never track `hosts.yml`. |
+| Topgrade | Wait for the installed setup; review user-scope update ownership and each OS config. Windows remains deferred. |
+| GitHub CLI | Minimal SSH-preference config; explain and verify authentication separately. Never track `hosts.yml`. |
 
 VSCodium uses Open VSX by default. Check required extensions there first. If
 it is insufficient, VSCodium's `product.json` can point `extensionsGallery` at
@@ -47,7 +48,7 @@ their settings and runtime state remain unmanaged.
 | Config | Plan |
 |---|---|
 | Hyprland | Test with Noctalia before splitting shared and shell-specific files below `~/.config/hypr/`. Nimbus owns system integration. |
-| Noctalia | Curated v5 `config.toml` only. Exclude GUI state, caches, and downloaded plugins. |
+| Noctalia | Configure through the GUI after installation, then capture reviewed portable preferences from the actual version's files. Exclude generated themes, runtime state, caches, and downloaded plugins. |
 | Noctalia Greeter | Nimbus owns it and its files below `/var/lib`. |
 | udiskie | Manage its user config on the relevant workstation profile. |
 | Zathura | Manage its user config on the relevant workstation profile. |
