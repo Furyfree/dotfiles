@@ -74,16 +74,14 @@ its platform rule.
 
 ## Zsh
 
-Run the local regression checks without changing the live configuration:
+The regression suite is pending integration from `config/tooling-apps`; main
+does not currently contain the previously documented `tests/zsh-foundation.zsh`.
+See [TASKS.md](TASKS.md#evidence-and-limitations) for the validation gap. Use the
+read-only preview checks above, but do not treat them as shell behavior tests.
 
-```sh
-zsh -f tests/zsh-foundation.zsh
-```
-
-They check syntax, history-directory permissions and failure handling, and the
-Nimbus handoff with an isolated `chezmoi init --dry-run`. For prompt behavior,
-use this real initialization path: `execute-template --init` simulates prompts
-differently and rejects unknown multichoice values that real `init` accepts.
+For prompt tests, use an isolated `chezmoi init --dry-run`:
+`execute-template --init` simulates prompts differently and rejects unknown
+multichoice values that real `init` accepts.
 
 ### Environment and shell options
 
@@ -339,5 +337,6 @@ chezmoi --skip-secrets verify
 After enabling or unlocking 1Password, run the normal preview before applying.
 
 See [PROFILES.md](PROFILES.md) for the profile vocabulary,
-[CONFIG_INVENTORY.md](CONFIG_INVENTORY.md) for migration scope, and
-[ROADMAP.md](ROADMAP.md) for implementation order.
+[CONFIG_INVENTORY.md](CONFIG_INVENTORY.md) for migration scope,
+[ROADMAP.md](ROADMAP.md) for implementation order, and
+[TASKS.md](TASKS.md) for current status and dependencies.

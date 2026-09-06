@@ -1,14 +1,34 @@
 # Roadmap
 
-This file owns dotfiles order and design. The active Nimbus contracts live in
-the Nimbus repository's `SPEC.md` and `CLI.md`. `~/git/docs` is history, not a
-source of truth.
+This file owns dotfiles order, dependencies, and design. [TASKS.md](TASKS.md)
+owns actionable checklists, branch status, and validation evidence. Commands
+belong in [README.md](README.md). The active Nimbus contract, including its
+command contract, lives in that repository's `docs/SPEC.md`. `~/git/docs` is
+history, not a source of truth.
+
+## Current phase - Reconcile the plan
+
+Record the remaining configurations and distinguish implemented branch work
+from merged code and live validation. This phase changes documentation only;
+it does not enable ignored targets, install anything, or apply configurations.
+
+Use `docs/remaining-configs`, based on `main`. Prefer merging this plan before
+the pending configuration branches, then reconcile their documentation with it
+as each branch lands. That order is organizational, not a runtime dependency.
+Do not discard application guidance when resolving overlapping doc changes.
+
+The phase ends when every requested area has a next action and dependency,
+local links and the docs-only diff are checked, and validation limitations are
+recorded in TASKS. Publishing and merging require separate permission. No live
+recovery is needed because this phase does not change deployed files.
 
 ## Rules
 
 - Keep metadata at the repository root and Chezmoi source state in `home/`.
 - Keep user-facing commands in `README.md`; planning documents should link to it.
-- Manage user files only. Nimbus owns packages and system state.
+- Manage user files only. Nimbus owns system packages and system state. The
+  tooling branch adds native Mise declarations and an after-apply installation
+  hook; Mise owns those user tools and their updates, not a second package list.
 - Nimbus supplies machine profile IDs through `chezmoi init
   --promptMultichoice`; the template consumes them and derives platform
   profiles from `.chezmoi.os`. Do not build a profile graph or resolver.
@@ -71,15 +91,15 @@ Current state:
   the matching placeholder rule when a config slice is implemented.
 - `.keep` files reserve directories only and are never deployed.
 - Repository rules, scope, and validation are documented.
-- Zsh startup, history, completion, and Sheldon are managed. Remaining behavior
-  is deferred to Phase 1.
+- Zsh and its shared Sheldon and Starship configs are implemented in main;
+  Phase 1 records the accepted design.
 
-The repository foundation is complete. Phase 1 has started with Zsh startup,
-history, completion, and Sheldon; stop before applying or adding further modules.
+The repository foundation is implemented. Remaining work proceeds one config
+at a time; merged source is not evidence of live application or testing.
 
 ## Phase 1 - Zsh
 
-Rewrite the current Zsh setup as the first bounded slice:
+The implemented Zsh setup is the baseline for the other shell:
 
 - minimal `~/.zshenv` setting the XDG defaults and `ZDOTDIR` (implemented)
 - login PATH setup in `.zprofile` (implemented)
@@ -122,7 +142,7 @@ are missing. Do not change the login shell or apply the files.
 
 ## Phase 2 - Bash
 
-Build a native Bash setup instead of translating Zsh:
+Preserve Zsh's user-facing workflow using native Bash mechanisms:
 
 - small standard entrypoints in `~`
 - portable login and interactive modules below `~/.config/bash`
@@ -132,11 +152,20 @@ Build a native Bash setup instead of translating Zsh:
 Compare Bash and Zsh in daily use before choosing a default. Nimbus owns any
 package installation or login-shell change.
 
+The implementation already exists on the branch tracked in TASKS. Integrate
+and validate it rather than creating another Bash implementation.
+
 ## Phase 3 - Shared applications
 
 Adopt one family at a time from [CONFIG_INVENTORY.md](CONFIG_INVENTORY.md).
 Start with low-risk files such as Git, Starship, editor settings, or terminal
 configuration.
+
+Several slices are already implemented on separate branches; TASKS records
+their heads and outstanding integration. Merge and test those deliberately,
+including their tests and operator guidance. Reconcile the Mise installation
+exception and the disabled VSCodium extension hooks with the repository rules
+when their branches land; do not activate optional hooks as a merge side effect.
 
 Each slice must define:
 
@@ -146,34 +175,15 @@ Each slice must define:
 - focused validation and a reviewed `chezmoi diff`
 - a stop before apply
 
-## Phase 4 - Platform files
+## Phase 4 - 1Password, SSH, and GitHub CLI
 
-- Verify macOS paths on the MacBook before adding native targets.
-- Verify PowerShell's `$PROFILE.CurrentUserAllHosts` on Windows.
-- Give Topgrade deliberate Linux, macOS, and Windows settings.
-- Keep WSL separate from the Windows host.
-
-Do not manage Homebrew, Winget, registry settings, LaunchAgents, services, or
-other system state here.
-
-## Phase 5 - Linux desktop
-
-Start with `hyprland-noctalia`. Nimbus owns packages, services, portals,
-greeters, and other system integration.
-
-The machine profile selection gates only Hyprland and Noctalia. Other Linux
-user configuration remains available without it.
-
-Test the real setup before structuring `~/.config/hypr/`. Identify which files
-are shared Hyprland config and which settings depend on Noctalia or DMS. Prefer
-a shared base plus a small shell-specific include or template. Do not duplicate
-the whole Hyprland tree or invent the split before the differences are known.
-
-Keep monitor and host differences small. Pass only explicit, non-secret values
-from Nimbus. Niri and DMS profiles remain disabled until their configs are
-maintained as separate slices.
-
-## Phase 6 - 1Password and SSH
+This is the next configuration slice after the documentation phase and relevant
+branch integration. The user already has two SSH keys in 1Password; explain
+the flow and map those existing items to their intended roles before adding
+anything. The agent authenticates SSH requests without exporting private keys.
+Enable it in the installed, signed-in desktop app, then connect the SSH client
+to the platform-specific agent socket. Real authentication needs the app and
+an authorized destination; templates can be prepared before the new system.
 
 Design one secret-backed target before adding any:
 
@@ -191,13 +201,132 @@ Planned SSH model:
   records intent without requiring `op`; temporary vault locks do not change
   the managed set.
 - Nimbus owns 1Password installation. Agent enablement stays in the app.
-- `github-auth` and `homelab-user` are daily keys in 1Password.
-- The same keys are available on trusted Windows, Linux, and macOS clients.
+- `github-auth` and `homelab-user` are the planned daily roles; confirm the
+  existing items instead of creating duplicate keys to match these names.
+- The same keys are intended for trusted Linux and macOS clients; Windows
+  implementation and live testing remain deferred.
 - Only public keys are installed on GitHub and homelab targets.
 - A separate local, passphrase-protected `homelab-recovery` key is stored
   securely and not used daily.
 
-Do not migrate or delete existing SSH keys during foundation work.
+Keep the separate recovery-key plan, but do not generate, migrate, or delete
+keys as an incidental setup step. Preserve working access until the replacement
+has been tested. Disabling the feature stops management; it does not restore
+an overwritten SSH config, so a private backup is required before apply.
+
+GitHub CLI (`gh`) complements Git with pull requests, issues, and CI operations.
+Its minimal SSH-preference config already exists on the tooling branch. Explain
+and test that setup rather than rewriting it. GitHub API login is separate from
+SSH authentication for Git; tokens and `hosts.yml` stay unmanaged.
+
+Exit criteria: secret-safe template and permission checks pass, disabled and
+locked-vault behavior is tested, and the user verifies the intended GitHub and
+homelab authentication without losing existing access. Record platform checks
+separately; Linux success does not prove macOS behavior.
+
+## Phase 5 - Neovim
+
+Build an understandable, advanced Vim rather than adopting an editor
+distribution. It remains a secondary editor, not a replacement for Zed or
+VSCodium. Begin with a small `init.lua`: editing defaults, search, splits,
+clipboard behavior, persistent undo, and a few explained shortcuts that retain
+Vim's normal modes and navigation.
+
+Add diagnostics, language servers, completion, and other IDE features only in
+subsequent small slices. Keep language-tool installation with its existing
+owner and downloaded plugins or runtime state out of Git. Split Lua modules
+when the content warrants it, not to imitate a distribution's directory tree.
+
+This can start before the new system is installed. Validate isolated headless
+startup and manual editing, including missing optional tools, on Linux first.
+Keep OS-specific paths and commands explicit and verify macOS separately.
+Back up any existing init before an authorized apply. The first slice is done
+when basic editing is comfortable and the user understands its configuration.
+
+## Phase 6 - Linux desktop
+
+Start with `hyprland-noctalia`. Nimbus owns packages, services, portals,
+greeters, and system and recovery-session integration. Chezmoi owns normal
+user settings. Profile names and gates remain governed by PROFILES.
+
+### Optional Hyprland starter
+
+A small starter may precede full installation: terminal launch, close window,
+focus, workspace movement, and session controls. Check the actual Hyprland
+version and its native format before replacing the old scaffold; `hyprland.lua`
+is a candidate, not an assumption about the installed version. Keep it one
+readable file initially. It is not a substitute for Nimbus's recovery session.
+
+### Installed desktop revamp
+
+The full revamp waits for an installed, usable system. Compare the current
+machine and Niriland references, define common shortcut actions for Hyprland
+and Niri, then express them natively in each compositor. Preserve familiar
+workflow where possible; document necessary differences rather than forcing
+identical window-management semantics.
+
+Test Hyprland before splitting its tree. Separate shared compositor settings
+from Noctalia or DankMaterialShell (DMS) integration only where real differences
+require it. Keep monitor and host overrides small and local; do not extend the
+Nimbus handoff with hardware facts. Adopt Niri and DMS one config at a time,
+leaving reserved profiles disabled until their files and gating are validated.
+
+### Noctalia GUI first
+
+Install Noctalia and choose settings in its GUI before adopting its files.
+Then inspect the installed version's actual paths and capture only intentional,
+portable preferences. Do not guess a schema now or import the entire state
+directory. Generated application themes, caches, sessions, and downloaded
+plugins stay unmanaged; theme integration must respect Noctalia's ownership.
+
+Exit criteria: launch, focus, workspace, shell, theme, and session controls work
+in each selected real session, and profile selection excludes the others.
+Before apply, keep a known-good user-config backup and verify an independent
+way to recover from a broken desktop. Template validation alone cannot close
+these tasks.
+
+## Phase 7 - Webapps and backgrounds
+
+Selection is the dependency, not necessarily system installation. Review the
+existing webapps, icons, and wallpapers with the user; choose a small everyday
+launcher set and deliberate backgrounds before importing assets. Keep personal
+URLs and unwanted duplicates out. Test final launcher visibility and wallpaper
+selection after desktop installation.
+
+Nimbus-dependent entries must be gated on its presence; standalone setups need
+a supported native launch path or omission. Do not invent another launcher
+framework. Validate desktop entries, referenced icons, paths, and asset sources.
+Only selected user files become managed; removing an entry from management
+does not delete its previously deployed copy without a separate decision.
+
+## Phase 8 - Topgrade
+
+Wait until the selected tools and desktop are installed and working. Inventory
+their real update owners before choosing an explicit set of user-scope steps.
+Avoid updating a tool through both Mise and another manager.
+
+Align Nimbus use with its `docs/SPEC.md` allowlist contract: its Topgrade phase
+excludes system, Flatpak, firmware, Nix, Chezmoi, Git-repository, and self-update
+steps. Direct standalone use needs a separately reviewed safe configuration;
+do not assume Nimbus's invocation flags protect it. No privilege escalation or
+automatic repository pulls/apply should arise from these dotfiles.
+
+Validate parsing and previewed commands before an explicitly authorized real
+update. Completion requires a real run and understood failure/retry behavior;
+a dry run does not prove the downstream updates succeed. User tools are outside
+Nimbus's system recovery snapshots and must be repaired through their native
+manager or reconstructed from declarations. Windows remains deferred.
+
+## Phase 9 - Platform validation and Windows
+
+Verify shared macOS paths and behavior on the MacBook as each slice is adopted;
+native macOS-only additions wait for inspection. All new Windows work and live
+validation are explicitly deferred, including PowerShell, SSH, Topgrade, and
+Windows guest launcher integration. Preserve existing wrappers without treating
+them as tested support. Verify PowerShell's native profile path when resumed.
+
+Keep WSL separate from the Windows host. Do not manage Homebrew, Winget,
+registry settings, LaunchAgents, services, or other system state here.
 
 ## Validation
 
