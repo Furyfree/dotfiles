@@ -16,7 +16,7 @@ evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 | Zed | Manage settings and keymap only. Exclude themes and backups. Verify macOS modifiers. |
 | VSCodium | Settings and keybindings only. Exclude empty snippets and runtime state. |
 | Starship | Shared basic prompt config is managed; Zsh initialization is implemented, Bash and PowerShell initialization are deferred. |
-| Fastfetch | Shared config with OS-specific output or artwork where needed. |
+| Fastfetch | Managed shared config: native OS logo, compact hardware/software groups, inherited terminal foreground; no commands or custom artwork. |
 | Topgrade | Wait for the installed setup; review user-scope update ownership and each OS config. Windows remains deferred. |
 | GitHub CLI | Managed canonical config: SSH, editor prompts, and `co` alias; platform wrappers. Verify authentication separately. Never track `hosts.yml`. |
 

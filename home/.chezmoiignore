@@ -93,7 +93,7 @@ Library/Application Support
 .config/DankMaterialShell/**
 .config/VSCodium/**
 .config/bash/**
-.config/fastfetch/**
+.config/fastfetch/arch.txt
 .config/ghostty/**
 .config/hypr/**
 .config/niri/**
