@@ -1,0 +1,25 @@
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 9
+theme = charcoal-blue
+
+window-theme = ghostty
+window-padding-x = 14
+window-padding-y = 14
+background-opacity = 0.95
+background-blur = true
+resize-overlay = never
+
+cursor-style = block
+cursor-style-blink = false
+cursor-click-to-move = false
+# Keep the block cursor and SSH compatibility, without remote terminfo installs.
+shell-integration-features = no-cursor,ssh-env,no-ssh-terminfo
+mouse-scroll-multiplier = 2
+
+{{ if eq .chezmoi.os "linux" -}}
+gtk-toolbar-style = flat
+{{ else if eq .chezmoi.os "darwin" -}}
+# Left Option reaches shell shortcuts; right Option still types special characters.
+macos-option-as-alt = left
+copy-on-select = false
+{{ end -}}

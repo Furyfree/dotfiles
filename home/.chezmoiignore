@@ -96,7 +96,7 @@ Library/Application Support
 .config/btop/**
 .config/fastfetch/**
 .config/gh/**
-.config/ghostty/**
+.config/ghostty/themes/dankcolors
 .config/hypr/**
 .config/mise/**
 .config/niri/**

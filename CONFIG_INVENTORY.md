@@ -30,7 +30,7 @@ that fallback. VSIX files remain another option.
 |---|---|
 | Zsh | Core startup, environment, options, tool integrations, and selected helpers are managed. Do not depend on `/etc/zsh/zshenv`; optional personal integrations remain deferred. |
 | Bash | Small standard entrypoints load modules from `~/.config/bash`; optional `ble.sh` must degrade cleanly. |
-| Ghostty | Shared config with small platform differences. |
+| Ghostty | Managed Linux/macOS config and static charcoal-blue palette; native keybindings, small platform-specific input/UI settings. |
 | Sheldon | Manages `zsh-completions`, `fzf-tab`, `zsh-autosuggestions`, and `zsh-syntax-highlighting`; review additional plugins individually. |
 | Mise | Review versions and machine-specific paths. |
 | Nix | Manage user config only; installation and daemon state stay outside Chezmoi. |
