@@ -218,6 +218,13 @@ Niriland include and generated theme dependency are removed. Validation and
 recovery are in [README.md](README.md#ghostty). Stop before applying; native
 macOS input and visual behavior remain manual checks.
 
+VSCodium settings/keybindings are implemented independently, matching the Zed
+slice's core workflow while preserving notebook, debugger, and viewer extensions.
+Noctalia integration is configured manually. Extension after-apply hooks are
+prepared but ignored until explicitly enabled. See [README.md](README.md#vscodium)
+for extension availability, installation, validation, and migration limitations.
+Stop before apply and validate native input on each operating system.
+
 ## Phase 4 - 1Password, SSH, and GitHub CLI
 
 This is the next configuration slice after the documentation phase and relevant

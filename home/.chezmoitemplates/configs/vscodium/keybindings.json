@@ -1,1 +1,48 @@
-
+[
+  {
+    "key": "{{ if eq .chezmoi.os "darwin" }}cmd{{ else }}ctrl{{ end }}+alt+shift+j",
+    "command": "workbench.action.terminal.toggleTerminal"
+  },
+  {
+    "key": "alt+shift+f",
+    "command": "editor.action.formatDocument",
+    "when": "editorHasDocumentFormattingEditProvider && editorTextFocus && !editorReadonly"
+  },
+  {
+    "key": "{{ if eq .chezmoi.os "darwin" }}cmd{{ else }}ctrl{{ end }}+shift+b",
+    "command": "outline.focus"
+  },
+  {
+    "key": "{{ if eq .chezmoi.os "darwin" }}cmd{{ else }}ctrl{{ end }}+alt+b",
+    "command": "workbench.action.toggleAuxiliaryBar"
+  },
+  {
+    "key": "ctrl+shift+g",
+    "command": "workbench.view.scm",
+    "when": "!terminalFocus"
+  },
+  {
+    "key": "{{ if eq .chezmoi.os "darwin" }}cmd{{ else }}ctrl{{ end }}+alt+g",
+    "command": "git-graph.view",
+    "when": "!terminalFocus"
+  },
+  {
+    "key": "{{ if eq .chezmoi.os "darwin" }}ctrl+cmd{{ else }}ctrl+alt{{ end }}+i",
+    "command": "workbench.action.chat.open",
+    "args": { "mode": "ask" },
+    "when": "chatIsEnabled && !terminalFocus"
+  },
+{{- if eq .chezmoi.os "darwin" }}
+  {
+    "key": "cmd+alt+o",
+    "command": "workbench.action.openRecent",
+    "when": "!terminalFocus"
+  }
+{{- else }}
+  {
+    "key": "ctrl+shift+a",
+    "command": "editor.action.blockComment",
+    "when": "editorTextFocus && !editorReadonly"
+  }
+{{- end }}
+]

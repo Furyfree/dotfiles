@@ -1,0 +1,48 @@
+{{- if eq .chezmoi.os "windows" -}}
+{{- $manifest := include "../VSCODIUM_EXTENSIONS.json" | fromJson -}}
+$ErrorActionPreference = 'Stop'
+$cli = Get-Command codium, vscodium -CommandType Application -ErrorAction SilentlyContinue |
+    Select-Object -First 1
+if (-not $cli) {
+    throw 'VSCodium CLI is required; install it before applying extensions.'
+}
+Set-Location -LiteralPath $env:USERPROFILE
+
+function Get-InstalledExtensions {
+    $listed = @(& $cli.Source --list-extensions)
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Could not list VSCodium extensions.'
+    }
+    $listed | ForEach-Object { $_.Trim().ToLowerInvariant() }
+}
+
+$installed = @(Get-InstalledExtensions)
+$extensions = @(
+{{- range $manifest.install }}
+    '{{ . | replace "'" "''" }}'
+{{- end }}
+)
+$installedCount = 0
+$skippedCount = 0
+foreach ($extension in $extensions) {
+    if ($installed -contains $extension) {
+        $skippedCount++
+        continue
+    }
+    Write-Host "dotfiles: installing VSCodium extension: $extension"
+    & $cli.Source --install-extension $extension
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to install $extension; rerun after fixing the error."
+    }
+    $installedCount++
+}
+
+$installed = @(Get-InstalledExtensions)
+foreach ($extension in $extensions) {
+    if ($installed -notcontains $extension) {
+        throw "Extension missing after installation: $extension"
+    }
+}
+Write-Host "dotfiles: VSCodium extensions verified (install requests: $installedCount, already present: $skippedCount)."
+Write-Host 'dotfiles: {{ len $manifest.manual }} manifest entries are excluded from automatic installation; see the manual list.'
+{{ end -}}

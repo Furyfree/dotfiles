@@ -65,6 +65,10 @@ Library/**
 .config/niri/**
 .config/DankMaterialShell/**
 
+# VSCodium extension installation is prepared but not enabled.
+install-vscodium-extensions.sh
+install-vscodium-extensions.ps1
+
 # Optional 1Password SSH integration
 {{ if not $onePasswordSsh -}}
 .ssh/config
@@ -83,14 +87,17 @@ AppData/Local/1Password/config/ssh/agent.toml
 .ssh
 AppData/Local
 Documents
+{{ if ne .chezmoi.os "darwin" -}}
 Library
 Library/Application Support
+{{ end -}}
 .profile
 .bash_logout
 .ssh/config
 .config/1Password/**
 .config/DankMaterialShell/**
-.config/VSCodium/**
+.config/VSCodium/product.json
+.config/VSCodium/User/snippets/**
 .config/bash/logout
 .config/fastfetch/arch.txt
 .config/ghostty/themes/dankcolors
@@ -106,8 +113,10 @@ Library/Application Support
 .local/share/icons/**
 AppData/Local/1Password/**
 AppData/Local/nvim/**
-AppData/Roaming/VSCodium/**
+AppData/Roaming/VSCodium/product.json
+AppData/Roaming/VSCodium/User/snippets/**
 AppData/Roaming/Zed/**
 AppData/Roaming/topgrade.toml
 Documents/PowerShell/**
-Library/Application Support/VSCodium/**
+Library/Application Support/VSCodium/product.json
+Library/Application Support/VSCodium/User/snippets/**

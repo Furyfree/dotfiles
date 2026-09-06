@@ -11,7 +11,7 @@ live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
 The repository currently manages Bash and Zsh setup, Sheldon, Starship, Mise, Nix,
-udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, and Ghostty configuration.
+udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, and VSCodium configuration.
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## Cargo tools
@@ -759,6 +759,149 @@ one. Restore the backed-up config to recover the previous setup.
 
 See the [Ghostty configuration guide](https://ghostty.org/docs/config) and
 [option reference](https://ghostty.org/docs/config/reference).
+
+## VSCodium
+
+Canonical settings and shortcuts are in `home/.chezmoitemplates/configs/vscodium/`.
+One-line wrappers deploy only `User/settings.json` and `User/keybindings.json`:
+
+| Platform | User directory |
+|---|---|
+| Linux | `~/.config/VSCodium/User/` |
+| macOS | `~/Library/Application Support/VSCodium/User/` |
+| Windows | `~/AppData/Roaming/VSCodium/User/` |
+
+These are standard installation paths, not portable mode, custom user-data
+directories, or named profile overrides. Review those separately if used.
+Product/gallery overrides, snippets, credentials, chat provider settings,
+workspace storage, caches, history, and extension binaries remain unmanaged.
+The canonical `product.json` contains the Microsoft Marketplace configuration
+as ordinary JSON. Its platform targets remain ignored by `.chezmoiignore`, so
+it is not deployed and nothing switches galleries automatically. Review the
+Marketplace terms and extension compatibility before enabling deployment.
+
+### Matching Zed
+
+The shared behavior matches the Zed slice on `config/zed`: 15px JetBrainsMono
+Nerd Font, no ligatures, block cursor, absolute line numbers, bracket colors,
+selected whitespace, no inlay hints or minimap, persistent tabs, left sidebar,
+bottom terminal, and manual save/formatting. Prettier remains installed but is
+disabled globally to match Zed's Prettier policy; choose a language formatter
+or opt in per project. Go/Zig format-on-save, Go import organization on save,
+and Pylance format-on-type defaults are explicitly overridden to keep editing
+manual. Error Lens supplies inline diagnostics without line
+background fills. Go's extension supplies Chezmoi template highlighting;
+Tinymist exports PDFs beside the source on save. Fonts and runtimes must
+already be installed; Python environment activation remains off as in your
+current setup, leaving the shell's Mise environment alone.
+
+New empty windows start with an untitled file. Previous windows are not reopened
+automatically, but hot-exit backups preserve unsaved work for native recovery.
+Reopening a workspace may restore its tabs; this is not identical to Zed's
+startup/session model. The terminal starts at the workspace root and uses the
+platform's default shell, with no Linux paths or forced Zsh profile on Windows.
+
+See [VSCodium keybindings](VSCODIUM_KEYBINDS.md) for the shared workflow,
+previous-keymap comparison, and notebook/debugger extras. VSCodium cannot
+natively reproduce Zed's Inter 16px UI font; no CSS injector or global zoom
+workaround is added. Editor-specific diagnostics, syntax colors, panels, and
+agent providers are not identical. Native trust prompts stay enabled and global
+chat tool auto-approval stays off; this does not configure extension-specific
+agent permissions. Editor telemetry and the existing Red Hat/GitLens telemetry
+settings are off, without claiming every extension is telemetry-free.
+
+### Themes and extensions
+
+Linux with `hyprland-noctalia` selects `NoctaliaTheme`, the name contributed by
+`noctalia.noctaliatheme`. Enable its app-theme integration yourself in Noctalia's
+GUI after installation. No Noctalia config, template, hook, or palette is managed
+here. The community template currently targets extension version 0.0.5; check
+its target again if the extension version changes. Other setups follow system
+appearance with Atom One Light/Dark, close counterparts to Zed's One themes.
+Theme extensions must be installed before these selections can take effect.
+
+`VSCODIUM_EXTENSIONS.json` preserves all 57 IDs from the current installation:
+49 available on Open VSX plus eight listed under `manual`. Three theme extensions
+are added, making 52 entries in `install`. The old DMS theme is retained as an
+available extension but not selected. Notebook/Jupyter, Excel/Office,
+Excalidraw, Git Graph/GitLens, language, and debugger selections are preserved.
+The manifest lives at the repository root because it is installation metadata,
+not a VSCodium user config. VSCodium does not load it; Chezmoi embeds its
+`install` entries into the scripts below when rendering them. Keeping it outside
+`home/` prevents accidental deployment and avoids a runtime JSON-parser dependency.
+
+Unlike Zed, VSCodium has no equivalent global `auto_install_extensions` setting.
+Two after-apply scripts are prepared but disabled:
+
+- `home/run_after_install-vscodium-extensions.sh.tmpl` for Linux/macOS.
+- `home/run_after_install-vscodium-extensions.ps1.tmpl` for Windows.
+
+Both target names (`install-vscodium-extensions.sh` and
+`install-vscodium-extensions.ps1`) remain in `home/.chezmoiignore`. No extension
+installation runs during setup or apply while those rules remain. The opposite
+platform's template also renders empty.
+
+When explicitly enabled later, `run_after_` makes the appropriate script run
+after files on every full apply, including the first `chezmoi init --apply`.
+Plain `chezmoi init` without apply does not install extensions. This is not a
+`run_once_` or `run_onchange_` hook: rerunning apply restores missing selections
+even if the manifest has not changed.
+
+The scripts require an existing `codium` or `vscodium` CLI on PATH. They list
+installed extensions, compare IDs case-insensitively, request only missing
+`install` entries, and verify all those entries through a final native listing.
+Existing extensions are not forcibly updated or uninstalled; native auto-update
+settings own updates. The `manual` list is reported but never installed.
+
+Missing CLI, listing errors, failed installs, or failed verification stop the
+script with an error. Completed installs remain; fix the cause and rerun apply.
+There is no privilege elevation or installation of VSCodium itself. Windows uses
+PowerShell; Linux/macOS use POSIX shell, without Python or jq at runtime.
+
+Before enabling, review the manifest and remove only these two script ignore
+rules, then run the standard Chezmoi preview commands above. Leave the three
+`product.json` ignore rules intact unless separately enabling that configuration.
+The scripts use the CLI's configured gallery:
+Open VSX is VSCodium's default, but an existing unmanaged `product.json` may
+override it. No gallery switch, forced version, prerequisite installation, or
+download of unreviewed VSIX files is performed by this repository.
+
+The eight manual entries are Copilot Chat, C#, Pylance, Microsoft's three SSH/
+remote extensions, and two IntelliCode extensions. They returned no Open VSX
+entry when checked on 2026-09-06. Existing installations are untouched. Evaluate
+publisher-supported distribution, licensing, and VSCodium compatibility before
+reinstalling; a gallery switch does not solve runtime restrictions. BasedPyright
+and Open Remote SSH are possible alternatives, not silently installed replacements.
+Registry presence also does not prove runtime compatibility: VSCodium documents
+limitations for Python and LaTeX Workshop despite available Open VSX packages.
+
+### Validation and migration
+
+Back up the existing settings/keybindings before an approved apply: Chezmoi
+replaces whole files, including omitted personal model settings and old keybinds.
+Use Preferences: Open Default Keyboard Shortcuts (JSON) and Developer: Toggle
+Keyboard Shortcuts Troubleshooting from the command palette to check live input.
+Existing workbench layout state and per-project settings can override defaults.
+
+```sh
+python3 tests/vscodium.py
+```
+
+The tests render all three platforms with/without the desktop profile, check
+settings/shortcut semantics, preserve the extension inventory, and ensure runtime
+files, disabled scripts, and Noctalia stay unmanaged. Mock-CLI tests cover missing
+tools, repeat runs, native errors, and verification without actual installations.
+They do not launch the editor, install anything,
+validate every extension schema, or prove notebook/debugger/theme runtime behavior.
+Installer execution tests exercise the POSIX implementation; the PowerShell
+template is rendered and checked for its inventory/ignore boundary, but still
+needs native Windows execution testing before enabling it there.
+Run the standard Chezmoi preview commands above before applying.
+
+References: [VSCodium extensions and gallery](https://github.com/VSCodium/vscodium/blob/master/docs/extensions.md),
+[compatibility](https://github.com/VSCodium/vscodium/blob/master/docs/extensions-compatibility.md),
+[native CLI](https://code.visualstudio.com/docs/configure/command-line), and
+[Noctalia's VS Code template](https://github.com/noctalia-dev/community-templates/blob/main/vscode/template.toml).
 
 ## 1Password SSH
 
