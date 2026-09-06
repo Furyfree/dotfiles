@@ -93,7 +93,7 @@ Library/Application Support
 .config/VSCodium/**
 .config/bash/logout
 .config/fastfetch/arch.txt
-.config/ghostty/**
+.config/ghostty/themes/dankcolors
 .config/hypr/**
 .config/niri/**
 .config/noctalia/**
