@@ -13,7 +13,7 @@ evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 | SSH client | Render private `~/.ssh/config` from 1Password. Key design is in [ROADMAP.md](ROADMAP.md). |
 | 1Password SSH agent | Track selected-key filters only. Nimbus owns installation; enable the agent in 1Password. |
 | Neovim | Small advanced-Vim Lua setup first; incremental IDE features, not a distribution. Isolate platform commands in Lua. |
-| Zed | Manage settings and keymap only. Exclude themes and backups. Verify macOS modifiers. |
+| Zed | Managed shared settings and one additive terminal keybind, with platform paths/modifiers. Noctalia theme on its Linux profile; bundled themes elsewhere. Generated themes, backups, and personal agent settings stay unmanaged. |
 | VSCodium | Managed settings/keybindings match the Zed workflow, with native platform paths. Extension inventory and disabled after-apply installers are tracked; gallery overrides, snippets, and runtime state stay unmanaged. |
 | Starship | Shared basic prompt config is managed; Bash and Zsh initialization are implemented, PowerShell initialization is deferred. |
 | Fastfetch | Managed shared config: native OS logo, compact hardware/software groups, inherited terminal foreground; no commands or custom artwork. |

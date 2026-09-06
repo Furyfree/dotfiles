@@ -225,6 +225,14 @@ prepared but ignored until explicitly enabled. See [README.md](README.md#vscodiu
 for extension availability, installation, validation, and migration limitations.
 Stop before apply and validate native input on each operating system.
 
+Zed is implemented independently with canonical settings/keymap inputs and
+platform wrappers. It keeps the VS Code base map, adds only a terminal toggle,
+and uses a Noctalia-generated theme on the Linux desktop profile with bundled
+themes elsewhere. See [README.md](README.md#zed) for behavior, validation,
+and recovery. Noctalia integration is enabled manually in its GUI; no Noctalia
+settings or templates are managed. Stop before apply; native input and theme
+reload remain manual checks.
+
 ## Phase 4 - 1Password, SSH, and GitHub CLI
 
 This is the next configuration slice after the documentation phase and relevant

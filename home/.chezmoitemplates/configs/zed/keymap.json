@@ -1,1 +1,8 @@
-
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "{{ if eq .chezmoi.os "darwin" }}cmd{{ else }}ctrl{{ end }}-alt-shift-j": "terminal_panel::Toggle"
+    }
+  }
+]
