@@ -307,6 +307,13 @@ Start with `hyprland-noctalia`. Nimbus owns packages, services, portals,
 greeters, and system and recovery-session integration. Chezmoi owns normal
 user settings. Profile names and gates remain governed by PROFILES.
 
+Retain the old handoff branch's launcher intent when this phase is implemented:
+Nimbus-managed machines may use its browser/webapp helpers. Standalone machines
+need a tested native alternative. The Windows guest launcher requires both
+`windows-vm` and `ManagedByNimbus` and remains deferred with Windows work.
+See [README.md](README.md#future-nimbus-launchers) for the native commands; do
+not add launcher files until the corresponding installed workflows are tested.
+
 ### Optional Hyprland starter
 
 A small starter may precede full installation: terminal launch, close window,

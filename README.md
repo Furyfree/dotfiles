@@ -501,6 +501,15 @@ Run all checks with Python 3.11+ and PyYAML:
 python3 tests/check.py
 ```
 
+For the complete local gate, including the separate Bash suite and whitespace
+checks, use `just check`. `just preview` runs the four read-only Chezmoi commands
+against this checkout and your current home; it returns a failure when
+`chezmoi verify` detects unapplied differences. Neither recipe applies configs.
+The direct commands above and in [Bash](#bash) remain available without Just.
+
+`just lint-docs` is an optional Markdown style report, not part of the regression
+gate. It requires markdownlint and currently reports existing formatting debt.
+
 The runner collects the standalone Python test files in `tests/`. Python
 organizes the checks; Zsh executes the shell behavior tests. No extra test
 framework is needed. Tests protect validity and safety, not exact versions,
@@ -513,8 +522,8 @@ target selection, canonical templates, private gh permissions, empty scaffold
 exclusion, and the native host's real Nimbus initialization path.
 
 Native checks are explicitly skipped when their tools are absent; a skipped
-check is not validation of that app. Empty scaffolds and the separate, unmerged
-Bash implementation are not covered. Add relevant tests as those configs land.
+check is not validation of that app. Empty scaffolds are not covered. Bash has
+its own suite, which `just check` runs after the Python suites.
 Native macOS/Windows behavior, visual appearance, and real desktop shortcuts
 still need manual checking on those systems.
 
@@ -989,6 +998,15 @@ No GUI, downloads, or live config writes are performed by the tests.
 References: [Zed settings](https://zed.dev/docs/reference/all-settings),
 [keybindings](https://zed.dev/docs/key-bindings), and
 [local themes](https://zed.dev/docs/themes#local-themes).
+
+## Future Nimbus launchers
+
+The desktop phase may use `nimbus launch browser [URL] [--private]` and
+`nimbus launch webapp URL` on Nimbus-managed machines. Standalone setups need
+a tested native alternative; do not call Nimbus when `ManagedByNimbus` is false.
+The deferred Windows guest launcher may call `nimbus windows connect` only when
+both `windows-vm` and `ManagedByNimbus` are selected. These are planning notes,
+not installed launchers; they do not enable Windows integration.
 
 ## 1Password SSH
 
