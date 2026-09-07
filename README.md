@@ -11,7 +11,7 @@ live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
 The repository currently manages Bash and Zsh setup, Sheldon, Starship, Mise, Nix,
-udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, and VSCodium configuration.
+udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, VSCodium, and Zed configuration.
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## Cargo tools
@@ -902,6 +902,93 @@ References: [VSCodium extensions and gallery](https://github.com/VSCodium/vscodi
 [compatibility](https://github.com/VSCodium/vscodium/blob/master/docs/extensions-compatibility.md),
 [native CLI](https://code.visualstudio.com/docs/configure/command-line), and
 [Noctalia's VS Code template](https://github.com/noctalia-dev/community-templates/blob/main/vscode/template.toml).
+
+## Zed
+
+Canonical settings and keybindings live in
+`home/.chezmoitemplates/configs/zed/`. One-line wrappers deploy them to
+`~/.config/zed/` on Linux/macOS and `~/AppData/Roaming/Zed/` on Windows.
+Linux custom XDG paths and relocated Windows AppData require matching target
+paths; the managed files use the standard locations.
+
+The settings retain your VS Code base keymap, Inter 16px UI, JetBrainsMono
+Nerd Font 15px editor/terminal, disabled ligatures, block cursor, persistent
+tabs, inline diagnostics, and manual save/formatting. Bracket colors follow
+the active theme. Language servers, outline, folding, Git indicators, and
+other features use Zed's defaults instead of copying hundreds of settings.
+The terminal uses the system shell and project directory; it never forces Zsh
+onto Windows or replaces the machine's chosen shell.
+
+Your Chezmoi file associations and Tinymist PDF-on-save settings are kept.
+The extension list retains all 33 enabled selections from your live settings,
+plus 12 other installed extensions, including Just, Typst, and your alternative
+themes. Docker Compose stays explicitly disabled. Your existing per-extension
+update preferences are retained. Installing alternative themes does not change
+the Noctalia/system theme selection. Zed owns extension downloads and updates;
+fonts and separate tool installations are outside this slice.
+
+See [Zed keybindings](ZED_KEYBINDS.md) for the everyday workflow and comparison
+with your previous overrides. The keymap file only adds overrides to the VS Code
+base; it does not replace the inherited shortcuts.
+
+The sole added shortcut toggles the terminal panel without needing backtick:
+
+| Linux / Windows | macOS | Action |
+|---|---|---|
+| Ctrl+Alt+Shift+J | Cmd+Option+Shift+J | Toggle terminal panel |
+
+The old Ctrl+Shift+T terminal override, Ctrl+Shift+O recent-project override,
+panel-key swaps, and duplicate agent shortcuts are omitted. Reopen-tab,
+symbol search, outline/right-dock toggles, and other native shortcuts remain
+available. Use the command palette's `zed: open default keymap` and
+`zed: open keymap` to inspect bindings for the installed version. Native
+bindings were checked against Zed 1.18.1; verify the added shortcut on the
+actual Danish keyboard and compositor before daily use.
+
+### Noctalia colors
+
+On Linux with `hyprland-noctalia`, Zed follows the system appearance using
+`Noctalia Light` and `Noctalia Dark`. These are the selectable names exported by
+[Noctalia's Zed template](https://github.com/noctalia-dev/community-templates/blob/02a566a27ccd299958c2c6a34e0e0727bab46b93/zed/zed.json);
+`Noctalia` is only the theme family name.
+Enable and configure Zed's app-theme integration yourself through Noctalia's
+GUI after installation. This repository does not configure Noctalia, select
+its templates, or supply a custom theme template. Its entire config directory
+and Zed's generated theme files remain unmanaged.
+
+The named themes must be generated before Zed can use them; selecting them here
+does not install or enable the integration. Restart Zed if generated colors
+are not picked up. Other setups use bundled One Light/One Dark with the system
+appearance.
+
+### Privacy and validation
+
+Workspace trust remains required, unsaved-buffer restoration stays enabled,
+and the built-in agent defaults to Ask as in your current setup. Telemetry and
+agent feedback stay disabled; private-value redaction is enabled. Personal
+agent-server registrations, model preferences, authentication, caches, sessions,
+downloaded extensions, and theme output are not imported.
+
+This replaces settings/keymap files, not just selected keys. Back up the live
+files and review any personal agent/model settings you want to retain before
+an approved apply. Restoring that backup restores the previous setup.
+
+Run isolated structural/rendering tests with Python 3.11+ and Chezmoi:
+
+```sh
+python3 tests/zed.py
+```
+
+Tests cover platform/profile selection, extension inventory and update preferences,
+security preferences, keymap scope, and the unmanaged Noctalia boundary.
+They do not perform full Zed schema validation. The installed Zed CLI has
+no config-validation command; settings autocomplete, live theme rendering,
+reload behavior, fonts, and macOS/Windows input still require manual checks.
+No GUI, downloads, or live config writes are performed by the tests.
+
+References: [Zed settings](https://zed.dev/docs/reference/all-settings),
+[keybindings](https://zed.dev/docs/key-bindings), and
+[local themes](https://zed.dev/docs/themes#local-themes).
 
 ## 1Password SSH
 

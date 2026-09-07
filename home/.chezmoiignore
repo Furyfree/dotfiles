@@ -107,7 +107,7 @@ Library/Application Support
 .config/nvim/**
 .config/topgrade.toml
 .config/vm-curator/**
-.config/zed/**
+.config/zed/themes/**
 .local/share/applications/**
 .local/share/backgrounds/**
 .local/share/icons/**
@@ -115,7 +115,7 @@ AppData/Local/1Password/**
 AppData/Local/nvim/**
 AppData/Roaming/VSCodium/product.json
 AppData/Roaming/VSCodium/User/snippets/**
-AppData/Roaming/Zed/**
+AppData/Roaming/Zed/themes/**
 AppData/Roaming/topgrade.toml
 Documents/PowerShell/**
 Library/Application Support/VSCodium/product.json

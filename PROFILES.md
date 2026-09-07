@@ -72,7 +72,7 @@ Nimbus vocabulary; the machine manifest selects them:
 | `virtualization` | VM Curator configuration (no managed files yet) |
 | `gaming` | Gaming tool configuration (no managed files yet) |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |
-| `hyprland-noctalia` | Hyprland and Noctalia; VSCodium selects NoctaliaTheme on Linux, with integration configured manually in Noctalia's GUI |
+| `hyprland-noctalia` | Hyprland and Noctalia; Zed and VSCodium select generated Noctalia themes on Linux, with integration configured manually in Noctalia's GUI |
 | `windows-vm` | The Windows guest entries (no managed files yet) |
 
 The profile does not imply a greeter. Greeters and system integration belong
