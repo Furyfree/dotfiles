@@ -86,15 +86,12 @@ Documents
 Library
 Library/Application Support
 .profile
-.bash_profile
-.bashrc
 .bash_logout
-.blerc
 .ssh/config
 .config/1Password/**
 .config/DankMaterialShell/**
 .config/VSCodium/**
-.config/bash/**
+.config/bash/logout
 .config/fastfetch/arch.txt
 .config/ghostty/**
 .config/hypr/**

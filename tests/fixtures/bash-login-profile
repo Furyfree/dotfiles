@@ -1,0 +1,8 @@
+# Model an existing .profile that loads interactive Bash before extending PATH.
+# shellcheck source=/dev/null
+source "$HOME/.bashrc"
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+export TEST_PROFILE_LOADED=yes

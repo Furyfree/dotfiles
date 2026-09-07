@@ -1,0 +1,29 @@
+#!/bin/bash
+# Test doubles never access the real clipboard or tool state.
+case ${0##*/} in
+  pbcopy|wl-copy|xclip)
+    if [[ $* == *-out* ]]; then
+      command cat "$TEST_CLIPBOARD"
+    else
+      command cat > "$TEST_CLIPBOARD"
+    fi
+    ;;
+  pbpaste|wl-paste) command cat "$TEST_CLIPBOARD" ;;
+  yazi)
+    for arg in "$@"; do
+      case $arg in --cwd-file=*) printf '%s' "$TEST_YAZI_CWD" > "${arg#*=}" ;; esac
+    done
+    exit "${TEST_YAZI_STATUS:-0}"
+    ;;
+  mise|zoxide|starship|fzf)
+    if [[ ${0##*/} == mise && ${TEST_MISE_SUCCESS_PATH-} == "$0" ]]; then
+      [[ $* == 'activate bash' ]] || exit 2
+      # shellcheck disable=SC2016 # The generated code runs in the calling shell.
+      printf '%s\n' 'test_mise_activations=$(( ${test_mise_activations:-0} + 1 ))'
+      exit 0
+    fi
+    # A failing generator must never have its partial output evaluated.
+    printf '%s\n' 'dotfiles_bad_eval=yes'
+    exit 1
+    ;;
+esac

@@ -10,7 +10,7 @@ selected profiles, as [PROFILES.md](PROFILES.md) documents. Machine manifests
 live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
-The repository currently manages Zsh setup, Sheldon, Starship, Mise, Nix,
+The repository currently manages Bash and Zsh setup, Sheldon, Starship, Mise, Nix,
 udiskie, Zathura, GitHub CLI, btop, Fastfetch, and Git configuration.
 Other empty configs remain ignored until they are implemented and reviewed.
 
@@ -347,7 +347,7 @@ inherited old config path. With our XDG defaults, this is the managed file.
 If you override `XDG_CONFIG_HOME`, the config must be available there too;
 Chezmoi still deploys to `~/.config`. The old nested
 `~/.config/starship/starship.toml` is left untouched. Starship's cache and logs
-remain unmanaged. Bash and PowerShell initialization are still deferred.
+remain unmanaged. Bash uses the same prompt config; PowerShell initialization is deferred.
 
 ### History
 
@@ -651,6 +651,63 @@ restore those backups to recover the previous shared configuration.
 
 See Git's [configuration loading rules](https://git-scm.com/docs/git-config#FILES)
 and [ignore documentation](https://git-scm.com/docs/gitignore).
+
+## Bash
+
+Bash mirrors the Zsh aliases, helpers, editor/pager defaults, history limits,
+Emacs-style keys, Mise, fzf, zoxide, and shared Starship prompt. Root
+`.bash_profile` and `.bashrc` load the explicit modules in `~/.config/bash`.
+Login startup adds `~/.local/bin` to PATH when missing before loading the
+existing `.profile`, which may itself load `.bashrc`. A per-shell guard prevents
+duplicate interactive hooks.
+To reload all modules after editing, start a new shell.
+
+Linux and macOS use the same modules, with platform checks for clipboard tools
+and optional plugin paths. Missing tools are harmless; nothing is installed.
+The core files use Bash 3.2-compatible syntax. `autocd` requires Bash 4 or
+newer; Bash has no direct equivalent of Zsh's numeric glob sorting.
+
+History lives separately in `$XDG_STATE_HOME/bash/history`, with 20,000 entries
+in memory and a 10,000-line file limit. The private directory and failure
+handling match Zsh. Bash appends and imports new history at each prompt while
+preserving existing prompt hooks and command exit status. Duplicate reduction
+is best-effort across terminals, not Zsh's exact shared-history semantics.
+Multiline commands use Bash's `cmdhist` format. `h` lists all history, and
+space-prefixed commands are omitted. This is not a secrets protection mechanism.
+Existing `.bash_history` is neither migrated nor managed.
+
+Installed `bash-completion` supplies command completions. Ordinary Readline
+completion is case-insensitive and shows ambiguous matches; unlike Zsh, it
+does not try an exact-case-only pass first. Optional `ble.sh` supplies syntax
+highlighting, suggestions, and its native Tab menu instead of Zsh plugins.
+It is discovered under `$XDG_DATA_HOME/blesh`, Linux system share directories,
+or the standard Apple Silicon/Intel Homebrew prefixes. Its bell setting lives
+in `bash/blerc`, also exposed through `.blerc`. Other ble.sh defaults are kept.
+
+Following [ble.sh's startup and fzf guidance](https://github.com/akinomyoga/ble.sh#13-set-up-bashrc),
+it loads before the modules and attaches last. With ble.sh, its bundled
+`integration/fzf-key-bindings` handles Ctrl-T, Ctrl-R, and Alt-C; without it,
+the installed `fzf --bash` integration handles them. Ctrl-T previews and
+Ctrl-R's clipboard shortcut match Zsh. Bash does not use `fzf-tab`: Tab stays
+with native/ble.sh completion (plain fzf also offers its standard `**` trigger).
+Terminal-only integrations are skipped without a usable terminal.
+
+The empty `.profile`, `.bash_logout`, and `bash/logout` scaffold remains
+unmanaged. Back up existing startup files and inspect the diff before applying.
+No login-shell change is made.
+
+Run the isolated Bash regression checks:
+
+```sh
+bash tests/bash-foundation.bash
+```
+
+They require ShellCheck and test syntax, environment preservation, private
+history setup and failure handling, prompt-hook preservation, aliases,
+clipboard platform selection, helpers, failed tool initialization, and startup.
+Clipboard commands and optional tools are test doubles; live history and
+clipboard contents are not used. Native macOS and installed ble.sh need a
+separate interactive check on a machine with those available.
 
 ## 1Password SSH
 
