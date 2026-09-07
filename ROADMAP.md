@@ -26,9 +26,9 @@ recovery is needed because this phase does not change deployed files.
 
 - Keep metadata at the repository root and Chezmoi source state in `home/`.
 - Keep user-facing commands in `README.md`; planning documents should link to it.
-- Manage user files only. Nimbus owns system packages and system state. The
-  tooling branch adds native Mise declarations and an after-apply installation
-  hook; Mise owns those user tools and their updates, not a second package list.
+- Manage user files and install explicitly declared Mise tools after apply.
+  Nimbus owns system packages and system state, including installing Mise.
+  Mise owns its declared user tools and their updates, not a second package list.
 - Nimbus supplies machine profile IDs through `chezmoi init
   --promptMultichoice`; the template consumes them and derives platform
   profiles from `.chezmoi.os`. Do not build a profile graph or resolver.
@@ -174,6 +174,26 @@ Each slice must define:
 - the smallest necessary conditions or templates
 - focused validation and a reviewed `chezmoi diff`
 - a stop before apply
+
+Mise, Nix, udiskie, Zathura, GitHub CLI, and btop are implemented as one
+application-config slice, independent of the Bash branch. User-supplied Mise
+tools are retained with current LTS runtime selections and reviewed settings;
+Nix remains a minimal user config. Linux desktop apps use Linux-only gates,
+not a new machine profile. GitHub CLI shares canonical content across its
+platform paths. btop uses terminal colors without saving runtime UI changes.
+
+See [README.md](README.md#tooling-and-applications) for settings, sources,
+validation, and recovery. Stop before installation, apply, commit, or PR.
+Native macOS/Windows and real desktop key behavior remain manual checks.
+
+The user-tool handoff now belongs to Chezmoi: one native after-apply script
+invokes Mise after configuration on every full Linux/macOS apply, including
+standalone use. It restores missing tools on repeat applies and propagates
+installation failures for retry. Preview and dry-run do not install; system
+packages, privilege, and installing Mise itself remain outside this script.
+The isolated lifecycle checks use a synthetic source, temporary home, and fake
+Mise, covering order, repair, failure/retry, prerequisite errors, and platform
+rendering. Native downloads and macOS/Windows execution remain untested.
 
 ## Phase 4 - 1Password, SSH, and GitHub CLI
 

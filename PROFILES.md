@@ -2,7 +2,9 @@
 
 Chezmoi derives platform profiles from `.chezmoi.os` and receives machine
 profiles from Nimbus. Profiles select user configuration only; they do not
-install software or change system state.
+declare system packages or change system state. On Linux and macOS, every full
+apply invokes Mise for the user tools declared in its native config, independent
+of machine profiles and `ManagedByNimbus`.
 
 ## The Nimbus handoff
 

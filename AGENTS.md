@@ -13,8 +13,11 @@ Manage only intentional files below the current user's `$HOME`.
 Keep user-facing commands in `README.md`; planning documents should link to it
 instead of duplicating usage instructions.
 
-Nimbus owns packages and system state. It supplies the machine ID, the
-managed-by-Nimbus flag, and the machine profile IDs through the `chezmoi init`
+Nimbus owns system packages and system state. Chezmoi owns native Mise tool
+configuration, including Cargo tools, and invokes `mise install` after applying
+it. Mise owns tool installation and updates.
+Nimbus supplies the machine ID, the managed-by-Nimbus flag, and the machine
+profile IDs through the `chezmoi init`
 prompt flags; the config template consumes them with the `prompt*Once`
 functions, stores the profile list as sent, and derives platform profiles from
 `.chezmoi.os`. Do not add imports, dependencies, aliases, or another resolver.
@@ -35,9 +38,10 @@ Never commit secrets, private keys, sessions, history, caches, logs, or runtime
 databases. Design 1Password rendering before adding secret-backed targets, and
 never print their contents during validation.
 
-Chezmoi scripts must stay exceptional and user-scoped. They must not install
-packages, use privilege elevation, change `/etc`, manage services, or select a
-login shell.
+Chezmoi scripts must stay exceptional and user-scoped. The after-apply script
+may install tools explicitly declared in the native Mise config. Scripts must
+not install system packages or Mise itself, use privilege elevation, change
+`/etc`, manage services, or select a login shell.
 
 Do not use the HTML skill unless the user explicitly asks for it.
 

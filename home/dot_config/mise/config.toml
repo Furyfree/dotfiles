@@ -1,1 +1,31 @@
+[tools]
+# Current LTS families; resolve the latest patch within each family.
+dotnet = "10"
+go = "latest"
+java = "corretto-25"
+node = "lts"
+rust = "stable"
+uv = "latest"
 
+# Agent CLIs
+"npm:@openai/codex" = "latest"
+"npm:@anthropic-ai/claude-code" = { version = "latest", allow_builds = ["@anthropic-ai/claude-code"] }
+antigravity-cli = "latest"
+"npm:@xai-official/grok" = "latest"
+opencode = "latest"
+herdr = "latest"
+
+# Agentic helpers
+"npm:@llamaindex/liteparse" = "latest"
+
+# Language helpers
+"npm:markdownlint-cli" = "latest"
+"go:golang.org/x/tools/gopls" = "latest"
+
+[settings]
+# Nimbus's contract: Mise updates itself; system packages stay outside Mise.
+auto_update = true
+system_deps = "warn"
+
+# Activate an existing uv environment without creating one on directory entry.
+python.uv_venv_auto = "source"
