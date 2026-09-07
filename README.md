@@ -1023,27 +1023,52 @@ not installed launchers; they do not enable Windows integration.
 
 ## 1Password SSH
 
-The SSH config template references the `ssh-config` Document item in 1Password;
-the shared agent config selects the existing GitHub and homelab SSH Key items
-by ID. These references do not contain private key material. The agent config
-selects available keys, not which host uses each key.
+The Linux/macOS wiring is ready for installation; real 1Password retrieval,
+agent authorization, and destination authentication remain untested. Windows
+SSH targets stay ignored, including when the feature is selected.
 
-Both targets remain ignored, even when `onePasswordSsh` is true. Before enabling
-deployment, confirm the document contains the real SSH configuration rather
-than placeholder text; its private contents have not been retrieved here.
-Agent sockets, host-to-key mapping, permissions, and authenticated retrieval
-still need validation before removing the ignore rules. Do not evaluate the
-document template directly merely to test syntax: it retrieves private contents.
+Bootstrap asks whether to enable the integration, defaulting to false. The
+prompt requires neither `op` nor an unlocked vault. On Linux/macOS,
+`onePasswordSsh = true` manages:
 
-Bootstrap asks whether to enable the 1Password SSH integration. The prompt
-records intent only and does not require the `op` CLI to be present. Once the
-placeholder ignore rules are removed, the local `onePasswordSsh` value will gate:
+- `~/.ssh/` with mode `0700`, without removing unrelated files
+- `~/.ssh/config` with mode `0600`, rendered from the SSH Document item
+- `~/.ssh/github.pub` and `~/.ssh/homelab.pub` with mode `0600`
+- `~/.config/1Password/ssh/agent.toml`, selecting the two existing key IDs
 
-- private `~/.ssh/config` rendered from 1Password
-- `agent.toml` at the Linux/macOS or Windows target path
+The template appends the GitHub key selection and the platform's 1Password
+agent socket after the document. The socket is `~/.1password/agent.sock` on
+Linux and `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`
+on macOS. This makes 1Password the default SSH agent for all hosts, not a
+forwarded agent on remote machines. No agent forwarding is enabled here.
+
+The document holds your homelab host blocks, using
+`IdentityFile ~/.ssh/homelab.pub` and `IdentitiesOnly yes` to select the Homelab
+key. GitHub uses `~/.ssh/github.pub` and user `git`. Keep those shared GitHub
+settings out of the document: multiple `IdentityFile` entries accumulate.
+The document is plain SSH config, not another Chezmoi template. Edit it in
+1Password rather than editing or re-adding the rendered file to Git.
+
+Only the public-key fields are requested from the SSH Key items; private keys
+are never exported. Chezmoi's native `secret` function runs `op item get`
+with a public-field selector, allowing UUID-only lookups and `--skip-secrets`.
+The generated Chezmoi config sets `secret.command = "op"` and
+`onepassword.prompt = false`: authorization stays with the desktop app instead
+of Chezmoi requesting CLI session tokens. `op` uses its selected account;
+ensure it is the account containing all three items.
 
 When disabled, those targets are ignored but existing files are not deleted.
 Run `chezmoi init --prompt` to change the choice; this still does not apply.
+Existing checkouts must also rerun init to pick up the new secret-command
+settings before enabling this feature.
+
+A missing `op`, denied authorization, or inaccessible item fails rendering
+instead of silently dropping a target. An empty document or public-key text
+that fails the basic format check also fails. This does not validate arbitrary
+SSH directives in the private document; review its content before applying.
+Chezmoi is not transactional
+across files: an apply failure may leave earlier files updated. Fix the cause
+and preview again before retrying.
 
 If 1Password is only temporarily locked, inspect the remaining files without
 requesting secrets:
@@ -1073,21 +1098,49 @@ the dotfiles. Chezmoi does not enable the desktop app's integrations for you.
 4. Separately enable **Integrate with 1Password CLI** so Chezmoi can retrieve
    the document. CLI integration alone does not enable the SSH agent. SDK and
    MCP integrations are not required for this workflow.
-5. Once the pending repository wiring below is complete, enable the Chezmoi
-   option and follow the [bootstrap preview and apply steps](#bootstrap).
+5. Confirm the document contains your real host configuration, not placeholder
+   text. Back up any existing SSH config, public-key selector files, and agent
+   config privately outside the repository. Enable the Chezmoi option and
+   follow the [bootstrap preview and apply steps](#bootstrap).
    Review secret-backed diffs locally; do not paste them into logs or reviews.
 6. Confirm the destination already authorizes the intended public key for the
    configured user. For the proposed homelab alias, connect with `ssh ms-a2`
    and approve the Homelab key request in 1Password. Verify a new server's host
    fingerprint through a trusted channel before accepting it.
 
-Repository work still pending before step 5: render the Linux/macOS agent
-socket setting, supply the public-key files used by `IdentityFile`, validate
-permissions and feature gating, and remove the scaffold ignore rules. Private
-keys must remain in 1Password. Live connection testing waits for the new setup.
+After applying, `ssh -G ms-a2` inspects the effective host configuration without
+connecting; review it locally because it includes private host details. Test
+`ssh ms-a2` only once the server authorizes the Homelab public key for root.
+Test GitHub separately with `ssh -T git@github.com` after adding the GitHub
+public key to your account. GitHub's successful authentication message comes
+with exit status 1 because it does not provide an interactive shell.
+Never disable host-key verification to make these tests pass.
+
+To recover, turn off the Chezmoi option first, then restore the privately saved
+files if needed. Disabling management does not delete deployed files, stop the
+agent, or undo earlier overwrites. Agent enablement is a separate GUI setting.
+Keep any existing working access until the new setup has been verified; a
+separate recovery key remains a future user-controlled task.
+
+### Offline validation
+
+```sh
+python3 tests/onepassword-ssh.py
+just check
+```
+
+The SSH tests use disposable homes, fake documents, synthetic public keys, and
+a strict fake `op` with no real credentials or agent access. They check Linux
+and macOS rendering, disabled and deferred Windows targets, field-only key
+requests, file permissions, retrieval failures, and secret-skipping previews.
+Native `ssh -G` parses only the fake config without connecting. Temporary
+applies exclude scripts. These tests do not prove native macOS operation,
+real vault retrieval, or server authentication; those checks wait for installation.
 
 References: [1Password SSH setup](https://www.1password.dev/ssh/get-started)
-and [CLI integration](https://www.1password.dev/cli/app-integration).
+and [CLI integration](https://www.1password.dev/cli/app-integration),
+[key selection](https://www.1password.dev/ssh/agent/advanced), and
+[Chezmoi secret functions](https://www.chezmoi.io/reference/templates/secret-functions/secret/).
 
 See [PROFILES.md](PROFILES.md) for the profile vocabulary,
 [CONFIG_INVENTORY.md](CONFIG_INVENTORY.md) for migration scope,

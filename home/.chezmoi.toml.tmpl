@@ -57,3 +57,13 @@ profiles = [
   {{ . | quote }},
 {{- end }}
 ]
+
+{{ if and $onePasswordSsh (has .chezmoi.os (list "linux" "darwin")) -}}
+# Let the desktop app authorize op; do not request a CLI session token.
+[onepassword]
+prompt = false
+
+# Field-only public-key lookups, with Chezmoi's --skip-secrets support.
+[secret]
+command = "op"
+{{ end -}}

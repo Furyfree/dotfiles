@@ -246,12 +246,17 @@ Design one secret-backed target before adding any:
 - diff and checks that never print secrets
 - removal and recovery
 
-Planned SSH model:
+Prepared SSH model (live validation waits for installation):
 
-- `~/.ssh/config` is a private 1Password document rendered by Chezmoi.
+- `~/.ssh/config` renders the private 1Password document, followed by shared
+  GitHub key selection and the Linux/macOS agent socket setting.
 - One canonical `agent.toml` selects and orders the SSH keys exposed by the
-  1Password agent. Thin wrappers target Linux, macOS, and Windows paths.
-- Local data key `onePasswordSsh` gates both SSH targets. The init prompt
+  1Password agent. Linux/macOS deploy the shared wrapper; Windows stays ignored.
+- Public-key selector files use field-only UUID lookups through the native
+  Chezmoi secret command; private keys are not exported. Desktop integration
+  handles authorization without Chezmoi requesting CLI session tokens.
+- Local data key `onePasswordSsh` gates the SSH directory, config, public-key
+  files, and agent config on Linux/macOS. The init prompt
   records intent without requiring `op`; temporary vault locks do not change
   the managed set.
 - Nimbus owns 1Password installation. Agent enablement stays in the app.
@@ -269,7 +274,7 @@ has been tested. Disabling the feature stops management; it does not restore
 an overwritten SSH config, so a private backup is required before apply.
 
 GitHub CLI (`gh`) complements Git with pull requests, issues, and CI operations.
-Its minimal SSH-preference config already exists on the tooling branch. Explain
+Its minimal SSH-preference config is already merged. Explain
 and test that setup rather than rewriting it. GitHub API login is separate from
 SSH authentication for Git; tokens and `hosts.yml` stay unmanaged.
 

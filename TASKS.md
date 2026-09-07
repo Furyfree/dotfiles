@@ -43,18 +43,21 @@ Plan: [shared applications](ROADMAP.md#phase-3---shared-applications).
 - [ ] Record authorized live testing per config and platform; retain pending
   status for untested systems instead of treating rendering as runtime proof.
 
-## Next - 1Password, SSH, and gh
+## Waiting for installation - 1Password, SSH, and gh
 
 Plan: [1Password, SSH, and GitHub CLI](ROADMAP.md#phase-4---1password-ssh-and-github-cli).
-Status: document and key-ID references are prepared but remain ignored; the
-SSH document is still a placeholder. gh is already merged. Real authentication
-needs the signed-in app, agent enablement, and an authorized destination.
+Status: Linux/macOS SSH wiring is prepared behind the opt-in toggle. Offline
+checks use fake data; the real document and keys have not been retrieved.
+Live setup and testing wait for the new machine. Windows remains deferred;
+gh is already merged. See [setup and recovery](README.md#1password-ssh).
 
 - [x] Explain the agent and map the existing keys to GitHub and homelab roles.
-- [ ] Design the private 1Password SSH-config document, agent selection, and
+- [x] Design the private 1Password SSH-config document, agent selection, and
   Linux/macOS socket paths without exporting private keys.
-- [ ] Implement and test feature gating, permissions, missing prerequisites,
-  and locked-vault handling without printing secrets.
+- [x] Implement and test feature gating, permissions, missing prerequisites,
+  and simulated retrieval failures without printing secrets.
+- [ ] On the new setup, confirm the document, enable app integrations, authorize
+  destination public keys, and test real retrieval and SSH on Linux and macOS.
 - [ ] Explain the existing gh config and its separate API login; verify GitHub
   and homelab access with the user before retiring any working setup.
 - [ ] Review the separate recovery-key plan without generating or deleting

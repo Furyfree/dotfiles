@@ -1,1 +1,18 @@
-{{ onepasswordDocument "3223bqk2tzqdut7gdhiqjyqj34" }}
+{{- $config := onepasswordDocument "3223bqk2tzqdut7gdhiqjyqj34" | trim -}}
+{{- if not $config -}}
+{{-   fail "1Password SSH Document is empty; populate it before applying" -}}
+{{- end -}}
+{{ $config }}
+
+# Shared GitHub and agent settings; keep homelab hosts in the document.
+Host github.com
+    User git
+    IdentityFile ~/.ssh/github.pub
+    IdentitiesOnly yes
+
+Host *
+{{ if eq .chezmoi.os "linux" }}    IdentityAgent ~/.1password/agent.sock
+{{ else if eq .chezmoi.os "darwin" }}    IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+{{ else -}}
+{{- fail "1Password SSH is supported only on Linux and macOS" -}}
+{{ end -}}

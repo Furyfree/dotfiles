@@ -69,11 +69,13 @@ Library/**
 install-vscodium-extensions.sh
 install-vscodium-extensions.ps1
 
-# Optional 1Password SSH integration
-{{ if not $onePasswordSsh -}}
+# Optional 1Password SSH integration; Windows remains deferred.
+{{ if or (not $onePasswordSsh) (not (has .chezmoi.os (list "linux" "darwin"))) -}}
+.ssh
 .ssh/config
-.config/1Password/ssh/agent.toml
-AppData/Local/1Password/config/ssh/agent.toml
+.ssh/github.pub
+.ssh/homelab.pub
+.config/1Password/**
 {{ end -}}
 
 # Git's personal settings remain unmanaged; shared defaults use .config/git/.
@@ -84,7 +86,6 @@ AppData/Local/1Password/config/ssh/agent.toml
 **/.keep
 .local
 .local/share
-.ssh
 AppData/Local
 Documents
 {{ if ne .chezmoi.os "darwin" -}}
@@ -93,8 +94,6 @@ Library/Application Support
 {{ end -}}
 .profile
 .bash_logout
-.ssh/config
-.config/1Password/**
 .config/DankMaterialShell/**
 .config/VSCodium/product.json
 .config/VSCodium/User/snippets/**

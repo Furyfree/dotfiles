@@ -1,0 +1,7 @@
+{{- /* Ask op for only the public field, never the whole SSH Key item. */ -}}
+{{- $key := secret "item" "get" . "--fields" "label=public key" "--format" "json" | fromJson -}}
+{{- $value := $key.value | trim -}}
+{{- if not (regexMatch `^(ssh-ed25519|ssh-rsa) [A-Za-z0-9+/]+={0,2}( [^\r\n]*)?$` $value) -}}
+{{-   fail "1Password SSH public key is empty or invalid; check the SSH Key item" -}}
+{{- end -}}
+{{ $value }}
