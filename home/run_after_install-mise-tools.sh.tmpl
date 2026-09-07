@@ -23,6 +23,20 @@ if [ ! -x "$mise_binary" ]; then
 fi
 
 printf '%s\n' 'dotfiles: installing configured Mise runtimes and tools'
+{{ if get . "ManagedByNimbus" -}}
+printf '%s\n' 'Setup note: Open a new terminal after installation to load the shell and Mise configuration.'
+if command -v 1password >/dev/null 2>&1 || command -v op >/dev/null 2>&1; then
+    printf '%s\n' 'Setup note: 1Password: open the desktop app, sign in and unlock it. Enable "Integrate with 1Password CLI" in Settings > Developer.'
+{{ if get . "onePasswordSsh" -}}
+    printf '%s\n' 'Setup note: 1Password SSH: enable the SSH agent in Settings > Developer and keep the desktop app running.'
+{{ else -}}
+    printf '%s\n' 'Setup note: 1Password SSH is not enabled in dotfiles. Follow the 1Password SSH section of the dotfiles README before opting in.'
+{{ end -}}
+fi
+{{ if and (hasKey . "profiles") (has "hyprland-noctalia" .profiles) -}}
+printf '%s\n' 'Setup note: Noctalia: choose and generate its theme in the GUI before opening Ghostty.'
+{{ end -}}
+{{ end -}}
 cd "$HOME"
 export MISE_CONFIG_DIR="$mise_config_dir"
 # Do not load project/version files from the home directory or its parents.

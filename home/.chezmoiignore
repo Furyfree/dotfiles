@@ -115,7 +115,7 @@ Library/Application Support
 .config/fastfetch/arch.txt
 .config/ghostty/themes/dankcolors
 .config/ghostty/themes/noctalia
-.config/hypr/**
+.config/hypr/conf.d/**
 .config/noctalia/**
 .config/vm-curator/**
 .config/zed/themes/**

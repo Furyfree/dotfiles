@@ -14,12 +14,24 @@ The repository currently manages Bash and Zsh setup, Sheldon, Starship, Mise, Ni
 udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, VSCodium, Zed,
 Neovim, and Topgrade configuration. Niri and DankMaterialShell are available
 through the opt-in Linux `niri-dms` profile.
+The Linux `hyprland-noctalia` profile also enables a minimal Hyprland starter;
+Noctalia preferences remain GUI-managed.
 Other empty configs remain ignored until they are implemented and reviewed.
+
+## License
+
+Original configuration, scripts, and documentation are available under the
+[MIT License](LICENSE), copyright 2026 Patrick Byrne.
+
+The Hyprland starter derived from Hyprland 0.55 retains its upstream
+BSD-3-Clause notice in `home/dot_config/hypr/hyprland.lua`.
+The Google Maps and FotMob icons described under [Webapps](#webapps) are
+third-party brand assets and are not covered by the MIT license.
 
 ## Cargo tools
 
 On Linux, Chezmoi manages `~/.config/mise/conf.d/cargo.toml` alongside the main
-Mise configuration. It declares Caligula, Typst, Tinymist, cargo-update, Sheldon,
+Mise configuration. It declares Caligula, Tinymist, cargo-update, Sheldon,
 resvg, and VM Curator through Mise's native Cargo backend. This file is ignored
 on macOS and Windows; the existing runtime selections remain in
 `~/.config/mise/config.toml`.
@@ -56,9 +68,28 @@ separate direct Cargo installations. Native `~/.cargo/config.toml` contains
 Cargo build settings, not an install list, so no such file is added here.
 Existing tools under `~/.cargo/bin` are left untouched.
 
+Source builds require a compiler toolchain, Make, pkg-config, and development
+headers for OpenSSL, curl, zlib, and libudev. Nimbus supplies those system
+packages; standalone Linux users must supply their distribution's equivalents.
+Tinymist's crates.io package is library-only, so Mise builds `tinymist-cli`
+from the upstream Git release `v0.15.6`, with its lockfile and `tinymist` binary
+selected. Updating this pinned release is an explicit config change.
+Its native `install_env` sets `TMPDIR=/var/tmp` for installation and upgrades:
+large builds must not exhaust Fedora's quota-limited `/tmp` RAM filesystem.
+Cargo owns these temporary build files; no system mount settings are changed.
+Typst is installed by Nimbus from Terra. Standalone users supply Typst through
+their package manager; this configuration no longer installs `typst-cli`.
+
+For Nimbus-managed installs, the after-apply script prints applicable setup
+instructions before tool installation with the `Setup note: ` prefix. Nimbus
+keeps the live output and repeats those notes after its final init summary,
+even if Mise fails. They cover shell activation, 1Password sign-in and its SSH
+opt-in, and Noctalia theme generation. Notes never contain credentials.
+
 ## Bootstrap
 
-On a new machine with access to the private repository:
+On a new machine with access to the repository (authentication is required
+while it remains private; anonymous HTTPS is the intended published path):
 
 ```sh
 chezmoi init --prompt https://github.com/Furyfree/dotfiles.git
@@ -508,6 +539,11 @@ checks, use `just check`. `just preview` runs the four read-only Chezmoi command
 against this checkout and your current home; it returns a failure when
 `chezmoi verify` detects unapplied differences. Neither recipe applies configs.
 The direct commands above and in [Bash](#bash) remain available without Just.
+
+The `check` GitHub workflow runs this gate in Fedora 44 with native Chezmoi,
+Neovim, shell, Lua, and SSH tools. Optional application parsers skip when the
+application is absent; GUI and real plugin-download checks remain opt-in.
+The workflow verifies configuration without applying it to a workstation.
 
 `just lint-docs` is an optional Markdown style report, not part of the regression
 gate. It requires markdownlint and currently reports existing formatting debt.
@@ -1239,6 +1275,70 @@ These tests use a disposable home and fake updater executables, including for
 native Topgrade execution, and a read-only isolated Mise config-discovery probe.
 See the [Topgrade reference config](https://github.com/topgrade-rs/topgrade/blob/v17.9.0/config.example.toml)
 and [native Mise step](https://github.com/topgrade-rs/topgrade/blob/v17.9.0/src/steps/generic.rs).
+
+## Hyprland starter
+
+On Linux, selecting `hyprland-noctalia` manages only
+`~/.config/hypr/hyprland.lua` for the compositor. This targets Hyprland 0.55+
+and Noctalia 5, matching the Lua/daemon flow in the Fedora test notes. It is a
+small adaptation of the [upstream starter](https://github.com/hyprwm/Hyprland/blob/v0.55.0/example/hyprland.lua),
+not the later desktop revamp. Keep it one file until the VM session works.
+macOS, Windows, and other profiles do not receive it; Nimbus is not required
+to use the user config. Nimbus owns package and greeter/session installation.
+
+Ghostty, Brave Origin (`brave-origin`), and Nautilus match Nimbus's current
+application selection. These are direct commands, not shell aliases or future
+Nimbus launch helpers, and do not change system MIME defaults. Automatic
+monitor mode/placement/scaling and the starter's dwindle layout are retained.
+Keyboard settings, animation tuning, custom colors, and hardware rules are left
+for the installed session. No Noctalia settings or generated theme files are
+managed; configure those in its GUI, including Ghostty's theme integration
+before relying on the [Noctalia theme](#ghostty).
+
+The `hyprland.start` hook runs `noctalia --daemon` once per session, following
+[Noctalia's startup documentation](https://docs.noctalia.dev/noctalia/getting-started/running-the-shell/).
+Config reload does not start another instance. Do not also enable a Noctalia
+service or duplicate autostart entry. No old Quickshell startup command is used.
+
+These intentionally keep the upstream starter shortcuts, rather than the
+future Niri-aligned keymap. Super is the Windows key:
+
+| Shortcut | Action |
+|---|---|
+| Super+Q | Ghostty |
+| Super+B | Brave Origin (added) |
+| Super+C | Close focused window |
+| Super+E | Nautilus |
+| Super+R | Noctalia launcher |
+| Super+M | Hyprland shutdown dialog when available; otherwise exit session |
+| Super+V / P / J | Toggle floating / pseudotiling / split direction |
+| Super+arrows | Focus in that direction |
+| Super+1-9 / 0 | Workspaces 1-9 / 10 |
+| Super+Shift+1-9 / 0 | Move window to that workspace |
+| Super+left/right mouse drag | Move/resize window |
+
+Save work before using Super+M; the fallback exits directly. Extra scratchpad,
+wheel, gesture, and media shortcuts are deferred. Noctalia's bar provides its
+other controls. The launcher uses [Noctalia 5 IPC](https://docs.noctalia.dev/noctalia/ipc/surfaces/).
+
+Before applying, back up any existing `hyprland.lua` and legacy `hyprland.conf`
+and review explicit session `--config`/`HYPRLAND_CONFIG` overrides: those can
+bypass the normal Lua file. Chezmoi does not delete an existing legacy config.
+Apply only after the normal preview; Hyprland can live-reload changed files.
+Log out and back in to test the startup hook. Keep a TTY or alternate session
+available and restore the saved config there if necessary. This user config
+does not implement Nimbus's independent recovery session.
+
+```sh
+python3 tests/hyprland.py
+Hyprland --verify-config --config home/dot_config/hypr/hyprland.lua
+just check
+```
+
+Tests check platform/profile gates and Lua bindings/startup with a fake API.
+The native parser check runs only when Hyprland is installed. It does not test
+real rendering, keyboard layout, app launching, Noctalia startup, or logout;
+those remain VM checks with the actual packaged versions.
 
 ## Niri and DankMaterialShell
 

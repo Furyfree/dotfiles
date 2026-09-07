@@ -3,9 +3,9 @@
 [ROADMAP.md](ROADMAP.md) owns order and design; this file owns actionable status
 and evidence. Commands live in [README.md](README.md).
 
-## Current phase - Branch integration
+## Current phase - Desktop preparation and platform validation
 
-Plan: [reconcile the plan](ROADMAP.md#current-phase---reconcile-the-plan).
+Plan: [desktop preparation and platform validation](ROADMAP.md#current-phase---desktop-preparation-and-platform-validation).
 
 - [x] Create `docs/remaining-configs` from main without carrying config changes.
 - [x] Separate branch implementation from merged source and live validation.
@@ -20,19 +20,55 @@ Plan: [reconcile the plan](ROADMAP.md#current-phase---reconcile-the-plan).
 
 ## Existing implementation
 
+The 2026-09-07 VM Cargo retry exposed missing system development headers and
+the library-only `tinymist` crate. Nimbus now selects the build prerequisites;
+the Cargo fragment selects the `tinymist-cli` binary package from upstream Git
+release `v0.15.6`. The after-apply script emits marked setup notes before Mise,
+so Nimbus can repeat them after a failed or successful init. Real completion
+of the corrected VM tool installation was verified later the same day.
+
+The next retry installed cargo-update, Sheldon, and VM Curator. Typst and
+Tinymist hit Fedora's `/tmp` user quota during compilation. Nimbus now selects
+Terra's Typst RPM, and this repository removes its duplicate Cargo declaration.
+Tinymist's native Mise `install_env` uses `TMPDIR=/var/tmp` for installation
+and upgrades. A native Mise probe with fake Cargo verified those options and
+failure propagation without installing anything. The subsequent VM check found
+all selected tools installed, including Tinymist, with no managed-file drift.
+The owner has since restored the VM for the final COPR installation drill.
+
+The owner published this repository on 2026-09-07 after Gitleaks found no
+secrets in current files or reachable Git history. The MIT license branch is
+published; the integration checkout includes its text and preserves upstream
+Hyprland and third-party icon notices. The new Fedora 44 CI workflow runs
+`just check` with native Chezmoi, Neovim, shell, Lua, and SSH test tools.
+Native desktop/application checks remain conditional on tool availability;
+GUI and live plugin-download checks remain opt-in. Hosted CI is still pending.
+
+The exact Fedora container gate passes locally: 115 tests, with 25 optional
+checks skipped, plus the Bash suite and whitespace check. Initial container
+runs exposed missing PyYAML and ShellCheck test dependencies; both are now
+installed by the workflow. An unnamed container UID also prevented native SSH
+tests from running; the final check uses the same named root account as the CI
+container, with all test homes still temporary. No workstation apply ran.
+
 Snapshot: 2026-09-07. Foundation, Zsh, Sheldon, and Starship are merged, as are
-the application PRs below. The integration starts from main `77457d9`.
+the application PRs below. The passthrough starts from main `70bcece`, with
+the existing uncommitted Hyprland Lua starter preserved.
 Merged source and isolated checks do not establish live deployment.
 
 | Scope | PR | Status |
 | --- | --- | --- |
 | Bash | #3 | Merged, including login PATH fix |
 | Mise, Nix, udiskie, Zathura, gh, btop, shared tests | #4 | Merged, including Mise discovery fix |
-| Ghostty | #5 | Merged baseline; GUI-first Noctalia selection completed in this integration |
+| Ghostty | #5 | Merged, including GUI-first Noctalia selection |
 | Fastfetch | #6 | Merged, including terminal-foreground logo fix |
 | Git | #7 | Merged, including repository-context test fix |
 | Zed | #8 | Merged, including exported Noctalia theme-name fix |
 | VSCodium | #9 | Merged; installers and Marketplace override remain disabled |
+| 1Password SSH references | #11 | Merged; live authorization remains pending |
+| Neovim | #12 | Merged; parsers and native platform testing remain pending |
+| Webapps | #13 | Merged; launchers remain disabled pending Nimbus helper testing |
+| Niri, DMS, and Topgrade | #14 | Merged; live session and update testing remain pending |
 
 Plan: [shared applications](ROADMAP.md#phase-3---shared-applications).
 
@@ -83,15 +119,18 @@ deferred. See [usage and migration](README.md#neovim).
 ## Prepared - Niri and DMS; desktop testing waiting
 
 Plan: [Linux desktop](ROADMAP.md#phase-6---linux-desktop).
-Status: Niri and DMS are prepared on `config/topgrade-niri-dms`, without
-applying them. Hyprland and Noctalia remain separate future work.
+Status: Niri and DMS are merged on main, without live application evidence.
+A minimal Hyprland starter is also prepared; Noctalia
+preferences remain GUI-managed. See [starter usage](README.md#hyprland-starter).
 
-- [ ] If requested, confirm the Hyprland version and build a minimal starter.
+- [x] Prepare a Hyprland 0.55+ Lua starter with Ghostty, Brave Origin, and
+  Noctalia 5 daemon startup.
 - [x] Compare live and Niriland configs; prepare modular Niri with native
   actions, one keybind source, and no Nirius dependency.
 - [x] Curate DMS preferences against the current upstream settings format;
   keep generated colors and runtime state out of Chezmoi ownership.
-- [ ] Test Hyprland with Noctalia before splitting shared and shell-specific files.
+- [ ] Verify native Hyprland and Noctalia behavior in the installed VM before
+  splitting shared and shell-specific files.
 - [ ] Configure Noctalia through its GUI, then capture reviewed portable
   preferences and verify theme ownership without tracking generated state.
 - [x] Enable only the maintained `niri-dms` user-config profile on Linux.
@@ -182,3 +221,38 @@ Plan: [platform validation and Windows](ROADMAP.md#phase-9---platform-validation
 
 Mark implementation and live verification separately. Commit, push, PR, merge,
 installation, update, and apply require their own explicit authorization.
+
+## Repository passthrough, 2026-09-07
+
+- Preserved the local Hyprland Lua starter and reconciled the plan with merged
+  main. Clarified standalone Niri selection and native Mise ownership.
+- `just check`: 114 Python tests complete with three skips, plus the Bash suite and
+  `git diff --check HEAD`. Hyprland is unavailable; Neovim's download test and
+  Zathura's GUI test are opt-in. The separate
+  `DOTFILES_NVIM_INTEGRATION=1 python3 tests/neovim.py
+  Neovim.test_real_plugins_in_disposable_home` run passes.
+- Isolated `chezmoi managed`, `status`, and `diff` pass. Full `verify` reports
+  the deliberately pending tool-install script; `verify --exclude=scripts`
+  passes for rendered files and permissions. No live apply was run.
+- Nimbus now preserves the SSH prompt answer in refresh commands and refuses
+  changed checkout trust during approval. Managed handoff profiles remain
+  exactly the manifest selection. Source-only Gitleaks scans are clean.
+- Two Claude Code Fable 5.1 audits completed. The final targeted peer pass
+  hit the provider session limit; main-agent diff inspection and local gates
+  cover the closing fixes, without a final peer verdict.
+
+## Phase 5 integration validation, 2026-09-07
+
+- Local history is consolidated on `integrate/phase5`, with main retained.
+  All former local branch heads are reachable from the integration branch.
+  Eight clean auxiliary worktrees were removed. Unfinished work in
+  `~/git/dotfiles-ghostty` is preserved in detached state; it is not the
+  accepted Noctalia configuration.
+- The native Chezmoi handoff regression uses the real template, initial
+  answers, refreshed machine/profile data, the SSH opt-in, and two applies
+  with fake Mise in a disposable home. It verifies repair without installing
+  tools or reading a vault. Real installation still requires the Fedora VM.
+- The pending source and test edits remain uncommitted. Remote branches and
+  repository visibility are unchanged.
+- Validation: `just check` passes 115 Python tests with three skips plus the
+  Bash suite. The focused native handoff test also passes.

@@ -33,7 +33,7 @@ that fallback. VSIX files remain another option.
 | Bash | Implemented: standard entrypoints and explicit `~/.config/bash` modules mirror Zsh behavior with native Bash integrations and optional `ble.sh`. |
 | Ghostty | Managed Linux/macOS config; Noctalia theme on the Linux desktop profile, charcoal-blue elsewhere; native keybindings. Enable Noctalia integration in its GUI. |
 | Sheldon | Manages `zsh-completions`, `fzf-tab`, `zsh-autosuggestions`, and `zsh-syntax-highlighting`; review additional plugins individually. |
-| Mise | Managed runtime/CLI selections and minimal settings; LTS where available. No installs, credentials, or trust state. |
+| Mise | Managed runtime/CLI selections and minimal settings; LTS where available. The after-apply script installs declared tools through Mise; installed artifacts, credentials, and trust state remain unmanaged. |
 | Nix | Managed user feature flags only; installation and daemon state stay outside Chezmoi. |
 | btop | Managed minimal terminal-palette config; no generated defaults, hardware paths, or persistent UI rewrites. |
 | Environment | Review each variable. Share only portable values. |
@@ -47,7 +47,7 @@ their settings and runtime state remain unmanaged.
 
 | Config | Plan |
 |---|---|
-| Hyprland | Test with Noctalia before splitting shared and shell-specific files below `~/.config/hypr/`. Nimbus owns system integration. |
+| Hyprland | Minimal Lua starter on `hyprland-noctalia`: Ghostty, Brave Origin, Noctalia daemon startup. Test before splitting files or aligning the Niri keymap. Nimbus owns system integration. |
 | Noctalia | Configure through the GUI after installation, then capture reviewed portable preferences from the actual version's files. Exclude generated themes, runtime state, caches, and downloaded plugins. |
 | Noctalia Greeter | Nimbus owns it and its files below `/var/lib`. |
 | Niri | Modular native config on `niri-dms`, with one keybind source and no Nirius; mirror module responsibilities in future Hyprland work. |
