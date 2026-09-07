@@ -3,6 +3,7 @@
 
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tempfile
@@ -53,7 +54,8 @@ class Fastfetch(unittest.TestCase):
         self.assertNotIn("source", self.config["logo"])
 
     def test_terminal_theme_inheritance(self):
-        self.assertEqual(self.config["logo"]["color"], {"1": "default"})
+        self.assertEqual(self.config["logo"]["color"],
+                         {str(slot): "default" for slot in range(1, 10)})
         self.assertEqual(self.config["display"]["color"], {"keys": "default"})
         for module in self.config["modules"]:
             if isinstance(module, dict):
@@ -85,6 +87,24 @@ class Fastfetch(unittest.TestCase):
         self.assertEqual([module["type"].lower() for module in modules], expected)
         # Optional hardware/session modules may be unavailable in headless environments.
         self.assertTrue(any("result" in module for module in modules))
+
+    @unittest.skipUnless(FASTFETCH, "fastfetch is not installed")
+    def test_colored_logos_use_terminal_foreground(self):
+        del self.env["NO_COLOR"]
+        for logo in ("mac", "windows", "arch"):
+            with self.subTest(logo=logo):
+                # A break-only structure renders logos without detecting hardware.
+                output = self.run_command(
+                    FASTFETCH, "--config", str(CONFIG), "--pipe", "false",
+                    "--structure", "break", "--logo-type", self.config["logo"]["type"],
+                    "--logo", logo)
+                controls = re.findall(r"\x1b\[([0-9;:]*)m", output)
+                self.assertTrue(controls, "color output must be enabled for this check")
+                codes = {int(code or "0") for control in controls
+                         for code in re.split(r"[;:]", control)}
+                self.assertIn(39, codes, "the logo must select the terminal foreground")
+                self.assertTrue(codes <= {0, 1, 22, 39},
+                                f"unexpected styling in {logo} logo: {sorted(codes)}")
 
     @unittest.skipUnless(FASTFETCH, "fastfetch is not installed")
     def test_plain_output(self):

@@ -579,10 +579,11 @@ python3 tests/fastfetch.py
 ```
 
 They check syntax, safe module selection, identical platform targets, native
-parsing, and headless output using isolated application state. Missing optional
-tools are reported as skips. Native macOS/Windows detection and terminal colors
-remain manual checks. Review the normal Chezmoi previews and back up the live
-config before applying; restoring that backup restores the previous layout.
+parsing, headless output, and foreground inheritance in built-in logos using
+isolated application state. Missing optional tools are reported as skips. Native
+macOS/Windows detection and visual appearance remain manual checks. Review the
+normal Chezmoi previews and back up the live config before applying; restoring
+that backup restores the previous layout.
 
 See the [Fastfetch configuration guide](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration).
 
