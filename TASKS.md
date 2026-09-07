@@ -63,14 +63,21 @@ gh is already merged. See [setup and recovery](README.md#1password-ssh).
 - [ ] Review the separate recovery-key plan without generating or deleting
   keys implicitly. Record the private backup/recovery procedure in README.
 
-## Next - Neovim
+## In progress - Neovim
 
 Plan: [Neovim](ROADMAP.md#phase-5---neovim).
-Status: not started; no dependency on the new desktop installation.
+Status: baseline implemented on `config/neovim-foundation`, not applied.
+Five feature plugins plus lazy.nvim; Windows and language tooling remain
+deferred. See [usage and migration](README.md#neovim).
 
-- [ ] Build the small advanced-Vim baseline with explained settings and keys.
-- [ ] Validate isolated startup and basic editing, including optional tools
-  being absent; record Linux and macOS evidence separately.
+- [x] Build the small advanced-Vim baseline with explained settings and keys.
+- [x] Split the loader, options, plugin manager, and individual plugin settings
+  into Lua modules without changing the selected features or shortcuts.
+- [x] Validate isolated Linux startup and basic editing, including missing
+  Git/parsers, failed bootstrap, private undo, and pinned plugin startup.
+- [ ] Supply the Tree-sitter CLI and test parser installation, interactive
+  shortcuts, clipboard, and theme contrast on the new Linux setup.
+- [ ] Verify native macOS operation separately; rendering is covered offline.
 - [ ] Choose incremental IDE additions only after the baseline is understood.
 
 ## Waiting - Desktop installation
