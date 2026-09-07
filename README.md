@@ -27,7 +27,10 @@ Every full `chezmoi apply` on Linux and macOS writes configuration, then runs
 without Nimbus. Nimbus installs Mise itself before its first Chezmoi apply;
 standalone users must install Mise before applying. The script prefers
 `~/.local/bin/mise`, then finds Mise on `PATH`, and reads the managed config in
-`~/.config/mise`.
+`~/.config/mise`. For this invocation, `MISE_CEILING_PATHS` stops project-config
+discovery before the home directory, excluding home-local `mise.toml`,
+`.mise.toml`, version files, and parent-directory configs. The global config
+and its Cargo fragment still load; normal interactive Mise discovery is unchanged.
 
 Run Chezmoi as your normal user; the install script refuses root execution.
 
@@ -527,9 +530,12 @@ Unix socket, not the live desktop or a TCP listener.
 The install suite runs Chezmoi against a tiny synthetic source and temporary
 home with a fake Mise binary. It checks config-before-install ordering,
 repeated apply and repair, failure/retry, missing prerequisites, platform
-rendering, and previews that never invoke the installer. It never applies this
-repository or downloads tools. None of these checks authenticates, mounts
-devices, accesses the real clipboard, or writes live configuration.
+rendering, and previews that never invoke the installer. When Mise is installed,
+a read-only native discovery probe also checks that home-local and parent
+configs are excluded while the global config and Cargo fragment remain loaded.
+It never applies this repository or downloads tools. None of these checks
+authenticates, mounts devices, accesses the real clipboard, or writes live
+configuration.
 
 Use the repository preview commands before applying. Back up the six existing
 config files first (if present); applying replaces files rather than merging

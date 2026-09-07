@@ -13,6 +13,7 @@ import unittest
 REPO = Path(__file__).resolve().parents[1]
 SCRIPT = "run_after_install-mise-tools.sh.tmpl"
 CHEZMOI = shutil.which("chezmoi")
+MISE = shutil.which("mise")
 
 
 @unittest.skipUnless(CHEZMOI, "chezmoi is required")
@@ -34,6 +35,7 @@ class MiseInstall(unittest.TestCase):
             "XDG_DATA_HOME": str(self.root / "data"),
             "XDG_STATE_HOME": str(self.root / "state"),
             "MISE_GLOBAL_CONFIG_FILE": str(self.root / "unrelated-mise.toml"),
+            "MISE_CEILING_PATHS": str(self.root / "unrelated-ceiling"),
         }
         self.fake_id("1000")
         shutil.copyfile(REPO / "home" / SCRIPT, self.source / SCRIPT)
@@ -59,6 +61,7 @@ import json, os, pathlib, sys
 home = pathlib.Path(os.environ["HOME"])
 config = pathlib.Path(os.environ["MISE_CONFIG_DIR"])
 assert "MISE_GLOBAL_CONFIG_FILE" not in os.environ
+assert os.environ["MISE_CEILING_PATHS"] == str(home)
 assert (config / "config.toml").read_text() == '[tools]\\nnode = "24"\\n'
 if os.environ["FAKE_EXPECT_CARGO"] == "true":
     assert (config / "conf.d/cargo.toml").read_text() == '[tools]\\n"cargo:demo" = "latest"\\n'
@@ -121,6 +124,45 @@ if (home / "fail").exists():
         self.assert_success(self.chezmoi("apply"))
         self.assertEqual(len(self.calls()), 2)
         self.assertTrue((self.home / "fake-installed-tool").exists())
+
+    @unittest.skipUnless(MISE, "mise is required for native config discovery")
+    def test_native_discovery_excludes_home_and_parent_configs(self):
+        # Use the real config loader behind a probe, never the real installer.
+        self.binary.write_text(f"#!{sys.executable}\n" + '''
+import os, subprocess, sys
+assert sys.argv[1:] == ["-C", os.environ["HOME"], "install"]
+result = subprocess.run([os.environ["MISE_PROBE_BINARY"], "-C", os.environ["HOME"],
+                         "config", "ls", "--json"], check=False)
+sys.exit(result.returncode)
+''')
+        self.env.update({
+            "MISE_PROBE_BINARY": MISE, "MISE_OFFLINE": "true",
+            "MISE_SYSTEM_CONFIG_DIR": str(self.root / "system-mise"),
+        })
+        (self.root / "mise.toml").write_text('[tools]\npython = "3.12"\n')
+        (self.home / ".tool-versions").write_text("go 1.25\n")
+        for name in ("mise.toml", ".mise.toml"):
+            for trusted in (False, True):
+                for content in ('[tools]\npython = "3.12"\n', 'invalid = [\n'):
+                    with self.subTest(name=name, trusted=trusted, content=content):
+                        path = self.home / name
+                        path.write_text(content)
+                        if trusted:
+                            self.env["MISE_TRUSTED_CONFIG_PATHS"] = str(self.home)
+                        else:
+                            self.env.pop("MISE_TRUSTED_CONFIG_PATHS", None)
+                        result = self.chezmoi("apply")
+                        self.assert_success(result)
+                        # The script prints one status line before the probe JSON.
+                        configs = json.loads(result.stdout.split("\n", 1)[1])
+                        self.assertEqual({entry["path"] for entry in configs}, {
+                            str(self.home / ".config/mise/config.toml"),
+                            str(self.home / ".config/mise/conf.d/cargo.toml"),
+                        })
+                        self.assertEqual({tool for entry in configs for tool in entry["tools"]},
+                                         {"node", "cargo:demo"})
+                        path.unlink()
+        self.assertFalse((self.root / "data/mise/installs").exists())
 
     def test_missing_mise_fails_clearly(self):
         self.binary.unlink()

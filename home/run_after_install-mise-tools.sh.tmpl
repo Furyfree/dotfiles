@@ -25,6 +25,8 @@ fi
 printf '%s\n' 'dotfiles: installing configured Mise runtimes and tools'
 cd "$HOME"
 export MISE_CONFIG_DIR="$mise_config_dir"
+# Do not load project/version files from the home directory or its parents.
+export MISE_CEILING_PATHS="$HOME"
 # Selecting an individual global file would skip the Cargo config fragment.
 unset MISE_GLOBAL_CONFIG_FILE
 export MISE_SYSTEM_DEPS=warn
