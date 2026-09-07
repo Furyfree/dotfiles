@@ -1023,9 +1023,21 @@ not installed launchers; they do not enable Windows integration.
 
 ## 1Password SSH
 
+The SSH config template references the `ssh-config` Document item in 1Password;
+the shared agent config selects the existing GitHub and homelab SSH Key items
+by ID. These references do not contain private key material. The agent config
+selects available keys, not which host uses each key.
+
+Both targets remain ignored, even when `onePasswordSsh` is true. Before enabling
+deployment, confirm the document contains the real SSH configuration rather
+than placeholder text; its private contents have not been retrieved here.
+Agent sockets, host-to-key mapping, permissions, and authenticated retrieval
+still need validation before removing the ignore rules. Do not evaluate the
+document template directly merely to test syntax: it retrieves private contents.
+
 Bootstrap asks whether to enable the 1Password SSH integration. The prompt
-records intent only and does not require the `op` CLI to be present. The local
-`onePasswordSsh` value controls:
+records intent only and does not require the `op` CLI to be present. Once the
+placeholder ignore rules are removed, the local `onePasswordSsh` value will gate:
 
 - private `~/.ssh/config` rendered from 1Password
 - `agent.toml` at the Linux/macOS or Windows target path
@@ -1043,6 +1055,39 @@ chezmoi --skip-secrets verify
 ```
 
 After enabling or unlocking 1Password, run the normal preview before applying.
+
+### Manual setup on the new machine
+
+These steps are for the future installation. The current computer does not
+need to be activated or used for live authentication tests while preparing
+the dotfiles. Chezmoi does not enable the desktop app's integrations for you.
+
+1. Have the 1Password desktop app, `op` CLI, and OpenSSH client installed through
+   Nimbus or your standalone package setup. On Linux, use the native 1Password
+   package: its SSH agent does not support Flatpak or Snap installations.
+2. Sign in to the desktop app with access to the SSH Document and both existing
+   SSH Key items. Reuse these keys; do not generate replacements during setup.
+3. In Settings > Developer, complete **Set up the SSH Agent** or enable
+   **Use the SSH Agent**, depending on the app version. Keep 1Password running
+   in the background using its General settings.
+4. Separately enable **Integrate with 1Password CLI** so Chezmoi can retrieve
+   the document. CLI integration alone does not enable the SSH agent. SDK and
+   MCP integrations are not required for this workflow.
+5. Once the pending repository wiring below is complete, enable the Chezmoi
+   option and follow the [bootstrap preview and apply steps](#bootstrap).
+   Review secret-backed diffs locally; do not paste them into logs or reviews.
+6. Confirm the destination already authorizes the intended public key for the
+   configured user. For the proposed homelab alias, connect with `ssh ms-a2`
+   and approve the Homelab key request in 1Password. Verify a new server's host
+   fingerprint through a trusted channel before accepting it.
+
+Repository work still pending before step 5: render the Linux/macOS agent
+socket setting, supply the public-key files used by `IdentityFile`, validate
+permissions and feature gating, and remove the scaffold ignore rules. Private
+keys must remain in 1Password. Live connection testing waits for the new setup.
+
+References: [1Password SSH setup](https://www.1password.dev/ssh/get-started)
+and [CLI integration](https://www.1password.dev/cli/app-integration).
 
 See [PROFILES.md](PROFILES.md) for the profile vocabulary,
 [CONFIG_INVENTORY.md](CONFIG_INVENTORY.md) for migration scope,

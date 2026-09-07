@@ -46,11 +46,11 @@ Plan: [shared applications](ROADMAP.md#phase-3---shared-applications).
 ## Next - 1Password, SSH, and gh
 
 Plan: [1Password, SSH, and GitHub CLI](ROADMAP.md#phase-4---1password-ssh-and-github-cli).
-Status: not implemented for SSH; gh is already merged. The user
-reports two existing 1Password keys. Real authentication needs the signed-in
-app, agent enablement, and an authorized destination.
+Status: document and key-ID references are prepared but remain ignored; the
+SSH document is still a placeholder. gh is already merged. Real authentication
+needs the signed-in app, agent enablement, and an authorized destination.
 
-- [ ] Explain the agent and map the existing keys to GitHub and homelab roles.
+- [x] Explain the agent and map the existing keys to GitHub and homelab roles.
 - [ ] Design the private 1Password SSH-config document, agent selection, and
   Linux/macOS socket paths without exporting private keys.
 - [ ] Implement and test feature gating, permissions, missing prerequisites,
