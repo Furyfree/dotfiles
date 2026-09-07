@@ -16,6 +16,12 @@ case ${0##*/} in
     exit "${TEST_YAZI_STATUS:-0}"
     ;;
   mise|zoxide|starship|fzf)
+    if [[ ${0##*/} == mise && ${TEST_MISE_SUCCESS_PATH-} == "$0" ]]; then
+      [[ $* == 'activate bash' ]] || exit 2
+      # shellcheck disable=SC2016 # The generated code runs in the calling shell.
+      printf '%s\n' 'test_mise_activations=$(( ${test_mise_activations:-0} + 1 ))'
+      exit 0
+    fi
     # A failing generator must never have its partial output evaluated.
     printf '%s\n' 'dotfiles_bad_eval=yes'
     exit 1

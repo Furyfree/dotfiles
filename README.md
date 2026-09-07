@@ -657,8 +657,9 @@ and [ignore documentation](https://git-scm.com/docs/gitignore).
 Bash mirrors the Zsh aliases, helpers, editor/pager defaults, history limits,
 Emacs-style keys, Mise, fzf, zoxide, and shared Starship prompt. Root
 `.bash_profile` and `.bashrc` load the explicit modules in `~/.config/bash`.
-Login startup preserves the existing `.profile` and adds `~/.local/bin` to
-PATH when missing. A per-shell guard prevents duplicate interactive hooks.
+Login startup adds `~/.local/bin` to PATH when missing before loading the
+existing `.profile`, which may itself load `.bashrc`. A per-shell guard prevents
+duplicate interactive hooks.
 To reload all modules after editing, start a new shell.
 
 Linux and macOS use the same modules, with platform checks for clipboard tools

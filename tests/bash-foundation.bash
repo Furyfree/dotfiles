@@ -147,4 +147,30 @@ PATH="$test_dir/bin" /bin/bash --noprofile --norc -c '
   source "$XDG_CONFIG_HOME/bash/profile"
   [[ $PATH == "$HOME/.local/bin:"* ]]
 '
+
+# Preserved .profile files can load .bashrc before their own PATH additions.
+# Test both a missing user-local path and one already supplied by the parent.
+login_home="$test_dir/login-home"
+mkdir -p "$login_home/.local/bin"
+ln -s "$repo/home/dot_bash_profile" "$login_home/.bash_profile"
+ln -s "$repo/home/dot_bashrc" "$login_home/.bashrc"
+ln -s "$repo/tests/fixtures/bash-login-profile" "$login_home/.profile"
+ln -s "$test_dir/tool" "$login_home/.local/bin/mise"
+for local_path in '' "$login_home/.local/bin:"; do
+  HOME="$login_home" PATH="$local_path$test_dir/bin" \
+    TEST_MISE_SUCCESS_PATH="$login_home/.local/bin/mise" \
+    /bin/bash --noprofile --norc -ic '
+      # Do not load installed completions during this isolated startup test.
+      BASH_COMPLETION_VERSINFO=(test)
+      source "$HOME/.bash_profile"
+      set -e
+      [[ $TEST_PROFILE_LOADED == yes && $dotfiles_bash_loaded == yes ]]
+      [[ ${test_mise_activations:-0} == 1 ]]
+      [[ $PATH == "$HOME/.local/bin:$TMPDIR/bin" ]]
+      before=${PROMPT_COMMAND[*]}
+      source "$HOME/.bashrc"
+      [[ ${test_mise_activations:-0} == 1 && ${PROMPT_COMMAND[*]} == "$before" ]]
+      unset HISTFILE
+    '
+done
 printf '%s\n' 'Bash foundation checks passed.'
