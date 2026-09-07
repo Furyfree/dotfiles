@@ -77,15 +77,17 @@ if (home / "fail").exists():
 ''')
         path.chmod(0o755)
 
-    def chezmoi(self, *args, platform="linux", input=None):
-        return subprocess.run([
+    def chezmoi(self, *args, platform="linux", input=None, stored=False):
+        command = [
             CHEZMOI, "--source", str(self.source), "--destination", str(self.home),
             "--config", str(self.root / "chezmoi.toml"),
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
-            "--cache", str(self.root / "cache/chezmoi"),
-            "--override-data", json.dumps({"chezmoi": {"os": platform},
-                                           "ManagedByNimbus": False}),
-            *args], env=self.env | {"FAKE_EXPECT_CARGO": str(platform == "linux").lower()},
+            "--cache", str(self.root / "cache/chezmoi")]
+        if not stored:
+            command += ["--override-data", json.dumps({"chezmoi": {"os": platform},
+                                                       "ManagedByNimbus": False})]
+        return subprocess.run(command + list(args),
+            env=self.env | {"FAKE_EXPECT_CARGO": str(platform == "linux").lower()},
             cwd=self.root, input=input,
             capture_output=True, text=True, timeout=20)
 
@@ -95,6 +97,62 @@ if (home / "fail").exists():
 
     def assert_success(self, result):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    @unittest.skipUnless(sys.platform == "linux", "Nimbus handoff targets Linux")
+    def test_real_handoff_prompts_refresh_and_apply(self):
+        op = self.path_bin / "op"
+        op.write_text("#!/bin/sh\nexit 0\n")
+        op.chmod(0o755)
+        shutil.copyfile(REPO / "home/.chezmoi.toml.tmpl",
+                        self.source / ".chezmoi.toml.tmpl")
+        initial = ["--promptString", "Machine=vm", "--promptBool",
+                   "ManagedByNimbus=true", "--promptMultichoice",
+                   "Profiles=common/development/future-profile"]
+        self.assert_success(self.chezmoi("init", "--no-tty", *initial, stored=True, input="\n"))
+        data = self.chezmoi("data", "--format=json", stored=True)
+        self.assert_success(data)
+        selection = json.loads(data.stdout)
+        self.assertEqual(selection["Machine"], "vm")
+        self.assertTrue(selection["ManagedByNimbus"])
+        self.assertFalse(selection["onePasswordSsh"])
+        self.assertEqual(selection["Profiles"], ["common", "development", "future-profile"])
+        self.assertEqual(self.calls(), [])
+        result = self.chezmoi("apply", stored=True)
+        self.assert_success(result)
+        self.assertIn('Setup note: 1Password: open the desktop app', result.stdout)
+        self.assertIn('1Password SSH is not enabled', result.stdout)
+        self.assertLess(result.stdout.index('Setup note:'),
+                        result.stdout.index('fake Mise: native output'))
+
+        # Model the user's opt-in, then Nimbus's complete refresh command.
+        self.assert_success(self.chezmoi(
+            "init", "--prompt", "--no-tty", *initial, "--promptBool",
+            "Enable 1Password SSH integration=true", stored=True))
+        self.assert_success(self.chezmoi(
+            "init", "--prompt", "--no-tty", "--promptString", "Machine=laptop",
+            "--promptBool", "ManagedByNimbus=true", "--promptMultichoice",
+            "Profiles=common/gaming", "--promptBool",
+            "Enable 1Password SSH integration=true", stored=True))
+        data = self.chezmoi("data", "--format=json", stored=True)
+        self.assert_success(data)
+        selection = json.loads(data.stdout)
+        self.assertEqual(selection["Machine"], "laptop")
+        self.assertTrue(selection["ManagedByNimbus"])
+        self.assertTrue(selection["onePasswordSsh"])
+        self.assertEqual(selection["Profiles"], ["common", "gaming"])
+        self.assertEqual(selection["profiles"], ["common", "unix", "linux", "gaming"])
+        self.assertEqual(len(self.calls()), 1)
+        (self.home / "fake-installed-tool").unlink()
+        (self.home / "fail").touch()
+        result = self.chezmoi("apply", stored=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('Setup note: 1Password SSH: enable the SSH agent', result.stdout)
+        self.assertIn('fake Mise: install failed', result.stderr)
+        self.assertNotIn('1Password SSH is not enabled', result.stdout)
+        (self.home / "fail").unlink()
+        self.assert_success(self.chezmoi("apply", stored=True))
+        self.assertTrue((self.home / "fake-installed-tool").exists())
+        self.assertEqual(len(self.calls()), 3)
 
     def test_apply_writes_configs_before_install_and_repairs_missing_tool(self):
         # A PATH installation must not override Nimbus's installed binary.

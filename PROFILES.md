@@ -73,14 +73,16 @@ Nimbus vocabulary; the machine manifest selects them:
 | `virtualization` | VM Curator configuration (no managed files yet) |
 | `gaming` | Gaming tool configuration (no managed files yet) |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |
-| `hyprland-noctalia` | Hyprland and Noctalia; Ghostty, Zed, and VSCodium select generated Noctalia themes on Linux, with integration configured manually in Noctalia's GUI |
+| `hyprland-noctalia` | Minimal Hyprland Lua starter with Noctalia daemon startup; Ghostty, Zed, and VSCodium select generated Noctalia themes on Linux, with integration and shell preferences configured manually in Noctalia's GUI |
 | `niri-dms` | Modular Niri and curated DankMaterialShell settings on Linux; generated shell state stays unmanaged |
 | `windows-vm` | The Windows guest entries (no managed files yet) |
 
 The profile does not imply a greeter. Greeters and system integration belong
 to Nimbus.
 
-`niri-dms` is now available for direct Chezmoi selection. It does not install
+`niri-dms` is available for standalone Chezmoi selection. A Nimbus-managed
+source must keep its stored machine profiles equal to the machine manifest;
+adding dotfiles-only profiles makes that handoff stale. It does not install
 Niri or DMS, and Nimbus still needs a corresponding system profile before it
 can provision this session. Selecting both desktop profiles keeps both sets of
 user files available; it does not start both sessions or switch editor themes

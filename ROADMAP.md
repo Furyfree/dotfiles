@@ -6,15 +6,16 @@ belong in [README.md](README.md). The active Nimbus contract, including its
 command contract, lives in that repository's `docs/SPEC.md`. `~/git/docs` is
 history, not a source of truth.
 
-## Current phase - Reconcile the plan
+## Current phase - Desktop preparation and platform validation
 
-The documentation phase and application PRs are merged. Finish integrating the
-remaining handoff-branch helpers and pending Ghostty theme selection, preserving
-the current Nimbus contract and GUI-first Noctalia setup. TASKS records the
-integration evidence separately from unperformed live application testing.
+Branch integration is complete. The 1Password SSH wiring, Neovim foundation,
+Niri/DMS configuration, Topgrade, and prepared webapps are present on main.
+The Hyprland Lua starter is local work awaiting desktop validation. TASKS
+records source implementation separately from unperformed live testing.
 
-After integration, the next configuration slice is
-[1Password, SSH, and GitHub CLI](#phase-4---1password-ssh-and-github-cli).
+The next work is to test the prepared configurations on the installed desktop
+and capture reviewed Noctalia preferences from its GUI. The 1Password handoff,
+Neovim parser setup, and native macOS/Windows checks retain their own gates.
 Installation and apply still require separate permission.
 
 ## Rules
@@ -335,11 +336,11 @@ not add launcher files until the corresponding installed workflows are tested.
 
 ### Optional Hyprland starter
 
-A small starter may precede full installation: terminal launch, close window,
-focus, workspace movement, and session controls. Check the actual Hyprland
-version and its native format before replacing the old scaffold; `hyprland.lua`
-is a candidate, not an assumption about the installed version. Keep it one
-readable file initially. It is not a substitute for Nimbus's recovery session.
+A small Hyprland 0.55+ Lua starter is prepared: Ghostty, Brave Origin, Noctalia 5
+daemon startup, and basic native window/workspace controls. Keep it one
+readable file until tested with the actual packaged versions in the VM.
+See [starter usage and validation](README.md#hyprland-starter). It is not a
+substitute for Nimbus's recovery session; the full keymap revamp stays deferred.
 
 ### Installed desktop revamp
 
