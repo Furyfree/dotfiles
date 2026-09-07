@@ -3,6 +3,7 @@
 {{-   $profiles = .profiles -}}
 {{- end -}}
 {{- $hyprlandNoctalia := has "hyprland-noctalia" $profiles -}}
+{{- $niriDms := has "niri-dms" $profiles -}}
 {{- $onePasswordSsh := false -}}
 {{- if hasKey . "onePasswordSsh" -}}
 {{-   $onePasswordSsh = .onePasswordSsh -}}
@@ -61,9 +62,11 @@ Library/**
 .local/share/icons/**
 {{ end -}}
 
-# Deferred desktop targets
+# Niri and DankMaterialShell are a separate opt-in Linux session.
+{{ if or (ne .chezmoi.os "linux") (not $niriDms) -}}
 .config/niri/**
 .config/DankMaterialShell/**
+{{ end -}}
 
 # VSCodium extension installation is prepared but not enabled.
 install-vscodium-extensions.sh
@@ -94,7 +97,6 @@ Library/Application Support
 {{ end -}}
 .profile
 .bash_logout
-.config/DankMaterialShell/**
 .config/VSCodium/product.json
 .config/VSCodium/User/snippets/**
 .config/bash/logout
@@ -102,9 +104,7 @@ Library/Application Support
 .config/ghostty/themes/dankcolors
 .config/ghostty/themes/noctalia
 .config/hypr/**
-.config/niri/**
 .config/noctalia/**
-.config/topgrade.toml
 .config/vm-curator/**
 .config/zed/themes/**
 .local/share/applications/**

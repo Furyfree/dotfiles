@@ -11,7 +11,9 @@ live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
 The repository currently manages Bash and Zsh setup, Sheldon, Starship, Mise, Nix,
-udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, VSCodium, Zed, and Neovim configuration.
+udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, VSCodium, Zed,
+Neovim, and Topgrade configuration. Niri and DankMaterialShell are available
+through the opt-in Linux `niri-dms` profile.
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## Cargo tools
@@ -1166,6 +1168,184 @@ References: [lazy.nvim](https://lazy.folke.io/),
 [Snacks picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md),
 [Tree-sitter prerequisites](https://github.com/nvim-treesitter/nvim-treesitter),
 and [isolated Neovim application names](https://neovim.io/doc/user/starting/#%24NVIM_APPNAME).
+
+## Topgrade
+
+Linux and macOS share `~/.config/topgrade.toml`, rendered from
+`home/.chezmoitemplates/configs/topgrade/topgrade.toml`. Windows stays ignored.
+This is the user-tool part of updating, not a replacement for Nimbus's system
+update workflow. Applying the file does not run Topgrade or update anything
+beyond the existing [Mise install hook](#cargo-tools).
+
+| Step | Updates |
+|---|---|
+| Mise, first | Mise itself, its plugins, and globally declared runtimes/tools, including the Cargo and npm backends |
+| GitHub CLI extensions | Installed gh extensions, not gh itself or Git repositories |
+| Sheldon | Downloaded shell plugins and their runtime lock, not the managed plugin selection |
+| tldr | Local help-page data, not the tldr executable |
+
+The native Mise step in the tested Topgrade 17.9.0 runs in a fresh temporary
+directory, away from the caller's project and home-local Mise files. It still
+loads the global config and Cargo fragment. `bump = false` preserves your
+declared LTS/stable selectors rather than rewriting them to new major versions.
+Mise's own self-update is allowed for its user-owned installation; Topgrade's
+self-update is disabled because its package manager owns the executable.
+
+No separate Cargo, Rustup, npm, Bun, or uv updater is enabled for tools already
+owned by Mise. Independently installed Cargo tools under `~/.cargo/bin` are not
+upgraded by this config. Editor/plugin updates retain their native workflow;
+Neovim's tracked lock needs explicit review. System packages, Flatpaks, firmware,
+Nix, containers, source checkouts, and Chezmoi updates/apply are excluded. There
+are no custom commands, pre/post hooks, sudo priming, automatic cleanup, or
+blanket confirmation bypass. Failures remain visible with the native retry
+prompt; completed steps are not rolled back.
+
+The intended full Nimbus flow is: pre recovery point, system changes and
+RPM/Flatpak upgrades, verified post recovery point, then a separate Topgrade
+user-tool phase. Nimbus's recovery and Topgrade handoff are still pending;
+this branch does not implement them or claim current system updates have
+snapshots. Snapshots cover system subvolumes, not home-directory tools. The old
+Topgrade Snapper hooks, Limine sync, DMS update callback, Arch-specific settings,
+and privileged system npm command are deliberately not carried over.
+
+Topgrade 17.9.0 combines CLI `--only` with the config's `only` list; it does not
+use the CLI list as a strict restriction. Nimbus must account for that when
+implementing its allowlist contract. Do not use `--only mise` expecting it to
+exclude the other configured steps. This also means the allowlist is scope
+configuration, not a sandbox against a malicious manager or extra config.
+
+Before migration, back up the live Topgrade file and inspect any `topgrade.d`
+fragments. A normal invocation automatically merges that directory, which can
+add hooks outside the allowlist. On the tested version, the explicit `--config`
+form below bypasses that directory. Review the selected main file too: dry-run
+is not a general sandbox for arbitrary hooks, and native read-only probes may
+still run. Stop if Topgrade reports configuration errors: it can fall back to
+defaults rather than fail closed. After an approved apply, preview using:
+
+```sh
+topgrade --config "$HOME/.config/topgrade.toml" --dry-run --no-self-update
+```
+
+Only when ready to update, run the same command without `--dry-run` as your
+normal user. Review the summary and use the failing tool's native repair/retry
+workflow. Rerun the isolated tests when upgrading Topgrade; native behavior was
+tested on Linux, not macOS. No real update has been performed in this branch.
+
+```sh
+python3 tests/topgrade.py
+```
+
+These tests use a disposable home and fake updater executables, including for
+native Topgrade execution, and a read-only isolated Mise config-discovery probe.
+See the [Topgrade reference config](https://github.com/topgrade-rs/topgrade/blob/v17.9.0/config.example.toml)
+and [native Mise step](https://github.com/topgrade-rs/topgrade/blob/v17.9.0/src/steps/generic.rs).
+
+## Niri and DankMaterialShell
+
+Select `niri-dms` through the existing Linux profile prompt when you are ready
+to use these files. Profile selection alone does not apply them or install the
+session. On other profiles, macOS, and Windows they remain ignored. Nimbus
+still needs the corresponding system profile; packages, portals, polkit, the
+greeter, and system session integration are not added by this dotfiles branch.
+No Hyprland or Noctalia settings are changed.
+
+The Niri layout deliberately uses the same responsibilities we can use for
+Hyprland later, expressed in each compositor's native syntax:
+
+| Niri file | Responsibility to mirror in future Hyprland config |
+|---|---|
+| `config.kdl` | Small loader with explicit includes |
+| `input.kdl` | Keyboard and pointing-device preferences |
+| `outputs.kdl` | Deliberate monitor settings after hardware testing |
+| `layout.kdl` | Gaps, borders, corners, sizing, and visual defaults |
+| `rules.kdl` | Application-specific window rules |
+| `autostart.kdl` | User-session startup, with one owner per process |
+| `shell.kdl` | Shell-specific surface integration and generated colors |
+| `keybinds.kdl` | One authoritative shortcut list |
+
+Niri's files all live in `~/.config/niri/`. There is no shared generator or
+cross-compositor language, no Niriland dependency, and no layered override
+keymaps. [Niri keybindings](NIRI_KEYBINDS.md) explains the workflow, preserved
+shortcuts, removed duplicates, and the future Hyprland mapping. Niri scrolling
+columns and vertical workspaces should remain native rather than being forced
+to behave exactly like Hyprland.
+
+Use Niri 26.04+ and DMS 1.6.0+ for this baseline. The configuration retains
+touchpad tapping/natural scrolling and mouse-follow focus, but hovering no
+longer scrolls to partly hidden windows. Keyboard layout comes from the
+system. Monitor modes and scales use automatic detection until reviewed on
+each machine; old connector names and hardware-specific overrides are not
+imported. Native animation defaults replace the old tuning blocks.
+Install DMS's Quickshell dependencies and Matugen for dynamic color generation
+through the session's package owner; without Matugen, Niri's fallback remains
+usable but does not prove DMS's wallpaper-derived theming works.
+
+Niri starts `dms run` once. Do not also enable a DMS service or a second
+autostart entry. Portals and polkit belong to the installed session;
+1Password's GUI owns its own autostart. The old `niriusd`, hardcoded polkit
+binary, and delayed duplicate 1Password launch are removed from this config.
+Terminal launch needs `xdg-terminal-exec`; browser launch uses `xdg-settings`
+and `gtk-launch`, and file browsing uses `xdg-open`. Configure your preferred
+native desktop defaults separately; no unimplemented Nimbus helper is needed.
+
+DMS generates `~/.config/niri/dms/colors.kdl`; Chezmoi does not own it. Niri
+loads that palette optionally, with neutral defaults for first startup. A
+missing file produces a warning, not a failed config; an invalid existing
+file still needs repair. Old DMS layout, output, keybind, cursor, and window-rule
+files are not included. Keep compositor/keybind changes in the source modules,
+not DMS's compositor editors, and do not rerun DMS setup over this layout.
+Generated app themes and DMS runtime state must not be added to Chezmoi.
+
+Existing Ghostty/Zed/VSCodium theme selection is unchanged: the Noctalia profile
+selects its themes, and other profiles use their existing fallback palettes.
+Selecting both desktop profiles does not switch app themes with the current
+session. DMS application-theme writers are disabled so they do not replace
+Chezmoi-owned editor configs. App-theme integration can be a separate slice.
+
+DMS settings target the current 1.6 schema instead of importing the old full
+settings dump. They preserve your dynamic vibrant palette, transparent top bar,
+workspace switcher, music/clock, tray and controls, Inter/JetBrainsMono fonts,
+list launcher, and no dock. Clipboard selection does not automatically paste,
+and notification history stays disabled. Weather and automatic location stay
+off until you choose a location locally. The system-update widget is omitted
+until the intended Nimbus update/recovery flow is available.
+
+On AC, the older reference's five-minute lock and ten-minute screen-off replace
+the live config's disabled timers; suspend remains three hours. Battery timings
+remain three minutes to lock, five to screen-off, and one hour to suspend.
+Lock-before-suspend stays enabled. Verify lock/PAM and resume on the actual
+machine; configuration alone cannot guarantee a working lock screen.
+
+DMS owns its GUI's runtime writes. After experimenting in the GUI, review and
+copy only intentional preference changes back to the curated source JSON;
+do not add the whole DMS directory or expanded settings dump. The next apply
+will replace changes you have not captured. Wallpaper paths, monitor settings,
+device selections, downloaded plugins, cache and session state remain local.
+
+Before an approved migration, privately back up both live configuration trees.
+Review the diff, install the session prerequisites through their proper owner,
+and keep a working TTY or alternate session for recovery. Niri live-reloads
+config changes, so even a file-only apply can immediately change an active
+session's shortcuts. Stop DMS before replacing its settings to avoid racing
+its GUI writes. Chezmoi replaces managed files; it does not merge preferences
+or delete old Niriland files. Restore the saved files from the TTY to recover.
+
+```sh
+python3 tests/niri.py
+python3 tests/dms.py
+just check
+```
+
+The tests render into disposable homes and validate Niri without starting a
+compositor. They cannot prove real monitor scaling, key delivery, generated
+palette contrast, DMS panels, lock/idle/resume, or session startup. Test those
+on the installed system before relying on the new setup. Disabling the profile
+stops management but does not remove deployed files or stop an active session.
+
+See [Niri includes](https://niri-wm.github.io/niri/Configuration%3A-Include.html)
+and [keybindings](https://niri-wm.github.io/niri/Configuration%3A-Key-Bindings.html),
+plus [DMS settings](https://github.com/AvengeMedia/DankMaterialShell/blob/v1.6.0/quickshell/Common/settings/SettingsSpec.js)
+and [settings migrations](https://github.com/AvengeMedia/DankMaterialShell/blob/v1.6.0/quickshell/Common/settings/SettingsStore.js).
 
 ## Future Nimbus launchers
 

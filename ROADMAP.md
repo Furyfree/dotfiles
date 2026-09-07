@@ -314,9 +314,17 @@ when basic editing is comfortable and the user understands its configuration.
 
 ## Phase 6 - Linux desktop
 
-Start with `hyprland-noctalia`. Nimbus owns packages, services, portals,
-greeters, and system and recovery-session integration. Chezmoi owns normal
+Nimbus's first system desktop remains `hyprland-noctalia`. Nimbus owns
+packages, services, portals, greeters, and system and recovery-session
+integration. Chezmoi owns normal
 user settings. Profile names and gates remain governed by PROFILES.
+
+At the owner's request, the `niri-dms` user configuration is prepared
+before installing the new system. It uses explicit native modules and curated
+DMS settings, replacing the layered Niriland/DMS/override keymaps. Match module
+responsibilities and common shortcuts in future Hyprland work, not file syntax
+or Niri-specific scrolling behavior. Usage and migration checks live in
+[README](README.md#niri-and-dankmaterialshell).
 
 Retain the old handoff branch's launcher intent when this phase is implemented:
 Nimbus-managed machines may use its browser/webapp helpers. Standalone machines
@@ -335,7 +343,7 @@ readable file initially. It is not a substitute for Nimbus's recovery session.
 
 ### Installed desktop revamp
 
-The full revamp waits for an installed, usable system. Compare the current
+Live acceptance waits for an installed, usable system. Compare the current
 machine and Niriland references, define common shortcut actions for Hyprland
 and Niri, then express them natively in each compositor. Preserve familiar
 workflow where possible; document necessary differences rather than forcing
@@ -377,15 +385,26 @@ does not delete its previously deployed copy without a separate decision.
 
 ## Phase 8 - Topgrade
 
-Wait until the selected tools and desktop are installed and working. Inventory
-their real update owners before choosing an explicit set of user-scope steps.
-Avoid updating a tool through both Mise and another manager.
+The user-scope config can be prepared now; real update testing waits until the
+selected tools and desktop are installed and working. Use Mise for its declared
+runtimes and tools (including its Cargo backend), plus native gh-extension,
+Sheldon-plugin, and tldr-data steps. Avoid updating a tool through both Mise and
+another manager. See [README](README.md#topgrade) for the exact scope.
 
 Align Nimbus use with its `docs/SPEC.md` allowlist contract: its Topgrade phase
 excludes system, Flatpak, firmware, Nix, Chezmoi, Git-repository, and self-update
-steps. Direct standalone use needs a separately reviewed safe configuration;
+steps. The standalone config uses the same user-only allowlist;
 do not assume Nimbus's invocation flags protect it. No privilege escalation or
 automatic repository pulls/apply should arise from these dotfiles.
+
+Upstream Topgrade 17.9 combines CLI and config `only` lists, and normal
+discovery can load extra hook fragments. Nimbus's future implementation must
+account for this before claiming the CLI allowlist enforces its boundary.
+
+The requested pre/post snapshots and system package upgrades belong to Nimbus's
+system phase. Its recovery implementation and integrated Topgrade offer remain
+pending work in Nimbus; do not introduce competing Snapper hooks or recursion
+from Topgrade back into Nimbus here.
 
 Validate parsing and previewed commands before an explicitly authorized real
 update. Completion requires a real run and understood failure/retry behavior;

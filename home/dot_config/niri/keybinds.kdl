@@ -1,0 +1,110 @@
+// Mod = Super in a normal session. See NIRI_KEYBINDS.md for the workflow.
+recent-windows {
+    binds {
+        Alt+Tab { next-window scope="output"; }
+        Alt+Shift+Tab { previous-window scope="output"; }
+    }
+}
+
+binds {
+    // Launchers: one shortcut each. Other apps are available in the launcher.
+    Mod+Return repeat=false hotkey-overlay-title="Terminal" { spawn "xdg-terminal-exec"; }
+    Mod+Space repeat=false hotkey-overlay-title="Launcher" { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+Shift+B repeat=false hotkey-overlay-title="Default browser" {
+        spawn-sh r#"desktop=$(xdg-settings get default-web-browser) && test -n "$desktop" && exec gtk-launch "$desktop""#;
+    }
+    Mod+Shift+F repeat=false hotkey-overlay-title="Files" { spawn-sh "exec xdg-open \"$HOME\""; }
+    Ctrl+Shift+Space repeat=false hotkey-overlay-title="1Password Quick Access" { spawn "1password" "--quick-access"; }
+
+    // Shell controls, retaining your familiar keys.
+    Mod+V repeat=false hotkey-overlay-title="Clipboard" { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
+    Mod+M repeat=false hotkey-overlay-title="Task manager" { spawn "dms" "ipc" "call" "processlist" "focusOrToggle"; }
+    Mod+N repeat=false hotkey-overlay-title="Notifications" { spawn "dms" "ipc" "call" "notifications" "toggle"; }
+    Mod+Comma repeat=false hotkey-overlay-title="Settings" { spawn "dms" "ipc" "call" "settings" "focusOrToggle"; }
+    Mod+L repeat=false hotkey-overlay-title="Lock" { spawn "dms" "ipc" "call" "lock" "lock"; }
+    Mod+Shift+L repeat=false hotkey-overlay-title="Power menu" { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
+    Mod+Shift+Alt+Escape repeat=false hotkey-overlay-title="Quit Niri (confirmation)" { quit; }
+    Mod+O repeat=false { toggle-overview; }
+    Mod+Escape repeat=false { show-hotkey-overlay; }
+
+    // Windows and columns.
+    Mod+W repeat=false { close-window; }
+    Mod+F repeat=false { maximize-column; }
+    Mod+Shift+Return repeat=false { fullscreen-window; }
+    Mod+Q repeat=false { toggle-window-floating; }
+    Mod+Shift+Q repeat=false { switch-focus-between-floating-and-tiling; }
+    Mod+Ctrl+T repeat=false { toggle-column-tabbed-display; }
+
+    // Arrows focus; add Shift to move. No parallel HJKL or wheel bindings.
+    Mod+Left { focus-column-left; }
+    Mod+Right { focus-column-right; }
+    Mod+Up { focus-window-up; }
+    Mod+Down { focus-window-down; }
+    Mod+Shift+Left { move-column-left; }
+    Mod+Shift+Right { move-column-right; }
+    Mod+Shift+Up { move-window-up; }
+    Mod+Shift+Down { move-window-down; }
+
+    // Add Ctrl for monitors; keep Shift's move meaning.
+    Mod+Ctrl+Left { focus-monitor-left; }
+    Mod+Ctrl+Right { focus-monitor-right; }
+    Mod+Ctrl+Up { focus-monitor-up; }
+    Mod+Ctrl+Down { focus-monitor-down; }
+    Mod+Ctrl+Shift+Left { move-column-to-monitor-left; }
+    Mod+Ctrl+Shift+Right { move-column-to-monitor-right; }
+    Mod+Ctrl+Shift+Up { move-column-to-monitor-up; }
+    Mod+Ctrl+Shift+Down { move-column-to-monitor-down; }
+
+    // Workspaces: Page keys step through them, numbers jump directly.
+    Mod+Page_Up { focus-workspace-up; }
+    Mod+Page_Down { focus-workspace-down; }
+    Mod+Shift+Page_Up { move-column-to-workspace-up; }
+    Mod+Shift+Page_Down { move-column-to-workspace-down; }
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Shift+1 { move-column-to-workspace 1; }
+    Mod+Shift+2 { move-column-to-workspace 2; }
+    Mod+Shift+3 { move-column-to-workspace 3; }
+    Mod+Shift+4 { move-column-to-workspace 4; }
+    Mod+Shift+5 { move-column-to-workspace 5; }
+    Mod+Shift+6 { move-column-to-workspace 6; }
+    Mod+Shift+7 { move-column-to-workspace 7; }
+    Mod+Shift+8 { move-column-to-workspace 8; }
+    Mod+Shift+9 { move-column-to-workspace 9; }
+
+    // Stacking, sizing and centering use Niri's own actions.
+    Mod+BracketLeft { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+    Mod+R { switch-preset-column-width; }
+    Mod+Shift+R { switch-preset-window-height; }
+    Mod+Ctrl+R { reset-window-height; }
+    Mod+C { center-column; }
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+
+    // One native screenshot family: selection, screen, window.
+    Print repeat=false { screenshot; }
+    Ctrl+Print repeat=false { screenshot-screen; }
+    Alt+Print repeat=false { screenshot-window; }
+
+    // Only hardware media/brightness keys are allowed while locked.
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "increment" "3"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "decrement" "3"; }
+    XF86AudioMute repeat=false allow-when-locked=true { spawn "dms" "ipc" "call" "audio" "mute"; }
+    XF86AudioMicMute repeat=false allow-when-locked=true { spawn "dms" "ipc" "call" "mic" "mute"; }
+    XF86AudioPlay repeat=false allow-when-locked=true { spawn "dms" "ipc" "call" "mpris" "playPause"; }
+    XF86AudioPause repeat=false allow-when-locked=true { spawn "dms" "ipc" "call" "mpris" "pause"; }
+    XF86AudioPrev repeat=false allow-when-locked=true { spawn "dms" "ipc" "call" "mpris" "previous"; }
+    XF86AudioNext repeat=false allow-when-locked=true { spawn "dms" "ipc" "call" "mpris" "next"; }
+    XF86MonBrightnessUp allow-when-locked=true { spawn "dms" "ipc" "call" "brightness" "increment" "5"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "dms" "ipc" "call" "brightness" "decrement" "5"; }
+}

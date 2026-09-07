@@ -1,0 +1,9 @@
+// Let DMS's layer surfaces participate correctly in Niri's overview.
+layer-rule {
+    match namespace="^quickshell$"
+    place-within-backdrop true
+}
+
+// Missing on first launch is safe; Niri watches for the generated file.
+// DMS owns colors only, not our layout, outputs, rules, cursor or keybind files.
+include optional=true "dms/colors.kdl"

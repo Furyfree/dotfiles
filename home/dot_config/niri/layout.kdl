@@ -1,0 +1,37 @@
+prefer-no-csd
+
+layout {
+    gaps 4
+    background-color "transparent"
+    center-focused-column "never"
+    default-column-width { proportion 0.5; }
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    // Neutral first-start colors; DMS supplies the active palette in shell.kdl.
+    focus-ring {
+        width 2
+        active-color "#d0d0d0"
+        inactive-color "#606060"
+        urgent-color "#d08080"
+    }
+    border { off; }
+}
+
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+    draw-border-with-background false
+}
+
+overview {
+    workspace-shadow { off; }
+}
+
+hotkey-overlay { skip-at-startup; }
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+// Native animation defaults; no per-animation tuning to keep in sync.
