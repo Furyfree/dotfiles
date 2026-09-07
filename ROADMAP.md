@@ -211,6 +211,13 @@ colors and add fast-forward-only pulls, remote-tracking pruning, upstream
 setup, conflict context, and two read-only aliases. See
 [README.md](README.md#git) for loading, validation, and recovery. Stop before apply.
 
+Ghostty is implemented independently: one Linux/macOS config, a static palette
+based on the existing terminal colors, and native keybindings. Linux GTK and
+macOS input differences stay in the template; Windows remains ignored. The
+Niriland include and generated theme dependency are removed. Validation and
+recovery are in [README.md](README.md#ghostty). Stop before applying; native
+macOS input and visual behavior remain manual checks.
+
 ## Phase 4 - 1Password, SSH, and GitHub CLI
 
 This is the next configuration slice after the documentation phase and relevant

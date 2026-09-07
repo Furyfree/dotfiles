@@ -11,7 +11,7 @@ live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
 The repository currently manages Bash and Zsh setup, Sheldon, Starship, Mise, Nix,
-udiskie, Zathura, GitHub CLI, btop, Fastfetch, and Git configuration.
+udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, and Ghostty configuration.
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## Cargo tools
@@ -708,6 +708,57 @@ clipboard platform selection, helpers, failed tool initialization, and startup.
 Clipboard commands and optional tools are test doubles; live history and
 clipboard contents are not used. Native macOS and installed ble.sh need a
 separate interactive check on a machine with those available.
+
+## Ghostty
+
+Linux and macOS share `~/.config/ghostty/config` and the `charcoal-blue` theme.
+The config keeps your 9pt JetBrainsMono Nerd Font Mono, 14px padding, 95%
+opacity, and steady block cursor. Ghostty falls back to its bundled font if
+the requested font is unavailable; font installation stays outside this config.
+Blur depends on the compositor/platform and is not guaranteed on Linux.
+
+The palette preserves your existing terminal colors as a static managed theme.
+It does not follow wallpaper changes or require Niriland/DankMaterialShell.
+The old `themes/dankcolors` file is left unmanaged and untouched.
+
+No custom keybindings are added. Native tab/split/search shortcuts remain,
+and Alt-C/D/F reach the shell again; plain PageUp/PageDown reach terminal
+applications. The old Ctrl-Space leader and duplicate Alt bindings are not
+loaded. Shell integration keeps the block cursor, enables SSH TERM compatibility,
+and does not install terminfo on remote hosts. Default close confirmation and
+paste protection remain enabled. No login shell is forced.
+
+Linux retains the flat GTK toolbar and native selection-clipboard behavior.
+On macOS, left Option acts as Alt for shell shortcuts, while right Option
+remains available for special characters on layouts such as Danish. Selecting
+text does not replace the macOS clipboard; use the normal copy shortcut.
+
+Inspect the native shortcuts for your installed version:
+
+```sh
+ghostty +list-keybinds --default
+```
+
+Run isolated rendering, platform-selection, safety, and native parser/keymap
+checks with Python 3.11+, Chezmoi, and optionally Ghostty:
+
+```sh
+python3 tests/ghostty.py
+```
+
+Missing Ghostty skips only its native checks. No window is opened or live
+configuration changed. Native macOS input, fonts, transparency, and real
+shortcut behavior still require manual verification after an approved apply.
+
+Before applying, back up the existing config and review the normal Chezmoi
+preview. We retain the supported `config` filename to replace the old Niriland
+include rather than leaving it active beside a new `config.ghostty`. Check for
+another `config.ghostty` or macOS `Library/Application Support/com.mitchellh.ghostty`
+config: Ghostty can load multiple files, and later settings can override this
+one. Restore the backed-up config to recover the previous setup.
+
+See the [Ghostty configuration guide](https://ghostty.org/docs/config) and
+[option reference](https://ghostty.org/docs/config/reference).
 
 ## 1Password SSH
 
