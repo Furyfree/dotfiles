@@ -8,13 +8,14 @@ of machine profiles and `ManagedByNimbus`.
 
 ## The Nimbus handoff
 
-Nimbus performs the first `chezmoi init` once and passes three values through
+Nimbus performs the first `chezmoi init` once and passes four values through
 Chezmoi's prompt flags, whose keys are the template's prompt texts:
 
 ```sh
 chezmoi init \
   --promptString Machine=<machine id> \
   --promptBool ManagedByNimbus=true \
+  --promptBool 'Enable 1Password SSH integration=false' \
   --promptMultichoice 'Profiles=common/development/hyprland-noctalia' \
   <repo>
 ```
@@ -24,6 +25,10 @@ chezmoi init \
 | `Machine` | The Nimbus machine ID, such as `desktop` |
 | `ManagedByNimbus` | `true` when Nimbus performed the initialization |
 | `Profiles` | The ordered Nimbus profile IDs, slash-separated |
+| `Enable 1Password SSH integration` | `false` on a fresh Nimbus init; explicitly opt in with `--onepassword-ssh` |
+
+Existing initialized sources keep their stored SSH integration choice. A fresh
+Nimbus init therefore never needs to ask about 1Password.
 
 The template consumes them with the `prompt*Once` functions and stores them
 in the generated config as `Machine`, `ManagedByNimbus`, and `Profiles`, which

@@ -2,11 +2,13 @@
 """Exercise the apply lifecycle in a tiny temporary source with a fake Mise."""
 
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 
 
@@ -38,6 +40,8 @@ class MiseInstall(unittest.TestCase):
             "MISE_CEILING_PATHS": str(self.root / "unrelated-ceiling"),
         }
         self.fake_id("1000")
+        for command in ("tee", "stat", "date"):
+            (self.path_bin / command).symlink_to(shutil.which(command))
         shutil.copyfile(REPO / "home" / SCRIPT, self.source / SCRIPT)
         config = self.source / "dot_config/mise"
         (config / "conf.d").mkdir(parents=True)
@@ -64,36 +68,48 @@ assert "MISE_GLOBAL_CONFIG_FILE" not in os.environ
 assert os.environ["MISE_CEILING_PATHS"] == str(home)
 assert (config / "config.toml").read_text() == '[tools]\\nnode = "24"\\n'
 if os.environ["FAKE_EXPECT_CARGO"] == "true":
-    assert (config / "conf.d/cargo.toml").read_text() == '[tools]\\n"cargo:demo" = "latest"\\n'
+    assert (config / "conf.d/cargo.toml").read_text() == os.environ.get(
+        "FAKE_CARGO_CONTENT", '[tools]\\n"cargo:demo" = "latest"\\n')
 with (home / "calls.jsonl").open("a") as calls:
     calls.write(json.dumps({"argv": sys.argv, "cwd": os.getcwd(),
         "system_deps": os.environ["MISE_SYSTEM_DEPS"],
         "auto_update": os.environ["MISE_AUTO_UPDATE"]}) + "\\n")
+if "exec" in sys.argv:
+    if (home / "missing-replacement").exists():
+        print("fake Mise: missing replacement", file=sys.stderr)
+        sys.exit(1)
+    print(home / "fake-installed-tool")
+    sys.exit(0)
+if "prune" in sys.argv:
+    print("fake Mise: targeted cleanup", flush=True)
+    sys.exit(0)
 print("fake Mise: native output", flush=True)
 if (home / "fail").exists():
     print("fake Mise: install failed", file=sys.stderr)
     sys.exit(23)
 (home / "fake-installed-tool").write_text("installed")
+(home / "fake-installed-tool").chmod(0o755)
 ''')
         path.chmod(0o755)
 
-    def chezmoi(self, *args, platform="linux", input=None, stored=False):
+    def chezmoi(self, *args, platform="linux", arch="amd64", input=None, stored=False):
         command = [
             CHEZMOI, "--source", str(self.source), "--destination", str(self.home),
             "--config", str(self.root / "chezmoi.toml"),
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
             "--cache", str(self.root / "cache/chezmoi")]
         if not stored:
-            command += ["--override-data", json.dumps({"chezmoi": {"os": platform},
+            command += ["--override-data", json.dumps({"chezmoi": {"os": platform, "arch": arch},
                                                        "ManagedByNimbus": False})]
         return subprocess.run(command + list(args),
             env=self.env | {"FAKE_EXPECT_CARGO": str(platform == "linux").lower()},
             cwd=self.root, input=input,
             capture_output=True, text=True, timeout=20)
 
-    def calls(self):
+    def calls(self, all_commands=False):
         log = self.home / "calls.jsonl"
-        return [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+        calls = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+        return calls if all_commands else [call for call in calls if call["argv"][-1] == "install"]
 
     def assert_success(self, result):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -106,9 +122,10 @@ if (home / "fail").exists():
         shutil.copyfile(REPO / "home/.chezmoi.toml.tmpl",
                         self.source / ".chezmoi.toml.tmpl")
         initial = ["--promptString", "Machine=vm", "--promptBool",
-                   "ManagedByNimbus=true", "--promptMultichoice",
+                   "ManagedByNimbus=true", "--promptBool",
+                   "Enable 1Password SSH integration=false", "--promptMultichoice",
                    "Profiles=common/development/future-profile"]
-        self.assert_success(self.chezmoi("init", "--no-tty", *initial, stored=True, input="\n"))
+        self.assert_success(self.chezmoi("init", "--no-tty", *initial, stored=True, input=""))
         data = self.chezmoi("data", "--format=json", stored=True)
         self.assert_success(data)
         selection = json.loads(data.stdout)
@@ -125,9 +142,9 @@ if (home / "fail").exists():
                         result.stdout.index('fake Mise: native output'))
 
         # Model the user's opt-in, then Nimbus's complete refresh command.
+        enabled = [arg.replace("integration=false", "integration=true") for arg in initial]
         self.assert_success(self.chezmoi(
-            "init", "--prompt", "--no-tty", *initial, "--promptBool",
-            "Enable 1Password SSH integration=true", stored=True))
+            "init", "--prompt", "--no-tty", *enabled, stored=True))
         self.assert_success(self.chezmoi(
             "init", "--prompt", "--no-tty", "--promptString", "Machine=laptop",
             "--promptBool", "ManagedByNimbus=true", "--promptMultichoice",
@@ -188,9 +205,15 @@ if (home / "fail").exists():
         # Use the real config loader behind a probe, never the real installer.
         self.binary.write_text(f"#!{sys.executable}\n" + '''
 import os, subprocess, sys
+if "exec" in sys.argv:
+    print(sys.argv[0])
+    sys.exit(0)
+if "prune" in sys.argv:
+    sys.exit(0)
 assert sys.argv[1:] == ["-C", os.environ["HOME"], "install"]
-result = subprocess.run([os.environ["MISE_PROBE_BINARY"], "-C", os.environ["HOME"],
-                         "config", "ls", "--json"], check=False)
+with open(os.path.join(os.environ["HOME"], "discovered.json"), "w") as output:
+    result = subprocess.run([os.environ["MISE_PROBE_BINARY"], "-C", os.environ["HOME"],
+                             "config", "ls", "--json"], check=False, stdout=output)
 sys.exit(result.returncode)
 ''')
         self.env.update({
@@ -211,8 +234,7 @@ sys.exit(result.returncode)
                             self.env.pop("MISE_TRUSTED_CONFIG_PATHS", None)
                         result = self.chezmoi("apply")
                         self.assert_success(result)
-                        # The script prints one status line before the probe JSON.
-                        configs = json.loads(result.stdout.split("\n", 1)[1])
+                        configs = json.loads((self.home / "discovered.json").read_text())
                         self.assertEqual({entry["path"] for entry in configs}, {
                             str(self.home / ".config/mise/config.toml"),
                             str(self.home / ".config/mise/conf.d/cargo.toml"),
@@ -221,6 +243,145 @@ sys.exit(result.returncode)
                                          {"node", "cargo:demo"})
                         path.unlink()
         self.assertFalse((self.root / "data/mise/installs").exists())
+
+    def test_cleanup_waits_for_successful_install_and_all_replacements(self):
+        (self.home / "fail").touch()
+        self.assertNotEqual(self.chezmoi("apply").returncode, 0)
+        self.assertFalse(any("prune" in call["argv"] for call in self.calls(True)))
+        (self.home / "fail").unlink()
+        (self.home / "missing-replacement").touch()
+        self.assertNotEqual(self.chezmoi("apply").returncode, 0)
+        self.assertFalse(any("prune" in call["argv"] for call in self.calls(True)))
+        (self.home / "missing-replacement").unlink()
+        self.assert_success(self.chezmoi("apply"))
+        calls = self.calls(True)
+        self.assertEqual(calls[-1]["argv"][3:], ["prune", "--tools", "--yes",
+            "cargo:caligula", "cargo:https://github.com/Myriad-Dreamin/tinymist",
+            "cargo:cargo-update", "cargo:sheldon", "cargo:resvg", "cargo:vm-curator"])
+        self.assertEqual([call["argv"][-2] for call in calls[-6:-1]],
+                         ["tinymist", "sheldon", "resvg", "caligula", "vm-curator"])
+
+    @unittest.skipUnless(os.getuid() == 1000, "private-log fixture uses uid 1000")
+    def test_private_tool_log_preserves_output_failure_and_retry(self):
+        log_dir = self.root / "install-log"
+        log_dir.mkdir(mode=0o700)
+        self.env["NIMBUS_INSTALL_LOG_DIR"] = str(log_dir)
+        self.env["UNRELATED_SECRET"] = "never-log-this-test-secret"
+        (self.home / "fail").touch()
+        result = self.chezmoi("apply")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("fake Mise: install failed", result.stdout + result.stderr)
+        log = log_dir / "mise.log"
+        self.assertEqual(log.stat().st_mode & 0o777, 0o600)
+        self.assertIn("fake Mise: install failed", log.read_text())
+        self.assertIn("exit=23 duration=", log.read_text())
+        self.assertNotIn("never-log-this-test-secret", log.read_text())
+        (self.home / "fail").unlink()
+        self.assert_success(self.chezmoi("apply"))
+        self.assertIn("fake Mise: targeted cleanup", log.read_text())
+        self.assertIn("exit=23 duration=", log.read_text())
+        self.assertIn("exit=0 duration=", log.read_text())
+
+    @unittest.skipUnless(os.getuid() == 1000, "private-log fixture uses uid 1000")
+    def test_log_rejects_unsafe_targets_and_write_failure(self):
+        log_dir = self.root / "install-log"
+        log_dir.mkdir(mode=0o755)
+        self.env["NIMBUS_INSTALL_LOG_DIR"] = str(log_dir)
+        self.assertNotEqual(self.chezmoi("apply").returncode, 0)
+        self.assertEqual(self.calls(), [])
+        log_dir.chmod(0o700)
+        target = self.root / "unrelated"
+        target.write_text("preserve")
+        log = log_dir / "mise.log"
+        log.symlink_to(target)
+        self.assertNotEqual(self.chezmoi("apply").returncode, 0)
+        self.assertEqual(target.read_text(), "preserve")
+        self.assertEqual(self.calls(), [])
+        log.unlink()
+        target.chmod(0o600)
+        os.link(target, log)
+        self.assertNotEqual(self.chezmoi("apply").returncode, 0)
+        self.assertEqual(target.read_text(), "preserve")
+        self.assertEqual(self.calls(), [])
+        log.unlink()
+        tee = self.path_bin / "tee"
+        tee.unlink()
+        tee.write_text("#!/bin/sh\nexit 7\n")
+        tee.chmod(0o755)
+        result = self.chezmoi("apply")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("cannot write the Mise installation log", result.stderr)
+        self.assertFalse(any("prune" in call["argv"] for call in self.calls(True)))
+
+    @unittest.skipUnless(MISE, "mise is required for native migration validation")
+    def test_native_cleanup_preserves_other_tools_and_tracked_projects(self):
+        native = self.root / "native"
+        config = native / "config"
+        config.mkdir(parents=True)
+        (config / "config.toml").write_text('[tools]\nsheldon = "1.0.0"\n')
+        project = native / "project"
+        project.mkdir()
+        (project / "mise.toml").write_text('[tools]\n"cargo:sheldon" = "1.0.0"\n')
+        installs = native / "data/installs"
+        providers = {
+            "sheldon": ("sheldon", "aqua:rossmacarthur/sheldon"),
+            "cargo-sheldon": ("cargo:sheldon", "cargo:sheldon"),
+            "cargo-cargo-update": ("cargo:cargo-update", "cargo:cargo-update"),
+            "cargo-keep-me": ("cargo:keep-me", "cargo:keep-me"),
+            "cargo-https-github-com-myriad-dreamin-tinymist": (
+                "cargo:https://github.com/Myriad-Dreamin/tinymist",
+                "cargo:https://github.com/Myriad-Dreamin/tinymist"),
+        }
+        for directory, (short, full) in providers.items():
+            install = installs / directory
+            (install / "1.0.0/bin").mkdir(parents=True)
+            (install / ".mise.backend.toml").write_text(
+                f'short = "{short}"\nfull = "{full}"\n')
+            (install / "1.0.0/bin/tool").write_text("fixture")
+        env = {"PATH": "/usr/bin:/bin", "HOME": str(self.home), "LANG": "C.UTF-8",
+               "MISE_CONFIG_DIR": str(config), "MISE_SYSTEM_CONFIG_DIR": str(native / "system"),
+               "MISE_DATA_DIR": str(native / "data"), "MISE_STATE_DIR": str(native / "state"),
+               "MISE_CACHE_DIR": str(native / "cache"), "MISE_CEILING_PATHS": str(native),
+               "MISE_OFFLINE": "true", "MISE_AUTO_UPDATE": "false",
+               "MISE_TRUSTED_CONFIG_PATHS": str(project)}
+        self.assert_success(subprocess.run([MISE, "-C", str(project), "ls", "--json"],
+            env=env, cwd=project, text=True, capture_output=True, timeout=30))
+        self.assert_success(self.chezmoi("apply"))
+        cleanup = self.calls(True)[-1]["argv"][3:]
+        self.assert_success(subprocess.run([MISE, "-C", str(native), *cleanup],
+            env=env, cwd=native, text=True, capture_output=True, timeout=30))
+        for directory in ("sheldon", "cargo-sheldon", "cargo-keep-me"):
+            self.assertTrue((installs / directory / "1.0.0").is_dir())
+        for directory in ("cargo-cargo-update", "cargo-https-github-com-myriad-dreamin-tinymist"):
+            self.assertFalse((installs / directory / "1.0.0").exists())
+
+    def assert_vm_curator_architecture(self, arch, enabled):
+        shutil.copyfile(REPO / "home/.chezmoiignore", self.source / ".chezmoiignore")
+        for name in ("cargo.toml", "vm-curator.toml"):
+            shutil.copyfile(REPO / "home/dot_config/mise/conf.d" / name,
+                            self.source / "dot_config/mise/conf.d" / name)
+        self.env["FAKE_CARGO_CONTENT"] = (
+            self.source / "dot_config/mise/conf.d/cargo.toml").read_text()
+        self.assert_success(self.chezmoi("apply", arch=arch))
+        installed_config = self.home / ".config/mise/conf.d"
+        tools = {}
+        for path in installed_config.glob("*.toml"):
+            tools.update(tomllib.loads(path.read_text())["tools"])
+        self.assertEqual("github:mroboff/vm-curator" in tools, enabled)
+        self.assertIn("github:ifd3f/caligula", tools)
+        calls = self.calls(True)
+        verified = [call["argv"][-2] for call in calls if "exec" in call["argv"]]
+        self.assertEqual("vm-curator" in verified, enabled)
+        self.assertIn("caligula", verified)
+        cleanup = calls[-1]["argv"][3:]
+        self.assertEqual(cleanup[:3], ["prune", "--tools", "--yes"])
+        self.assertEqual("cargo:vm-curator" in cleanup, enabled)
+
+    def test_arm_linux_omits_x86_vm_curator_and_skips_its_cargo_prune(self):
+        self.assert_vm_curator_architecture("arm64", False)
+
+    def test_x86_linux_installs_and_verifies_vm_curator_before_pruning(self):
+        self.assert_vm_curator_architecture("amd64", True)
 
     def test_missing_mise_fails_clearly(self):
         self.binary.unlink()
@@ -258,8 +419,8 @@ sys.exit(result.returncode)
                 if platform == "windows":
                     self.assertEqual(result.stdout.strip(), "")
                 else:
-                    self.assertTrue(result.stdout.startswith("#!/bin/sh\n"))
-                    syntax = subprocess.run(["/bin/sh", "-n"], input=result.stdout,
+                    self.assertTrue(result.stdout.startswith("#!/bin/bash\n"))
+                    syntax = subprocess.run(["/bin/bash", "-n"], input=result.stdout,
                                             text=True, capture_output=True)
                     self.assert_success(syntax)
         self.assert_success(self.chezmoi("apply", platform="windows"))

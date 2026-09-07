@@ -28,13 +28,37 @@ BSD-3-Clause notice in `home/dot_config/hypr/hyprland.lua`.
 The Google Maps and FotMob icons described under [Webapps](#webapps) are
 third-party brand assets and are not covered by the MIT license.
 
-## Cargo tools
+## Mise tools
 
 On Linux, Chezmoi manages `~/.config/mise/conf.d/cargo.toml` alongside the main
-Mise configuration. It declares Caligula, Tinymist, cargo-update, Sheldon,
-resvg, and VM Curator through Mise's native Cargo backend. This file is ignored
-on macOS and Windows; the existing runtime selections remain in
-`~/.config/mise/config.toml`.
+Mise configuration. The filename stays the same so existing installations
+replace the old source-build declarations on apply. It now selects upstream
+release binaries through Mise's native backends:
+
+| Tool | Mise backend |
+|---|---|
+| Tinymist | Registry `tinymist`, using Aqua |
+| Sheldon | Registry `sheldon`, using Aqua |
+| resvg | Registry `resvg`, using Aqua |
+| Caligula | GitHub `ifd3f/caligula`, native executable |
+| VM Curator | GitHub `mroboff/vm-curator`, Linux x86_64 tar archive |
+
+VM Curator is selected only on Linux x86_64, through the separate
+`vm-curator.toml` fragment. Its upstream has no ARM release binary, so this
+configuration does not install or activate VM Curator on ARM. Users who need
+it there must supply it separately.
+
+All selected tools use `latest` stable. `mise install` installs missing versions;
+`mise upgrade` and the existing Topgrade Mise step update them without editing
+version pins. Mise downloads the maker's release assets and performs its
+native checksum and available provenance checks. Cargo binaries are no longer
+disabled globally. There is no separate `cargo-update` installation: Mise owns
+updates for its tools. See the [Aqua backend](https://mise.jdx.dev/dev-tools/backends/aqua.html)
+and [GitHub backend](https://mise.jdx.dev/dev-tools/backends/github.html).
+
+This Linux fragment is ignored on macOS and Windows. The existing runtime
+selections remain in `~/.config/mise/config.toml`. Typst comes from Terra
+through Nimbus; standalone users supply it through their package manager.
 
 Every full `chezmoi apply` on Linux and macOS writes configuration, then runs
 `mise install` as the current user from the home directory. This works with or
@@ -44,47 +68,39 @@ standalone users must install Mise before applying. The script prefers
 `~/.config/mise`. For this invocation, `MISE_CEILING_PATHS` stops project-config
 discovery before the home directory, excluding home-local `mise.toml`,
 `.mise.toml`, version files, and parent-directory configs. The global config
-and its Cargo fragment still load; normal interactive Mise discovery is unchanged.
+and its tool fragment still load; normal interactive Mise discovery is unchanged.
 
-Run Chezmoi as your normal user; the install script refuses root execution.
-
+Run Chezmoi as your normal user; the Bash install script refuses root execution.
 The [after-apply script](home/run_after_install-mise-tools.sh.tmpl) runs even
 when configuration is unchanged, so another apply repairs missing tools.
-Native output stays visible; a missing Mise binary, missing config, or failed
-install fails the apply. Fix the reported problem and rerun the full apply to
-retry. Files already written and tools already installed are retained after a
-failure. Only the native Mise tool declarations request installation; an app
-config elsewhere in this repository does not install that app.
+Native output stays visible; missing Mise, missing config, or a failed install
+fails the apply. Fix the reported problem and rerun the full apply to retry.
+Files already written and tools already installed are retained after failure.
+Only native Mise tool declarations request installation; other app configs do
+not install those apps.
+
+After installation succeeds and all selected replacements pass `--version`,
+the Linux script asks native Mise to prune only the six former Cargo provider
+identities (five on ARM, where VM Curator's old Cargo files are not pruned).
+Versions still needed by other tracked Mise configs or tool stubs
+are retained. Unrelated tools, project configuration, and direct installations
+under `~/.cargo/bin` are untouched. The removal remains visible in native output;
+failed installation or verification prevents cleanup.
 
 The script sets `MISE_SYSTEM_DEPS=warn` and `MISE_AUTO_UPDATE=false`: system
 dependencies stay outside Chezmoi, and this install step does not request
 runtime upgrades or a Mise self-update. It does not install Mise itself or run
 on Windows. Shell startup still only activates tools.
 
-Mise builds these tools through Cargo and keeps their binaries under its data
-directory, normally `~/.local/share/mise/installs`. `mise activate zsh` exposes
-the selected versions. Use `mise upgrade` for updates; `cargo-update` is for
-separate direct Cargo installations. Native `~/.cargo/config.toml` contains
-Cargo build settings, not an install list, so no such file is added here.
-Existing tools under `~/.cargo/bin` are left untouched.
-
-Source builds require a compiler toolchain, Make, pkg-config, and development
-headers for OpenSSL, curl, zlib, and libudev. Nimbus supplies those system
-packages; standalone Linux users must supply their distribution's equivalents.
-Tinymist's crates.io package is library-only, so Mise builds `tinymist-cli`
-from the upstream Git release `v0.15.6`, with its lockfile and `tinymist` binary
-selected. Updating this pinned release is an explicit config change.
-Its native `install_env` sets `TMPDIR=/var/tmp` for installation and upgrades:
-large builds must not exhaust Fedora's quota-limited `/tmp` RAM filesystem.
-Cargo owns these temporary build files; no system mount settings are changed.
-Typst is installed by Nimbus from Terra. Standalone users supply Typst through
-their package manager; this configuration no longer installs `typst-cli`.
-
-For Nimbus-managed installs, the after-apply script prints applicable setup
-instructions before tool installation with the `Setup note: ` prefix. Nimbus
-keeps the live output and repeats those notes after its final init summary,
-even if Mise fails. They cover shell activation, 1Password sign-in and its SSH
-opt-in, and Noctalia theme generation. Notes never contain credentials.
+For Nimbus-managed installs, the script prints applicable `Setup note: `
+instructions before tool installation. Nimbus repeats them after its final
+summary, even if Mise fails. They cover shell activation, 1Password sign-in and
+its SSH opt-in, and Noctalia theme generation. Notes never contain credentials.
+When Nimbus supplies its private installation log directory, the script also
+keeps native Mise output, command timestamps, exit codes, and durations in
+`mise.log`, while preserving terminal output. Log creation or write failures
+fail the apply. Chezmoi template output, input, and environment variables are
+not included in this tool log.
 
 ## Bootstrap
 
@@ -579,8 +595,10 @@ home with a fake Mise binary. It checks config-before-install ordering,
 repeated apply and repair, failure/retry, missing prerequisites, platform
 rendering, and previews that never invoke the installer. When Mise is installed,
 a read-only native discovery probe also checks that home-local and parent
-configs are excluded while the global config and Cargo fragment remain loaded.
-It never applies this repository or downloads tools. None of these checks
+configs are excluded while the global config and tool fragment remain loaded.
+An isolated native cleanup fixture verifies that other project requirements and
+unrelated tools survive migration. Logging tests cover failure, retry, and
+unsafe paths. These tests never apply this repository or download tools. None of these checks
 authenticates, mounts devices, accesses the real clipboard, or writes live
 configuration.
 
@@ -1211,7 +1229,7 @@ Linux and macOS share `~/.config/topgrade.toml`, rendered from
 `home/.chezmoitemplates/configs/topgrade/topgrade.toml`. Windows stays ignored.
 This is the user-tool part of updating, not a replacement for Nimbus's system
 update workflow. Applying the file does not run Topgrade or update anything
-beyond the existing [Mise install hook](#cargo-tools).
+beyond the existing [Mise install hook](#mise-tools).
 
 | Step | Updates |
 |---|---|
@@ -1222,7 +1240,7 @@ beyond the existing [Mise install hook](#cargo-tools).
 
 The native Mise step in the tested Topgrade 17.9.0 runs in a fresh temporary
 directory, away from the caller's project and home-local Mise files. It still
-loads the global config and Cargo fragment. `bump = false` preserves your
+loads the global config and tool fragment. `bump = false` preserves your
 declared LTS/stable selectors rather than rewriting them to new major versions.
 Mise's own self-update is allowed for its user-owned installation; Topgrade's
 self-update is disabled because its package manager owns the executable.
@@ -1534,8 +1552,12 @@ The Linux/macOS wiring is ready for installation; real 1Password retrieval,
 agent authorization, and destination authentication remain untested. Windows
 SSH targets stay ignored, including when the feature is selected.
 
-Bootstrap asks whether to enable the integration, defaulting to false. The
-prompt requires neither `op` nor an unlocked vault. On Linux/macOS,
+Standalone initialization asks whether to enable the integration, defaulting
+to false. Nimbus supplies false during fresh initialization so there is no
+extra prompt; its explicit `--onepassword-ssh` option enables the integration.
+Existing stored choices survive ordinary reruns. The prompt itself requires
+neither `op` nor an unlocked vault, but applying enabled targets does.
+On Linux/macOS,
 `onePasswordSsh = true` manages:
 
 - `~/.ssh/` with mode `0700`, without removing unrelated files

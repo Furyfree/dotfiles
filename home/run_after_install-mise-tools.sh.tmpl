@@ -1,6 +1,6 @@
 {{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
-#!/bin/sh
-set -eu
+#!/bin/bash
+set -euo pipefail
 
 user_id=$(id -u)
 if [ "$user_id" = 0 ]; then
@@ -45,5 +45,69 @@ export MISE_CEILING_PATHS="$HOME"
 unset MISE_GLOBAL_CONFIG_FILE
 export MISE_SYSTEM_DEPS=warn
 export MISE_AUTO_UPDATE=false
-exec "$mise_binary" -C "$HOME" install
+
+# Nimbus supplies a private per-run directory. Keep secret-bearing Chezmoi
+# output outside this log; only these native Mise commands enter it.
+mise_log=
+if [[ -n ${NIMBUS_INSTALL_LOG_DIR:-} ]]; then
+    if [[ $NIMBUS_INSTALL_LOG_DIR != /* || -L $NIMBUS_INSTALL_LOG_DIR ||
+          ! -d $NIMBUS_INSTALL_LOG_DIR ||
+          $(stat -c '%u:%a' -- "$NIMBUS_INSTALL_LOG_DIR") != "$user_id:700" ]]; then
+        printf '%s\n' 'dotfiles: Nimbus installation log directory must be private and owned by this user.' >&2
+        exit 1
+    fi
+    mise_log="$NIMBUS_INSTALL_LOG_DIR/mise.log"
+    if [[ -e $mise_log || -L $mise_log ]]; then
+        if [[ -L $mise_log || ! -f $mise_log ||
+              $(stat -c '%u:%a:%h' -- "$mise_log") != "$user_id:600:1" ]]; then
+            printf '%s\n' 'dotfiles: refusing an unsafe Mise installation log.' >&2
+            exit 1
+        fi
+    else
+        # noclobber also refuses a symlink created after the existence check.
+        (umask 077; set -C; : > "$mise_log") || {
+            printf '%s\n' 'dotfiles: cannot create the private Mise installation log.' >&2
+            exit 1
+        }
+    fi
+fi
+
+run_mise() {
+    local started=$SECONDS status=0
+    local -a command_status
+    if [[ -z $mise_log ]]; then
+        "$mise_binary" -C "$HOME" "$@"
+        return
+    fi
+    {
+        printf '%s command:' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        printf ' %q' mise "$@"
+        printf '\n'
+    } >> "$mise_log"
+    if "$mise_binary" -C "$HOME" "$@" 2>&1 | tee -a -- "$mise_log"; then
+        status=0
+    else
+        command_status=("${PIPESTATUS[@]}")
+        status=${command_status[0]}
+        if ((command_status[1] != 0)); then
+            printf '%s\n' 'dotfiles: cannot write the Mise installation log.' >&2
+            if ((status == 0)); then status=${command_status[1]}; fi
+        fi
+    fi
+    printf '%s exit=%s duration=%ss\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        "$status" "$((SECONDS - started))" >> "$mise_log"
+    return "$status"
+}
+
+run_mise install
+{{ if eq .chezmoi.os "linux" -}}
+# Install and check replacements before removing only obsolete Cargo providers.
+for tool in tinymist sheldon resvg caligula{{ if eq .chezmoi.arch "amd64" }} vm-curator{{ end }}; do
+    run_mise exec -- "$tool" --version
+done
+printf '%s\n' 'dotfiles: removing obsolete Cargo tool versions unused by other tracked Mise configurations'
+run_mise prune --tools --yes \
+    cargo:caligula cargo:https://github.com/Myriad-Dreamin/tinymist \
+    cargo:cargo-update cargo:sheldon cargo:resvg{{ if eq .chezmoi.arch "amd64" }} cargo:vm-curator{{ end }}
+{{ end -}}
 {{ end -}}

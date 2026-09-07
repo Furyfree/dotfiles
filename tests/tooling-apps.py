@@ -109,6 +109,7 @@ class ToolingApps(unittest.TestCase):
         for path in (CONFIG / "mise").rglob("*.toml"):
             self.assertIn(path.name, configs)
         config = tomllib.loads((CONFIG / "mise/config.toml").read_text())
+        config["tools"].update(tomllib.loads((CONFIG / "mise/conf.d/cargo.toml").read_text())["tools"])
         for tool in config.get("tools", {}):
             if ":" in tool:
                 continue  # Explicit backend IDs need not appear in the registry.

@@ -20,21 +20,31 @@ Plan: [desktop preparation and platform validation](ROADMAP.md#current-phase---d
 
 ## Existing implementation
 
-The 2026-09-07 VM Cargo retry exposed missing system development headers and
-the library-only `tinymist` crate. Nimbus now selects the build prerequisites;
-the Cargo fragment selects the `tinymist-cli` binary package from upstream Git
-release `v0.15.6`. The after-apply script emits marked setup notes before Mise,
-so Nimbus can repeat them after a failed or successful init. Real completion
-of the corrected VM tool installation was verified later the same day.
+The 2026-09-07 COPR VM installation completed, but source builds made the
+first run slow. The current installation-flow branch replaces the five Linux
+CLI source builds on x86_64 with upstream stable binaries through native Mise
+Aqua and GitHub backends, and removes cargo-update. Typst stays on Terra. Existing
+Cargo provider versions are pruned only after replacement verification and
+only when no tracked Mise configuration needs them. VM Curator selection,
+verification, and migration are x86_64-only because upstream has no ARM binary.
+Native Mise behavior was verified with isolated install-state fixtures that
+retain another project's Cargo version and an unrelated tool.
 
-The next retry installed cargo-update, Sheldon, and VM Curator. Typst and
-Tinymist hit Fedora's `/tmp` user quota during compilation. Nimbus now selects
-Terra's Typst RPM, and this repository removes its duplicate Cargo declaration.
-Tinymist's native Mise `install_env` uses `TMPDIR=/var/tmp` for installation
-and upgrades. A native Mise probe with fake Cargo verified those options and
-failure propagation without installing anything. The subsequent VM check found
-all selected tools installed, including Tinymist, with no managed-file drift.
-The owner has since restored the VM for the final COPR installation drill.
+An isolated native installation downloaded Tinymist 0.15.6, Sheldon 0.8.5,
+resvg 0.48.1, Caligula 0.5.0, and VM Curator 1.4.0; all five binaries answered
+`--version`. This is tool validation on the workstation in temporary data
+and configuration directories, not a completed clean VM installation drill.
+The Nimbus handoff now supplies the disabled 1Password SSH answer for fresh
+init; direct initialization and existing opt-ins remain supported. The Mise
+hook can append its native output and timings to Nimbus's private per-run log,
+with tests for failed installation, unsafe paths, failed logging, and retry.
+The current local `just check` passes 121 tests with three optional skips, plus
+the Bash suite and whitespace gate. The rendered hook passes ShellCheck.
+Native Chezmoi managed/status/diff/verify ran against an empty temporary home;
+verify correctly reports that its files have not been applied.
+The integrated read-only Fable 5.1 review and primary validation finished
+without outstanding findings. This follow-up is prepared for pull-request publication; the next clean VM
+drill requires the reviewed Nimbus release and COPR build.
 
 The owner published this repository on 2026-09-07 after Gitleaks found no
 secrets in current files or reachable Git history. The MIT license branch is
