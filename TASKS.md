@@ -80,20 +80,26 @@ deferred. See [usage and migration](README.md#neovim).
 - [ ] Verify native macOS operation separately; rendering is covered offline.
 - [ ] Choose incremental IDE additions only after the baseline is understood.
 
-## Waiting - Desktop installation
+## Prepared - Niri and DMS; desktop testing waiting
 
 Plan: [Linux desktop](ROADMAP.md#phase-6---linux-desktop).
-Status: full revamp waits for the installed system. The optional starter can
-be prepared earlier, but remains unverified until run in a real session.
+Status: Niri and DMS are prepared on `config/topgrade-niri-dms`, without
+applying them. Hyprland and Noctalia remain separate future work.
 
 - [ ] If requested, confirm the Hyprland version and build a minimal starter.
-- [ ] Compare existing Niri/DMS settings and agree common actions and shortcuts
-  for Niri and Hyprland before implementing each native config.
+- [x] Compare live and Niriland configs; prepare modular Niri with native
+  actions, one keybind source, and no Nirius dependency.
+- [x] Curate DMS preferences against the current upstream settings format;
+  keep generated colors and runtime state out of Chezmoi ownership.
 - [ ] Test Hyprland with Noctalia before splitting shared and shell-specific files.
 - [ ] Configure Noctalia through its GUI, then capture reviewed portable
   preferences and verify theme ownership without tracking generated state.
-- [ ] Adopt and test Niri and DMS individually; enable their reserved profile
-  gates only when the corresponding configurations are maintained.
+- [x] Enable only the maintained `niri-dms` user-config profile on Linux.
+- [ ] Add Nimbus's Niri/DMS system profile and verify prerequisites before
+  migration; this dotfiles branch does not provision the session.
+- [ ] Test Niri input, monitor layout, shortcuts, generated colors, DMS panels,
+  lock/idle/resume, and startup in an installed session. See
+  [desktop setup and recovery](README.md#niri-and-dankmaterialshell).
 - [ ] Test session controls and the recovery path on the installed system.
 
 ## Waiting - Webapp and background choices
@@ -106,13 +112,18 @@ Status: waiting on the user's selection, not necessarily installation.
   Nimbus gating, and validation of launch paths and assets.
 - [ ] Verify the resulting launcher and backgrounds in the installed desktop.
 
-## Waiting - Topgrade
+## Prepared - Topgrade; live updates waiting
 
 Plan: [Topgrade](ROADMAP.md#phase-8---topgrade).
-Status: waits until the selected installed tools and desktop work.
+Status: user-scope configuration is prepared for Linux/macOS. No update was run.
 
-- [ ] Inventory update owners and agree non-overlapping user-scope steps.
-- [ ] Validate the config and preview for both Nimbus and standalone use.
+- [x] Inventory update owners; use Mise for its runtimes and Cargo tools,
+  with separate native steps for gh extensions, Sheldon plugins, and tldr data.
+- [x] Validate the config and native commands in isolated homes with fake
+  updaters; platform rendering covers Linux/macOS, Windows remains ignored.
+- [ ] Implement and test Nimbus's system-update recovery and Topgrade handoff
+  in Nimbus. Snapshots must precede/follow the system phase, not pretend to
+  protect home-directory tools. See [update ownership](README.md#topgrade).
 - [ ] With explicit update permission, test a real run and document native
   failure recovery; do not claim system snapshots protect user tools.
 
@@ -126,6 +137,18 @@ Plan: [platform validation and Windows](ROADMAP.md#phase-9---platform-validation
 
 ## Evidence and limitations
 
+- Niri/DMS/Topgrade, 2026-09-07: the complete gate passes 108 Python tests
+  (106 passed, opt-in Neovim download and Zathura GUI checks skipped), plus
+  the Bash suite and whitespace checks. Native Niri 26.04 validates absent,
+  valid, and invalid generated palettes. Topgrade 17.9.0 tests use fake
+  updaters, including failure reporting and exclusion of automatic hook
+  fragments with an explicit config. DMS's 59 selected top-level settings
+  were checked against upstream 1.6.0; DMS itself was not started.
+- All 50 local documentation links pass. Chezmoi managed/status/diff exit 0;
+  verify exits 1 for unapplied differences, with the existing config-template
+  warning. No live init, apply, compositor reload, authentication, system
+  update, or snapshot creation occurred. Niri/DMS startup and locking,
+  hardware behavior, and real updates remain installed-system checks.
 - The handoff reconciliation keeps `Machine` / `ManagedByNimbus`, unknown
   profile passthrough, and every-apply Mise installation. It does not restore
   the old fixed profile validation, VM Curator profile gate, or obsolete

@@ -30,8 +30,9 @@ in the generated config as `Machine`, `ManagedByNimbus`, and `Profiles`, which
 `chezmoi data` shows. The profile list is stored as sent, without checking it
 against a fixed set, so a new Nimbus profile never breaks the handoff.
 `hyprland-noctalia` selects desktop files and the Ghostty, Zed, and VSCodium
-theme integrations. Targets that call Nimbus are gated on `ManagedByNimbus`;
-every other Linux config deploys unconditionally.
+theme integrations. `niri-dms` selects the separate Niri and DankMaterialShell
+configuration. Targets that call Nimbus are gated on `ManagedByNimbus`;
+other Linux application configs deploy independently of machine profiles.
 
 Direct `chezmoi init --prompt` asks the same questions: the machine name
 defaults to the hostname, `ManagedByNimbus` to `false`, and the profiles are
@@ -73,10 +74,17 @@ Nimbus vocabulary; the machine manifest selects them:
 | `gaming` | Gaming tool configuration (no managed files yet) |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |
 | `hyprland-noctalia` | Hyprland and Noctalia; Ghostty, Zed, and VSCodium select generated Noctalia themes on Linux, with integration configured manually in Noctalia's GUI |
+| `niri-dms` | Modular Niri and curated DankMaterialShell settings on Linux; generated shell state stays unmanaged |
 | `windows-vm` | The Windows guest entries (no managed files yet) |
 
 The profile does not imply a greeter. Greeters and system integration belong
 to Nimbus.
+
+`niri-dms` is now available for direct Chezmoi selection. It does not install
+Niri or DMS, and Nimbus still needs a corresponding system profile before it
+can provision this session. Selecting both desktop profiles keeps both sets of
+user files available; it does not start both sessions or switch editor themes
+when logging into a different compositor. See [desktop setup](README.md#niri-and-dankmaterialshell).
 
 GPU hardware is not a profile. Nimbus inspection detects hardware; a selected
 graphics component declares the desired capability.
@@ -87,12 +95,11 @@ These names are reserved but disabled in the initial setup:
 
 ```text
 # niri-noctalia
-# niri-dms
 # hyprland-dms
 ```
 
-They are not valid prompt choices. Niri and DMS paths remain ignored until
-their configs are maintained.
+They are not valid prompt choices. Only the maintained `niri-dms` combination
+enables the Niri and DMS files; other combinations remain future work.
 
 ## Rules
 

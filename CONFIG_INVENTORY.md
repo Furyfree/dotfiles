@@ -17,7 +17,7 @@ evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 | VSCodium | Managed settings/keybindings match the Zed workflow, with native platform paths. Extension inventory and disabled after-apply installers are tracked; gallery overrides, snippets, and runtime state stay unmanaged. |
 | Starship | Shared basic prompt config is managed; Bash and Zsh initialization are implemented, PowerShell initialization is deferred. |
 | Fastfetch | Managed shared config: native OS logo, compact hardware/software groups, inherited terminal foreground; no commands or custom artwork. |
-| Topgrade | Wait for the installed setup; review user-scope update ownership and each OS config. Windows remains deferred. |
+| Topgrade | Curated Linux/macOS user-scope updates; Mise owns its Cargo tools. System updates and pre/post recovery belong to Nimbus. Live update testing and Windows remain deferred. |
 | GitHub CLI | Managed canonical config: SSH, editor prompts, and `co` alias; platform wrappers. Verify authentication separately. Never track `hosts.yml`. |
 
 VSCodium uses Open VSX by default. Check required extensions there first. If
@@ -50,6 +50,8 @@ their settings and runtime state remain unmanaged.
 | Hyprland | Test with Noctalia before splitting shared and shell-specific files below `~/.config/hypr/`. Nimbus owns system integration. |
 | Noctalia | Configure through the GUI after installation, then capture reviewed portable preferences from the actual version's files. Exclude generated themes, runtime state, caches, and downloaded plugins. |
 | Noctalia Greeter | Nimbus owns it and its files below `/var/lib`. |
+| Niri | Modular native config on `niri-dms`, with one keybind source and no Nirius; mirror module responsibilities in future Hyprland work. |
+| DankMaterialShell | Curated portable settings on `niri-dms`; generated palettes, monitor state, caches, and plugins stay unmanaged. |
 | udiskie | Managed Linux-only user config: automount, notifications, smart tray, default file manager. No profile gate or autostart. |
 | Zathura | Managed Linux-only reading defaults, dark UI, and shortcuts. No profile gate or document state. |
 | VM Curator | Manage after removing machine-specific paths. |
@@ -60,9 +62,9 @@ Review GTK, Qt, XDG portals, MIME defaults, autostart, and user systemd units
 after Hyprland and Noctalia are tested. User preferences may belong to
 Chezmoi; packages, services, enablement, and system defaults belong to Nimbus.
 
-Niri and DankMaterialShell configs remain deferred migration references. Their
-profile names are reserved but disabled in [PROFILES.md](PROFILES.md). Do not
-track their files, greeters, or generated service links yet.
+Niri and DankMaterialShell use the opt-in `niri-dms` profile in
+[PROFILES.md](PROFILES.md). Their packages, greeters, and system session
+integration still need Nimbus support. No generated service links are tracked.
 
 ## macOS and Windows
 

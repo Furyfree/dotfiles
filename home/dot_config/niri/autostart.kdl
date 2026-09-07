@@ -1,0 +1,5 @@
+// One shell startup owner. Do not also enable a separate DMS service/autostart.
+spawn-at-startup "dms" "run"
+
+// 1Password's own GUI controls its XDG autostart. No delayed duplicate launch.
+// Session services (portals, polkit, etc.) belong to the installed system.

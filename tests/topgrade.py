@@ -1,0 +1,179 @@
+#!/usr/bin/env python3
+"""Validate Topgrade using an isolated home and fake updater executables."""
+
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+import tomllib
+import unittest
+
+
+REPO = Path(__file__).resolve().parents[1]
+CONFIG = REPO / "home/.chezmoitemplates/configs/topgrade/topgrade.toml"
+TOPGRADE = shutil.which("topgrade")
+CHEZMOI = shutil.which("chezmoi")
+MISE = shutil.which("mise")
+
+
+class Topgrade(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="dotfiles-topgrade-")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.home = self.root / "home with spaces"
+        self.bin = self.root / "bin"
+        self.home.mkdir()
+        (self.home / ".config").mkdir()
+        self.bin.mkdir()
+        self.log = self.root / "calls.jsonl"
+        self.env = {
+            "HOME": str(self.home), "PATH": str(self.bin), "LANG": "C.UTF-8",
+            "NO_COLOR": "1", "TERM": "dumb",
+            "XDG_CONFIG_HOME": str(self.home / ".config"),
+            "XDG_CONFIG_DIRS": str(self.root / "system-config"),
+            "XDG_CACHE_HOME": str(self.root / "cache"),
+            "XDG_DATA_HOME": str(self.root / "data"),
+            "XDG_STATE_HOME": str(self.root / "state"),
+            "TMPDIR": str(self.root), "FAKE_LOG": str(self.log),
+        }
+        self.config = tomllib.loads(CONFIG.read_text())
+
+    def test_scope_and_confirmation_policy(self):
+        self.assertEqual(set(self.config), {"misc", "mise"})
+        self.assertEqual(self.config["misc"]["only"],
+                         ["mise", "github_cli_extensions", "sheldon", "tldr"])
+        self.assertEqual(self.config["misc"]["first"], ["mise"])
+        for setting in ("pre_sudo", "sudo_loop", "assume_yes", "cleanup"):
+            self.assertIs(self.config["misc"][setting], False)
+        self.assertIs(self.config["misc"]["no_self_update"], True)
+        self.assertIs(self.config["misc"]["ask_retry"], True)
+        self.assertEqual(self.config["misc"]["notify_end"], "on_failure")
+        self.assertEqual(self.config["mise"], {"bump": False})
+
+    def fake_tools(self):
+        for tool in ("mise", "gh", "sheldon", "tldr"):
+            path = self.bin / tool
+            path.write_text(f"#!{sys.executable}\n" + '''
+import json, os, pathlib, sys
+with open(os.environ["FAKE_LOG"], "a") as log:
+    log.write(json.dumps({"tool": pathlib.Path(sys.argv[0]).name,
+        "args": sys.argv[1:], "cwd": os.getcwd()}) + "\\n")
+if pathlib.Path(sys.argv[0]).name == "mise" and sys.argv[1:] == ["env", "--json"]:
+    print("{}")
+if pathlib.Path(sys.argv[0]).name == os.environ.get("FAKE_FAIL_TOOL"):
+    sys.exit(23)
+''')
+            path.chmod(0o755)
+
+    def run_topgrade(self, *args):
+        # All updater names resolve to fakes. Even native discovery probes must
+        # never reach the real tools or the caller's home/authentication/session.
+        self.test_scope_and_confirmation_policy()
+        self.fake_tools()
+        return subprocess.run([
+            TOPGRADE, "--config", str(CONFIG), "--no-self-update", "--no-tmux",
+            "--no-ask-retry", "--allow-root", *args],
+            cwd=self.home, env=self.env, stdin=subprocess.DEVNULL,
+            text=True, capture_output=True, timeout=30)
+
+    def calls(self):
+        if not self.log.exists():
+            return []
+        return [json.loads(line) for line in self.log.read_text().splitlines()]
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_native_parser_and_dry_run(self):
+        result = self.run_topgrade("--dry-run")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("Unknown configuration", result.stderr)
+        # Topgrade may run read-only probes in dry-run; never an update command.
+        for call in self.calls():
+            self.assertEqual((call["tool"], call["args"]),
+                             ("gh", ["extensions", "list"]))
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_native_steps_use_only_fake_user_updaters(self):
+        result = self.run_topgrade()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        calls = self.calls()
+        self.assertEqual([(call["tool"], call["args"]) for call in calls], [
+            ("mise", ["plugins", "update"]),
+            ("mise", ["self-update"]),
+            ("mise", ["upgrade"]),
+            ("mise", ["env", "--json"]),
+            ("tldr", ["--update"]),
+            ("sheldon", ["lock", "--update"]),
+            ("gh", ["extensions", "list"]),
+            ("gh", ["extension", "upgrade", "--all"]),
+        ])
+        # Mise must not discover a home-local/caller project configuration.
+        for call in calls[:4]:
+            self.assertNotEqual(Path(call["cwd"]), self.home)
+            self.assertEqual(Path(call["cwd"]).parent, self.root)
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_explicit_config_ignores_automatic_hook_fragments(self):
+        fragments = self.home / ".config/topgrade.d"
+        fragments.mkdir()
+        (fragments / "unexpected.toml").write_text(
+            '[pre_commands]\n"Unexpected fragment" = "exit 97"\n')
+        result = self.run_topgrade()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("Unexpected fragment", result.stdout + result.stderr)
+        self.assertTrue(any(call["tool"] == "sheldon" for call in self.calls()))
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_failed_update_is_not_reported_as_success(self):
+        self.env["FAKE_FAIL_TOOL"] = "sheldon"
+        result = self.run_topgrade()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("sheldon: FAILED", result.stdout)
+
+    @unittest.skipUnless(MISE, "mise is not installed")
+    def test_native_mise_global_cargo_discovery(self):
+        config = self.home / ".config/mise"
+        (config / "conf.d").mkdir(parents=True)
+        (config / "config.toml").write_text('[tools]\nnode = "lts"\n')
+        (config / "conf.d/cargo.toml").write_text(
+            '[tools]\n"cargo:demo" = "latest"\n')
+        # A native config listing, not an install/update or trust operation.
+        for name in ("mise.toml", ".mise.toml", ".tool-versions"):
+            (self.home / name).write_text("invalid project config!\n")
+        with tempfile.TemporaryDirectory(dir=self.root) as workdir:
+            result = subprocess.run([
+                MISE, "config", "ls", "--json"], cwd=workdir,
+                env=self.env | {"MISE_OFFLINE": "true", "MISE_AUTO_UPDATE": "false",
+                                "MISE_SYSTEM_CONFIG_DIR": str(self.root / "system-mise")},
+                stdin=subprocess.DEVNULL, text=True, capture_output=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        paths = {Path(entry["path"]) for entry in json.loads(result.stdout)}
+        self.assertEqual(paths, {config / "config.toml", config / "conf.d/cargo.toml"})
+
+    @unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
+    def test_platform_targets(self):
+        for platform in ("linux", "darwin", "windows"):
+            with self.subTest(platform=platform):
+                result = subprocess.run([
+                    CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
+                    "--config", str(self.root / "chezmoi.toml"),
+                    "--cache", str(self.root / "cache/chezmoi"),
+                    "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
+                    "--skip-secrets", "--override-data", json.dumps({
+                        "chezmoi": {"os": platform}, "profiles": ["common"],
+                        "onePasswordSsh": False}), "dump", "--format=json"],
+                    cwd=self.root, env=self.env, stdin=subprocess.DEVNULL,
+                    text=True, capture_output=True, timeout=30)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                files = {name: entry["contents"]
+                         for name, entry in json.loads(result.stdout).items()
+                         if name.endswith("topgrade.toml") and entry["type"] == "file"}
+                expected = {} if platform == "windows" else {
+                    ".config/topgrade.toml": CONFIG.read_text()}
+                self.assertEqual(files, expected)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

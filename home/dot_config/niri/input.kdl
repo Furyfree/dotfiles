@@ -1,0 +1,21 @@
+input {
+    keyboard {
+        // Inherit the system keyboard layout instead of hardcoding a language.
+        xkb {}
+        numlock
+    }
+
+    touchpad {
+        tap
+        natural-scroll
+        click-method "clickfinger"
+    }
+
+    warp-mouse-to-focus
+    // Hover focuses visible windows without unexpectedly scrolling the workspace.
+    focus-follows-mouse max-scroll-amount="0%"
+}
+
+gestures {
+    hot-corners { off; }
+}

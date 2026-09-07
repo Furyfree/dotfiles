@@ -1,0 +1,15 @@
+// Utility dialogs float; ordinary applications keep normal tiling behavior.
+window-rule {
+    match app-id=r#"^1[Pp]assword$"#
+    match app-id=r#"^org\.gnome\.Calculator$"#
+    match app-id=r#"^org\.gnome\.seahorse\.Application$"#
+    match app-id=r#"^(pavucontrol|nm-connection-editor|blueman-manager)$"#
+    match app-id=r#"^com\.danklinux\.dms$"#
+    open-floating true
+}
+
+window-rule {
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    match app-id=r#"^brave(-origin)?$"# title="^Picture-in-Picture$"
+    open-floating true
+}

@@ -1,1 +1,21 @@
+# User tools only. Nimbus owns system packages and pre/post recovery snapshots.
+# Do not add Nimbus or Snapper hooks here: Nimbus will call Topgrade after its
+# system phase, and its snapshots do not cover tools under the home directory.
+[misc]
+only = ["mise", "github_cli_extensions", "sheldon", "tldr"]
+first = ["mise"]
+no_self_update = true
+pre_sudo = false
+sudo_loop = false
+assume_yes = false
+cleanup = false
+ask_retry = true
+notify_end = "on_failure"
+show_distribution_summary = false
 
+# The native step updates Mise, its plugins, and globally configured tools,
+# including the Cargo and npm tools declared through Mise. Topgrade 17.9+
+# runs it in a fresh temporary directory, outside the caller's project.
+# Keep requested LTS/stable families and do not rewrite managed config versions.
+[mise]
+bump = false
