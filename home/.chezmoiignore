@@ -72,6 +72,10 @@ Library/**
 AppData/Local/1Password/config/ssh/agent.toml
 {{ end -}}
 
+# Git's personal settings remain unmanaged; shared defaults use .config/git/.
+.gitconfig
+.gitignore
+
 # Placeholder files remain unmanaged until their config slice is implemented.
 **/.keep
 .local
@@ -81,8 +85,6 @@ AppData/Local
 Documents
 Library
 Library/Application Support
-.gitconfig
-.gitignore
 .profile
 .bash_profile
 .bashrc

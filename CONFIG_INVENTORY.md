@@ -9,7 +9,7 @@ evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 
 | Config | Plan |
 |---|---|
-| Git | Shared config with small platform or identity differences. |
+| Git | Managed shared XDG config and OS-metadata ignores on all platforms. Personal `~/.gitconfig`, identity, credentials, and signing remain unmanaged. |
 | SSH client | Render private `~/.ssh/config` from 1Password. Key design is in [ROADMAP.md](ROADMAP.md). |
 | 1Password SSH agent | Track selected-key filters only. Nimbus owns installation; enable the agent in 1Password. |
 | Neovim | Small advanced-Vim Lua setup first; incremental IDE features, not a distribution. Isolate platform commands in Lua. |

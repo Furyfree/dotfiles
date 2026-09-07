@@ -201,6 +201,12 @@ modules. The old Arch artwork remains unmanaged. See
 [README.md](README.md#fastfetch) for preview, validation, and recovery. Stop
 before apply; native macOS/Windows detection remains a manual check.
 
+Git is implemented independently through its native XDG config and ignore
+paths, with personal `~/.gitconfig` left unmanaged. Shared defaults keep native
+colors and add fast-forward-only pulls, remote-tracking pruning, upstream
+setup, conflict context, and two read-only aliases. See
+[README.md](README.md#git) for loading, validation, and recovery. Stop before apply.
+
 ## Phase 4 - 1Password, SSH, and GitHub CLI
 
 This is the next configuration slice after the documentation phase and relevant

@@ -11,7 +11,7 @@ live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
 The repository currently manages Zsh setup, Sheldon, Starship, Mise, Nix,
-udiskie, Zathura, GitHub CLI, btop, and Fastfetch configuration.
+udiskie, Zathura, GitHub CLI, btop, Fastfetch, and Git configuration.
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## Cargo tools
@@ -586,6 +586,71 @@ normal Chezmoi previews and back up the live config before applying; restoring
 that backup restores the previous layout.
 
 See the [Fastfetch configuration guide](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration).
+
+## Git
+
+Chezmoi manages `~/.config/git/config` and `~/.config/git/ignore` on Linux,
+macOS, and Windows. Git reads this config automatically, then `~/.gitconfig`,
+then repository-local settings. The existing `~/.gitconfig` stays unmanaged:
+your identity, LFS filters, credentials, and signing configuration are neither
+copied nor replaced. Existing personal settings can override these defaults.
+With a custom `XDG_CONFIG_HOME`, make the files available under that directory;
+on Windows, the managed home must match Git's `HOME`.
+
+The shared defaults are:
+
+- New repositories start on `main`; existing branches are not renamed.
+- Fetch removes stale remote-tracking branches, not local branches or tags.
+- Pull only fast-forwards. Divergence stops for an explicit merge/rebase choice.
+- The first plain push can set the upstream automatically with Git's default
+  `simple` push mode. This does not push anything until you run `git push`.
+- `zdiff3` conflict markers include the common ancestor with less repeated text.
+- Git requires an explicit identity rather than guessing one from the machine.
+- `git st` shows compact status; `git lg` shows a one-line graph of all branches.
+
+No custom colors, external pager, URL rewrites, signing defaults, credential
+helper, or global line-ending conversions are added. Git uses the terminal's
+palette, including Noctalia's palette in a themed terminal. Prefer SSH clone
+URLs when desired; existing remotes and HTTPS dependencies stay unchanged.
+Projects should declare line-ending policy in their own `.gitattributes`.
+
+The global ignore file uses Git's default discovery path and ignores only
+`.DS_Store`, `Thumbs.db`, and desktop metadata. It does not hide `.env`, editor
+directories, source files, or build outputs globally. Repositories own those
+rules; ignore patterns are not a security boundary. An existing
+`core.excludesFile` override still wins. The old `~/.gitignore` stays untouched.
+
+On a new machine, put personal identity in the unmanaged file explicitly:
+
+```sh
+git config --file ~/.gitconfig user.name "Your Name"
+git config --file ~/.gitconfig user.email "your-address@example.com"
+```
+
+Using `--file` avoids changing the managed XDG config when `~/.gitconfig` does
+not yet exist. Configure signing and authentication separately when needed.
+Inspect one effective setting without dumping personal configuration:
+
+```sh
+git config --show-origin --get pull.ff
+```
+
+Run isolated checks with Python 3, Git 2.37+, and optionally Chezmoi:
+
+```sh
+python3 tests/git-config.py
+```
+
+Tests use temporary homes and local fixture repositories only, including
+synthetic commits and local pushes. They check automatic loading, personal
+overrides, platform targets, ignore rules, aliases, upstream setup, pruning,
+and fast-forward-only pulls without network access or live configuration changes.
+Windows/macOS native discovery remains a manual check. Review the normal
+Chezmoi previews and back up any existing XDG Git files before applying;
+restore those backups to recover the previous shared configuration.
+
+See Git's [configuration loading rules](https://git-scm.com/docs/git-config#FILES)
+and [ignore documentation](https://git-scm.com/docs/gitignore).
 
 ## 1Password SSH
 
