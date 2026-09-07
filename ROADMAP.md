@@ -195,6 +195,12 @@ The isolated lifecycle checks use a synthetic source, temporary home, and fake
 Mise, covering order, repair, failure/retry, prerequisite errors, and platform
 rendering. Native downloads and macOS/Windows execution remain untested.
 
+Fastfetch is implemented independently as one shared config with native OS
+logo/detection, compact hardware/software groups, and no command or network
+modules. The old Arch artwork remains unmanaged. See
+[README.md](README.md#fastfetch) for preview, validation, and recovery. Stop
+before apply; native macOS/Windows detection remains a manual check.
+
 ## Phase 4 - 1Password, SSH, and GitHub CLI
 
 This is the next configuration slice after the documentation phase and relevant

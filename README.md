@@ -11,7 +11,7 @@ live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
 The repository currently manages Zsh setup, Sheldon, Starship, Mise, Nix,
-udiskie, Zathura, GitHub CLI, and btop configuration.
+udiskie, Zathura, GitHub CLI, btop, and Fastfetch configuration.
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## Cargo tools
@@ -542,6 +542,50 @@ config files first (if present); applying replaces files rather than merging
 their settings. To undo an applied preference, restore that file from backup
 and reopen the application. Removing an ignore exception stops future
 management but does not restore or delete an already deployed file.
+
+## Fastfetch
+
+One shared `~/.config/fastfetch/config.jsonc` keeps hardware and software in
+compact groups with plain labels and the terminal's default foreground. The small
+built-in logo follows the detected OS; no Arch artwork or Nerd Font is required.
+Fastfetch uses this path on Linux, macOS, and Windows (below the user profile).
+Custom XDG paths or portable Windows installations may need an explicit config
+path; inspect the installed binary's search paths if it does not find the file.
+
+Logo and keys inherit the terminal's foreground instead of imposing cyan or
+RGB colors. In Noctalia-themed Ghostty they follow Noctalia; elsewhere they
+follow that terminal's theme. This is terminal inheritance, not a separate
+Noctalia accent template. Do not enable Noctalia's community Fastfetch template:
+its hook rewrites the same config Chezmoi manages. No generated color files or
+extra hooks are needed for this setup.
+
+CPU, GPU, memory, disks, displays, and battery precede OS, kernel, window manager,
+shell, terminal, packages, and uptime. Native detection handles platform and
+hardware differences; unavailable modules are normally hidden. There are no
+network requests or shell-command modules, and the old root-filesystem "age"
+estimate is omitted. The old `arch.txt` remains unmanaged and untouched.
+
+Use `fastfetch`, or the existing `f` alias in the managed Zsh config. It does not
+run automatically at startup. Preview the source without applying it:
+
+```sh
+fastfetch --config home/dot_config/fastfetch/config.jsonc
+```
+
+Run the focused checks with Python 3.11+, Chezmoi, and optionally Fastfetch:
+
+```sh
+python3 tests/fastfetch.py
+```
+
+They check syntax, safe module selection, identical platform targets, native
+parsing, headless output, and foreground inheritance in built-in logos using
+isolated application state. Missing optional tools are reported as skips. Native
+macOS/Windows detection and visual appearance remain manual checks. Review the
+normal Chezmoi previews and back up the live config before applying; restoring
+that backup restores the previous layout.
+
+See the [Fastfetch configuration guide](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration).
 
 ## 1Password SSH
 
