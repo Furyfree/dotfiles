@@ -10,6 +10,12 @@ local function test()
 
   if case == "config" then
     vim.fn.mkdir(vim.fn.stdpath("data") .. "/lazy/lazy.nvim", "p")
+    local lock = vim.json.decode(table.concat(vim.fn.readfile(config .. "/lazy-lock.json"), "\n"))
+    vim.fn.executable = function(name) return name == "git" and 1 or 0 end
+    vim.system = function(args)
+      assert(vim.deep_equal(args, { "git", "-C", vim.fn.stdpath("data") .. "/lazy/lazy.nvim", "rev-parse", "HEAD" }))
+      return { wait = function() return { code = 0, stdout = lock["lazy.nvim"].commit .. "\n" } end }
+    end
     package.preload.lazy = function()
       return { setup = function(s, o) specs, options = s, o end }
     end
@@ -99,6 +105,13 @@ local function test()
     assert(notices[1].message:find("invalid lazy-lock.json", 1, true))
   elseif case == "offline" then
     assert(notices[1].message:find("install Git", 1, true))
+  elseif case == "existing_match" then
+    assert(vim.g.fixture_manager_loaded == true)
+    assert(#notices == 0, vim.inspect(notices))
+  elseif case == "existing_mismatch" or case == "existing_no_git" then
+    assert(not vim.g.fixture_manager_loaded, "Unverified existing manager was executed")
+    assert(not package.loaded.lazy)
+    assert(notices[1].message:find(case == "existing_no_git" and "install Git" or "cannot verify", 1, true))
   elseif case == "integration" then
     require("lazy").load({ plugins = { "which-key.nvim", "nvim-surround", "gitsigns.nvim" } })
     for name, plugin in pairs(require("lazy.core.config").plugins) do
