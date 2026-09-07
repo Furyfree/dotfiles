@@ -102,14 +102,19 @@ applying them. Hyprland and Noctalia remain separate future work.
   [desktop setup and recovery](README.md#niri-and-dankmaterialshell).
 - [ ] Test session controls and the recovery path on the installed system.
 
-## Waiting - Webapp and background choices
+## Prepared - Webapps; backgrounds waiting
 
 Plan: [webapps and backgrounds](ROADMAP.md#phase-7---webapps-and-backgrounds).
-Status: waiting on the user's selection, not necessarily installation.
+Status: Google Maps and FotMob launchers and icons are prepared but
+ignored until Nimbus implements and tests its webapp helper. Backgrounds are
+still undecided. See [setup and validation](README.md#webapps).
 
-- [ ] Review existing entries and assets; select webapps, icons, and backgrounds.
-- [ ] Implement the selected set with duplicate and private-URL checks, correct
-  Nimbus gating, and validation of launch paths and assets.
+- [x] Select the two webapps and vendor icons; prepare native desktop entries
+  with Nimbus/platform gating and offline validation.
+- [x] Remove the prepared Fastmail webapp in favor of Nimbus's stable Flatpak
+  selection; installation and default mail handling still need a live test.
+- [ ] Test Nimbus's helper and enable the prepared entries on managed Linux.
+- [ ] Choose backgrounds separately; do not import the old collection wholesale.
 - [ ] Verify the resulting launcher and backgrounds in the installed desktop.
 
 ## Prepared - Topgrade; live updates waiting

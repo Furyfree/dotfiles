@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=FotMob
+Comment=Football scores, fixtures, and news
+Exec=nimbus launch webapp https://www.fotmob.com/
+TryExec=nimbus
+Icon=nimbus-webapp-fotmob
+Terminal=false
+Categories=Network;
+Keywords=Football;Soccer;Scores;Fixtures;
