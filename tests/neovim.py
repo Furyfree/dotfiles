@@ -108,6 +108,39 @@ class Neovim(unittest.TestCase):
         self.prepare()
         self.nvim("config")
 
+    @unittest.skipUnless(shutil.which("git"), "git is not installed")
+    def test_existing_manager_is_verified_before_loading(self):
+        self.prepare()
+        self.env.update({"PATH": os.defpath, "GIT_CONFIG_NOSYSTEM": "1",
+                         "GIT_CONFIG_GLOBAL": os.devnull, "GIT_TERMINAL_PROMPT": "0"})
+        manager = self.root / "data/nvim/lazy/lazy.nvim"
+        module = manager / "lua/lazy/init.lua"
+        module.parent.mkdir(parents=True)
+        module.write_text("vim.g.fixture_manager_loaded = true\nreturn { setup = function() end }\n")
+        for args in (("init",), ("add", "."),
+                     ("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+                      "commit", "-m", "Existing manager fixture")):
+            result = subprocess.run([shutil.which("git"), "-C", str(manager), *args],
+                                    env=self.env, capture_output=True, text=True, timeout=20)
+            self.assertEqual(result.returncode, 0, result.stderr)
+        original_head = (manager / ".git/HEAD").read_text()
+        # The real local checkout differs from the canonical locked revision.
+        self.nvim("existing_mismatch")
+        self.assertEqual((manager / ".git/HEAD").read_text(), original_head)
+        revision = subprocess.run([shutil.which("git"), "-C", str(manager), "rev-parse", "HEAD"],
+                                  env=self.env, capture_output=True, text=True, timeout=20)
+        self.assertEqual(revision.returncode, 0, revision.stderr)
+        lockfile = self.config / "lazy-lock.json"
+        lock = json.loads(lockfile.read_text())
+        lock["lazy.nvim"]["commit"] = revision.stdout.strip()
+        lockfile.write_text(json.dumps(lock))
+        self.nvim("existing_match")
+        self.env["PATH"] = ""
+        self.nvim("existing_no_git")
+        self.env["PATH"] = os.defpath
+        (manager / ".git").rename(manager / "saved-git")
+        self.nvim("existing_mismatch")
+
     def test_undo_permissions_and_persistence(self):
         self.prepare()
         undo = self.root / "state/nvim/undo"
@@ -163,6 +196,7 @@ class Neovim(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
         self.env["DOTFILES_NVIM_PROJECT"] = str(project)
         self.nvim("integration")
+        self.nvim("integration")  # Reuse and verify the installed pinned manager.
         actual = json.loads((self.config / "lazy-lock.json").read_text())
         self.assertEqual(actual, json.loads((CANONICAL / "lazy-lock.json").read_text()))
 

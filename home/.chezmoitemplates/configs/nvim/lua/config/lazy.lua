@@ -14,11 +14,11 @@ if not lock_ok then
   vim.notify("Neovim: missing or invalid lazy-lock.json; plugins not loaded", vim.log.levels.ERROR)
   return
 end
+if vim.fn.executable("git") == 0 then
+  vim.notify("Neovim: install Git to verify and download plugins", vim.log.levels.WARN)
+  return
+end
 if not vim.uv.fs_stat(lazypath) then
-  if vim.fn.executable("git") == 0 then
-    vim.notify("Neovim: install Git to download plugins", vim.log.levels.WARN)
-    return
-  end
   -- Bootstrap the manager at the same revision as the tracked lockfile.
   local staging = lazypath .. ".bootstrap"
   local result = vim.system({
@@ -37,6 +37,16 @@ if not vim.uv.fs_stat(lazypath) then
     vim.notify("Neovim: cannot finish lazy.nvim bootstrap: " .. err, vim.log.levels.ERROR)
     return
   end
+end
+-- Existing LazyVim installations may have a different manager at this path.
+-- Never execute it or change its checkout implicitly when the lock disagrees.
+local verified, revision = pcall(function()
+  return vim.system({ "git", "-C", lazypath, "rev-parse", "HEAD" }, { text = true }):wait(5000)
+end)
+if not verified or revision.code ~= 0 or vim.trim(revision.stdout or "") ~= lock["lazy.nvim"].commit then
+  vim.notify("Neovim: cannot verify lazy.nvim against lazy-lock.json; plugins not loaded. See README recovery",
+    vim.log.levels.ERROR)
+  return
 end
 vim.opt.rtp:prepend(lazypath)
 local lazy_ok, lazy = pcall(require, "lazy")

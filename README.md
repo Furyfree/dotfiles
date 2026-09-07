@@ -1050,7 +1050,10 @@ Gitsigns, nvim-surround, and nvim-treesitter. lazy.nvim is the plugin manager,
 not the LazyVim distribution. The lockfile records all six revisions. On first
 launch, Git downloads the manager at its locked revision and lazy.nvim installs
 missing plugins below Neovim's data directory. This needs Git and access to
-GitHub. Apply itself does not download editor plugins. Startup update checks,
+GitHub. Every startup also verifies the installed manager's commit against
+the lock before loading it; a mismatched or unverifiable checkout is left
+untouched and plugins stay disabled. Apply itself does not download editor
+plugins. Startup update checks,
 LuaRocks, and automatic project `.lazy.lua` loading are disabled.
 
 Use Neovim 0.12+ with this Tree-sitter generation. Git and ripgrep are needed
@@ -1118,8 +1121,10 @@ cp ~/.config/nvim/lazy-lock.json home/.chezmoitemplates/configs/nvim/lazy-lock.j
 Run that from this checkout with the standard config path. Do not `chezmoi add`
 the entire Neovim directory: it would import unrelated files. To restore the
 tracked revisions, restore the deployed lockfile through a reviewed Chezmoi
-apply and run `:Lazy restore`, followed by `:TSUpdate` and a restart. Applying
-a lockfile alone does not switch already installed plugin checkouts.
+apply and run `:Lazy restore`, followed by `:TSUpdate` and a restart. If the
+manager revision differs, use the recovery below first: `:Lazy` is unavailable
+while the manager is blocked. Applying a lockfile alone does not switch
+already installed plugin checkouts.
 
 Before an approved migration, privately back up and move aside the old config
 directory, not just its init: old `plugin/` or `after/` files could still load.
@@ -1129,6 +1134,15 @@ that old plugin store. To recover, restore the saved config and, if changed,
 its data/state. For a failed manager bootstrap, inspect its exact data path
 and move the incomplete `lazy.nvim.bootstrap` directory (or a broken
 `lazy.nvim` installation) aside before retrying. No partial bootstrap is loaded.
+
+If startup reports that it cannot verify the manager, ensure Git is available.
+Then inspect the manager directory under Neovim's actual data path, normally
+`~/.local/share/nvim/lazy/lazy.nvim`. Back up and move that exact directory
+aside, then restart to bootstrap the locked revision. Do not remove the whole
+data directory or edit the lock just to accept an unknown checkout. This also
+handles an older LazyVim manager without changing its files. Other existing
+plugins still share the data store; use a separate `NVIM_APPNAME` with a copy
+of this config for an isolated trial, and preserve the old store for rollback.
 
 Run the offline suite, or explicitly include actual plugin downloads into a
 disposable home. Both keep the live editor and credentials untouched:
@@ -1140,7 +1154,8 @@ just check
 ```
 
 Tests cover rendering, plugin scope, shortcuts, missing tools/parsers, failed
-downloads, undo permissions, and undo across restarts. The opt-in test adds
+downloads, existing-manager verification, undo permissions, and undo across
+restarts. The opt-in test adds
 real pinned-plugin startup and basic surround/picker/highlighting behavior;
 it does not compile additional parsers. Missing Neovim skips native checks.
 Interactive input, clipboard, theme contrast, parser installation, and native
