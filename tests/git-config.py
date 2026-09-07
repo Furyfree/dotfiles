@@ -103,7 +103,8 @@ class GitConfig(unittest.TestCase):
         paths = [self.root / name for name in ("ours", "base", "theirs")]
         for path in paths:
             path.write_text(f"shared\n{path.name}\nshared end\n")
-        output = self.run_git("merge-file", "-p", *(str(path) for path in paths), expected=1)
+        output = self.run_git("merge-file", "-p", *(str(path) for path in paths),
+                              cwd=self.repo, expected=1)
         self.assertIn("|||||||", output)
         self.assertIn("\nbase\n", output)
         self.assertEqual(paths[0].read_text(), "shared\nours\nshared end\n")
