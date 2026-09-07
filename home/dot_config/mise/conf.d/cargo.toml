@@ -4,4 +4,3 @@ tinymist = "latest"
 sheldon = "latest"
 resvg = "latest"
 "github:ifd3f/caligula" = { version = "latest", bin = "caligula" }
-"github:mroboff/vm-curator" = { version = "latest", asset_pattern = "vm-curator-*-linux-x86_64.tar.gz" }

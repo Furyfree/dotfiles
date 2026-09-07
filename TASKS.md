@@ -22,12 +22,13 @@ Plan: [desktop preparation and platform validation](ROADMAP.md#current-phase---d
 
 The 2026-09-07 COPR VM installation completed, but source builds made the
 first run slow. The current installation-flow branch replaces the five Linux
-CLI source builds with upstream stable binaries through native Mise Aqua and
-GitHub backends, and removes cargo-update. Typst stays on Terra. Existing
+CLI source builds on x86_64 with upstream stable binaries through native Mise
+Aqua and GitHub backends, and removes cargo-update. Typst stays on Terra. Existing
 Cargo provider versions are pruned only after replacement verification and
-only when no tracked Mise configuration needs them. Native Mise behavior was
-verified with isolated install-state fixtures that retain another project's
-Cargo version and an unrelated tool.
+only when no tracked Mise configuration needs them. VM Curator selection,
+verification, and migration are x86_64-only because upstream has no ARM binary.
+Native Mise behavior was verified with isolated install-state fixtures that
+retain another project's Cargo version and an unrelated tool.
 
 An isolated native installation downloaded Tinymist 0.15.6, Sheldon 0.8.5,
 resvg 0.48.1, Caligula 0.5.0, and VM Curator 1.4.0; all five binaries answered
@@ -37,7 +38,7 @@ The Nimbus handoff now supplies the disabled 1Password SSH answer for fresh
 init; direct initialization and existing opt-ins remain supported. The Mise
 hook can append its native output and timings to Nimbus's private per-run log,
 with tests for failed installation, unsafe paths, failed logging, and retry.
-The current local `just check` passes 119 tests with three optional skips, plus
+The current local `just check` passes 121 tests with three optional skips, plus
 the Bash suite and whitespace gate. The rendered hook passes ShellCheck.
 Native Chezmoi managed/status/diff/verify ran against an empty temporary home;
 verify correctly reports that its files have not been applied.

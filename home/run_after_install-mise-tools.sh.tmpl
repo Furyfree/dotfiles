@@ -102,12 +102,12 @@ run_mise() {
 run_mise install
 {{ if eq .chezmoi.os "linux" -}}
 # Install and check replacements before removing only obsolete Cargo providers.
-for tool in tinymist sheldon resvg caligula vm-curator; do
+for tool in tinymist sheldon resvg caligula{{ if eq .chezmoi.arch "amd64" }} vm-curator{{ end }}; do
     run_mise exec -- "$tool" --version
 done
 printf '%s\n' 'dotfiles: removing obsolete Cargo tool versions unused by other tracked Mise configurations'
 run_mise prune --tools --yes \
     cargo:caligula cargo:https://github.com/Myriad-Dreamin/tinymist \
-    cargo:cargo-update cargo:sheldon cargo:resvg cargo:vm-curator
+    cargo:cargo-update cargo:sheldon cargo:resvg{{ if eq .chezmoi.arch "amd64" }} cargo:vm-curator{{ end }}
 {{ end -}}
 {{ end -}}

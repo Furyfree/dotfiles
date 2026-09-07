@@ -43,7 +43,12 @@ release binaries through Mise's native backends:
 | Caligula | GitHub `ifd3f/caligula`, native executable |
 | VM Curator | GitHub `mroboff/vm-curator`, Linux x86_64 tar archive |
 
-All five select `latest` stable. `mise install` installs missing versions;
+VM Curator is selected only on Linux x86_64, through the separate
+`vm-curator.toml` fragment. Its upstream has no ARM release binary, so this
+configuration does not install or activate VM Curator on ARM. Users who need
+it there must supply it separately.
+
+All selected tools use `latest` stable. `mise install` installs missing versions;
 `mise upgrade` and the existing Topgrade Mise step update them without editing
 version pins. Mise downloads the maker's release assets and performs its
 native checksum and available provenance checks. Cargo binaries are no longer
@@ -74,9 +79,10 @@ Files already written and tools already installed are retained after failure.
 Only native Mise tool declarations request installation; other app configs do
 not install those apps.
 
-After installation succeeds and all five replacement commands pass `--version`,
+After installation succeeds and all selected replacements pass `--version`,
 the Linux script asks native Mise to prune only the six former Cargo provider
-identities. Versions still needed by other tracked Mise configs or tool stubs
+identities (five on ARM, where VM Curator's old Cargo files are not pruned).
+Versions still needed by other tracked Mise configs or tool stubs
 are retained. Unrelated tools, project configuration, and direct installations
 under `~/.cargo/bin` are untouched. The removal remains visible in native output;
 failed installation or verification prevents cleanup.

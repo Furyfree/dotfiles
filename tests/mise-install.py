@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 
 
@@ -67,7 +68,8 @@ assert "MISE_GLOBAL_CONFIG_FILE" not in os.environ
 assert os.environ["MISE_CEILING_PATHS"] == str(home)
 assert (config / "config.toml").read_text() == '[tools]\\nnode = "24"\\n'
 if os.environ["FAKE_EXPECT_CARGO"] == "true":
-    assert (config / "conf.d/cargo.toml").read_text() == '[tools]\\n"cargo:demo" = "latest"\\n'
+    assert (config / "conf.d/cargo.toml").read_text() == os.environ.get(
+        "FAKE_CARGO_CONTENT", '[tools]\\n"cargo:demo" = "latest"\\n')
 with (home / "calls.jsonl").open("a") as calls:
     calls.write(json.dumps({"argv": sys.argv, "cwd": os.getcwd(),
         "system_deps": os.environ["MISE_SYSTEM_DEPS"],
@@ -90,14 +92,14 @@ if (home / "fail").exists():
 ''')
         path.chmod(0o755)
 
-    def chezmoi(self, *args, platform="linux", input=None, stored=False):
+    def chezmoi(self, *args, platform="linux", arch="amd64", input=None, stored=False):
         command = [
             CHEZMOI, "--source", str(self.source), "--destination", str(self.home),
             "--config", str(self.root / "chezmoi.toml"),
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
             "--cache", str(self.root / "cache/chezmoi")]
         if not stored:
-            command += ["--override-data", json.dumps({"chezmoi": {"os": platform},
+            command += ["--override-data", json.dumps({"chezmoi": {"os": platform, "arch": arch},
                                                        "ManagedByNimbus": False})]
         return subprocess.run(command + list(args),
             env=self.env | {"FAKE_EXPECT_CARGO": str(platform == "linux").lower()},
@@ -352,6 +354,34 @@ sys.exit(result.returncode)
             self.assertTrue((installs / directory / "1.0.0").is_dir())
         for directory in ("cargo-cargo-update", "cargo-https-github-com-myriad-dreamin-tinymist"):
             self.assertFalse((installs / directory / "1.0.0").exists())
+
+    def assert_vm_curator_architecture(self, arch, enabled):
+        shutil.copyfile(REPO / "home/.chezmoiignore", self.source / ".chezmoiignore")
+        for name in ("cargo.toml", "vm-curator.toml"):
+            shutil.copyfile(REPO / "home/dot_config/mise/conf.d" / name,
+                            self.source / "dot_config/mise/conf.d" / name)
+        self.env["FAKE_CARGO_CONTENT"] = (
+            self.source / "dot_config/mise/conf.d/cargo.toml").read_text()
+        self.assert_success(self.chezmoi("apply", arch=arch))
+        installed_config = self.home / ".config/mise/conf.d"
+        tools = {}
+        for path in installed_config.glob("*.toml"):
+            tools.update(tomllib.loads(path.read_text())["tools"])
+        self.assertEqual("github:mroboff/vm-curator" in tools, enabled)
+        self.assertIn("github:ifd3f/caligula", tools)
+        calls = self.calls(True)
+        verified = [call["argv"][-2] for call in calls if "exec" in call["argv"]]
+        self.assertEqual("vm-curator" in verified, enabled)
+        self.assertIn("caligula", verified)
+        cleanup = calls[-1]["argv"][3:]
+        self.assertEqual(cleanup[:3], ["prune", "--tools", "--yes"])
+        self.assertEqual("cargo:vm-curator" in cleanup, enabled)
+
+    def test_arm_linux_omits_x86_vm_curator_and_skips_its_cargo_prune(self):
+        self.assert_vm_curator_architecture("arm64", False)
+
+    def test_x86_linux_installs_and_verifies_vm_curator_before_pruning(self):
+        self.assert_vm_curator_architecture("amd64", True)
 
     def test_missing_mise_fails_clearly(self):
         self.binary.unlink()
