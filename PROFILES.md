@@ -28,10 +28,10 @@ chezmoi init \
 The template consumes them with the `prompt*Once` functions and stores them
 in the generated config as `Machine`, `ManagedByNimbus`, and `Profiles`, which
 `chezmoi data` shows. The profile list is stored as sent, without checking it
-against a fixed set, so a new Nimbus profile never breaks the handoff. Only
-`hyprland-noctalia` and the targets that call Nimbus, gated on
-`ManagedByNimbus`, depend on those values; every other Linux config deploys
-unconditionally.
+against a fixed set, so a new Nimbus profile never breaks the handoff.
+`hyprland-noctalia` selects desktop files and the Ghostty, Zed, and VSCodium
+theme integrations. Targets that call Nimbus are gated on `ManagedByNimbus`;
+every other Linux config deploys unconditionally.
 
 Direct `chezmoi init --prompt` asks the same questions: the machine name
 defaults to the hostname, `ManagedByNimbus` to `false`, and the profiles are
@@ -72,7 +72,7 @@ Nimbus vocabulary; the machine manifest selects them:
 | `virtualization` | VM Curator configuration (no managed files yet) |
 | `gaming` | Gaming tool configuration (no managed files yet) |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |
-| `hyprland-noctalia` | Hyprland and Noctalia; Zed and VSCodium select generated Noctalia themes on Linux, with integration configured manually in Noctalia's GUI |
+| `hyprland-noctalia` | Hyprland and Noctalia; Ghostty, Zed, and VSCodium select generated Noctalia themes on Linux, with integration configured manually in Noctalia's GUI |
 | `windows-vm` | The Windows guest entries (no managed files yet) |
 
 The profile does not imply a greeter. Greeters and system integration belong

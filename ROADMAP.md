@@ -8,19 +8,14 @@ history, not a source of truth.
 
 ## Current phase - Reconcile the plan
 
-Record the remaining configurations and distinguish implemented branch work
-from merged code and live validation. This phase changes documentation only;
-it does not enable ignored targets, install anything, or apply configurations.
+The documentation phase and application PRs are merged. Finish integrating the
+remaining handoff-branch helpers and pending Ghostty theme selection, preserving
+the current Nimbus contract and GUI-first Noctalia setup. TASKS records the
+integration evidence separately from unperformed live application testing.
 
-Use `docs/remaining-configs`, based on `main`. Prefer merging this plan before
-the pending configuration branches, then reconcile their documentation with it
-as each branch lands. That order is organizational, not a runtime dependency.
-Do not discard application guidance when resolving overlapping doc changes.
-
-The phase ends when every requested area has a next action and dependency,
-local links and the docs-only diff are checked, and validation limitations are
-recorded in TASKS. Publishing and merging require separate permission. No live
-recovery is needed because this phase does not change deployed files.
+After integration, the next configuration slice is
+[1Password, SSH, and GitHub CLI](#phase-4---1password-ssh-and-github-cli).
+Installation and apply still require separate permission.
 
 ## Rules
 
@@ -165,11 +160,10 @@ Adopt one family at a time from [CONFIG_INVENTORY.md](CONFIG_INVENTORY.md).
 Start with low-risk files such as Git, Starship, editor settings, or terminal
 configuration.
 
-Several slices are already implemented on separate branches; TASKS records
-their heads and outstanding integration. Merge and test those deliberately,
-including their tests and operator guidance. Reconcile the Mise installation
-exception and the disabled VSCodium extension hooks with the repository rules
-when their branches land; do not activate optional hooks as a merge side effect.
+The application PRs are merged; TASKS records their integration and remaining
+live checks. Their tests and operator guidance are retained, including the
+Mise installation exception and disabled VSCodium extension hooks. Do not
+activate optional hooks as an integration side effect.
 
 Each slice must define:
 
@@ -211,10 +205,12 @@ colors and add fast-forward-only pulls, remote-tracking pruning, upstream
 setup, conflict context, and two read-only aliases. See
 [README.md](README.md#git) for loading, validation, and recovery. Stop before apply.
 
-Ghostty is implemented independently: one Linux/macOS config, a static palette
-based on the existing terminal colors, and native keybindings. Linux GTK and
-macOS input differences stay in the template; Windows remains ignored. The
-Niriland include and generated theme dependency are removed. Validation and
+Ghostty uses one Linux/macOS config and native keybindings. The Linux
+`hyprland-noctalia` profile selects Noctalia's generated theme, with its built-in
+integration enabled manually in Noctalia's GUI. Other setups retain the static
+charcoal-blue palette. No Noctalia settings or generated themes are managed.
+Linux GTK and macOS input differences stay in the template; Windows remains
+ignored. The Niriland include is removed. Validation and
 recovery are in [README.md](README.md#ghostty). Stop before applying; native
 macOS input and visual behavior remain manual checks.
 

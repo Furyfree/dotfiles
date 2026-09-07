@@ -1,6 +1,10 @@
 font-family = JetBrainsMono Nerd Font Mono
 font-size = 9
+{{ if and (eq .chezmoi.os "linux") (has "hyprland-noctalia" (get . "profiles" | default (list))) -}}
+theme = noctalia
+{{ else -}}
 theme = charcoal-blue
+{{ end -}}
 
 window-theme = ghostty
 window-padding-x = 14

@@ -720,15 +720,24 @@ separate interactive check on a machine with those available.
 
 ## Ghostty
 
-Linux and macOS share `~/.config/ghostty/config` and the `charcoal-blue` theme.
+Linux and macOS share `~/.config/ghostty/config`.
 The config keeps your 9pt JetBrainsMono Nerd Font Mono, 14px padding, 95%
 opacity, and steady block cursor. Ghostty falls back to its bundled font if
 the requested font is unavailable; font installation stays outside this config.
 Blur depends on the compositor/platform and is not guaranteed on Linux.
 
-The palette preserves your existing terminal colors as a static managed theme.
-It does not follow wallpaper changes or require Niriland/DankMaterialShell.
-The old `themes/dankcolors` file is left unmanaged and untouched.
+Linux with `hyprland-noctalia` selects `theme = noctalia`, whether or not Nimbus
+manages the machine. Enable Ghostty's built-in app-theme integration in Noctalia's
+GUI after installation. Noctalia generates `~/.config/ghostty/themes/noctalia`;
+Chezmoi does not manage that file or any Noctalia settings or template selections.
+Let Noctalia generate the theme before opening Ghostty on a fresh setup,
+otherwise Ghostty reports a missing theme. Keep that integration enabled while
+using this profile. Avoid fixed background, foreground, or palette overrides
+in Ghostty, since they take precedence over the generated colors.
+
+Other Linux setups and macOS use the managed `charcoal-blue` palette, preserving
+your previous colors without requiring Noctalia or Niriland/DankMaterialShell.
+The old `themes/dankcolors` file remains unmanaged and untouched.
 
 No custom keybindings are added. Native tab/split/search shortcuts remain,
 and Alt-C/D/F reach the shell again; plain PageUp/PageDown reach terminal
@@ -755,6 +764,9 @@ checks with Python 3.11+, Chezmoi, and optionally Ghostty:
 python3 tests/ghostty.py
 ```
 
+Tests cover profile selection with and without Nimbus, generated-file ownership,
+and changed theme colors using an isolated stand-in for Noctalia's output.
+They do not run Noctalia's renderer or reload a running terminal.
 Missing Ghostty skips only its native checks. No window is opened or live
 configuration changed. Native macOS input, fonts, transparency, and real
 shortcut behavior still require manual verification after an approved apply.
@@ -767,7 +779,8 @@ config: Ghostty can load multiple files, and later settings can override this
 one. Restore the backed-up config to recover the previous setup.
 
 See the [Ghostty configuration guide](https://ghostty.org/docs/config) and
-[option reference](https://ghostty.org/docs/config/reference).
+[option reference](https://ghostty.org/docs/config/reference), plus
+[Noctalia app theming](https://docs.noctalia.dev/noctalia/theming/app-theming/).
 
 ## VSCodium
 

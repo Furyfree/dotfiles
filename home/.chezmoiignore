@@ -101,6 +101,7 @@ Library/Application Support
 .config/bash/logout
 .config/fastfetch/arch.txt
 .config/ghostty/themes/dankcolors
+.config/ghostty/themes/noctalia
 .config/hypr/**
 .config/niri/**
 .config/noctalia/**

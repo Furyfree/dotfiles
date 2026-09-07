@@ -3,7 +3,7 @@
 [ROADMAP.md](ROADMAP.md) owns order and design; this file owns actionable status
 and evidence. Commands live in [README.md](README.md).
 
-## Current phase - Documentation
+## Current phase - Branch integration
 
 Plan: [reconcile the plan](ROADMAP.md#current-phase---reconcile-the-plan).
 
@@ -12,30 +12,33 @@ Plan: [reconcile the plan](ROADMAP.md#current-phase---reconcile-the-plan).
 - [x] Record every requested remaining config, its dependency, and next action.
 - [x] Check local links and the docs-only diff; run the available local gate
   and record its failures and limitations below.
-- [ ] Publish and merge the docs branch after separate authorization.
+- [x] Publish and merge the docs branch after separate authorization.
+- [x] Reconcile the remaining Nimbus handoff branch with current ownership,
+  preserving development helpers and future launcher notes.
+- [x] Finish Ghostty's Noctalia theme selection while leaving Noctalia GUI
+  settings and generated palettes unmanaged.
 
 ## Existing implementation
 
-Snapshot: 2026-09-07. Main and remote main were `3aa004f`; foundation, Zsh,
-Sheldon, and Starship are merged. Their live deployment is not established by
-this documentation check. The branch heads below are not merged into that
-main; listing them does not assert PR readiness or successful live testing.
+Snapshot: 2026-09-07. Foundation, Zsh, Sheldon, and Starship are merged, as are
+the application PRs below. The integration starts from main `77457d9`.
+Merged source and isolated checks do not establish live deployment.
 
-| Scope | Branch | Inspected head | Status |
-|---|---|---|---|
-| Bash | `config/bash-foundation` | `f71d8b6` | Implemented, unmerged |
-| Mise, Nix, udiskie, Zathura, gh, btop, shared tests | `config/tooling-apps` | `cc8649a` | Implemented, unmerged |
-| Ghostty | `config/ghostty` | `01bf52f` | Implemented, unmerged |
-| Fastfetch | `config/fastfetch` | `3b393f2` | Implemented, unmerged |
-| Git | `config/git` | `0daf1a3` | Implemented, unmerged |
-| Zed | `config/zed` | `467b4a2` | Implemented, unmerged |
-| VSCodium | `config/vscodium` | `cb68de9` | Implemented, unmerged |
+| Scope | PR | Status |
+| --- | --- | --- |
+| Bash | #3 | Merged, including login PATH fix |
+| Mise, Nix, udiskie, Zathura, gh, btop, shared tests | #4 | Merged, including Mise discovery fix |
+| Ghostty | #5 | Merged baseline; GUI-first Noctalia selection completed in this integration |
+| Fastfetch | #6 | Merged, including terminal-foreground logo fix |
+| Git | #7 | Merged, including repository-context test fix |
+| Zed | #8 | Merged, including exported Noctalia theme-name fix |
+| VSCodium | #9 | Merged; installers and Marketplace override remain disabled |
 
 Plan: [shared applications](ROADMAP.md#phase-3---shared-applications).
 
-- [ ] Reconcile each branch with the merged docs, run its checks, and obtain
+- [x] Reconcile each branch with the merged docs, run its checks, and obtain
   separate authorization for publishing or merging it. Keep status current here.
-- [ ] Integrate the tooling branch's tests and native Mise ownership rules;
+- [x] Integrate the tooling branch's tests and native Mise ownership rules;
   keep the VSCodium extension hooks and Marketplace override disabled.
 - [ ] Record authorized live testing per config and platform; retain pending
   status for untested systems instead of treating rendering as runtime proof.
@@ -43,7 +46,7 @@ Plan: [shared applications](ROADMAP.md#phase-3---shared-applications).
 ## Next - 1Password, SSH, and gh
 
 Plan: [1Password, SSH, and GitHub CLI](ROADMAP.md#phase-4---1password-ssh-and-github-cli).
-Status: not implemented for SSH; gh is already on the tooling branch. The user
+Status: not implemented for SSH; gh is already merged. The user
 reports two existing 1Password keys. Real authentication needs the signed-in
 app, agent enablement, and an authorized destination.
 
@@ -113,22 +116,31 @@ Plan: [platform validation and Windows](ROADMAP.md#phase-9---platform-validation
 
 ## Evidence and limitations
 
-- Branch inspection found a clean starting worktree; remote main matched the
-  local base. This branch changes repository documentation only.
-- The gh config on `config/tooling-apps` contains SSH preference, editor
-  prompting, and the `co` alias for PR checkout. No login was performed.
-- Main has no `tests/` tree although its old README referenced
-  `tests/zsh-foundation.zsh`. The tooling branch contains the replacement
-  Python runner and Zsh checks; integrating and running them remains pending.
-- Local link/anchor and whitespace checks passed for all 25 local links in
-  the four changed documents. `git diff --check` passed; no files below `home/`
-  changed, and the only new file is this task list.
-- `chezmoi managed`, `chezmoi status`, and `chezmoi diff` exited 0.
-  `chezmoi verify` exited 1 with unapplied Zsh, Sheldon, and Starship
-  differences present. Status, diff, and verify warned that the local config
-  template has changed. No apply or live config regeneration was performed.
-- App behavior, SSH authentication, desktop recovery, macOS, and Windows were
-  not tested in this docs-only phase. Other worktrees were not modified.
+- The handoff reconciliation keeps `Machine` / `ManagedByNimbus`, unknown
+  profile passthrough, and every-apply Mise installation. It does not restore
+  the old fixed profile validation, VM Curator profile gate, or obsolete
+  development-only installer. Machine manifests remain solely in Nimbus.
+- The old branch's Just helpers now invoke the complete Python and Bash gate;
+  previews preserve `chezmoi verify` failures. Its Markdown configuration is
+  retained for an optional style report, which still reports existing table
+  formatting and line-length issues rather than blocking regression checks.
+- The pending Ghostty changes were reconciled with the later GUI-first choice:
+  theme selection and isolated tests are retained, but the old uncommitted
+  `noctalia/templates.toml` is not deployed. The original worktree is preserved.
+- The integration checks passed: 71 Python tests passed, one optional Zathura
+  GUI test skipped, and the separate Bash suite passed. The seven Ghostty tests
+  include profile/Nimbus combinations, native parsing, unchanged shortcuts,
+  and palette changes using temporary generated-theme stand-ins.
+- No real Noctalia rendering, GUI reload, extension/tool installation, live
+  configuration apply, authentication, or native macOS/Windows testing occurred.
+  Chezmoi previews still encounter unapplied differences and a local
+  config-template warning; these do not establish a deployed working system.
+- CodeRabbit's included quota was exhausted during this integration cycle.
+  Earlier full local reviews and approved review fixes are recorded in the PRs.
+  One full native local review of this integration found no actionable issues.
+- All 39 local Markdown links and whitespace checks passed. Chezmoi managed,
+  status, and diff exited 0; verify and the preview helper exited 1 for the
+  known unapplied differences. No live config regeneration was performed.
 
 Mark implementation and live verification separately. Commit, push, PR, merge,
 installation, update, and apply require their own explicit authorization.
