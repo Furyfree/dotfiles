@@ -104,7 +104,6 @@ Library/Application Support
 .config/hypr/**
 .config/niri/**
 .config/noctalia/**
-.config/nvim/**
 .config/topgrade.toml
 .config/vm-curator/**
 .config/zed/themes/**

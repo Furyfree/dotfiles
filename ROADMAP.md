@@ -287,14 +287,24 @@ separately; Linux success does not prove macOS behavior.
 
 Build an understandable, advanced Vim rather than adopting an editor
 distribution. It remains a secondary editor, not a replacement for Zed or
-VSCodium. Begin with a small `init.lua`: editing defaults, search, splits,
+VSCodium. Keep `init.lua` as a small loader, with editing defaults, search, splits,
 clipboard behavior, persistent undo, and a few explained shortcuts that retain
 Vim's normal modes and navigation.
 
+The baseline uses lazy.nvim with Snacks picker/explorer, which-key, Gitsigns,
+nvim-surround, and nvim-treesitter. Keep eight navigation/Git mappings plus
+standard surround commands. Use terminal-palette colors, a built-in statusline,
+and explicit parser installation; no Noctalia settings or extra UI modules.
+The shared Linux/macOS config targets Neovim 0.12+. Plugin revisions are
+tracked in a lockfile, but downloaded plugins and parsers are not source files.
+Usage, prerequisites, and migration are in [README](README.md#neovim).
+
 Add diagnostics, language servers, completion, and other IDE features only in
 subsequent small slices. Keep language-tool installation with its existing
-owner and downloaded plugins or runtime state out of Git. Split Lua modules
-when the content warrants it, not to imitate a distribution's directory tree.
+owner and downloaded plugins or runtime state out of Git. Use `lua/config/`
+for options and plugin management, and `lua/plugins/` for one specification
+per plugin. Keep plugin shortcuts with their settings; add further modules
+only when they have deliberate content.
 
 This can start before the new system is installed. Validate isolated headless
 startup and manual editing, including missing optional tools, on Linux first.

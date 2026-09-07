@@ -11,7 +11,7 @@ live in the Nimbus repository, not here. Secrets and private keys never enter
 Git.
 
 The repository currently manages Bash and Zsh setup, Sheldon, Starship, Mise, Nix,
-udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, VSCodium, and Zed configuration.
+udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, VSCodium, Zed, and Neovim configuration.
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## Cargo tools
@@ -1011,6 +1011,146 @@ No GUI, downloads, or live config writes are performed by the tests.
 References: [Zed settings](https://zed.dev/docs/reference/all-settings),
 [keybindings](https://zed.dev/docs/key-bindings), and
 [local themes](https://zed.dev/docs/themes#local-themes).
+
+## Neovim
+
+A small CLI editor, not LazyVim or a replacement for Zed/VSCodium. Linux and
+macOS share the files below `~/.config/nvim/`, rendered from
+`home/.chezmoitemplates/configs/nvim/`. Neovim loads `init.lua` automatically;
+no shell loader is needed. Windows remains ignored. Custom `XDG_CONFIG_HOME`
+or `NVIM_APPNAME` values require the files under the matching config directory.
+
+```text
+nvim/
+|-- init.lua                  # Loads options, then the plugin manager
+|-- lazy-lock.json            # Pinned plugin revisions
+`-- lua/
+    |-- config/
+    |   |-- options.lua       # Editing defaults, undo, terminal colors
+    |   `-- lazy.lua          # Bootstrap and explicit plugin list
+    `-- plugins/
+        |-- snacks.lua       # File/search pickers and explorer, including keys
+        |-- which-key.lua    # Shortcut help and group labels
+        |-- gitsigns.lua     # Git change indicators and buffer-local keys
+        |-- surround.lua     # Quote/bracket editing
+        `-- treesitter.lua   # Syntax highlighting with installed parsers
+```
+
+Neovim finds Lua modules under `lua/`: `require("config.options")` loads
+`lua/config/options.lua`. The plugin manager explicitly loads the five plugin
+modules; each returns its plugin specification. Adding a file alone does not
+enable another plugin. Plugin-specific shortcuts stay beside their settings;
+there is no empty general keymap or autocmd file. This is a LazyVim-style
+layout, not an import of the LazyVim distribution or its defaults.
+
+### Plugins and prerequisites
+
+The five feature plugins are Snacks (picker/explorer only), which-key,
+Gitsigns, nvim-surround, and nvim-treesitter. lazy.nvim is the plugin manager,
+not the LazyVim distribution. The lockfile records all six revisions. On first
+launch, Git downloads the manager at its locked revision and lazy.nvim installs
+missing plugins below Neovim's data directory. This needs Git and access to
+GitHub. Apply itself does not download editor plugins. Startup update checks,
+LuaRocks, and automatic project `.lazy.lua` loading are disabled.
+
+Use Neovim 0.12+ with this Tree-sitter generation. Git and ripgrep are needed
+for Git integration and text search; fd is recommended for finding files.
+Nimbus already declares those packages. Native clipboard detection uses
+pbcopy/pbpaste on macOS and an available session provider such as
+wl-copy/wl-paste or xclip on Linux. It does not install a clipboard provider.
+Without Git on first launch or after a failed bootstrap, basic editing remains
+usable and a message explains why plugins could not load.
+
+Parser installation additionally requires `tree-sitter` CLI 0.26.1+, a C
+compiler, tar, and curl. The CLI is a remaining system prerequisite, not added
+to Mise or installed by this config. Supply it through Nimbus/system packages
+on Linux or your package manager on macOS, not npm. Once available, start with:
+
+```vim
+:TSInstall bash json lua markdown markdown_inline query toml vim vimdoc yaml
+```
+
+Wait for installation to finish, then reopen the files. Parsers are installed
+explicitly, not downloaded on every launch. Installed parsers enable syntax
+highlighting; missing ones leave ordinary highlighting available. There is no
+Tree-sitter folding, indentation override, or text-object extension.
+
+### Everyday keys
+
+See [Neovim keybindings](NEOVIM_KEYBINDS.md) for modes, the everyday workflow,
+native editing commands, picker/explorer controls, and surround examples.
+It also compares the workflow with Zed and VSCodium. Space is the leader;
+pause after it in Normal mode to see which-key's menu.
+
+### Defaults, colors, and state
+
+Use absolute line numbers, smart-case search, right/below splits, two-space
+indentation as a fallback, and manual saves. Filetype plugins and EditorConfig
+can override indentation. The simple built-in statusline shows the filename,
+modified/read-only markers, filetype, and cursor location. No dashboard, tab
+bar, session restorer, language servers, completion stack, or formatter is added.
+
+The bundled `vim` colorscheme uses the terminal's ANSI palette with RGB output
+disabled. In Noctalia-themed Ghostty it therefore uses that terminal's colors;
+elsewhere it follows the current terminal. This is terminal inheritance, not
+a Noctalia-generated Neovim theme. No Noctalia settings are changed. Confirm
+contrast in both light and dark terminals during live testing.
+
+The system clipboard is explicit: `"+y` copies a selection and `"+p` pastes.
+Ordinary deletes do not overwrite it. Persistent undo lives in
+`stdpath('state')/undo`, normally `~/.local/state/nvim/undo`, with directory mode
+0700. Failure to create/secure that directory disables persistent undo rather
+than preventing editing. Undo files contain previous file contents, so never
+commit them. Plugins, parsers, caches, ShaDa history, and other runtime files
+remain unmanaged. No existing LazyVim data is imported or deleted.
+
+### Updates, migration, and validation
+
+Use `:Lazy` to inspect plugins and `:Lazy update` for an intentional upgrade.
+After updating nvim-treesitter, run `:TSUpdate` so its parsers match its queries.
+The manager updates the deployed lockfile. After testing those versions, copy
+it back to the canonical source before the next apply, then review the diff:
+
+```sh
+cp ~/.config/nvim/lazy-lock.json home/.chezmoitemplates/configs/nvim/lazy-lock.json
+```
+
+Run that from this checkout with the standard config path. Do not `chezmoi add`
+the entire Neovim directory: it would import unrelated files. To restore the
+tracked revisions, restore the deployed lockfile through a reviewed Chezmoi
+apply and run `:Lazy restore`, followed by `:TSUpdate` and a restart. Applying
+a lockfile alone does not switch already installed plugin checkouts.
+
+Before an approved migration, privately back up and move aside the old config
+directory, not just its init: old `plugin/` or `after/` files could still load.
+Chezmoi does not delete unmanaged leftovers. Preserve the old data/state too
+if you need a complete LazyVim rollback, and do not run `:Lazy clean` against
+that old plugin store. To recover, restore the saved config and, if changed,
+its data/state. For a failed manager bootstrap, inspect its exact data path
+and move the incomplete `lazy.nvim.bootstrap` directory (or a broken
+`lazy.nvim` installation) aside before retrying. No partial bootstrap is loaded.
+
+Run the offline suite, or explicitly include actual plugin downloads into a
+disposable home. Both keep the live editor and credentials untouched:
+
+```sh
+python3 tests/neovim.py
+DOTFILES_NVIM_INTEGRATION=1 python3 tests/neovim.py
+just check
+```
+
+Tests cover rendering, plugin scope, shortcuts, missing tools/parsers, failed
+downloads, undo permissions, and undo across restarts. The opt-in test adds
+real pinned-plugin startup and basic surround/picker/highlighting behavior;
+it does not compile additional parsers. Missing Neovim skips native checks.
+Interactive input, clipboard, theme contrast, parser installation, and native
+macOS operation still need live checks. Keep the current LazyVim until the
+replacement is comfortable; isolated tests are not a migration.
+
+References: [lazy.nvim](https://lazy.folke.io/),
+[Snacks picker](https://github.com/folke/snacks.nvim/blob/main/docs/picker.md),
+[Tree-sitter prerequisites](https://github.com/nvim-treesitter/nvim-treesitter),
+and [isolated Neovim application names](https://neovim.io/doc/user/starting/#%24NVIM_APPNAME).
 
 ## Future Nimbus launchers
 
