@@ -81,6 +81,8 @@ class Webapps(unittest.TestCase):
             expected = {f".local/share/applications/{stem}.desktop" for stem in APPS}
             expected.update(f".local/share/icons/hicolor/512x512/apps/nimbus-webapp-{icon}.png"
                             for _, _, icon in APPS.values())
+            expected_targets = expected | {str(parent) for name in expected
+                                           for parent in Path(name).parents if str(parent) != "."}
             for enabled in (False, True):
                 # Only the disposable copy loses the temporary ignore block.
                 ignore.write_text(before + after if enabled else original)
@@ -101,11 +103,13 @@ class Webapps(unittest.TestCase):
                             ], env=env, cwd=root, capture_output=True, text=True, timeout=20)
                             self.assertEqual(result.returncode, 0, result.stderr)
                             entries = json.loads(result.stdout)
-                            if not enabled:
-                                self.assertFalse(any(name == ".local" or name.startswith(".local/") for name in entries))
+                            targets = {name for name in entries
+                                       if name == ".local" or name.startswith(".local/")}
+                            available = enabled and platform == "linux" and managed is True
+                            self.assertEqual(targets, expected_targets if available else set())
                             files = {name for name, entry in entries.items() if entry["type"] == "file"
                                      and name.startswith((".local/share/applications/", ".local/share/icons/"))}
-                            self.assertEqual(files, expected if enabled and platform == "linux" and managed else set())
+                            self.assertEqual(files, expected if available else set())
                             for stem in APPS:
                                 target = f".local/share/applications/{stem}.desktop"
                                 if target in files:

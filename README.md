@@ -1384,7 +1384,10 @@ theme, desktop settings, browser profiles, or wallpapers are changed.
 The temporary five-rule block in `home/.chezmoiignore` keeps both entries
 and their icons inactive. Once the helper works, remove only that block's five
 rules, retaining the separate Linux and `ManagedByNimbus` gates. macOS,
-Windows, and standalone Linux remain omitted. No compositor profile is needed.
+Windows, and standalone Linux remain omitted, including empty parent
+directories. The permanent gate ignores the whole `.local` tree while webapps
+are its only implemented targets. Narrow it when adding unrelated `.local`
+configs. No compositor profile is needed.
 
 Before enabling, test each command on the installed Nimbus desktop:
 

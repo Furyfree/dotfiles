@@ -68,11 +68,10 @@ Library/**
 .config/DankMaterialShell/**
 {{ end -}}
 
-# Nimbus webapps have no standalone launch path.
-{{ if not (and (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
-.local/share/applications/GoogleMaps.desktop
-.local/share/applications/FotMob.desktop
-.local/share/icons/hicolor/512x512/apps/nimbus-webapp-*.png
+# Webapps are the only implemented .local targets; omit the whole tree elsewhere.
+{{ if not (and (eq .chezmoi.os "linux") (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
+.local
+.local/**
 {{ end -}}
 
 # Webapps are prepared but disabled until Nimbus's launch helper is tested.
