@@ -21,3 +21,7 @@ jobs:
         with:
           persist-credentials: false
       - run: just check
+        env:
+          GIT_CONFIG_COUNT: 1
+          GIT_CONFIG_KEY_0: safe.directory
+          GIT_CONFIG_VALUE_0: ${{ github.workspace }}
