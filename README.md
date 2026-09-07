@@ -947,13 +947,16 @@ actual Danish keyboard and compositor before daily use.
 
 ### Noctalia colors
 
-On Linux with `hyprland-noctalia`, Zed still selects the `Noctalia` theme.
+On Linux with `hyprland-noctalia`, Zed follows the system appearance using
+`Noctalia Light` and `Noctalia Dark`. These are the selectable names exported by
+[Noctalia's Zed template](https://github.com/noctalia-dev/community-templates/blob/02a566a27ccd299958c2c6a34e0e0727bab46b93/zed/zed.json);
+`Noctalia` is only the theme family name.
 Enable and configure Zed's app-theme integration yourself through Noctalia's
 GUI after installation. This repository does not configure Noctalia, select
 its templates, or supply a custom theme template. Its entire config directory
 and Zed's generated theme files remain unmanaged.
 
-The named theme must be generated before Zed can use it; selecting it here
+The named themes must be generated before Zed can use them; selecting them here
 does not install or enable the integration. Restart Zed if generated colors
 are not picked up. Other setups use bundled One Light/One Dark with the system
 appearance.

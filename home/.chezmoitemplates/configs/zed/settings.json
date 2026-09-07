@@ -13,7 +13,7 @@
   "colorize_brackets": true,
   "icon_theme": "Material Icon Theme",
 {{- if and (eq .chezmoi.os "linux") (has "hyprland-noctalia" (get . "profiles" | default (list))) }}
-  "theme": "Noctalia",
+  "theme": { "mode": "system", "light": "Noctalia Light", "dark": "Noctalia Dark" },
 {{- else }}
   "theme": { "mode": "system", "light": "One Light", "dark": "One Dark" },
 {{- end }}
