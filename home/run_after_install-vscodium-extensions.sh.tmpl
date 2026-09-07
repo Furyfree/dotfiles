@@ -1,0 +1,53 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+{{- $manifest := include "../VSCODIUM_EXTENSIONS.json" | fromJson -}}
+#!/bin/sh
+set -eu
+
+if [ "$(id -u)" = 0 ]; then
+    printf '%s\n' 'dotfiles: run VSCodium extension setup as your normal user, not root.' >&2
+    exit 1
+fi
+
+cli=$(command -v codium || command -v vscodium) || {
+    printf '%s\n' 'dotfiles: VSCodium CLI is required; install it before applying extensions.' >&2
+    exit 1
+}
+cd "$HOME"
+
+list_extensions() {
+    listed=$("$cli" --list-extensions) || {
+        printf '%s\n' 'dotfiles: could not list VSCodium extensions.' >&2
+        return 1
+    }
+    printf '%s\n' "$listed" | tr -d '\r' | tr '[:upper:]' '[:lower:]'
+}
+
+installed=$(list_extensions)
+set --{{ range $manifest.install }} \
+    {{ . | shellQuote }}{{ end }}
+
+installed_count=0
+skipped_count=0
+for extension do
+    if printf '%s\n' "$installed" | grep -Fqx -- "$extension"; then
+        skipped_count=$((skipped_count + 1))
+        continue
+    fi
+    printf 'dotfiles: installing VSCodium extension: %s\n' "$extension"
+    if ! "$cli" --install-extension "$extension"; then
+        printf 'dotfiles: failed to install %s; rerun after fixing the error.\n' "$extension" >&2
+        exit 1
+    fi
+    installed_count=$((installed_count + 1))
+done
+
+installed=$(list_extensions)
+for extension do
+    if ! printf '%s\n' "$installed" | grep -Fqx -- "$extension"; then
+        printf 'dotfiles: extension missing after installation: %s\n' "$extension" >&2
+        exit 1
+    fi
+done
+printf 'dotfiles: VSCodium extensions verified (install requests: %s, already present: %s).\n' "$installed_count" "$skipped_count"
+printf '%s\n' 'dotfiles: {{ len $manifest.manual }} manifest entries are excluded from automatic installation; see the manual list.'
+{{ end -}}

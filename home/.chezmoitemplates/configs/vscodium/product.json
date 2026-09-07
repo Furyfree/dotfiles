@@ -1,1 +1,9 @@
-
+{
+  "extensionsGallery": {
+    "serviceUrl": "https://marketplace.visualstudio.com/_apis/public/gallery",
+    "itemUrl": "https://marketplace.visualstudio.com/items",
+    "latestUrlTemplate": "https://marketplace.visualstudio.com/_apis/public/gallery/vscode/{publisher}/{name}/latest",
+    "extensionUrlTemplate": "https://marketplace.visualstudio.com/_apis/public/gallery/vscode/{publisher}/{name}/latest",
+    "resourceUrlTemplate": "https://{publisher}.vscode-unpkg.net/{publisher}/{name}/{version}/{path}"
+  }
+}
