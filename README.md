@@ -1347,6 +1347,78 @@ and [keybindings](https://niri-wm.github.io/niri/Configuration%3A-Key-Bindings.h
 plus [DMS settings](https://github.com/AvengeMedia/DankMaterialShell/blob/v1.6.0/quickshell/Common/settings/SettingsSpec.js)
 and [settings migrations](https://github.com/AvengeMedia/DankMaterialShell/blob/v1.6.0/quickshell/Common/settings/SettingsStore.js).
 
+## Webapps
+
+Two Linux launchers are prepared, but remain ignored by Chezmoi until
+Nimbus implements and tests its webapp helper:
+
+| Launcher | Website | Icon source |
+|---|---|---|
+| Google Maps | [Maps](https://www.google.com/maps) | [Google's Maps icon](https://www.gstatic.com/images/branding/productlogos/maps_2025_round/v1/web-512dp/logo_maps_2025_round_color_1x_web_512dp.png) |
+| FotMob | [FotMob](https://www.fotmob.com/) | [FotMob's app icon](https://www.fotmob.com/img/icon-512x512.png) |
+
+The entries live in `home/dot_local/share/applications/`. Each calls
+`nimbus launch webapp URL` directly, without shell evaluation or a separate
+browser-selection script. Nimbus owns browser selection and application-mode
+launching. `TryExec=nimbus` lets launchers hide entries when Nimbus is absent;
+it cannot detect whether an installed Nimbus supports the webapp subcommand.
+No URL includes an account, private destination, tracking query, or credentials.
+Site sign-in and preferences remain in the browser, not these files.
+
+Fastmail instead uses the stable `com.fastmail.Fastmail` Flatpak, selected by
+Nimbus's desktop profile. Nimbus owns installation and updates through its
+existing system Flathub remote; the package supplies its launcher and icons.
+Chezmoi does not install it, track its account/offline-mail state, or set it as
+the default mail app automatically. Sign-in, notifications, and email-link
+handling need a live test after installation. See [Fastmail's official downloads](https://www.fastmail.com/download/).
+
+Unmodified 512x512 PNGs from the vendor sites are stored under
+`home/dot_local/share/icons/hicolor/512x512/apps/`, using the unique
+`nimbus-webapp-` icon prefix. Sources were checked on 2026-09-07: Maps and
+FotMob publish these icons in their web manifests. These are third-party
+brand assets, not original artwork
+or a claim of an open-source license; their rights remain with their owners.
+Icons are local, so apply and launcher display do not download them. No icon
+theme, desktop settings, browser profiles, or wallpapers are changed.
+
+The temporary five-rule block in `home/.chezmoiignore` keeps both entries
+and their icons inactive. Once the helper works, remove only that block's five
+rules, retaining the separate Linux and `ManagedByNimbus` gates. macOS,
+Windows, and standalone Linux remain omitted, including empty parent
+directories. The permanent gate ignores the whole `.local` tree while webapps
+are its only implemented targets. Narrow it when adding unrelated `.local`
+configs. No compositor profile is needed.
+
+Before enabling, test each command on the installed Nimbus desktop:
+
+```sh
+nimbus launch webapp https://www.google.com/maps
+nimbus launch webapp https://www.fotmob.com/
+```
+
+Then preview and apply only with approval. Confirm names, icons, app-window
+behavior, and window grouping in the real launcher. The Maps desktop filename
+matches the inspected Niriland entry so it replaces that entry instead of
+creating a duplicate. Back it up before migration. The old Niriland Fastmail
+webapp, if present, remains untouched and may duplicate the Flatpak's launcher;
+remove it only after verifying the desktop app and approving that cleanup.
+Browser-installed PWAs with other filenames may also need separate cleanup.
+Existing icons and unrelated launchers are not removed. Disabling management
+later does not delete already deployed files; their removal is a separate step.
+
+Offline checks validate desktop syntax, exact launch arguments, local icons,
+inactive targets, and the future platform/Nimbus gates in disposable homes:
+
+```sh
+python3 tests/webapps.py
+just check
+```
+
+The native syntax check uses `desktop-file-validate` when installed. Tests do
+not open websites, launch Nimbus, download assets, or prove live app behavior.
+The entry and icon layout follow the [Desktop Entry Specification](https://specifications.freedesktop.org/desktop-entry/latest/recognized-keys.html)
+and [Icon Theme Specification](https://specifications.freedesktop.org/icon-theme-spec/latest/).
+
 ## Future Nimbus launchers
 
 The desktop phase may use `nimbus launch browser [URL] [--private]` and

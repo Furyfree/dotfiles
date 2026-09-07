@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Google Maps
+Comment=Maps, directions, and places
+Exec=nimbus launch webapp https://www.google.com/maps
+TryExec=nimbus
+Icon=nimbus-webapp-google-maps
+Terminal=false
+Categories=Network;
+Keywords=Navigation;Directions;Places;

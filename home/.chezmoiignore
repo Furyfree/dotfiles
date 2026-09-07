@@ -68,6 +68,20 @@ Library/**
 .config/DankMaterialShell/**
 {{ end -}}
 
+# Webapps are the only implemented .local targets; omit the whole tree elsewhere.
+{{ if not (and (eq .chezmoi.os "linux") (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
+.local
+.local/**
+{{ end -}}
+
+# Webapps are prepared but disabled until Nimbus's launch helper is tested.
+# Remove these five rules to enable them; retain the platform/Nimbus gates.
+.local
+.local/share
+.local/share/applications/GoogleMaps.desktop
+.local/share/applications/FotMob.desktop
+.local/share/icons/hicolor/512x512/apps/nimbus-webapp-*.png
+
 # VSCodium extension installation is prepared but not enabled.
 install-vscodium-extensions.sh
 install-vscodium-extensions.ps1
@@ -87,8 +101,6 @@ install-vscodium-extensions.ps1
 
 # Placeholder files remain unmanaged until their config slice is implemented.
 **/.keep
-.local
-.local/share
 AppData/Local
 Documents
 {{ if ne .chezmoi.os "darwin" -}}
@@ -107,9 +119,7 @@ Library/Application Support
 .config/noctalia/**
 .config/vm-curator/**
 .config/zed/themes/**
-.local/share/applications/**
 .local/share/backgrounds/**
-.local/share/icons/**
 AppData/Local/1Password/**
 AppData/Local/nvim/**
 AppData/Roaming/VSCodium/product.json

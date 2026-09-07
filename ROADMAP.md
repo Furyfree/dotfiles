@@ -371,6 +371,12 @@ these tasks.
 
 ## Phase 7 - Webapps and backgrounds
 
+The selected initial webapps are Google Maps and FotMob. Their
+desktop entries and local vendor icons are prepared but ignored until the
+Nimbus webapp helper is implemented and tested. Fastmail uses Nimbus's stable
+Flatpak selection instead of a webapp. Background selection remains
+separate. See [README](README.md#webapps) for sources and activation checks.
+
 Selection is the dependency, not necessarily system installation. Review the
 existing webapps, icons, and wallpapers with the user; choose a small everyday
 launcher set and deliberate backgrounds before importing assets. Keep personal
