@@ -13,7 +13,7 @@ builtin_ids = [
 # Starship, Fastfetch and Neovim use Ghostty's ANSI palette. Their catalog
 # hooks would rewrite managed configs or install another editor theme plugin.
 community_ids = [
-    "claude-code", "codex", "opencode", "brave-origin", "discord",
+    "claude-code", "codex", "opencode", "discord",
     "libreoffice", "obsidian", "vscode", "zed", "heroiclauncher",
     "prismlauncher", "steam", "obs", "zathura", "hyprtoolkit",
     "papirus-icons", "bat", "fzf", "herdr", "lazygit",
@@ -21,3 +21,48 @@ community_ids = [
 
 [wallpaper.default]
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
+
+# Enabled on the VM; Noctalia owns downloads from its built-in sources.
+[plugins]
+enabled = [
+    "noctalia/notes",
+    "noctalia/screen_recorder",
+    "noctalia/timer",
+    "noctalia/translator",
+    "noctalia/wallhaven",
+    "felipeartur/ai-usagebar",
+    "harveywuk/airpods",
+    "umedbazarov/crashes",
+    "tphilippot/git_companion",
+    "profidev/hypr-screen-mirror",
+    "kenn/keybind-cheatsheet",
+    "8bury/lid-guard",
+    "8bury/mini-docker",
+    "rylos/tailnet",
+    "aristides/udiskie",
+    "rxtsel/portctl",
+    "cleboost/ssh-launcher",
+]
+
+# Keep Noctalia's menu; logind ends this login and its UWSM session, if present.
+[[shell.session.actions]]
+action = "lock"
+shortcut = "1"
+
+[[shell.session.actions]]
+action = "logout"
+shortcut = "2"
+command = 'loginctl terminate-session "${XDG_SESSION_ID:?No graphical login session}"'
+
+[[shell.session.actions]]
+action = "lock_and_suspend"
+shortcut = "3"
+
+[[shell.session.actions]]
+action = "reboot"
+shortcut = "4"
+
+[[shell.session.actions]]
+action = "shutdown"
+shortcut = "5"
+variant = "destructive"

@@ -142,12 +142,41 @@ A minimal Hyprland starter and portable Noctalia preferences are prepared. See [
   (2026-09-08, Noctalia 5.0.1). Recovery-session login remains untested.
 - [x] Capture reviewed portable Noctalia preferences and app template selections
   from the VM; document ownership and prerequisites in [NOCTALIA.md](NOCTALIA.md).
+- [x] Capture the VM's 17 enabled plugins as profile-scoped Noctalia config;
+  retain plugin downloads, data and monitor-specific lockscreen state locally.
+- [ ] Verify plugin downloads on a clean login and add wanted bar widgets;
+  exercise plugins with their required tools and accounts.
 - [x] Validate the captured config with Noctalia 5.0.1 and Hyprland 0.56.2
   in disposable VM directories; run isolated Chezmoi previews and `just check`.
 - [ ] Test the newly captured profile on the VM: generation, light/dark changes,
   app reloads, and repeat Chezmoi previews without generated-color drift.
-- [ ] Verify keyring dialog colors, secure first-login initialization and
-  password-login unlocking after Nimbus supplies the missing PAM package.
+- [x] Verify secure first-login keyring initialization and password-login
+  unlocking with Nimbus 0.2.0 (VM journal, 2026-09-08); no extra prompt.
+- [x] Prepare GTK/Qt settings, session environment propagation, native Brave GTK
+  theming; use Noctalia hooks and native app theme selection without custom
+  configuration-rewriting scripts.
+- [x] Run the follow-up complete local gate: 126 Python tests (three skips),
+  Bash checks and diff checks; native VM Noctalia/Hyprland validators pass.
+- [x] Apply the simplified desktop config to the VM with scoped backups;
+  verify zero Chezmoi drift, disable Brave templates, and confirm Noctalia
+  reloads with exactly 17 enabled plugins (2026-09-08).
+- [x] Research native Noctalia capabilities and the 5.0.1 IPC differences;
+  replace the logout helper with Noctalia's session menu and a direct,
+  explicit-session logind command. Missing session IDs fail closed.
+- [x] Describe every Hyprland binding and start LibrePods hidden once per
+  session through the existing compositor startup hook.
+- [ ] Resolve the AirPods plugin's patched-LibrePods requirement; the installed
+  Terra 0.2.5 package lacks the published status interface.
+- [x] Install the prepared system dependencies (`adw-gtk3-theme`, `qt5ct`)
+  through the Nimbus candidate (2026-09-09). Its native Noctalia GTK hook
+  selected `adw-gtk3-dark` and `prefer-dark`; the owner confirmed it works.
+  Selected desktop managed/status/diff/verify checks passed without drift.
+- [ ] Log into UWSM before completing toolkit/portal visual testing. The owner
+  used plain Hyprland after applying the candidate; its graphical target and
+  portal remain inactive.
+- [ ] Verify toolkit colors and keyring dialog appearance after a fresh login
+  with the follow-up config and UWSM session; test native logout/relogin,
+  portal activation, dark/light changes and Brave with **Use GTK** selected.
 - [ ] Complete app-specific setup in NOCTALIA.md, including VSCodium's theme
   extension and applications that require a profile, vault or skin first.
 - [x] Enable only the maintained `niri-dms` user-config profile on Linux.

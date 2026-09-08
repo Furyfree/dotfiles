@@ -15,8 +15,12 @@ udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, VSCodium, Zed,
 Neovim, and Topgrade configuration. Niri and DankMaterialShell are available
 through the opt-in Linux `niri-dms` profile.
 The Linux `hyprland-noctalia` profile also enables a minimal Hyprland starter;
-portable Noctalia preferences and app-theme selections are captured in
-[NOCTALIA.md](NOCTALIA.md).
+portable Noctalia preferences, GTK/Qt settings and app-theme selections are
+managed through Chezmoi. Noctalia generates the colors and runs its native
+activation hooks. Apps without such a hook need a one-time theme choice in
+their own settings; no custom config-rewriting scripts are used. Select
+**Use GTK** in Brave Appearance settings. See
+[NOCTALIA.md](NOCTALIA.md) for paths, prerequisites and recovery.
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## License
@@ -1328,15 +1332,21 @@ future Niri-aligned keymap. Super is the Windows key:
 | Super+C | Close focused window |
 | Super+E | Nautilus |
 | Super+R | Noctalia launcher |
-| Super+M | Hyprland shutdown dialog when available; otherwise exit session |
+| Super+M | Open Noctalia's session menu |
 | Super+V / P / J | Toggle floating / pseudotiling / split direction |
 | Super+arrows | Focus in that direction |
 | Super+1-9 / 0 | Workspaces 1-9 / 10 |
 | Super+Shift+1-9 / 0 | Move window to that workspace |
 | Super+left/right mouse drag | Move/resize window |
 
-Save work before using Super+M; the fallback exits directly. Extra scratchpad,
-wheel, gesture, and media shortcuts are deferred. Noctalia's bar provides its
+Every binding has a native description for Noctalia's Hyprland Keymap.
+LibrePods starts hidden once per Hyprland login alongside Noctalia; reloading
+the config does not start another instance. Nimbus supplies the package. The
+AirPods widget additionally needs a compatible LibrePods build, as
+[NOCTALIA.md](NOCTALIA.md) records.
+
+Super+M opens the menu; choose an action there. Save work before choosing
+Logout. Extra scratchpad, wheel, gesture, and media shortcuts are deferred. Noctalia's bar provides its
 other controls. The launcher uses [Noctalia 5 IPC](https://docs.noctalia.dev/noctalia/ipc/surfaces/).
 
 Before applying, back up any existing `hyprland.lua` and legacy `hyprland.conf`

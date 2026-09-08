@@ -48,7 +48,7 @@ their settings and runtime state remain unmanaged.
 | Config | Plan |
 |---|---|
 | Hyprland | Minimal Lua starter on `hyprland-noctalia`: Ghostty, Brave Origin, Noctalia daemon startup. Test before splitting files or aligning the Niri keymap. Nimbus owns system integration. |
-| Noctalia | Configure through the GUI after installation, then capture reviewed portable preferences from the actual version's files. Exclude generated themes, runtime state, caches, and downloaded plugins. |
+| Noctalia | Profile-managed portable preferences, 17 enabled plugin selections, native Brave GTK integration and Noctalia's session menu. Generated themes, runtime state, caches and downloaded plugins remain unmanaged. See NOCTALIA.md. |
 | Noctalia Greeter | Nimbus owns it and its files below `/var/lib`. |
 | Niri | Modular native config on `niri-dms`, with one keybind source and no Nirius; mirror module responsibilities in future Hyprland work. |
 | DankMaterialShell | Curated portable settings on `niri-dms`; generated palettes, monitor state, caches, and plugins stay unmanaged. |
@@ -58,9 +58,11 @@ their settings and runtime state remain unmanaged.
 | Launchers and icons | Remove stale and duplicate web apps before adopting selected files. |
 | Wallpapers | Manage selected user assets for the Linux desktop. |
 
-Review GTK, Qt, XDG portals, MIME defaults, autostart, and user systemd units
-after Hyprland and Noctalia are tested. User preferences may belong to
-Chezmoi; packages, services, enablement, and system defaults belong to Nimbus.
+GTK/Qt preferences are profile-managed. Noctalia owns its native theme hooks;
+OBS, Prism, Vesktop, Heroic and Herdr retain their native configuration and
+one-time theme selection. Test these and XDG portals after a fresh login. MIME defaults and further autostart
+remain to review. Chezmoi owns user preferences; Nimbus owns packages, services
+and the UWSM greeter selection.
 
 Niri and DankMaterialShell use the opt-in `niri-dms` profile in
 [PROFILES.md](PROFILES.md). Their packages, greeters, and system session
@@ -83,7 +85,8 @@ Do not adopt config for:
 - Lazygit, Poetry, JGit, OpenCode, or other 1Password app settings
 - Cava, Lazydocker, or Fish
 - Octopi or CachyOS tools
-- browsers, Signal, Obsidian, ChatGPT, Vesktop, and other app-data trees
+- browser profiles, Signal, Obsidian vaults, ChatGPT, and other app-data trees
+- OBS, Prism, Vesktop, Heroic and Herdr runtime settings
 
 An installed application is not a reason to track its state.
 

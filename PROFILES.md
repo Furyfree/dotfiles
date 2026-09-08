@@ -35,8 +35,9 @@ in the generated config as `Machine`, `ManagedByNimbus`, and `Profiles`, which
 `chezmoi data` shows. The profile list is stored as sent, without checking it
 against a fixed set, so a new Nimbus profile never breaks the handoff.
 `hyprland-noctalia` selects desktop files and the Noctalia preferences and app
-theme integrations. `niri-dms` selects the separate Niri and DankMaterialShell
-configuration. Targets that call Nimbus are gated on `ManagedByNimbus`;
+theme integrations and enabled plugins. `niri-dms` selects the separate Niri
+and DankMaterialShell configuration. Targets that call Nimbus are gated on
+`ManagedByNimbus`;
 other Linux application configs deploy independently of machine profiles.
 
 Direct `chezmoi init --prompt` asks the same questions: the machine name
