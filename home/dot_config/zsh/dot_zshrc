@@ -8,3 +8,7 @@ source "$ZDOTDIR/conf.d/fzf.zsh"
 source "$ZDOTDIR/conf.d/prompt.zsh"
 source "$ZDOTDIR/conf.d/plugins.zsh"
 source "$ZDOTDIR/conf.d/aliases.zsh"
+
+if [[ -r "$ZDOTDIR/conf.d/noctalia.zsh" ]]; then
+  source "$ZDOTDIR/conf.d/noctalia.zsh"
+fi

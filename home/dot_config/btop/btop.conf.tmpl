@@ -1,0 +1,5 @@
+{{- $config := include ".chezmoitemplates/configs/btop/btop.conf" -}}
+{{- if and (eq .chezmoi.os "linux") (has "hyprland-noctalia" (get . "profiles" | default (list))) -}}
+{{- $config = replace "color_theme = \"TTY\"" "color_theme = \"noctalia\"" $config -}}
+{{- end -}}
+{{ $config -}}

@@ -15,7 +15,8 @@ udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, VSCodium, Zed,
 Neovim, and Topgrade configuration. Niri and DankMaterialShell are available
 through the opt-in Linux `niri-dms` profile.
 The Linux `hyprland-noctalia` profile also enables a minimal Hyprland starter;
-Noctalia preferences remain GUI-managed.
+portable Noctalia preferences and app-theme selections are captured in
+[NOCTALIA.md](NOCTALIA.md).
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## License
@@ -783,9 +784,9 @@ the requested font is unavailable; font installation stays outside this config.
 Blur depends on the compositor/platform and is not guaranteed on Linux.
 
 Linux with `hyprland-noctalia` selects `theme = noctalia`, whether or not Nimbus
-manages the machine. Enable Ghostty's built-in app-theme integration in Noctalia's
-GUI after installation. Noctalia generates `~/.config/ghostty/themes/noctalia`;
-Chezmoi does not manage that file or any Noctalia settings or template selections.
+manages the machine. The profile enables Ghostty's built-in integration.
+Noctalia generates `~/.config/ghostty/themes/noctalia`; Chezmoi manages the
+selection, not that generated file.
 Let Noctalia generate the theme before opening Ghostty on a fresh setup,
 otherwise Ghostty reports a missing theme. Keep that integration enabled while
 using this profile. Avoid fixed background, foreground, or palette overrides
@@ -891,10 +892,9 @@ settings are off, without claiming every extension is telemetry-free.
 ### Themes and extensions
 
 Linux with `hyprland-noctalia` selects `NoctaliaTheme`, the name contributed by
-`noctalia.noctaliatheme`. Enable its app-theme integration yourself in Noctalia's
-GUI after installation. No Noctalia config, template, hook, or palette is managed
-here. The community template currently targets extension version 0.0.5; check
-its target again if the extension version changes. Other setups follow system
+`noctalia.noctaliatheme`. The profile selects the `vscode` community template,
+which includes VSCodium. The template currently targets extension version
+0.0.5; check its target again if the extension version changes. Other setups follow system
 appearance with Atom One Light/Dark, close counterparts to Zed's One themes.
 Theme extensions must be installed before these selections can take effect.
 
@@ -967,8 +967,9 @@ python3 tests/vscodium.py
 
 The tests render all three platforms with/without the desktop profile, check
 settings/shortcut semantics, preserve the extension inventory, and ensure runtime
-files, disabled scripts, and Noctalia stay unmanaged. Mock-CLI tests cover missing
-tools, repeat runs, native errors, and verification without actual installations.
+files, disabled scripts, and generated Noctalia colors stay unmanaged. Mock-CLI
+tests cover missing tools, repeat runs, native errors, and verification without
+actual installations.
 They do not launch the editor, install anything,
 validate every extension schema, or prove notebook/debugger/theme runtime behavior.
 Installer execution tests exercise the POSIX implementation; the PowerShell
@@ -1029,13 +1030,12 @@ On Linux with `hyprland-noctalia`, Zed follows the system appearance using
 `Noctalia Light` and `Noctalia Dark`. These are the selectable names exported by
 [Noctalia's Zed template](https://github.com/noctalia-dev/community-templates/blob/02a566a27ccd299958c2c6a34e0e0727bab46b93/zed/zed.json);
 `Noctalia` is only the theme family name.
-Enable and configure Zed's app-theme integration yourself through Noctalia's
-GUI after installation. This repository does not configure Noctalia, select
-its templates, or supply a custom theme template. Its entire config directory
-and Zed's generated theme files remain unmanaged.
+The profile enables Zed's community template. Noctalia owns its generated
+theme files; Chezmoi owns the portable selection described in
+[NOCTALIA.md](NOCTALIA.md).
 
 The named themes must be generated before Zed can use them; selecting them here
-does not install or enable the integration. Restart Zed if generated colors
+does not install the application. Restart Zed if generated colors
 are not picked up. Other setups use bundled One Light/One Dark with the system
 appearance.
 
@@ -1152,8 +1152,8 @@ bar, session restorer, language servers, completion stack, or formatter is added
 The bundled `vim` colorscheme uses the terminal's ANSI palette with RGB output
 disabled. In Noctalia-themed Ghostty it therefore uses that terminal's colors;
 elsewhere it follows the current terminal. This is terminal inheritance, not
-a Noctalia-generated Neovim theme. No Noctalia settings are changed. Confirm
-contrast in both light and dark terminals during live testing.
+a Noctalia-generated Neovim theme. The desktop profile deliberately leaves
+the community Neovim hook disabled. Confirm contrast in both light and dark terminals during live testing.
 
 The system clipboard is explicit: `"+y` copies a selection and `"+p` pastes.
 Ordinary deletes do not overwrite it. Persistent undo lives in
@@ -1309,9 +1309,9 @@ application selection. These are direct commands, not shell aliases or future
 Nimbus launch helpers, and do not change system MIME defaults. Automatic
 monitor mode/placement/scaling and the starter's dwindle layout are retained.
 Keyboard settings, animation tuning, custom colors, and hardware rules are left
-for the installed session. No Noctalia settings or generated theme files are
-managed; configure those in its GUI, including Ghostty's theme integration
-before relying on the [Noctalia theme](#ghostty).
+for the installed session. The profile deploys reviewed Noctalia preferences
+and optional Hyprland palette loading. See [NOCTALIA.md](NOCTALIA.md) for the
+application mapping, GUI override precedence, and remaining manual setup.
 
 The `hyprland.start` hook runs `noctalia --daemon` once per session, following
 [Noctalia's startup documentation](https://docs.noctalia.dev/noctalia/getting-started/running-the-shell/).
@@ -1347,7 +1347,17 @@ Log out and back in to test the startup hook. Keep a TTY or alternate session
 available and restore the saved config there if necessary. This user config
 does not implement Nimbus's independent recovery session.
 
+Back up existing Noctalia configuration privately before applying this profile.
+Use the normal Chezmoi preview above. Noctalia watches its configuration and may
+render themes immediately in an active session. Existing GUI overrides take
+precedence: in Noctalia Settings, reset only the template selections you want
+to return to the managed defaults. Do not remove the whole state directory.
+Community templates need network access on first use. Open a new terminal after
+rendering to load fzf colors. Application-specific prerequisites are listed in
+[NOCTALIA.md](NOCTALIA.md).
+
 ```sh
+python3 tests/noctalia.py
 python3 tests/hyprland.py
 Hyprland --verify-config --config home/dot_config/hypr/hyprland.lua
 just check

@@ -130,8 +130,7 @@ deferred. See [usage and migration](README.md#neovim).
 
 Plan: [Linux desktop](ROADMAP.md#phase-6---linux-desktop).
 Status: Niri and DMS are merged on main, without live application evidence.
-A minimal Hyprland starter is also prepared; Noctalia
-preferences remain GUI-managed. See [starter usage](README.md#hyprland-starter).
+A minimal Hyprland starter and portable Noctalia preferences are prepared. See [starter usage](README.md#hyprland-starter).
 
 - [x] Prepare a Hyprland 0.55+ Lua starter with Ghostty, Brave Origin, and
   Noctalia 5 daemon startup.
@@ -139,10 +138,18 @@ preferences remain GUI-managed. See [starter usage](README.md#hyprland-starter).
   actions, one keybind source, and no Nirius dependency.
 - [x] Curate DMS preferences against the current upstream settings format;
   keep generated colors and runtime state out of Chezmoi ownership.
-- [ ] Verify native Hyprland and Noctalia behavior in the installed VM before
-  splitting shared and shell-specific files.
-- [ ] Configure Noctalia through its GUI, then capture reviewed portable
-  preferences and verify theme ownership without tracking generated state.
+- [x] Verify normal reboot and Hyprland/Noctalia login in the Fedora VM
+  (2026-09-08, Noctalia 5.0.1). Recovery-session login remains untested.
+- [x] Capture reviewed portable Noctalia preferences and app template selections
+  from the VM; document ownership and prerequisites in [NOCTALIA.md](NOCTALIA.md).
+- [x] Validate the captured config with Noctalia 5.0.1 and Hyprland 0.56.2
+  in disposable VM directories; run isolated Chezmoi previews and `just check`.
+- [ ] Test the newly captured profile on the VM: generation, light/dark changes,
+  app reloads, and repeat Chezmoi previews without generated-color drift.
+- [ ] Verify keyring dialog colors, secure first-login initialization and
+  password-login unlocking after Nimbus supplies the missing PAM package.
+- [ ] Complete app-specific setup in NOCTALIA.md, including VSCodium's theme
+  extension and applications that require a profile, vault or skin first.
 - [x] Enable only the maintained `niri-dms` user-config profile on Linux.
 - [ ] Add Nimbus's Niri/DMS system profile and verify prerequisites before
   migration; this dotfiles branch does not provision the session.

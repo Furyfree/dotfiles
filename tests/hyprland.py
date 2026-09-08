@@ -63,8 +63,7 @@ class Hyprland(unittest.TestCase):
                         if enabled:
                             self.assertEqual(entries[".config/hypr/hyprland.lua"]["contents"],
                                              CONFIG.read_text())
-                        self.assertFalse(any(name == ".config/noctalia" or
-                                             name.startswith(".config/noctalia/") for name in entries))
+                        self.assertEqual(".config/noctalia/config.toml" in entries, enabled)
 
     @unittest.skipUnless(LUA, "lua is not installed")
     def test_lua_bindings_and_startup_are_declarative(self):

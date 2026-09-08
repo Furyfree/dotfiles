@@ -1,0 +1,5 @@
+{{- template "configs/zathura/zathurarc" . -}}
+{{ if and (eq .chezmoi.os "linux") (has "hyprland-noctalia" (get . "profiles" | default (list))) }}
+# Noctalia owns this optional generated palette; defaults above work before it exists.
+include noctaliarc
+{{ end -}}

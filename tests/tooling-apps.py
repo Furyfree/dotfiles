@@ -149,7 +149,7 @@ class ToolingApps(unittest.TestCase):
         self.assertFalse((gh_dir / "hosts.yml").exists())
 
     def test_btop(self):
-        config = tomllib.loads((CONFIG / "btop/btop.conf").read_text())
+        config = tomllib.loads((REPO / "home/.chezmoitemplates/configs/btop/btop.conf").read_text())
         defaults = tomllib.loads(self.run_tool("btop", "--default-config"))
         for key, value in config.items():
             with self.subTest(key=key):
@@ -158,7 +158,7 @@ class ToolingApps(unittest.TestCase):
 
     def test_zathura(self):
         settings, mappings = {}, {}
-        for line in (CONFIG / "zathura/zathurarc").read_text().splitlines():
+        for line in (REPO / "home/.chezmoitemplates/configs/zathura/zathurarc").read_text().splitlines():
             fields = shlex.split(line, comments=True)
             if not fields:
                 continue
@@ -203,7 +203,7 @@ class ToolingApps(unittest.TestCase):
             self.assertIsNone(display.poll(), "Broadway failed to start")
             self.assertTrue((runtime / "http.sock").exists(), "Broadway socket not ready")
             viewer = subprocess.Popen([
-                "zathura", "--config-dir", str(CONFIG / "zathura"),
+                "zathura", "--config-dir", str(REPO / "home/.chezmoitemplates/configs/zathura"),
                 "--data-dir", str(self.root / "zathura-data"),
                 "--cache-dir", str(self.root / "zathura-cache"), "--log-level", "debug"],
                 env=env, cwd=self.root, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -226,7 +226,8 @@ class ToolingApps(unittest.TestCase):
                 ".zshenv", ".config/zsh/.zshrc", ".config/zsh/.zprofile",
                 ".config/sheldon/plugins.toml"}
         unix |= {f".config/zsh/conf.d/{path.name}"
-                 for path in (CONFIG / "zsh/conf.d").glob("*.zsh")}
+                 for path in (CONFIG / "zsh/conf.d").glob("*.zsh")
+                 if path.name != "noctalia.zsh"}
         linux = {".config/udiskie/config.yml", ".config/zathura/zathurarc",
                  ".config/mise/conf.d/cargo.toml"}
         gh_unix = ".config/gh/config.yml"

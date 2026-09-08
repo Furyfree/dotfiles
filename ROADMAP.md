@@ -14,7 +14,7 @@ The Hyprland Lua starter is local work awaiting desktop validation. TASKS
 records source implementation separately from unperformed live testing.
 
 The next work is to test the prepared configurations on the installed desktop
-and capture reviewed Noctalia preferences from its GUI. The 1Password handoff,
+and validate the captured Noctalia profile integration on the VM. The 1Password handoff,
 Neovim parser setup, and native macOS/Windows checks retain their own gates.
 Installation and apply still require separate permission.
 
@@ -208,8 +208,8 @@ setup, conflict context, and two read-only aliases. See
 
 Ghostty uses one Linux/macOS config and native keybindings. The Linux
 `hyprland-noctalia` profile selects Noctalia's generated theme, with its built-in
-integration enabled manually in Noctalia's GUI. Other setups retain the static
-charcoal-blue palette. No Noctalia settings or generated themes are managed.
+integration enabled by the desktop profile. Other setups retain the static
+charcoal-blue palette. No generated themes are managed; portable settings are captured.
 Linux GTK and macOS input differences stay in the template; Windows remains
 ignored. The Niriland include is removed. Validation and
 recovery are in [README.md](README.md#ghostty). Stop before applying; native
@@ -217,7 +217,7 @@ macOS input and visual behavior remain manual checks.
 
 VSCodium settings/keybindings are implemented independently, matching the Zed
 slice's core workflow while preserving notebook, debugger, and viewer extensions.
-Noctalia integration is configured manually. Extension after-apply hooks are
+Noctalia template selection is profile-managed. Extension after-apply hooks are
 prepared but ignored until explicitly enabled. See [README.md](README.md#vscodium)
 for extension availability, installation, validation, and migration limitations.
 Stop before apply and validate native input on each operating system.
@@ -226,8 +226,8 @@ Zed is implemented independently with canonical settings/keymap inputs and
 platform wrappers. It keeps the VS Code base map, adds only a terminal toggle,
 and uses a Noctalia-generated theme on the Linux desktop profile with bundled
 themes elsewhere. See [README.md](README.md#zed) for behavior, validation,
-and recovery. Noctalia integration is enabled manually in its GUI; no Noctalia
-settings or templates are managed. Stop before apply; native input and theme
+and recovery. Noctalia integration is selected by the profile; generated palettes stay
+unmanaged. Stop before apply; native input and theme
 reload remain manual checks.
 
 ## Phase 4 - 1Password, SSH, and GitHub CLI
@@ -356,13 +356,20 @@ require it. Keep monitor and host overrides small and local; do not extend the
 Nimbus handoff with hardware facts. Adopt Niri and DMS one config at a time,
 leaving reserved profiles disabled until their files and gating are validated.
 
-### Noctalia GUI first
+### Noctalia profile integration
 
-Install Noctalia and choose settings in its GUI before adopting its files.
-Then inspect the installed version's actual paths and capture only intentional,
-portable preferences. Do not guess a schema now or import the entire state
-directory. Generated application themes, caches, sessions, and downloaded
-plugins stay unmanaged; theme integration must respect Noctalia's ownership.
+The Fedora VM passed normal reboot and Hyprland/Noctalia login on 2026-09-08.
+Portable Noctalia 5.0.1 preferences and selected app integrations are captured;
+[NOCTALIA.md](NOCTALIA.md) records output paths and remaining prerequisites.
+Generated colors and GUI/runtime state remain Noctalia-owned.
+
+Next verify light/dark changes across the selected applications and the keyring
+prompt. Its white appearance needs GTK/theme-consumer testing. Nimbus owns the
+missing GNOME Keyring PAM package, secure first-login initialization and
+password-login unlocking; Chezmoi must never copy keyring secrets or replace
+that with an empty keyring password. The automatic unlocking path needs a
+fresh login test after the system dependency is repaired. Existing keyrings
+may need a separate user-approved password/default-keyring adjustment.
 
 Exit criteria: launch, focus, workspace, shell, theme, and session controls work
 in each selected real session, and profile selection excludes the others.

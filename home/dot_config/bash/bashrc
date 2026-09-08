@@ -36,3 +36,7 @@ unset -f dotfiles_bash_source_if_readable
 if [[ -n ${BLE_VERSION-} ]]; then
   ble-attach
 fi
+
+if [ -r "$XDG_CONFIG_HOME/bash/conf.d/noctalia.bash" ]; then
+  . "$XDG_CONFIG_HOME/bash/conf.d/noctalia.bash"
+fi
