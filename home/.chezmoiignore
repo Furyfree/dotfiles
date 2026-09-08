@@ -48,6 +48,8 @@ Library/**
 {{ if or (ne .chezmoi.os "linux") (not $hyprlandNoctalia) -}}
 .config/hypr/**
 .config/noctalia/**
+.config/zsh/conf.d/noctalia.zsh
+.config/bash/conf.d/noctalia.bash
 {{ end -}}
 
 # Other Linux user targets
@@ -121,7 +123,6 @@ Library/Application Support
 .config/ghostty/themes/dankcolors
 .config/ghostty/themes/noctalia
 .config/hypr/conf.d/**
-.config/noctalia/**
 .config/vm-curator/**
 .config/zed/themes/**
 .local/share/backgrounds/**

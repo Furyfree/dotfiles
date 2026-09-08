@@ -80,9 +80,8 @@ class Ghostty(unittest.TestCase):
                                                           noctalia=noctalia, managed=managed))
                         enabled = platform == "linux" and noctalia
                         files = {name for name, entry in entries.items() if entry["type"] == "file"}
-                        self.assertFalse(any(name.startswith(".config/noctalia/") for name in files))
+                        self.assertEqual(".config/noctalia/config.toml" in files, enabled)
                         self.assertNotIn(".config/ghostty/themes/noctalia", files)
-                        self.assertNotIn(".config/noctalia/config.toml", files)
                         self.assertNotIn(".config/noctalia/settings.toml", files)
                         if platform != "windows":
                             config = entries[".config/ghostty/config"]["contents"]

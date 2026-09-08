@@ -34,7 +34,7 @@ if command -v 1password >/dev/null 2>&1 || command -v op >/dev/null 2>&1; then
 {{ end -}}
 fi
 {{ if and (hasKey . "profiles") (has "hyprland-noctalia" .profiles) -}}
-printf '%s\n' 'Setup note: Noctalia: choose and generate its theme in the GUI before opening Ghostty.'
+printf '%s\n' 'Setup note: Noctalia: the desktop profile selects theme integrations. Log into the desktop to generate colors; see NOCTALIA.md for app prerequisites and existing GUI overrides.'
 {{ end -}}
 {{ end -}}
 cd "$HOME"

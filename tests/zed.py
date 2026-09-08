@@ -71,7 +71,7 @@ class Zed(unittest.TestCase):
                         "mode": "system", "light": "Noctalia Light", "dark": "Noctalia Dark"
                     } if enabled else {
                         "mode": "system", "light": "One Light", "dark": "One Dark"})
-                    self.assertFalse(any(name.startswith(".config/noctalia/") for name in files))
+                    self.assertEqual(".config/noctalia/config.toml" in files, enabled)
 
     def test_privacy_and_preferences(self):
         settings = strict_json(self.render("linux")[".config/zed/settings.json"])

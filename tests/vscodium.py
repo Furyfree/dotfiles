@@ -70,7 +70,7 @@ class VSCodium(unittest.TestCase):
                     files = self.render(platform, noctalia)
                     managed = {name for name in files if "/VSCodium/" in name}
                     self.assertEqual(managed, {f"{target}/settings.json", f"{target}/keybindings.json"})
-                    self.assertFalse(any(name.startswith((".config/noctalia/", ".vscode-oss/")) for name in files))
+                    self.assertFalse(any(name.startswith((".vscode-oss/",)) for name in files))
                     settings = strict_json(files[f"{target}/settings.json"])
                     enabled = platform == "linux" and noctalia
                     self.assertEqual(settings["workbench.colorTheme"], "NoctaliaTheme" if enabled else "Atom One Dark")

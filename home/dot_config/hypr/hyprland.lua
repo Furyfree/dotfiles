@@ -48,7 +48,12 @@ hl.config({
     dwindle = { preserve_split = true },
 })
 
--- Start once per session, not on config reload. Noctalia settings stay in its GUI.
+-- Noctalia owns the generated palette. First login works before it exists.
+if package.searchpath("noctalia", package.path) then
+    require("noctalia").apply_theme()
+end
+
+-- Start once per session, not on config reload.
 hl.on("hyprland.start", function()
     hl.exec_cmd("noctalia --daemon")
 end)

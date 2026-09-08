@@ -1,1 +1,23 @@
+# Portable preferences captured from the Fedora VM running Noctalia 5.0.1.
+# GUI overrides in ~/.local/state/noctalia/settings.toml take precedence.
+[theme]
+source = "wallpaper"
+wallpaper_scheme = "m3-tonal-spot"
 
+[theme.templates]
+enable_builtin_templates = true
+enable_community_templates = true
+builtin_ids = [
+    "btop", "gtk3", "gtk4", "ghostty", "hyprland", "kcolorscheme", "qt",
+]
+# Starship, Fastfetch and Neovim use Ghostty's ANSI palette. Their catalog
+# hooks would rewrite managed configs or install another editor theme plugin.
+community_ids = [
+    "claude-code", "codex", "opencode", "brave-origin", "discord",
+    "libreoffice", "obsidian", "vscode", "zed", "heroiclauncher",
+    "prismlauncher", "steam", "obs", "zathura", "hyprtoolkit",
+    "papirus-icons", "bat", "fzf", "herdr", "lazygit",
+]
+
+[wallpaper.default]
+path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"

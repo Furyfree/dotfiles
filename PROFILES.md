@@ -34,7 +34,7 @@ The template consumes them with the `prompt*Once` functions and stores them
 in the generated config as `Machine`, `ManagedByNimbus`, and `Profiles`, which
 `chezmoi data` shows. The profile list is stored as sent, without checking it
 against a fixed set, so a new Nimbus profile never breaks the handoff.
-`hyprland-noctalia` selects desktop files and the Ghostty, Zed, and VSCodium
+`hyprland-noctalia` selects desktop files and the Noctalia preferences and app
 theme integrations. `niri-dms` selects the separate Niri and DankMaterialShell
 configuration. Targets that call Nimbus are gated on `ManagedByNimbus`;
 other Linux application configs deploy independently of machine profiles.
@@ -78,7 +78,7 @@ Nimbus vocabulary; the machine manifest selects them:
 | `virtualization` | VM Curator configuration (no managed files yet) |
 | `gaming` | Gaming tool configuration (no managed files yet) |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |
-| `hyprland-noctalia` | Minimal Hyprland Lua starter with Noctalia daemon startup; Ghostty, Zed, and VSCodium select generated Noctalia themes on Linux, with integration and shell preferences configured manually in Noctalia's GUI |
+| `hyprland-noctalia` | Hyprland Lua starter, portable Noctalia preferences, selected app templates and palette includes; see [NOCTALIA.md](NOCTALIA.md) |
 | `niri-dms` | Modular Niri and curated DankMaterialShell settings on Linux; generated shell state stays unmanaged |
 | `windows-vm` | The Windows guest entries (no managed files yet) |
 
