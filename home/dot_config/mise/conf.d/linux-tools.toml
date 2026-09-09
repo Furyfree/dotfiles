@@ -4,3 +4,5 @@ tinymist = "latest"
 sheldon = "latest"
 resvg = "latest"
 "github:ifd3f/caligula" = { version = "latest", bin = "caligula" }
+# Upstream publishes Linux x86_64 binaries only.
+"github:mroboff/vm-curator" = { version = "latest", os = ["linux/x64"], asset_pattern = "vm-curator-*-linux-x86_64.tar.gz" }

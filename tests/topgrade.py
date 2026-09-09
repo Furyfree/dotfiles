@@ -133,11 +133,11 @@ if pathlib.Path(sys.argv[0]).name == os.environ.get("FAKE_FAIL_TOOL"):
         self.assertIn("sheldon: FAILED", result.stdout)
 
     @unittest.skipUnless(MISE, "mise is not installed")
-    def test_native_mise_global_cargo_discovery(self):
+    def test_native_mise_global_fragment_discovery(self):
         config = self.home / ".config/mise"
         (config / "conf.d").mkdir(parents=True)
         (config / "config.toml").write_text('[tools]\nnode = "lts"\n')
-        (config / "conf.d/cargo.toml").write_text(
+        (config / "conf.d/linux-tools.toml").write_text(
             '[tools]\n"cargo:demo" = "latest"\n')
         # A native config listing, not an install/update or trust operation.
         for name in ("mise.toml", ".mise.toml", ".tool-versions"):
@@ -150,7 +150,7 @@ if pathlib.Path(sys.argv[0]).name == os.environ.get("FAKE_FAIL_TOOL"):
                 stdin=subprocess.DEVNULL, text=True, capture_output=True, timeout=30)
         self.assertEqual(result.returncode, 0, result.stderr)
         paths = {Path(entry["path"]) for entry in json.loads(result.stdout)}
-        self.assertEqual(paths, {config / "config.toml", config / "conf.d/cargo.toml"})
+        self.assertEqual(paths, {config / "config.toml", config / "conf.d/linux-tools.toml"})
 
     @unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
     def test_platform_targets(self):

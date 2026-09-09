@@ -28,6 +28,11 @@ files. Machine manifests live in the Nimbus repository, never here.
 Treat the current machine and Niriland as references. Rewrite and review one
 configuration at a time; never import either wholesale.
 
+This repository is not in production. Change or remove source configuration
+directly; do not add migrations, compatibility layers, `.chezmoiremove` entries,
+or cleanup of earlier configurations or tool providers. Revisit this only when
+the user declares a production deployment or explicitly requests a migration.
+
 Keep empty scaffold trees ignored until their files have deliberate, validated
 content. `.keep` files reserve Git directories but must not make target
 directories managed.

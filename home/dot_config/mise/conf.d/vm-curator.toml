@@ -1,3 +1,0 @@
-# Upstream publishes Linux x86_64 binaries only. Chezmoi gates this fragment.
-[tools]
-"github:mroboff/vm-curator" = { version = "latest", asset_pattern = "vm-curator-*-linux-x86_64.tar.gz" }

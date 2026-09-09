@@ -109,7 +109,7 @@ class ToolingApps(unittest.TestCase):
         for path in (CONFIG / "mise").rglob("*.toml"):
             self.assertIn(path.name, configs)
         config = tomllib.loads((CONFIG / "mise/config.toml").read_text())
-        config["tools"].update(tomllib.loads((CONFIG / "mise/conf.d/cargo.toml").read_text())["tools"])
+        config["tools"].update(tomllib.loads((CONFIG / "mise/conf.d/linux-tools.toml").read_text())["tools"])
         for tool in config.get("tools", {}):
             if ":" in tool:
                 continue  # Explicit backend IDs need not appear in the registry.
@@ -229,7 +229,7 @@ class ToolingApps(unittest.TestCase):
                  for path in (CONFIG / "zsh/conf.d").glob("*.zsh")
                  if path.name != "noctalia.zsh"}
         linux = {".config/udiskie/config.yml", ".config/zathura/zathurarc",
-                 ".config/mise/conf.d/cargo.toml"}
+                 ".config/mise/conf.d/linux-tools.toml"}
         gh_unix = ".config/gh/config.yml"
         gh_windows = "AppData/Roaming/GitHub CLI/config.yml"
         all_targets = unix | linux | {gh_unix, gh_windows}

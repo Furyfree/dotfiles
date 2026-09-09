@@ -21,14 +21,14 @@ Plan: [desktop preparation and platform validation](ROADMAP.md#current-phase---d
 ## Existing implementation
 
 The 2026-09-07 COPR VM installation completed, but source builds made the
-first run slow. The current installation-flow branch replaces the five Linux
-CLI source builds on x86_64 with upstream stable binaries through native Mise
-Aqua and GitHub backends, and removes cargo-update. Typst stays on Terra. Existing
-Cargo provider versions are pruned only after replacement verification and
-only when no tracked Mise configuration needs them. VM Curator selection,
-verification, and migration are x86_64-only because upstream has no ARM binary.
-Native Mise behavior was verified with isolated install-state fixtures that
-retain another project's Cargo version and an unrelated tool.
+first run slow. The Linux CLI tools now use upstream stable binaries through
+native Mise Aqua and GitHub backends in `linux-tools.toml`. VM Curator uses
+GitHub with a native `linux/x64` restriction because upstream has no ARM
+binary. Typst stays on Terra, and cargo-update is not declared. No deployed
+installation needs a provider migration, so there is no migration cleanup.
+`.chezmoiremove` remains a comment-only placeholder for future migrations.
+Nimbus's `docs/SECURITY.md` still describes obsolete-provider cleanup and
+needs reconciliation there.
 
 An isolated native installation downloaded Tinymist 0.15.6, Sheldon 0.8.5,
 resvg 0.48.1, Caligula 0.5.0, and VM Curator 1.4.0; all five binaries answered

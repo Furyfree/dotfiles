@@ -59,18 +59,13 @@ Library/**
 # Other Linux user targets
 {{ if ne .chezmoi.os "linux" -}}
 .config/mise/conf.d
-.config/mise/conf.d/cargo.toml
-.config/mise/conf.d/vm-curator.toml
+.config/mise/conf.d/linux-tools.toml
 .config/udiskie/**
 .config/vm-curator/**
 .config/zathura/**
 .local/share/applications/**
 .local/share/backgrounds/**
 .local/share/icons/**
-{{ end -}}
-
-{{ if ne .chezmoi.arch "amd64" -}}
-.config/mise/conf.d/vm-curator.toml
 {{ end -}}
 
 # Niri and DankMaterialShell are a separate opt-in Linux session.

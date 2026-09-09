@@ -35,10 +35,9 @@ third-party brand assets and are not covered by the MIT license.
 
 ## Mise tools
 
-On Linux, Chezmoi manages `~/.config/mise/conf.d/cargo.toml` alongside the main
-Mise configuration. The filename stays the same so existing installations
-replace the old source-build declarations on apply. It now selects upstream
-release binaries through Mise's native backends:
+On Linux, Chezmoi manages `~/.config/mise/conf.d/linux-tools.toml` alongside
+the main Mise configuration. It selects Linux CLI tools through Mise's native
+backends:
 
 | Tool | Mise backend |
 |---|---|
@@ -48,17 +47,16 @@ release binaries through Mise's native backends:
 | Caligula | GitHub `ifd3f/caligula`, native executable |
 | VM Curator | GitHub `mroboff/vm-curator`, Linux x86_64 tar archive |
 
-VM Curator is selected only on Linux x86_64, through the separate
-`vm-curator.toml` fragment. Its upstream has no ARM release binary, so this
-configuration does not install or activate VM Curator on ARM. Users who need
-it there must supply it separately.
+VM Curator's upstream release only provides Linux x86_64 binaries. Its native
+Mise `os = ["linux/x64"]` restriction keeps it inactive on ARM while the other
+tools remain available from the same fragment.
 
 All selected tools use `latest` stable. `mise install` installs missing versions;
 `mise upgrade` and the existing Topgrade Mise step update them without editing
-version pins. Mise downloads the maker's release assets and performs its
-native checksum and available provenance checks. Cargo binaries are no longer
-disabled globally. There is no separate `cargo-update` installation: Mise owns
-updates for its tools. See the [Aqua backend](https://mise.jdx.dev/dev-tools/backends/aqua.html)
+version pins. The Aqua and GitHub backends download the maker's release assets
+and perform native checksum and available provenance checks. There is no
+separate `cargo-update` installation: Mise owns updates for its tools.
+See the [Aqua backend](https://mise.jdx.dev/dev-tools/backends/aqua.html)
 and [GitHub backend](https://mise.jdx.dev/dev-tools/backends/github.html).
 
 This Linux fragment is ignored on macOS and Windows. The existing runtime
@@ -83,14 +81,6 @@ fails the apply. Fix the reported problem and rerun the full apply to retry.
 Files already written and tools already installed are retained after failure.
 Only native Mise tool declarations request installation; other app configs do
 not install those apps.
-
-After installation succeeds and all selected replacements pass `--version`,
-the Linux script asks native Mise to prune only the six former Cargo provider
-identities (five on ARM, where VM Curator's old Cargo files are not pruned).
-Versions still needed by other tracked Mise configs or tool stubs
-are retained. Unrelated tools, project configuration, and direct installations
-under `~/.cargo/bin` are untouched. The removal remains visible in native output;
-failed installation or verification prevents cleanup.
 
 The script sets `MISE_SYSTEM_DEPS=warn` and `MISE_AUTO_UPDATE=false`: system
 dependencies stay outside Chezmoi, and this install step does not request
@@ -601,11 +591,9 @@ repeated apply and repair, failure/retry, missing prerequisites, platform
 rendering, and previews that never invoke the installer. When Mise is installed,
 a read-only native discovery probe also checks that home-local and parent
 configs are excluded while the global config and tool fragment remain loaded.
-An isolated native cleanup fixture verifies that other project requirements and
-unrelated tools survive migration. Logging tests cover failure, retry, and
-unsafe paths. These tests never apply this repository or download tools. None of these checks
-authenticates, mounts devices, accesses the real clipboard, or writes live
-configuration.
+Logging tests cover failure, retry, and unsafe paths. These tests never apply
+this repository or download tools. None of these checks authenticates, mounts
+devices, accesses the real clipboard, or writes live configuration.
 
 Use the repository preview commands before applying. Back up the six existing
 config files first (if present); applying replaces files rather than merging
