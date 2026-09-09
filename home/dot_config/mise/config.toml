@@ -21,6 +21,8 @@ herdr = "latest"
 # Language helpers
 "npm:markdownlint-cli" = "latest"
 "go:golang.org/x/tools/gopls" = "latest"
+staticcheck = "latest"
+golangci-lint = "latest"
 
 [settings]
 # Nimbus's contract: Mise updates itself; system packages stay outside Mise.
