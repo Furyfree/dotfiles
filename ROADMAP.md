@@ -363,13 +363,17 @@ Portable Noctalia 5.0.1 preferences and selected app integrations are captured;
 [NOCTALIA.md](NOCTALIA.md) records output paths and remaining prerequisites.
 Generated colors and GUI/runtime state remain Noctalia-owned.
 
-Next verify light/dark changes across the selected applications and the keyring
-prompt. Its white appearance needs GTK/theme-consumer testing. Nimbus owns the
-missing GNOME Keyring PAM package, secure first-login initialization and
-password-login unlocking; Chezmoi must never copy keyring secrets or replace
-that with an empty keyring password. The automatic unlocking path needs a
-fresh login test after the system dependency is repaired. Existing keyrings
-may need a separate user-approved password/default-keyring adjustment.
+The published installation now passes password-login keyring unlocking without
+an extra prompt. The remaining work is toolkit/app adoption: profile-gated GTK
+and Qt configuration, session environment propagation, native Brave GTK
+theming, and native application theme selection. Chezmoi owns toolkit
+preferences; Noctalia owns generated colors and live GTK appearance updates.
+Do not copy Niriland's fixed dark-mode overrides or browser/agent runtime state.
+
+Verify light/dark changes and first-login generation across GTK, Qt, Brave and
+the selected apps. Explicit extension, skin and vault prerequisites remain in
+NOCTALIA.md. Existing Noctalia GUI overrides must omit the old Brave community
+hook. Keyring password changes and passwordless login need separate tests.
 
 Exit criteria: launch, focus, workspace, shell, theme, and session controls work
 in each selected real session, and profile selection excludes the others.

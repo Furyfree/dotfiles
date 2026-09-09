@@ -35,6 +35,13 @@ local browser = "brave-origin"
 local fileManager = "nautilus"
 local mainMod = "SUPER"
 
+-- greetd skips shell profiles; provide PATH when the login environment has none.
+if not os.getenv("PATH") or os.getenv("PATH") == "" then
+    hl.env("PATH", "/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin")
+end
+-- qt6ct also accepts qt5ct, allowing both Qt generations to load their plugin.
+hl.env("QT_QPA_PLATFORMTHEME", "qt5ct")
+
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" })
 
 hl.config({
@@ -56,31 +63,31 @@ end
 -- Start once per session, not on config reload.
 hl.on("hyprland.start", function()
     hl.exec_cmd("noctalia --daemon")
+    hl.exec_cmd("librepods --hide")
 end)
 
 -- Standard starter keys, with B added for the selected browser.
-hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
-hl.bind(mainMod .. " + C", hl.dsp.window.close())
-hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher"))
--- Keep the upstream logout fallback usable even if Noctalia fails to start.
-hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
-hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
-hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
+hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd(terminal), { description = "Open Ghostty terminal" })
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser), { description = "Open Brave browser" })
+hl.bind(mainMod .. " + C", hl.dsp.window.close(), { description = "Close focused window" })
+hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager), { description = "Open file manager" })
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher"), { description = "Open Noctalia launcher" })
+hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("noctalia msg panel-toggle session"), { description = "Open Noctalia session menu" })
+hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }), { description = "Toggle floating window" })
+hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { description = "Toggle pseudotiling" })
+hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"), { description = "Toggle split direction" })
 
 -- Focus with arrows; switch workspaces with digits (0 means workspace 10).
-hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }))
-hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
-hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }))
-hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "down" }))
+hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }), { description = "Focus window to the left" })
+hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }), { description = "Focus window to the right" })
+hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }), { description = "Focus window above" })
+hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "down" }), { description = "Focus window below" })
 for i = 1, 10 do
     local key = i % 10
-    hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
-    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
+    hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }), { description = "Switch to workspace " .. i })
+    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }), { description = "Move window to workspace " .. i })
 end
 
 -- Hold Super and drag with the left/right mouse button to move/resize.
-hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
-hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true, description = "Move window with mouse" })
+hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, description = "Resize window with mouse" })

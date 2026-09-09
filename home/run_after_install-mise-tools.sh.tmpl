@@ -35,6 +35,7 @@ if command -v 1password >/dev/null 2>&1 || command -v op >/dev/null 2>&1; then
 fi
 {{ if and (hasKey . "profiles") (has "hyprland-noctalia" .profiles) -}}
 printf '%s\n' 'Setup note: Noctalia: the desktop profile selects theme integrations. Log into the desktop to generate colors; see NOCTALIA.md for app prerequisites and existing GUI overrides.'
+printf '%s\n' 'Setup note: Brave Origin: select Use GTK in Settings > Appearance to follow the Noctalia GTK theme.'
 {{ end -}}
 {{ end -}}
 cd "$HOME"

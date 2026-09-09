@@ -2,6 +2,7 @@
 """Check profile wiring and previews without reading the live desktop."""
 
 import json
+import configparser
 import os
 from pathlib import Path
 import shutil
@@ -55,15 +56,22 @@ class Noctalia(unittest.TestCase):
                 self.assertEqual(".config/noctalia/config.toml" in entries, enabled)
                 self.assertEqual(".config/zsh/conf.d/noctalia.zsh" in entries, enabled)
                 self.assertEqual(".config/bash/conf.d/noctalia.bash" in entries, enabled)
+                for target in ("gtk-3.0/settings.ini", "gtk-4.0/settings.ini",
+                               "qt5ct/qt5ct.conf", "qt6ct/qt6ct.conf"):
+                    self.assertEqual(f".config/{target}" in entries, enabled)
                 self.assertFalse(any(name.startswith((".local/state/noctalia", ".claude/", ".codex/"))
                                      for name in entries))
                 if enabled:
                     config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
-                    self.assertEqual(set(config), {"theme", "wallpaper"})
+                    self.assertEqual(set(config), {"theme", "wallpaper", "shell", "plugins"})
+                    actions = config["shell"]["session"]["actions"]
+                    self.assertEqual([item["action"] for item in actions],
+                                     ["lock", "logout", "lock_and_suspend", "reboot", "shutdown"])
                     templates = config["theme"]["templates"]
                     self.assertNotIn("starship", templates["builtin_ids"])
                     self.assertTrue({"neovim", "fastfetch"}.isdisjoint(templates["community_ids"]))
-                    self.assertTrue({"brave-origin", "vscode", "discord"} <= set(templates["community_ids"]))
+                    self.assertNotIn("brave-origin", templates["community_ids"])
+                    self.assertTrue({"vscode", "discord"} <= set(templates["community_ids"]))
                     self.assertEqual(tomllib.loads(entries[".config/btop/btop.conf"]["contents"])
                                      ["color_theme"], "noctalia")
                     self.assertIn("include noctaliarc", entries[".config/zathura/zathurarc"]["contents"])
@@ -72,12 +80,57 @@ class Noctalia(unittest.TestCase):
                                      ["color_theme"], "TTY")
                     self.assertNotIn("include noctaliarc", entries[".config/zathura/zathurarc"]["contents"])
 
+    def test_logout_requires_and_preserves_the_explicit_session_id(self):
+        config = tomllib.loads((REPO / "home/dot_config/noctalia/config.toml").read_text())
+        command = next(row["command"] for row in config["shell"]["session"]["actions"]
+                       if row["action"] == "logout")
+        binaries = self.root / "bin"
+        binaries.mkdir()
+        fake = binaries / "loginctl"
+        fake.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\nexit "${RESULT:-0}"\n')
+        fake.chmod(0o755)
+        env = dict(self.env, PATH=str(binaries))
+        for session in (None, "", "c2", "session with spaces"):
+            for status in (0, 7):
+                with self.subTest(session=session, status=status):
+                    invocation_env = dict(env, RESULT=str(status))
+                    if session is not None:
+                        invocation_env["XDG_SESSION_ID"] = session
+                    result = subprocess.run(["/bin/sh", "-c", command],
+                                            env=invocation_env, text=True, capture_output=True)
+                    if session:
+                        self.assertEqual(result.returncode, status)
+                        self.assertEqual(result.stdout.splitlines(), ["terminate-session", session])
+                    else:
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertEqual(result.stdout, "")
+
+    def test_toolkit_selection_leaves_colors_and_mode_to_noctalia(self):
+        entries = json.loads(self.chezmoi("dump", "--format=json"))
+        for version in (3, 4):
+            settings = configparser.ConfigParser()
+            settings.read_string(entries[f".config/gtk-{version}.0/settings.ini"]["contents"])
+            self.assertNotIn("gtk-application-prefer-dark-theme", settings["Settings"])
+            if version == 4:
+                self.assertNotIn("gtk-theme-name", settings["Settings"])
+            self.assertNotIn(f".config/gtk-{version}.0/noctalia.css", entries)
+        for version in (5, 6):
+            settings = configparser.ConfigParser()
+            settings.read_string(entries[f".config/qt{version}ct/qt{version}ct.conf"]["contents"])
+            appearance = settings["Appearance"]
+            self.assertTrue(appearance.getboolean("custom_palette"))
+            self.assertTrue(appearance["color_scheme_path"].endswith(
+                f"/.config/qt{version}ct/colors/noctalia.conf"))
+            self.assertNotIn(f".config/qt{version}ct/colors/noctalia.conf", entries)
+
     def test_previews_and_generated_files_do_not_drift(self):
         # Apply into this disposable home only; no install scripts or live state.
         self.chezmoi("apply", "--exclude=scripts")
         for name in (".config/hypr/noctalia.lua", ".config/btop/themes/noctalia.theme",
                      ".config/ghostty/themes/noctalia", ".config/zathura/noctaliarc",
-                     ".config/fzf/themes/noctalia.sh", ".config/zed/themes/noctalia.json"):
+                     ".config/fzf/themes/noctalia.sh", ".config/zed/themes/noctalia.json",
+                     ".config/gtk-3.0/noctalia.css", ".config/gtk-4.0/noctalia.css",
+                     ".config/qt5ct/colors/noctalia.conf", ".config/qt6ct/colors/noctalia.conf"):
             target = self.home / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text("generated stand-in\n")

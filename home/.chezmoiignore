@@ -48,6 +48,10 @@ Library/**
 {{ if or (ne .chezmoi.os "linux") (not $hyprlandNoctalia) -}}
 .config/hypr/**
 .config/noctalia/**
+.config/gtk-3.0/settings.ini
+.config/gtk-4.0/settings.ini
+.config/qt5ct/qt5ct.conf
+.config/qt6ct/qt6ct.conf
 .config/zsh/conf.d/noctalia.zsh
 .config/bash/conf.d/noctalia.bash
 {{ end -}}

@@ -69,11 +69,12 @@ class Hyprland(unittest.TestCase):
     def test_lua_bindings_and_startup_are_declarative(self):
         # A strict API double checks Lua execution, not Hyprland's native schema.
         result = self.run_command(LUA, "-", str(CONFIG), input=r'''
-local binds, hooks, spawned = {}, {}, {}
+local binds, hooks, spawned, environment = {}, {}, {}, {}
 local function action(name)
     return function(value) return { name = name, value = value } end
 end
 hl = {
+    env = function(key, value) environment[key] = value end,
     monitor = function(value) assert(value.output == "" and value.mode == "preferred") end,
     config = function(value) assert(value.general.layout == "dwindle") end,
     on = function(event, callback)
@@ -83,6 +84,8 @@ hl = {
     exec_cmd = function(command) table.insert(spawned, command) end,
     bind = function(key, value, options)
         assert(not binds[key], "duplicate shortcut: " .. key)
+        assert(options and type(options.description) == "string" and #options.description > 0,
+               "missing description: " .. key)
         binds[key] = value
         if key:find("mouse:") then assert(options.mouse) end
     end,
@@ -95,20 +98,23 @@ hl = {
     },
 }
 assert(loadfile(arg[1]))()
+assert(environment.PATH:find("/usr/bin", 1, true))
+assert(environment.QT_QPA_PLATFORMTHEME == "qt5ct")
 assert(#spawned == 0, "loading/reloading must not launch processes")
 assert(binds["SUPER + Q"].value == "ghostty")
 assert(binds["SUPER + B"].value == "brave-origin")
 assert(binds["SUPER + E"].value == "nautilus")
 assert(binds["SUPER + R"].value == "noctalia msg panel-toggle launcher")
 assert(binds["SUPER + C"].name == "close")
-assert(binds["SUPER + M"].value:find("hyprshutdown", 1, true))
+assert(binds["SUPER + M"].value == "noctalia msg panel-toggle session")
 for i = 1, 10 do
     local key = tostring(i % 10)
     assert(binds["SUPER + " .. key].value.workspace == i)
     assert(binds["SUPER + SHIFT + " .. key].value.workspace == i)
 end
 hooks["hyprland.start"]()
-assert(#spawned == 1 and spawned[1] == "noctalia --daemon")
+assert(#spawned == 2 and spawned[1] == "noctalia --daemon")
+assert(spawned[2] == "librepods --hide")
 ''')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
