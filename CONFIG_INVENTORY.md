@@ -62,7 +62,7 @@ GTK/Qt preferences are profile-managed. Noctalia owns its native theme hooks;
 OBS, Prism, Vesktop, Heroic and Herdr retain their native configuration and
 one-time theme selection. Test these and XDG portals after a fresh login. MIME defaults and further autostart
 remain to review. Chezmoi owns user preferences; Nimbus owns packages, services
-and the UWSM greeter selection.
+and greeter selection. UWSM adoption is deferred.
 
 Niri and DankMaterialShell use the opt-in `niri-dms` profile in
 [PROFILES.md](PROFILES.md). Their packages, greeters, and system session

@@ -44,7 +44,7 @@ enabled = [
     "cleboost/ssh-launcher",
 ]
 
-# Keep Noctalia's menu; logind ends this login and its UWSM session, if present.
+# Keep Noctalia's menu; logind ends the explicitly identified login session.
 [[shell.session.actions]]
 action = "lock"
 shortcut = "1"

@@ -83,8 +83,8 @@ validation alone do not verify external tools or accounts.
 ## LibrePods and keymap
 
 Hyprland starts `librepods --hide` once on its startup event, alongside
-Noctalia. This works in the current plain Hyprland session and the prepared
-UWSM session without another service or startup script. Do not also enable
+Noctalia. This was tested in the plain Hyprland session without another service or
+startup script. Do not also enable
 LibrePods' own autostart setting; use one startup owner. Reloading Hyprland
 only reloads the bindings, not the startup event. Every one of the 35 bindings
 has a native `description`, including mouse actions and generated workspace
@@ -170,10 +170,11 @@ executable discovery without suppressing Hyprland's GUI-utilities warning.
 `QT_QPA_PLATFORMTHEME=qt5ct` selects Qt5's plugin; Qt6ct explicitly accepts this
 compatibility name too. Both configs use Noctalia's generated palette and Fusion.
 Hyprland natively exports the display, desktop, toolkit and PATH variables
-to D-Bus/systemd activation before signalling readiness. Nimbus selects the
-packaged UWSM session so `graphical-session.target` follows compositor lifetime;
-Fedora's portal service requires that target. No custom session manager or
-duplicate environment-import hook is added.
+to D-Bus/systemd activation before signalling readiness. The tested plain
+Hyprland session still left `graphical-session.target` inactive, blocking
+Fedora's portal service. Nimbus retains plain Hyprland while native session
+integration and UWSM are researched. No custom session manager or duplicate
+environment-import hook is added.
 The change needs a fresh session; Chezmoi does not change the running desktop.
 Super+M opens Noctalia's own session panel. Its Logout row calls logind's
 `loginctl terminate-session "${XDG_SESSION_ID:?No graphical login session}"`.
@@ -187,7 +188,7 @@ the native actions. GUI row overrides still take precedence.
 Noctalia 5.0.1's `session logout` IPC creates a built-in action and bypasses
 row command overrides; current online docs describe newer behavior. Use the
 session panel for this version, not a direct logout IPC shortcut. Actual
-logout/relogin and UWSM teardown remain live tests.
+UWSM teardown remains deferred; the owner tested plain logout/relogin.
 
 The native-menu correction was applied to the VM and reloaded successfully.
 Both source and deployed copies of the old helper were removed after exact
@@ -254,8 +255,8 @@ free of drift. System changes belong to Nimbus, not a Chezmoi script.
 
 The owner subsequently selected plain Hyprland. Its graphical session target
 and portal remain inactive; UWSM login and portal testing are still pending.
-UWSM is the current Nimbus integration choice, not an upstream requirement for
-all Hyprland installations.
+The owner deferred UWSM adoption for research on 2026-09-09. The release keeps
+the tested plain Hyprland session and does not claim portal readiness.
 
 These checks do not prove every app's light/dark rendering, reload behavior, keyring
 unlocking, portal file picking or screen sharing. Application prerequisites in

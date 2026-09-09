@@ -171,11 +171,11 @@ A minimal Hyprland starter and portable Noctalia preferences are prepared. See [
   through the Nimbus candidate (2026-09-09). Its native Noctalia GTK hook
   selected `adw-gtk3-dark` and `prefer-dark`; the owner confirmed it works.
   Selected desktop managed/status/diff/verify checks passed without drift.
-- [ ] Log into UWSM before completing toolkit/portal visual testing. The owner
-  used plain Hyprland after applying the candidate; its graphical target and
-  portal remain inactive.
+- [ ] Research native Hyprland session integration and UWSM in Nimbus. The
+  owner deferred UWSM adoption and accepted plain Hyprland for this release;
+  its graphical target and portal remain inactive.
 - [ ] Verify toolkit colors and keyring dialog appearance after a fresh login
-  with the follow-up config and UWSM session; test native logout/relogin,
+  with the follow-up config; test native logout/relogin,
   portal activation, dark/light changes and Brave with **Use GTK** selected.
 - [ ] Complete app-specific setup in NOCTALIA.md, including VSCodium's theme
   extension and applications that require a profile, vault or skin first.
