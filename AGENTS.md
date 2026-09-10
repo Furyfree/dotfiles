@@ -14,9 +14,12 @@ Manage only intentional files below the current user's `$HOME`.
 Keep user-facing commands in `README.md`; planning documents should link to it
 instead of duplicating usage instructions.
 
-Nimbus owns system packages and system state. Chezmoi owns native Mise tool
-configuration, including Cargo tools, and invokes `mise install` after applying
-it. Mise owns tool installation and updates.
+On Nimbus-managed machines, Nimbus owns system packages and system state.
+Chezmoi owns Topgrade configuration: managed Linux delegates system updates
+to Nimbus; standalone Linux uses native system/Flatpak steps, and macOS uses
+Homebrew. Applying dotfiles does not run Topgrade.
+Chezmoi owns native Mise tool configuration, including Cargo tools, and invokes
+`mise install` after applying it. Mise owns tool installation and updates.
 Nimbus supplies the machine ID, the managed-by-Nimbus flag, and the machine
 profile IDs through the `chezmoi init`
 prompt flags; the config template consumes them with the `prompt*Once`
