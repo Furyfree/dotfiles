@@ -316,8 +316,7 @@ when basic editing is comfortable and the user understands its configuration.
 ## Phase 6 - Linux desktop
 
 Nimbus's first system desktop remains `hyprland-noctalia`. Nimbus owns
-packages, services, portals, greeters, and system and recovery-session
-integration. Chezmoi owns normal
+packages, services, portals, greeters, and system integration. Chezmoi owns normal
 user settings. Profile names and gates remain governed by PROFILES.
 
 At the owner's request, the `niri-dms` user configuration is prepared
@@ -339,8 +338,8 @@ not add launcher files until the corresponding installed workflows are tested.
 A small Hyprland 0.55+ Lua starter is prepared: Ghostty, Brave Origin, Noctalia 5
 daemon startup, and basic native window/workspace controls. Keep it one
 readable file until tested with the actual packaged versions in the VM.
-See [starter usage and validation](README.md#hyprland-starter). It is not a
-substitute for Nimbus's recovery session; the full keymap revamp stays deferred.
+See [starter usage and validation](README.md#hyprland-starter). Repair broken
+desktop configuration from a TTY; the full keymap revamp stays deferred.
 
 ### Installed desktop revamp
 
@@ -409,26 +408,31 @@ runtimes and tools (including its Cargo backend), plus native gh-extension,
 Sheldon-plugin, and tldr-data steps. Avoid updating a tool through both Mise and
 another manager. See [README](README.md#topgrade) for the exact scope.
 
-Align Nimbus use with its `docs/SPEC.md` allowlist contract: its Topgrade phase
-excludes system, Flatpak, firmware, Nix, Chezmoi, Git-repository, and self-update
-steps. The standalone config uses the same user-only allowlist;
-do not assume Nimbus's invocation flags protect it. No privilege escalation or
-automatic repository pulls/apply should arise from these dotfiles.
+Topgrade coordinates the update run. Managed Linux calls Nimbus first through
+one pre-command; its failure stops user updates. Standalone Linux selects
+native system/Flatpak steps and macOS selects Homebrew. User-tool steps retain
+the explicit allowlist and Topgrade self-update remains disabled. Native fake-
+updater tests must prove order, dry-run, failure propagation, and platform gates.
 
 Upstream Topgrade 17.9 combines CLI and config `only` lists, and normal
-discovery can load extra hook fragments. Nimbus's future implementation must
-account for this before claiming the CLI allowlist enforces its boundary.
+discovery can load extra hook fragments. Use the explicit managed config when
+testing the allowlist; extra local fragments and explicit CLI additions are
+user customizations.
 
-The requested pre/post snapshots and system package upgrades belong to Nimbus's
-system phase. Its recovery implementation and integrated Topgrade offer remain
-pending work in Nimbus; do not introduce competing Snapper hooks or recursion
-from Topgrade back into Nimbus here.
+The local, unreleased `nimbus upgrade` command delegates to Topgrade. Its
+`nimbus upgrade --system` callback upgrades DNF and system Flatpaks without
+syncing definitions or invoking Topgrade again. Deploy the matching Nimbus
+engine with this config. Configuration owns the selected steps and options.
+Copilot updates use its installed COPR helper with native prompts. WoWUp waits
+for its helper's standalone update command. Nimbus handles selected Snapper
+protection inside its system callback; no duplicate Topgrade hooks are needed.
+TTY repair replaces the separate Nimbus recovery session.
 
 Validate parsing and previewed commands before an explicitly authorized real
 update. Completion requires a real run and understood failure/retry behavior;
-a dry run does not prove the downstream updates succeed. User tools are outside
-Nimbus's system recovery snapshots and must be repaired through their native
-manager or reconstructed from declarations. Windows remains deferred.
+a dry run does not prove the downstream updates succeed. Repair tools through
+their native manager or reconstruct them from declarations. Windows remains
+deferred.
 
 ## Phase 9 - Platform validation and Windows
 

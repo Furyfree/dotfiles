@@ -3,8 +3,8 @@
 Before architecture or ownership changes, read:
 
 - this repository's `README.md` and `PROFILES.md`
-- the Nimbus repository's `docs/SPEC.md` and `docs/SECURITY.md` for ownership
-  and software-source policy
+- the Nimbus repository's `docs/SPEC.md` for ownership and software-source
+  policy
 
 `~/git/docs` is history, not a source of truth. It records past decisions,
 superseded plans, and previous implementations such as niriland.
