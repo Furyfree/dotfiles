@@ -76,7 +76,7 @@ Nimbus vocabulary; the machine manifest selects them:
 |---|---|
 | `common` | Base user configuration |
 | `development` | Development tool configuration (no managed files yet) |
-| `virtualization` | VM Curator configuration (no managed files yet) |
+| `virtualization` | No additional profile-gated files; VM Curator defaults are managed on all Linux machines |
 | `gaming` | Gaming tool configuration (no managed files yet) |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |
 | `hyprland-noctalia` | Hyprland Lua starter, portable Noctalia preferences, selected app templates and palette includes; see [NOCTALIA.md](NOCTALIA.md) |

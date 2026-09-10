@@ -1,0 +1,31 @@
+# Local dictation, controlled through Voxtype's recording commands.
+engine = "whisper"
+state_file = "auto"
+
+# Let compositor shortcuts control recording without raw input-device access.
+[hotkey]
+enabled = false
+
+[audio]
+device = "default"
+max_duration_secs = 60
+pause_media = true
+
+# Multilingual CPU starting point; tune the model after laptop/desktop trials.
+[whisper]
+mode = "local"
+model = "small"
+language = ["en", "da"]
+translate = false
+
+# Use the Wayland tools supplied by Nimbus, with clipboard fallback.
+[output]
+mode = "type"
+driver_order = ["wtype", "clipboard"]
+auto_submit = false
+
+# Show recording progress without putting dictated text in notifications.
+[output.notification]
+on_recording_start = true
+on_recording_stop = true
+on_transcription = false

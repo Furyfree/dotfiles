@@ -65,6 +65,7 @@ Library/**
 .config/mise/conf.d/linux-tools.toml
 .config/udiskie/**
 .config/vm-curator/**
+.config/voxtype/**
 .config/zathura/**
 .local/**
 {{ end -}}
@@ -110,7 +111,6 @@ Documents
 .config/VSCodium/User/snippets/**
 .config/bash/logout
 .config/ghostty/themes/dankcolors
-.config/vm-curator/**
 .local/share/backgrounds/**
 AppData/Local/1Password/**
 AppData/Local/nvim/**

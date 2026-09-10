@@ -53,7 +53,8 @@ their settings and runtime state remain unmanaged.
 | DankMaterialShell | Curated portable settings on `niri-dms`; generated palettes, monitor state, caches, and plugins stay unmanaged. |
 | udiskie | Managed Linux-only user config: automount, notifications, smart tray, default file manager. No profile gate or autostart. |
 | Zathura | Managed Linux-only reading defaults, dark UI, and shortcuts. No profile gate or document state. |
-| VM Curator | Manage after removing machine-specific paths. |
+| Voxtype | Linux config for local English/Danish dictation through native recording commands; model download, shortcut, activation, and hardware trials remain separate. |
+| VM Curator | Linux config for a home-relative VM library and new-guest defaults; guest data and GPU passthrough setup remain unmanaged. |
 | Launchers and icons | Remove stale and duplicate web apps before adopting selected files. |
 | Wallpapers | Manage selected user assets for the Linux desktop. |
 

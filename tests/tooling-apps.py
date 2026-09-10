@@ -156,9 +156,15 @@ class ToolingApps(unittest.TestCase):
                 self.assertIn(key, defaults)
                 self.assertIs(type(value), type(defaults[key]))
 
+    def render_zathura(self):
+        override = json.dumps({"chezmoi": {"os": "linux"}, "profiles": ["common"],
+                               "onePasswordSsh": False})
+        entries = json.loads(self.run_tool(*self.chezmoi_args(override), "dump", "--format=json"))
+        return entries[".config/zathura/zathurarc"]["contents"]
+
     def test_zathura(self):
         settings, mappings = {}, {}
-        for line in (REPO / "home/.chezmoitemplates/configs/zathura/zathurarc").read_text().splitlines():
+        for line in self.render_zathura().splitlines():
             fields = shlex.split(line, comments=True)
             if not fields:
                 continue
@@ -186,6 +192,9 @@ class ToolingApps(unittest.TestCase):
         server = "gtk4-broadwayd" if "libgtk-4" in libraries else "broadwayd"
         if not shutil.which(server):
             self.skipTest(f"{server} is not installed")
+        config_dir = self.root / "config/zathura"
+        config_dir.mkdir()
+        (config_dir / "zathurarc").write_text(self.render_zathura())
         runtime = self.root / "runtime"
         runtime.mkdir(mode=0o700)
         display_id = f":{os.getpid()}"
@@ -203,7 +212,7 @@ class ToolingApps(unittest.TestCase):
             self.assertIsNone(display.poll(), "Broadway failed to start")
             self.assertTrue((runtime / "http.sock").exists(), "Broadway socket not ready")
             viewer = subprocess.Popen([
-                "zathura", "--config-dir", str(REPO / "home/.chezmoitemplates/configs/zathura"),
+                "zathura", "--config-dir", str(config_dir),
                 "--data-dir", str(self.root / "zathura-data"),
                 "--cache-dir", str(self.root / "zathura-cache"), "--log-level", "debug"],
                 env=env, cwd=self.root, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -229,7 +238,8 @@ class ToolingApps(unittest.TestCase):
                  for path in (CONFIG / "zsh/conf.d").glob("*.zsh")
                  if path.name != "noctalia.zsh"}
         linux = {".config/udiskie/config.yml", ".config/zathura/zathurarc",
-                 ".config/mise/conf.d/linux-tools.toml"}
+                 ".config/mise/conf.d/linux-tools.toml", ".config/voxtype/config.toml",
+                 ".config/vm-curator/config.toml"}
         gh_unix = ".config/gh/config.yml"
         gh_windows = "AppData/Roaming/GitHub CLI/config.yml"
         all_targets = unix | linux | {gh_unix, gh_windows}

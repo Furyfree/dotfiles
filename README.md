@@ -12,8 +12,8 @@ Git.
 
 The repository currently manages Bash and Zsh setup, Sheldon, Starship, Mise, Nix,
 udiskie, Zathura, GitHub CLI, btop, Fastfetch, Git, Ghostty, VSCodium, Zed,
-Neovim, and Topgrade configuration. Niri and DankMaterialShell are available
-through the opt-in Linux `niri-dms` profile.
+Neovim, Topgrade, Voxtype, and VM Curator configuration. Niri and DankMaterialShell
+are available through the opt-in Linux `niri-dms` profile.
 The Linux `hyprland-noctalia` profile also enables a minimal Hyprland starter;
 portable Noctalia preferences, GTK/Qt settings and app-theme selections are
 managed through Chezmoi. Noctalia generates the colors and runs its native
@@ -479,6 +479,9 @@ config without a startup entry.
 
 ### Zathura
 
+The Linux config lives directly in `home/dot_config/zathura/zathurarc.tmpl`.
+It includes Noctalia's generated palette only for the desktop profile.
+
 The palette keeps the live/Niriland charcoal background and blue highlights,
 extending them to completions and the document index. A generic sans-serif
 font replaces the Inter dependency. Documents open fitted to width, page-sized
@@ -539,6 +542,52 @@ key mode. `1/2/3/4` toggle CPU/memory/network/process panels. Settings changed
 in the menus last only for that session: `save_config_on_exit = false` prevents
 btop from expanding or overwriting the curated file. Persist preferences by
 editing the source config. Checked with btop 1.4.7.
+
+### Voxtype
+
+Linux manages `~/.config/voxtype/config.toml`. Nimbus supplies Voxtype and its
+Wayland output tools. The config uses local Whisper with the multilingual
+`small` model, detects English or Danish, and keeps speech in its original
+language. This is a CPU starting point; model quality, latency, and GPU choices
+still need laptop/desktop trials.
+
+Recording uses the default microphone, pauses media, and stops after at most
+60 seconds. Output tries `wtype`, then the clipboard, with automatic submission
+disabled. Notifications show recording progress without the transcription.
+Native recording commands replace built-in input-device hotkeys, following the
+[Voxtype configuration reference](https://github.com/peteonrails/voxtype/blob/v1.0.1/docs/CONFIGURATION.md).
+
+Download the selected model explicitly before running the daemon:
+
+```sh
+voxtype setup --download --model small
+voxtype daemon
+```
+
+From another terminal, `voxtype record toggle` starts/stops recording;
+`voxtype record cancel` discards it. Compositor shortcuts and automatic daemon
+startup remain to be selected. Chezmoi does not download models or start the
+daemon. Models, recordings, and runtime state remain outside the repository.
+Edit the source config to persist choices: the native configuration TUI writes
+the managed file and a later Chezmoi apply would replace those edits.
+
+### VM Curator
+
+Linux manages `~/.config/vm-curator/config.toml`, independently of machine
+profiles. Mise supplies the executable on x86_64. The library stays at
+`~/vm-space`; new guests start with 8 GiB RAM, four CPU cores, a 128 GiB disk,
+GTK display, and KVM enabled. These are editable creation defaults, matching
+the planned desktop VM baseline. Launch confirmation stays enabled in the TUI;
+GPU passthrough retains upstream's disabled defaults.
+
+Run `vm-curator` for the TUI or `vm-curator list` to list guests. Its native
+first-run setup creates a missing library. VM images, ISOs, snapshots, metadata,
+and hardware setup are not managed by Chezmoi. The Settings screen saves the
+managed config; copy intended changes back to the source before applying again.
+See the [upstream configuration](https://github.com/mroboff/vm-curator/tree/v1.4.0#configuration).
+
+Both configs passed isolated native reads with Voxtype 1.0.1 and VM Curator
+1.4.0. Those checks did not record audio, load models, or launch a VM.
 
 ### Validation and recovery
 

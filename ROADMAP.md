@@ -180,6 +180,11 @@ Nix remains a minimal user config. Linux desktop apps use Linux-only gates,
 not a new machine profile. GitHub CLI shares canonical content across its
 platform paths. btop uses terminal colors without saving runtime UI changes.
 
+Voxtype and VM Curator now have Linux-only native configs. Voxtype starts with
+local multilingual Whisper settings; model download, activation, shortcuts, and
+hardware trials remain pending. VM Curator manages portable new-guest defaults
+and a home-relative library, leaving guest data and host setup outside Chezmoi.
+
 See [README.md](README.md#tooling-and-applications) for settings, sources,
 validation, and recovery. Stop before installation, apply, commit, or PR.
 Native macOS/Windows and real desktop key behavior remain manual checks.
