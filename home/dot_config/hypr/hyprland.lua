@@ -63,7 +63,9 @@ end
 -- Start once per session, not on config reload.
 hl.on("hyprland.start", function()
     hl.exec_cmd("noctalia --daemon")
-    hl.exec_cmd("librepods --hide")
+    hl.exec_cmd([[for adapter in /sys/class/bluetooth/hci*; do
+        if [ -d "$adapter" ]; then exec librepods --hide; fi
+    done]])
 end)
 
 -- Standard starter keys, with B added for the selected browser.

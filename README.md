@@ -1338,8 +1338,9 @@ future Niri-aligned keymap. Super is the Windows key:
 | Super+left/right mouse drag | Move/resize window |
 
 Every binding has a native description for Noctalia's Hyprland Keymap.
-LibrePods starts hidden once per Hyprland login alongside Noctalia; reloading
-the config does not start another instance. Nimbus supplies the package. The
+LibrePods starts hidden once per Hyprland login when a Bluetooth adapter is
+present. Reloading the config does not start another instance. If an adapter
+is connected later, launch LibrePods manually. Nimbus supplies the package. The
 AirPods widget additionally needs a compatible LibrePods build, as
 [NOCTALIA.md](NOCTALIA.md) records.
 

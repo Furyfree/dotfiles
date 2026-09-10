@@ -3,6 +3,7 @@
 
 import json
 from pathlib import Path
+import shlex
 import shutil
 import subprocess
 import tempfile
@@ -114,9 +115,26 @@ for i = 1, 10 do
 end
 hooks["hyprland.start"]()
 assert(#spawned == 2 and spawned[1] == "noctalia --daemon")
-assert(spawned[2] == "librepods --hide")
+print(spawned[2])
 ''')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        bluetooth = self.root / "bluetooth adapters"
+        command = result.stdout.replace("/sys/class/bluetooth", shlex.quote(str(bluetooth)))
+        binaries = self.root / "bin"
+        binaries.mkdir()
+        librepods = binaries / "librepods"
+        librepods.write_text('#!/bin/sh\nprintf "librepods:%s\\n" "$@"\n')
+        librepods.chmod(0o755)
+        self.env["PATH"] = str(binaries)
+        for count in (None, 0, 1, 2):
+            with self.subTest(adapters=count):
+                if count is not None:
+                    bluetooth.mkdir(exist_ok=True)
+                if count:
+                    (bluetooth / f"hci{count}").symlink_to(binaries, target_is_directory=True)
+                result = self.run_command("/bin/sh", "-c", command)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, "librepods:--hide\n" if count else "")
 
     @unittest.skipUnless(HYPRLAND, "Hyprland is not installed; native check needs 0.55+")
     def test_native_config(self):

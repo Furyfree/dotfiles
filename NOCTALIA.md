@@ -82,9 +82,10 @@ validation alone do not verify external tools or accounts.
 
 ## LibrePods and keymap
 
-Hyprland starts `librepods --hide` once on its startup event, alongside
-Noctalia. This was tested in the plain Hyprland session without another service or
-startup script. Do not also enable
+Hyprland starts `librepods --hide` once on its startup event when
+`/sys/class/bluetooth/hci*` contains an adapter. Launch LibrePods manually if
+an adapter is connected after login. The adapter guard is tested locally;
+its next-login behavior still needs verification. Do not also enable
 LibrePods' own autostart setting; use one startup owner. Reloading Hyprland
 only reloads the bindings, not the startup event. Every one of the 35 bindings
 has a native `description`, including mouse actions and generated workspace
