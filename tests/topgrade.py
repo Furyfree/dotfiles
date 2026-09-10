@@ -20,6 +20,8 @@ MISE = shutil.which("mise")
 
 class Topgrade(unittest.TestCase):
     def setUp(self):
+        if not CHEZMOI:
+            self.skipTest("chezmoi is not installed")
         self.temp = tempfile.TemporaryDirectory(prefix="dotfiles-topgrade-")
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
@@ -39,12 +41,27 @@ class Topgrade(unittest.TestCase):
             "XDG_STATE_HOME": str(self.root / "state"),
             "TMPDIR": str(self.root), "FAKE_LOG": str(self.log),
         }
-        self.config = tomllib.loads(CONFIG.read_text())
+        self.rendered = self.render_config()
+        self.config = tomllib.loads(self.rendered.read_text())
+
+    def render_config(self, managed=True, platform="linux"):
+        result = subprocess.run([
+            CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
+            "--config", str(self.root / "chezmoi.toml"),
+            "--cache", str(self.root / "cache/chezmoi"),
+            "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
+            "--skip-secrets", "--override-data", json.dumps({
+                "chezmoi": {"os": platform}, "ManagedByNimbus": managed}),
+            "execute-template", CONFIG.read_text()],
+            env=self.env, text=True, capture_output=True, check=True)
+        config = self.root / (f"topgrade-{platform}-{managed}.toml")
+        config.write_text(result.stdout)
+        return config
 
     def test_scope_and_confirmation_policy(self):
-        self.assertEqual(set(self.config), {"misc", "mise"})
+        self.assertEqual(set(self.config), {"misc", "mise", "pre_commands", "commands"})
         self.assertEqual(self.config["misc"]["only"],
-                         ["mise", "github_cli_extensions", "sheldon", "tldr"])
+                         ["mise", "github_cli_extensions", "sheldon", "tldr", "custom_commands"])
         self.assertEqual(self.config["misc"]["first"], ["mise"])
         for setting in ("pre_sudo", "sudo_loop", "assume_yes", "cleanup"):
             self.assertIs(self.config["misc"][setting], False)
@@ -52,9 +69,14 @@ class Topgrade(unittest.TestCase):
         self.assertIs(self.config["misc"]["ask_retry"], True)
         self.assertEqual(self.config["misc"]["notify_end"], "on_failure")
         self.assertEqual(self.config["mise"], {"bump": False})
+        self.assertEqual(self.config["pre_commands"],
+                         {"Nimbus system updates": "nimbus upgrade --system"})
 
-    def fake_tools(self):
-        for tool in ("mise", "gh", "sheldon", "tldr"):
+    def fake_tools(self, copilot=False):
+        tools = ["nimbus", "mise", "gh", "sheldon", "tldr"]
+        if copilot:
+            tools += ["sudo", "github-copilot-installer"]
+        for tool in tools:
             path = self.bin / tool
             path.write_text(f"#!{sys.executable}\n" + '''
 import json, os, pathlib, sys
@@ -64,17 +86,22 @@ with open(os.environ["FAKE_LOG"], "a") as log:
 if pathlib.Path(sys.argv[0]).name == "mise" and sys.argv[1:] == ["env", "--json"]:
     print("{}")
 if pathlib.Path(sys.argv[0]).name == os.environ.get("FAKE_FAIL_TOOL"):
-    sys.exit(23)
+    sys.exit(int(os.environ.get("FAKE_EXIT_CODE", "23")))
+if pathlib.Path(sys.argv[0]).name == "sudo":
+    assert sys.argv[1] == "--"
+    os.execvp(sys.argv[2], sys.argv[2:])
 ''')
             path.chmod(0o755)
 
-    def run_topgrade(self, *args):
+    def run_topgrade(self, *args, copilot=False):
         # All updater names resolve to fakes. Even native discovery probes must
         # never reach the real tools or the caller's home/authentication/session.
         self.test_scope_and_confirmation_policy()
-        self.fake_tools()
+        self.fake_tools(copilot)
+        (self.bin / "sh").symlink_to("/bin/sh")
+        self.env["SHELL"] = "/bin/sh"
         return subprocess.run([
-            TOPGRADE, "--config", str(CONFIG), "--no-self-update", "--no-tmux",
+            TOPGRADE, "--config", str(self.rendered), "--no-self-update", "--no-tmux",
             "--no-ask-retry", "--allow-root", *args],
             cwd=self.home, env=self.env, stdin=subprocess.DEVNULL,
             text=True, capture_output=True, timeout=30)
@@ -100,6 +127,7 @@ if pathlib.Path(sys.argv[0]).name == os.environ.get("FAKE_FAIL_TOOL"):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         calls = self.calls()
         self.assertEqual([(call["tool"], call["args"]) for call in calls], [
+            ("nimbus", ["upgrade", "--system"]),
             ("mise", ["plugins", "update"]),
             ("mise", ["self-update"]),
             ("mise", ["upgrade"]),
@@ -110,7 +138,7 @@ if pathlib.Path(sys.argv[0]).name == os.environ.get("FAKE_FAIL_TOOL"):
             ("gh", ["extension", "upgrade", "--all"]),
         ])
         # Mise must not discover a home-local/caller project configuration.
-        for call in calls[:4]:
+        for call in calls[1:5]:
             self.assertNotEqual(Path(call["cwd"]), self.home)
             self.assertEqual(Path(call["cwd"]).parent, self.root)
 
@@ -131,6 +159,49 @@ if pathlib.Path(sys.argv[0]).name == os.environ.get("FAKE_FAIL_TOOL"):
         result = self.run_topgrade()
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("sheldon: FAILED", result.stdout)
+        self.assertEqual(self.calls()[-1]["tool"], "gh")
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_nimbus_failure_stops_all_user_updates(self):
+        self.env["FAKE_FAIL_TOOL"] = "nimbus"
+        result = self.run_topgrade()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual([(c["tool"], c["args"]) for c in self.calls()],
+                         [("nimbus", ["upgrade", "--system"])])
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_copilot_helper_keeps_native_prompts_and_errors(self):
+        self.env["FAKE_FAIL_TOOL"] = "github-copilot-installer"
+        result = self.run_topgrade(copilot=True)
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual([(c["tool"], c["args"]) for c in self.calls()
+                          if c["tool"] in ("sudo", "github-copilot-installer")], [
+            ("sudo", ["--", "github-copilot-installer", "update"]),
+            ("github-copilot-installer", ["update"]),
+        ])
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_dry_run_does_not_run_copilot_helper(self):
+        result = self.run_topgrade("--dry-run", copilot=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(any(c["tool"] in ("sudo", "github-copilot-installer")
+                             for c in self.calls()))
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_cancelled_nimbus_stops_all_user_updates(self):
+        self.env["FAKE_FAIL_TOOL"] = "nimbus"
+        self.env["FAKE_EXIT_CODE"] = "130"
+        result = self.run_topgrade()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual([c["tool"] for c in self.calls()], ["nimbus"])
+
+    def test_standalone_platforms_have_native_system_steps(self):
+        for platform, native in (("linux", {"system", "flatpak"}),
+                                 ("darwin", {"brew_formula", "brew_cask"})):
+            config = tomllib.loads(self.render_config(False, platform).read_text())
+            self.assertNotIn("pre_commands", config)
+            self.assertEqual(set(config["misc"]["only"]),
+                             native | {"mise", "github_cli_extensions", "sheldon", "tldr"})
 
     @unittest.skipUnless(MISE, "mise is not installed")
     def test_native_mise_global_fragment_discovery(self):
@@ -171,7 +242,7 @@ if pathlib.Path(sys.argv[0]).name == os.environ.get("FAKE_FAIL_TOOL"):
                          for name, entry in json.loads(result.stdout).items()
                          if name.endswith("topgrade.toml") and entry["type"] == "file"}
                 expected = {} if platform == "windows" else {
-                    ".config/topgrade.toml": CONFIG.read_text()}
+                    ".config/topgrade.toml": self.render_config(managed=False, platform=platform).read_text()}
                 self.assertEqual(files, expected)
 
 

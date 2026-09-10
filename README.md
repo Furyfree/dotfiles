@@ -1219,9 +1219,16 @@ and [isolated Neovim application names](https://neovim.io/doc/user/starting/#%24
 
 Linux and macOS share `~/.config/topgrade.toml`, rendered from
 `home/.chezmoitemplates/configs/topgrade/topgrade.toml`. Windows stays ignored.
-This is the user-tool part of updating, not a replacement for Nimbus's system
-update workflow. Applying the file does not run Topgrade or update anything
-beyond the existing [Mise install hook](#mise-tools).
+On Nimbus-managed Linux, `nimbus upgrade` runs Topgrade with this configuration.
+A pre-command runs `nimbus upgrade --system` for native DNF and system Flatpak
+updates. It does not sync definitions or call Topgrade again. A failure or
+cancellation stops all later updates. Use `nimbus sync` separately for system
+drift, or `nimbus sync --upgrade` for both. These Nimbus command changes are
+local and unreleased; deploy the matching engine before using this config.
+Extra native arguments follow `--`, for example `nimbus upgrade -- --dry-run`.
+Standalone Linux uses native system/Flatpak steps; macOS uses Homebrew.
+Applying the configuration does not run updates beyond the existing
+[Mise install hook](#mise-tools).
 
 | Step | Updates |
 |---|---|
@@ -1229,6 +1236,7 @@ beyond the existing [Mise install hook](#mise-tools).
 | GitHub CLI extensions | Installed gh extensions, not gh itself or Git repositories |
 | Sheldon | Downloaded shell plugins and their runtime lock, not the managed plugin selection |
 | tldr | Local help-page data, not the tldr executable |
+| GitHub Copilot, managed Linux | The COPR installer helper updates the app when the helper is installed |
 
 The native Mise step in the tested Topgrade 17.9.0 runs in a fresh temporary
 directory, away from the caller's project and home-local Mise files. It still
@@ -1240,24 +1248,26 @@ self-update is disabled because its package manager owns the executable.
 No separate Cargo, Rustup, npm, Bun, or uv updater is enabled for tools already
 owned by Mise. Independently installed Cargo tools under `~/.cargo/bin` are not
 upgraded by this config. Editor/plugin updates retain their native workflow;
-Neovim's tracked lock needs explicit review. System packages, Flatpaks, firmware,
-Nix, containers, source checkouts, and Chezmoi updates/apply are excluded. There
-are no custom commands, pre/post hooks, sudo priming, automatic cleanup, or
-blanket confirmation bypass. Failures remain visible with the native retry
-prompt; completed steps are not rolled back.
+Neovim's tracked lock needs explicit review. Firmware, Nix, containers, source
+checkouts, and Chezmoi updates/apply stay outside this allowlist. Topgrade does
+not prime sudo, enable automatic cleanup, or bypass all confirmations. Nimbus
+handles its own system approval and privilege; user-tool steps run without
+elevation. The Copilot helper uses sudo and retains its native DNF confirmation.
+Independent user-step failures allow later steps to run but retain a failing
+final status.
 
-The intended full Nimbus flow is: pre recovery point, system changes and
-RPM/Flatpak upgrades, verified post recovery point, then a separate Topgrade
-user-tool phase. Nimbus's recovery and Topgrade handoff are still pending;
-this branch does not implement them or claim current system updates have
-snapshots. Snapshots cover system subvolumes, not home-directory tools. The old
-Topgrade Snapper hooks, Limine sync, DMS update callback, Arch-specific settings,
-and privileged system npm command are deliberately not carried over.
+The Copilot helper owns download verification and application updates; DNF
+updates the helper RPM. Initial application installation remains an explicit
+postinstall action. WoWUp updates wait for a standalone update command in its
+COPR helper. Nimbus's system callback handles Snapper when selected; do not
+add duplicate snapshot hooks here. Repair a broken session through a TTY and
+use the failing manager's native commands.
 
 Topgrade 17.9.0 combines CLI `--only` with the config's `only` list; it does not
-use the CLI list as a strict restriction. Nimbus must account for that when
-implementing its allowlist contract. Do not use `--only mise` expecting it to
-exclude the other configured steps. This also means the allowlist is scope
+use the CLI list as a strict restriction. The configured list defines the
+managed scope; explicit CLI additions are user customizations. Do not use
+`--only mise` expecting it to exclude the other configured steps. This also
+means the allowlist is scope
 configuration, not a sandbox against a malicious manager or extra config.
 
 Before migration, back up the live Topgrade file and inspect any `topgrade.d`
@@ -1342,8 +1352,7 @@ and review explicit session `--config`/`HYPRLAND_CONFIG` overrides: those can
 bypass the normal Lua file. Chezmoi does not delete an existing legacy config.
 Apply only after the normal preview; Hyprland can live-reload changed files.
 Log out and back in to test the startup hook. Keep a TTY or alternate session
-available and restore the saved config there if necessary. This user config
-does not implement Nimbus's independent recovery session.
+available and restore the saved config there if necessary.
 
 Back up existing Noctalia configuration privately before applying this profile.
 Use the normal Chezmoi preview above. Noctalia watches its configuration and may
@@ -1434,7 +1443,7 @@ workspace switcher, music/clock, tray and controls, Inter/JetBrainsMono fonts,
 list launcher, and no dock. Clipboard selection does not automatically paste,
 and notification history stays disabled. Weather and automatic location stay
 off until you choose a location locally. The system-update widget is omitted
-until the intended Nimbus update/recovery flow is available.
+until the Nimbus update flow has been tested on the installed system.
 
 On AC, the older reference's five-minute lock and ten-minute screen-off replace
 the live config's disabled timers; suspend remains three hours. Battery timings

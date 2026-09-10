@@ -205,17 +205,25 @@ still undecided. See [setup and validation](README.md#webapps).
 ## Prepared - Topgrade; live updates waiting
 
 Plan: [Topgrade](ROADMAP.md#phase-8---topgrade).
-Status: user-scope configuration is prepared for Linux/macOS. No update was run.
+Status: unified update configuration is prepared for Linux/macOS. Only fake
+updaters have run; no live update was performed.
 
 - [x] Inventory update owners; use Mise for its runtimes and Cargo tools,
   with separate native steps for gh extensions, Sheldon plugins, and tldr data.
 - [x] Validate the config and native commands in isolated homes with fake
   updaters; platform rendering covers Linux/macOS, Windows remains ignored.
-- [ ] Implement and test Nimbus's system-update recovery and Topgrade handoff
-  in Nimbus. Snapshots must precede/follow the system phase, not pretend to
-  protect home-directory tools. See [update ownership](README.md#topgrade).
+- [x] Make Topgrade call Nimbus first on managed Linux and prove failure stops
+  all user steps. Preserve standalone native system updaters and platform gates.
+- [x] Prepare this configuration for the local, unreleased `nimbus upgrade`
+  entry point. Nimbus's wrapper uses normal Topgrade configuration and keeps
+  the system callback as `nimbus upgrade --system`, without syncing definitions.
+- [x] Delegate Copilot application updates to its installed COPR helper, keeping
+  native prompts and testing failure propagation without real updates.
+- [ ] Add WoWUp updates after its COPR helper provides a standalone command.
+- [ ] Deploy the matching Nimbus engine before applying this configuration.
 - [ ] With explicit update permission, test a real run and document native
-  failure recovery; do not claim system snapshots protect user tools.
+  failure recovery and selected Nimbus Snapper protection. Use TTY repair for
+  a broken desktop. See [update ownership](README.md#topgrade).
 
 ## Deferred - Platforms
 

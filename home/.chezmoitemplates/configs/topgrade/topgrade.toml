@@ -1,8 +1,13 @@
-# User tools only. Nimbus owns system packages and pre/post recovery snapshots.
-# Do not add Nimbus or Snapper hooks here: Nimbus will call Topgrade after its
-# system phase, and its snapshots do not cover tools under the home directory.
 [misc]
-only = ["mise", "github_cli_extensions", "sheldon", "tldr"]
+{{ $managed := and (eq .chezmoi.os "linux") (hasKey . "ManagedByNimbus") .ManagedByNimbus }}
+{{ if $managed }}
+# Nimbus owns the system phase; its failure stops all later updates.
+only = ["mise", "github_cli_extensions", "sheldon", "tldr", "custom_commands"]
+{{ else if eq .chezmoi.os "linux" }}
+only = ["system", "flatpak", "mise", "github_cli_extensions", "sheldon", "tldr"]
+{{ else }}
+only = ["brew_formula", "brew_cask", "mise", "github_cli_extensions", "sheldon", "tldr"]
+{{ end }}
 first = ["mise"]
 no_self_update = true
 pre_sudo = false
@@ -19,3 +24,11 @@ show_distribution_summary = false
 # Keep requested LTS/stable families and do not rewrite managed config versions.
 [mise]
 bump = false
+
+{{ if $managed }}
+[pre_commands]
+"Nimbus system updates" = "nimbus upgrade --system"
+
+[commands]
+"GitHub Copilot" = "if command -v github-copilot-installer >/dev/null 2>&1; then sudo -- github-copilot-installer update; fi"
+{{ end }}
