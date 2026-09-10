@@ -20,6 +20,8 @@ MISE = shutil.which("mise")
 
 class Topgrade(unittest.TestCase):
     def setUp(self):
+        if not CHEZMOI:
+            self.skipTest("chezmoi is not installed")
         self.temp = tempfile.TemporaryDirectory(prefix="dotfiles-topgrade-")
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
