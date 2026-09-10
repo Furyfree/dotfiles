@@ -14,16 +14,15 @@ evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 | 1Password SSH agent | Track selected-key filters only. Nimbus owns installation; enable the agent in 1Password. |
 | Neovim | Small advanced-Vim Lua setup first; incremental IDE features, not a distribution. Isolate platform commands in Lua. |
 | Zed | Managed shared settings and one additive terminal keybind, with platform paths/modifiers. Noctalia theme on its Linux profile; bundled themes elsewhere. Generated themes, backups, and personal agent settings stay unmanaged. |
-| VSCodium | Managed settings/keybindings match the Zed workflow, with native platform paths. Extension inventory and disabled after-apply installers are tracked; gallery overrides, snippets, and runtime state stay unmanaged. |
+| VSCodium | Managed settings/keybindings match the Zed workflow, with native platform paths. Microsoft Marketplace and after-apply extension installers are enabled; snippets and runtime state stay unmanaged. |
 | Starship | Shared basic prompt config is managed; Bash and Zsh initialization are implemented, PowerShell initialization is deferred. |
 | Fastfetch | Managed shared config: native OS logo, compact hardware/software groups, inherited terminal foreground; no commands or custom artwork. |
 | Topgrade | Curated Linux/macOS user-scope updates; Mise owns its Cargo tools. System updates and pre/post recovery belong to Nimbus. Live update testing and Windows remain deferred. |
 | GitHub CLI | Managed canonical config: SSH, editor prompts, and `co` alias; platform wrappers. Verify authentication separately. Never track `hosts.yml`. |
 
-VSCodium uses Open VSX by default. Check required extensions there first. If
-it is insufficient, VSCodium's `product.json` can point `extensionsGallery` at
-Microsoft Marketplace. Check compatibility and Marketplace terms before using
-that fallback. VSIX files remain another option.
+VSCodium's managed `product.json` points `extensionsGallery` at Microsoft
+Marketplace. The extension inventory and compatibility limits are documented
+in [README.md](README.md#vscodium).
 
 ## Linux and macOS
 

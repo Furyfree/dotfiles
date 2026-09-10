@@ -28,10 +28,12 @@ Other empty configs remain ignored until they are implemented and reviewed.
 Original configuration, scripts, and documentation are available under the
 [MIT License](LICENSE), copyright 2026 Patrick Byrne.
 
-The Hyprland starter derived from Hyprland 0.55 retains its upstream
-BSD-3-Clause notice in `home/dot_config/hypr/hyprland.lua`.
 The Google Maps and FotMob icons described under [Webapps](#webapps) are
 third-party brand assets and are not covered by the MIT license.
+
+The inactive Hyprland reference files retain their upstream terms: Omarchy's
+MIT notice is in `compare/omarchy.lua`; Ryoku's excerpts in `compare/ryoku.lua`
+are GPL-3.0-only.
 
 ## Mise tools
 
@@ -470,9 +472,10 @@ under `program_options`; the smart-tray value is `auto`, not `smart`.
 `xdg-open` follows the default file manager instead of requiring Nautilus.
 These correct the live/Niriland reference structure using the
 [upstream configuration example](https://github.com/coldfix/udiskie/blob/master/doc/udiskie.8.txt).
-No device rules, key files, password caching, startup entries, or service
-changes are added. This config takes effect when udiskie is started; it does
-not start the daemon itself.
+The Hyprland startup hook runs `udiskie --no-tray --no-notify` once per
+session. Automounting uses this config; Noctalia's enabled Udiskie Manager
+plugin supplies drive controls and notifications. Other sessions receive the
+config without a startup entry.
 
 ### Zathura
 
@@ -834,7 +837,8 @@ See the [Ghostty configuration guide](https://ghostty.org/docs/config) and
 ## VSCodium
 
 Canonical settings and shortcuts are in `home/.chezmoitemplates/configs/vscodium/`.
-One-line wrappers deploy only `User/settings.json` and `User/keybindings.json`:
+One-line wrappers deploy `User/settings.json`, `User/keybindings.json`, and
+`product.json` beside the `User` directory:
 
 | Platform | User directory |
 |---|---|
@@ -844,12 +848,9 @@ One-line wrappers deploy only `User/settings.json` and `User/keybindings.json`:
 
 These are standard installation paths, not portable mode, custom user-data
 directories, or named profile overrides. Review those separately if used.
-Product/gallery overrides, snippets, credentials, chat provider settings,
-workspace storage, caches, history, and extension binaries remain unmanaged.
-The canonical `product.json` contains the Microsoft Marketplace configuration
-as ordinary JSON. Its platform targets remain ignored by `.chezmoiignore`, so
-it is not deployed and nothing switches galleries automatically. Review the
-Marketplace terms and extension compatibility before enabling deployment.
+The canonical `product.json` selects Microsoft Marketplace on each platform.
+Snippets, credentials, chat provider settings, workspace storage, caches,
+history, and extension binaries remain outside Chezmoi's managed files.
 
 ### Matching Zed
 
@@ -901,17 +902,13 @@ not a VSCodium user config. VSCodium does not load it; Chezmoi embeds its
 `home/` prevents accidental deployment and avoids a runtime JSON-parser dependency.
 
 Unlike Zed, VSCodium has no equivalent global `auto_install_extensions` setting.
-Two after-apply scripts are prepared but disabled:
+Two after-apply scripts install the declared extensions:
 
 - `home/run_after_install-vscodium-extensions.sh.tmpl` for Linux/macOS.
 - `home/run_after_install-vscodium-extensions.ps1.tmpl` for Windows.
 
-Both target names (`install-vscodium-extensions.sh` and
-`install-vscodium-extensions.ps1`) remain in `home/.chezmoiignore`. No extension
-installation runs during setup or apply while those rules remain. The opposite
-platform's template also renders empty.
-
-When explicitly enabled later, `run_after_` makes the appropriate script run
+The opposite platform's template renders empty.
+`run_after_` makes the appropriate script run
 after files on every full apply, including the first `chezmoi init --apply`.
 Plain `chezmoi init` without apply does not install extensions. This is not a
 `run_once_` or `run_onchange_` hook: rerunning apply restores missing selections
@@ -928,13 +925,9 @@ script with an error. Completed installs remain; fix the cause and rerun apply.
 There is no privilege elevation or installation of VSCodium itself. Windows uses
 PowerShell; Linux/macOS use POSIX shell, without Python or jq at runtime.
 
-Before enabling, review the manifest and remove only these two script ignore
-rules, then run the standard Chezmoi preview commands above. Leave the three
-`product.json` ignore rules intact unless separately enabling that configuration.
-The scripts use the CLI's configured gallery:
-Open VSX is VSCodium's default, but an existing unmanaged `product.json` may
-override it. No gallery switch, forced version, prerequisite installation, or
-download of unreviewed VSIX files is performed by this repository.
+The scripts use the CLI's configured gallery, which the managed `product.json`
+sets to Microsoft Marketplace. They do not force versions, install prerequisites,
+or download separate VSIX files.
 
 The eight manual entries are Copilot Chat, C#, Pylance, Microsoft's three SSH/
 remote extensions, and two IntelliCode extensions. They returned no Open VSX
@@ -958,15 +951,16 @@ python3 tests/vscodium.py
 ```
 
 The tests render all three platforms with/without the desktop profile, check
-settings/shortcut semantics, preserve the extension inventory, and ensure runtime
-files, disabled scripts, and generated Noctalia colors stay unmanaged. Mock-CLI
+settings/shortcut semantics, preserve the extension inventory, and verify the
+platform-specific gallery configuration and installer. Runtime files and
+generated Noctalia colors stay unmanaged. Mock-CLI
 tests cover missing tools, repeat runs, native errors, and verification without
 actual installations.
 They do not launch the editor, install anything,
 validate every extension schema, or prove notebook/debugger/theme runtime behavior.
 Installer execution tests exercise the POSIX implementation; the PowerShell
-template is rendered and checked for its inventory/ignore boundary, but still
-needs native Windows execution testing before enabling it there.
+template is rendered and checked for its inventory and platform boundary;
+native Windows execution testing remains pending.
 Run the standard Chezmoi preview commands above before applying.
 
 References: [VSCodium extensions and gallery](https://github.com/VSCodium/vscodium/blob/master/docs/extensions.md),
@@ -1298,20 +1292,53 @@ and [native Mise step](https://github.com/topgrade-rs/topgrade/blob/v17.9.0/src/
 
 ## Hyprland starter
 
-On Linux, selecting `hyprland-noctalia` manages only
-`~/.config/hypr/hyprland.lua` for the compositor. This targets Hyprland 0.55+
-and Noctalia 5, matching the Lua/daemon flow in the Fedora test notes. It is a
+On Linux, selecting `hyprland-noctalia` manages
+`~/.config/hypr/hyprland.lua` and its populated `conf.d/` modules for the
+compositor. This targets Hyprland 0.56+ and Noctalia 5, matching the Lua/daemon flow in the Fedora test notes. It is a
 small adaptation of the [upstream starter](https://github.com/hyprwm/Hyprland/blob/v0.55.0/example/hyprland.lua),
-not the later desktop revamp. Keep it one file until the VM session works.
+with `hyprland.lua` loading explicit relative module paths.
 macOS, Windows, and other profiles do not receive it; Nimbus is not required
 to use the user config. Nimbus owns package and greeter/session installation.
+
+`home/dot_config/hypr/conf.d/` reserves separate Lua files for environment,
+monitors, input, layout, decoration, animations, workspaces, window rules,
+keybindings, and autostart. All are populated, deployed, and loaded.
+Decoration loads Noctalia's optional generated palette;
+window rules let Noctalia animate its own surfaces.
+The grouping follows the native module layouts in
+[Omarchy](https://github.com/omacom/omarchy/blob/quattro/config/hypr/hyprland.lua),
+[ML4W](https://github.com/mylinuxforwork/dotfiles/blob/main/dotfiles/.config/hypr/hyprland.lua),
+and [Ryoku](https://github.com/Ryoku-dev/ryoku-arch/blob/main/ryoku/hyprland/hyprland.lua).
+Noctalia generates its palette separately at `~/.config/hypr/noctalia.lua`;
+its upstream color template is not a ready-to-load configuration file.
+
+`compare/omarchy.lua` and `compare/ryoku.lua` are separate reference notebooks
+with commented-out excerpts from the local `~/compare` checkouts. Their headers
+record exact revisions and licenses; sections explain dependencies and choices
+to revisit. They are ignored by Chezmoi and are not included by `hyprland.lua`.
 
 Ghostty, Brave Origin (`brave-origin`), and Nautilus match Nimbus's current
 application selection. These are direct commands, not shell aliases or future
 Nimbus launch helpers, and do not change system MIME defaults. Automatic
-monitor mode/placement/scaling and the starter's dwindle layout are retained.
-Keyboard settings, animation tuning, custom colors, and hardware rules are left
-for the installed session. The profile deploys reviewed Noctalia preferences
+monitor mode/placement/scaling is retained.
+
+`conf.d/layout.lua` selects native scrolling with half-width columns. A lone
+column fills the workspace; a second opens to its right, making both half-width.
+Focus brings columns into view without centering them, while hovering does not
+scroll the view. Width presets match Niri's one-third, one-half, and two-thirds;
+the layout's column focus/swap commands do not wrap at the ends.
+
+Decoration uses inner/outer gaps of 5/10, 2-pixel borders, 12-pixel circular
+corners, light blur (size 3, two passes), and small shadows. Active and inactive
+windows receive no extra opacity reduction or dimming; apps retain their own
+transparency. Noctalia supplies border and group colors through the generated
+palette, loaded after these settings. Device-specific hardware rules remain
+for the installed session.
+
+Animations use 220 ms vertical workspace slides, subtle 95% window
+scaling (150 ms open, 120 ms close), 180 ms moves/resizes, and 100 ms border
+transitions. Noctalia surfaces receive blur and keep their own animations, following its
+[compositor guidance](https://docs.noctalia.dev/noctalia/compositor-settings/hyprland/#blur). The profile deploys reviewed Noctalia preferences
 and optional Hyprland palette loading. See [NOCTALIA.md](NOCTALIA.md) for the
 application mapping, GUI override precedence, and remaining manual setup.
 
@@ -1320,32 +1347,80 @@ The `hyprland.start` hook runs `noctalia --daemon` once per session, following
 Config reload does not start another instance. Do not also enable a Noctalia
 service or duplicate autostart entry. No old Quickshell startup command is used.
 
-These intentionally keep the upstream starter shortcuts, rather than the
-future Niri-aligned keymap. Super is the Windows key:
+Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 
 | Shortcut | Action |
 |---|---|
-| Super+Q | Ghostty |
-| Super+B | Brave Origin (added) |
-| Super+C | Close focused window |
-| Super+E | Nautilus |
-| Super+R | Noctalia launcher |
-| Super+M | Open Noctalia's session menu |
-| Super+V / P / J | Toggle floating / pseudotiling / split direction |
-| Super+arrows | Focus in that direction |
+| Super+Shift+B | Brave Origin |
+| Super+Shift+F | Nautilus |
+| Super+Shift+O | OBS Studio |
+| Super+Shift+A | ChatGPT |
+| Super+Shift+Z | Zed |
+| Super+Shift+V | VSCodium |
+| Super+Shift+D | Discord through Vesktop |
+| Super+Shift+E | Fastmail Flatpak |
+| Super+Escape | Noctalia Keybind Cheatsheet |
+| Super+Return | Ghostty |
+| Super+W | Close focused window |
+| Super+Q | Toggle tiled/floating |
+| Super+R | Cycle column width presets |
+| Super+C | Center column |
+| Super+F | Toggle fullscreen |
+| Super+L | Lock session |
+| Alt+Tab | Open Noctalia window switcher |
+| Super+Shift+S | Capture screen region |
+| Print / Shift+Print | Capture region / current monitor |
+| Volume / mute / microphone mute keys | Adjust audio through Noctalia |
+| Brightness keys | Adjust display brightness through Noctalia |
+| Super+Space | Noctalia launcher |
+| Super+comma | Toggle Noctalia settings window |
+| Super+arrows | Focus in that direction on this monitor |
+| Super+Shift+arrows | Swap windows in that direction on this monitor |
+| Super+Shift+Ctrl+arrows | Move window to the monitor in that direction |
 | Super+1-9 / 0 | Workspaces 1-9 / 10 |
-| Super+Shift+1-9 / 0 | Move window to that workspace |
+| Super+Shift+1-9 / 0 | Move window to that workspace and follow it |
+| Super+Shift+L / Super+M | Open Noctalia's session menu |
 | Super+left/right mouse drag | Move/resize window |
 
+Directional focus and swaps stay on the same monitor through Hyprland's
+[`window_direction_monitor_fallback` setting](https://wiki.hypr.land/Configuring/Basics/Variables/#binds).
+Explicit monitor moves follow the window to the destination monitor's active
+workspace. The Noctalia shortcuts use its [native IPC commands](https://docs.noctalia.dev/noctalia/compositor-settings/hyprland/#ipc-keybinds).
+Volume and brightness repeat while held and work on the lock screen; mute
+toggles work while locked without repeating. Noctalia's window switcher uses
+Tab/Shift+Tab or arrows to select, Enter to activate, and Escape to cancel.
+Its settings window floats and centers instead of joining the scrolling columns.
+
+Input settings live in `conf.d/input.lua`: Danish keyboard layout, Num Lock,
+fast key repeat, and focus following the pointer. The touchpad uses natural
+scrolling, tap to click, and finger-count clicks, and is disabled while typing.
+Swipe up or down with three fingers to switch workspaces.
+Swipe horizontally with three fingers to scroll through window columns.
+
+`conf.d/workspaces.lua` keeps workspaces 1-10 present even when empty, giving
+Noctalia stable numbered workspace indicators. Swiping past the last workspace
+can create another; ten is not a hard limit. Monitor assignments remain unset
+until both monitor setups are known. Workspaces inherit the global layout and
+appearance.
+
 Every binding has a native description for Noctalia's Hyprland Keymap.
-LibrePods starts hidden once per Hyprland login when a Bluetooth adapter is
-present. Reloading the config does not start another instance. If an adapter
-is connected later, launch LibrePods manually. Nimbus supplies the package. The
+Super+Escape opens the enabled [Keybind Cheatsheet plugin](https://noctalia.dev/plugins/community/keybind-cheatsheet)
+without requiring a bar widget. The plugin reads Hyprland's live bindings;
+after editing them, refresh its snapshot with
+`noctalia msg plugin kenn/keybind-cheatsheet:data all refresh`.
+Application bindings use `obs`, `chatgpt`, `zed`, `codium`, `vesktop`, and
+`flatpak run com.fastmail.Fastmail`. Zed is not installed in the current VM;
+its shortcut requires `zed` on PATH. Shell aliases are not used.
+LibrePods starts hidden once per Hyprland login when its command is available
+and a Bluetooth adapter is present. Reloading the config does not start another
+instance. If an adapter is connected later, launch LibrePods manually. Nimbus supplies the package. The
 AirPods widget additionally needs a compatible LibrePods build, as
 [NOCTALIA.md](NOCTALIA.md) records.
 
 Super+M opens the menu; choose an action there. Save work before choosing
-Logout. Extra scratchpad, wheel, gesture, and media shortcuts are deferred. Noctalia's bar provides its
+Logout. Noctalia locks after ten idle minutes and turns screens off after
+fifteen, restoring them on activity. Idle inhibitors are respected; automatic
+suspend is not configured. Extra scratchpad and wheel shortcuts are deferred. Noctalia's bar provides its
 other controls. The launcher uses [Noctalia 5 IPC](https://docs.noctalia.dev/noctalia/ipc/surfaces/).
 
 Before applying, back up any existing `hyprland.lua` and legacy `hyprland.conf`
@@ -1367,14 +1442,18 @@ rendering to load fzf colors. Application-specific prerequisites are listed in
 ```sh
 python3 tests/noctalia.py
 python3 tests/hyprland.py
-Hyprland --verify-config --config home/dot_config/hypr/hyprland.lua
 just check
+just check-desktop
 ```
 
-Tests check platform/profile gates and Lua bindings/startup with a fake API.
-The native parser check runs only when Hyprland is installed. It does not test
-real rendering, keyboard layout, app launching, Noctalia startup, or logout;
-those remain VM checks with the actual packaged versions.
+The local tests check platform/profile gates, module loading, duplicate
+shortcuts, descriptions, startup guards and generated-file ownership. They
+do not pin gaps, rounding, animation timing, shortcut choices or session-menu
+order. The Lua test double cannot validate Hyprland's complete native schema.
+Run `just check-desktop` on the desktop or VM to validate both Hyprland and
+Noctalia with their installed parsers; missing tools fail this gate instead
+of skipping it. These parsers still cannot prove rendering, physical input,
+application startup, locking or logout. Those need an interactive session.
 
 ## Niri and DankMaterialShell
 
@@ -1485,8 +1564,7 @@ and [settings migrations](https://github.com/AvengeMedia/DankMaterialShell/blob/
 
 ## Webapps
 
-Two Linux launchers are prepared, but remain ignored by Chezmoi until
-Nimbus implements and tests its webapp helper:
+Two launchers are enabled on Nimbus-managed Linux machines:
 
 | Launcher | Website | Icon source |
 |---|---|---|
@@ -1517,15 +1595,13 @@ or a claim of an open-source license; their rights remain with their owners.
 Icons are local, so apply and launcher display do not download them. No icon
 theme, desktop settings, browser profiles, or wallpapers are changed.
 
-The temporary five-rule block in `home/.chezmoiignore` keeps both entries
-and their icons inactive. Once the helper works, remove only that block's five
-rules, retaining the separate Linux and `ManagedByNimbus` gates. macOS,
-Windows, and standalone Linux remain omitted, including empty parent
-directories. The permanent gate ignores the whole `.local` tree while webapps
-are its only implemented targets. Narrow it when adding unrelated `.local`
-configs. No compositor profile is needed.
+The entries and icons retain their Linux and `ManagedByNimbus` gates.
+The Nimbus gate applies only to these launchers and icons; unrelated `.local`
+files remain available. No compositor profile is needed. Brave Origin requires
+the Nimbus detection fix reported on 2026-09-10; that fix is not yet released
+or installed in the VM, so live launch validation there remains pending.
 
-Before enabling, test each command on the installed Nimbus desktop:
+After installing Nimbus with that fix, test each command on the desktop:
 
 ```sh
 nimbus launch webapp https://www.google.com/maps
@@ -1542,8 +1618,9 @@ Browser-installed PWAs with other filenames may also need separate cleanup.
 Existing icons and unrelated launchers are not removed. Disabling management
 later does not delete already deployed files; their removal is a separate step.
 
-Offline checks validate desktop syntax, exact launch arguments, local icons,
-inactive targets, and the future platform/Nimbus gates in disposable homes:
+Offline checks validate native desktop syntax, the launcher command and URL
+shape, referenced icons and actual platform gates in disposable homes. They
+also verify that unrelated `.local` files remain available on Linux:
 
 ```sh
 python3 tests/webapps.py

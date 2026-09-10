@@ -4,6 +4,11 @@ check:
     bash tests/bash-foundation.bash
     git diff --check HEAD
 
+# Run on a Hyprland/Noctalia machine; missing native validators fail this gate.
+check-desktop:
+    Hyprland --verify-config --config '{{justfile_directory()}}/home/dot_config/hypr/hyprland.lua'
+    noctalia config validate '{{justfile_directory()}}/home/dot_config/noctalia/config.toml'
+
 # Optional style report; existing Markdown formatting is not part of the gate.
 lint-docs:
     markdownlint '*.md'

@@ -74,18 +74,18 @@ Merged source and isolated checks do not establish live deployment.
 | Fastfetch | #6 | Merged, including terminal-foreground logo fix |
 | Git | #7 | Merged, including repository-context test fix |
 | Zed | #8 | Merged, including exported Noctalia theme-name fix |
-| VSCodium | #9 | Merged; installers and Marketplace override remain disabled |
+| VSCodium | #9 | Merged; installers and Marketplace override enabled locally; native Windows installer testing pending |
 | 1Password SSH references | #11 | Merged; live authorization remains pending |
 | Neovim | #12 | Merged; parsers and native platform testing remain pending |
-| Webapps | #13 | Merged; launchers remain disabled pending Nimbus helper testing |
+| Webapps | #13 | Merged; launchers enabled locally; VM validation awaits the Nimbus release |
 | Niri, DMS, and Topgrade | #14 | Merged; live session and update testing remain pending |
 
 Plan: [shared applications](ROADMAP.md#phase-3---shared-applications).
 
 - [x] Reconcile each branch with the merged docs, run its checks, and obtain
   separate authorization for publishing or merging it. Keep status current here.
-- [x] Integrate the tooling branch's tests and native Mise ownership rules;
-  keep the VSCodium extension hooks and Marketplace override disabled.
+- [x] Integrate the tooling branch's tests and native Mise ownership rules.
+- [x] Enable the VSCodium extension hooks and Marketplace override as requested.
 - [ ] Record authorized live testing per config and platform; retain pending
   status for untested systems instead of treating rendering as runtime proof.
 
@@ -190,15 +190,18 @@ A minimal Hyprland starter and portable Noctalia preferences are prepared. See [
 ## Prepared - Webapps; backgrounds waiting
 
 Plan: [webapps and backgrounds](ROADMAP.md#phase-7---webapps-and-backgrounds).
-Status: Google Maps and FotMob launchers and icons are prepared but
-ignored until Nimbus implements and tests its webapp helper. Backgrounds are
-still undecided. See [setup and validation](README.md#webapps).
+Status: Google Maps and FotMob launchers and icons are enabled on managed Linux.
+The user reports Nimbus's Brave Origin detection fixed; the release and VM
+installation are pending. Backgrounds are still undecided.
+See [setup and validation](README.md#webapps).
 
 - [x] Select the two webapps and vendor icons; prepare native desktop entries
   with Nimbus/platform gating and offline validation.
 - [x] Remove the prepared Fastmail webapp in favor of Nimbus's stable Flatpak
   selection; installation and default mail handling still need a live test.
-- [ ] Test Nimbus's helper and enable the prepared entries on managed Linux.
+- [x] Enable the prepared entries on managed Linux after the user reported
+  Nimbus's Brave Origin detection fixed.
+- [ ] Validate launching in the VM after installing Nimbus with the fix.
 - [ ] Choose backgrounds separately; do not import the old collection wholesale.
 - [ ] Verify the resulting launcher and backgrounds in the installed desktop.
 

@@ -47,7 +47,7 @@ class VSCodium(unittest.TestCase):
             "XDG_STATE_HOME": str(self.root / "state"),
         }
 
-    def render(self, platform, noctalia=False, legacy=False):
+    def render(self, platform, noctalia=False, legacy=False, entry_type="file"):
         data = {"chezmoi": {"os": platform}, "onePasswordSsh": False}
         if not legacy:
             data["profiles"] = ["common", "hyprland-noctalia"] if noctalia else ["common"]
@@ -61,7 +61,7 @@ class VSCodium(unittest.TestCase):
         warning = "chezmoi: warning: config file template has changed, run chezmoi init to regenerate config file\n"
         self.assertEqual(result.stderr.replace(warning, ""), "")
         return {name: entry["contents"] for name, entry in json.loads(result.stdout).items()
-                if entry["type"] == "file"}
+                if entry["type"] == entry_type}
 
     def test_platform_targets_and_theme_ownership(self):
         for platform, target in TARGETS.items():
@@ -69,7 +69,8 @@ class VSCodium(unittest.TestCase):
                 with self.subTest(platform=platform, noctalia=noctalia):
                     files = self.render(platform, noctalia)
                     managed = {name for name in files if "/VSCodium/" in name}
-                    self.assertEqual(managed, {f"{target}/settings.json", f"{target}/keybindings.json"})
+                    self.assertEqual(managed, {f"{target}/settings.json", f"{target}/keybindings.json",
+                                               f"{target.removesuffix('/User')}/product.json"})
                     self.assertFalse(any(name.startswith((".vscode-oss/",)) for name in files))
                     settings = strict_json(files[f"{target}/settings.json"])
                     enabled = platform == "linux" and noctalia
@@ -153,23 +154,15 @@ class VSCodium(unittest.TestCase):
         settings = strict_json(self.render("linux", legacy=True)[".config/VSCodium/User/settings.json"])
         self.assertEqual(settings["workbench.colorTheme"], "Atom One Dark")
 
-    def test_product_configuration_renders_but_stays_ignored(self):
-        result = subprocess.run([
-            CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
-            "--config", str(self.root / "chezmoi.toml"),
-            "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
-            "--skip-secrets", "execute-template",
-        ], input='{{ template "configs/vscodium/product.json" . }}',
-            env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20)
-        self.assertEqual(result.returncode, 0, result.stderr)
+    def test_product_configuration_is_managed(self):
         source = (REPO / "home/.chezmoitemplates/configs/vscodium/product.json").read_text()
         configuration = strict_json(source)
-        self.assertEqual(strict_json(result.stdout), configuration)
         self.assertEqual(configuration["extensionsGallery"]["serviceUrl"],
                          "https://marketplace.visualstudio.com/_apis/public/gallery")
-        for platform in TARGETS:
-            files = self.render(platform)
-            self.assertFalse(any(name.endswith("/VSCodium/product.json") for name in files))
+        for platform, target in TARGETS.items():
+            with self.subTest(platform=platform):
+                files = self.render(platform)
+                self.assertEqual(strict_json(files[f"{target.removesuffix('/User')}/product.json"]), configuration)
 
     def render_installer(self, platform, suffix):
         source = (REPO / f"home/run_after_install-vscodium-extensions.{suffix}.tmpl").read_text()
@@ -183,15 +176,19 @@ class VSCodium(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return result.stdout
 
-    def test_installers_render_from_manifest_but_are_ignored(self):
+    def test_managed_installers_match_platform_and_manifest(self):
         manifest = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())
         for platform in TARGETS:
             with self.subTest(platform=platform):
+                scripts = self.render(platform, entry_type="script")
                 for suffix in ("sh", "ps1"):
+                    target = f"install-vscodium-extensions.{suffix}"
                     script = self.render_installer(platform, suffix)
                     if (suffix == "ps1") != (platform == "windows"):
                         self.assertEqual(script.strip(), "")
+                        self.assertNotIn(target, scripts)
                         continue
+                    self.assertEqual(scripts[target], script)
                     for extension in manifest["install"]:
                         self.assertIn(extension, script)
                     for extension in manifest["manual"]:
@@ -200,15 +197,6 @@ class VSCodium(unittest.TestCase):
                         result = subprocess.run(["/bin/sh", "-n"], input=script,
                             capture_output=True, text=True, timeout=10)
                         self.assertEqual(result.returncode, 0, result.stderr)
-                result = subprocess.run([
-                    CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
-                    "--config", str(self.root / "chezmoi.toml"),
-                    "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
-                    "--override-data", json.dumps({"chezmoi": {"os": platform}}), "ignored",
-                ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20)
-                self.assertEqual(result.returncode, 0, result.stderr)
-                for suffix in ("sh", "ps1"):
-                    self.assertIn(f"install-vscodium-extensions.{suffix}", result.stdout.splitlines())
 
     def fake_cli(self, installed=(), name="codium"):
         bin_dir = self.root / "bin with spaces"

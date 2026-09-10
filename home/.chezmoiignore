@@ -9,6 +9,9 @@
 {{-   $onePasswordSsh = .onePasswordSsh -}}
 {{- end -}}
 
+# Completed files are managed by default. These rules select platforms/profiles
+# and exclude optional actions, generated files, references, and empty scaffolds.
+
 # Platform target trees
 {{ if ne .chezmoi.os "windows" -}}
 AppData/**
@@ -63,9 +66,7 @@ Library/**
 .config/udiskie/**
 .config/vm-curator/**
 .config/zathura/**
-.local/share/applications/**
-.local/share/backgrounds/**
-.local/share/icons/**
+.local/**
 {{ end -}}
 
 # Niri and DankMaterialShell are a separate opt-in Linux session.
@@ -74,23 +75,18 @@ Library/**
 .config/DankMaterialShell/**
 {{ end -}}
 
-# Webapps are the only implemented .local targets; omit the whole tree elsewhere.
-{{ if not (and (eq .chezmoi.os "linux") (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
-.local
-.local/**
-{{ end -}}
-
-# Webapps are prepared but disabled until Nimbus's launch helper is tested.
-# Remove these five rules to enable them; retain the platform/Nimbus gates.
-.local
-.local/share
+# Only Nimbus-dependent launchers need this gate, not the entire .local tree.
+{{ if not (and (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
 .local/share/applications/GoogleMaps.desktop
 .local/share/applications/FotMob.desktop
 .local/share/icons/hicolor/512x512/apps/nimbus-webapp-*.png
+{{ end -}}
 
-# VSCodium extension installation is prepared but not enabled.
-install-vscodium-extensions.sh
-install-vscodium-extensions.ps1
+# Reference notes and shell-generated palettes do not belong to Chezmoi.
+.config/hypr/compare/**
+.config/ghostty/themes/noctalia
+.config/zed/themes/**
+AppData/Roaming/Zed/themes/**
 
 # Optional 1Password SSH integration; Windows remains deferred.
 {{ if or (not $onePasswordSsh) (not (has .chezmoi.os (list "linux" "darwin"))) -}}
@@ -109,28 +105,16 @@ install-vscodium-extensions.ps1
 **/.keep
 AppData/Local
 Documents
-{{ if ne .chezmoi.os "darwin" -}}
-Library
-Library/Application Support
-{{ end -}}
 .profile
 .bash_logout
-.config/VSCodium/product.json
 .config/VSCodium/User/snippets/**
 .config/bash/logout
-.config/fastfetch/arch.txt
 .config/ghostty/themes/dankcolors
-.config/ghostty/themes/noctalia
-.config/hypr/conf.d/**
 .config/vm-curator/**
-.config/zed/themes/**
 .local/share/backgrounds/**
 AppData/Local/1Password/**
 AppData/Local/nvim/**
-AppData/Roaming/VSCodium/product.json
 AppData/Roaming/VSCodium/User/snippets/**
-AppData/Roaming/Zed/themes/**
 AppData/Roaming/topgrade.toml
 Documents/PowerShell/**
-Library/Application Support/VSCodium/product.json
 Library/Application Support/VSCodium/User/snippets/**

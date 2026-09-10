@@ -22,6 +22,17 @@ community_ids = [
 [wallpaper.default]
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 
+# Use Noctalia's native idle actions; suspend remains a deliberate session action.
+[idle.behavior.lock]
+timeout = 600
+action = "lock"
+enabled = true
+
+[idle.behavior.screen-off]
+timeout = 900
+action = "screen_off"
+enabled = true
+
 # Enabled on the VM; Noctalia owns downloads from its built-in sources.
 [plugins]
 enabled = [

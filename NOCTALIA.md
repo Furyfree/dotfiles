@@ -47,7 +47,7 @@ Use Noctalia's supported configuration before adding scripts:
 | Capability | Native mechanism and our boundary |
 |---|---|
 | Session controls | The existing session panel owns lock, logout, lock-and-suspend, reboot and shutdown. A row can override its command; Super+M opens this panel. |
-| Idle and locking | Native idle actions cover lock, screen off and suspend, with inhibitor support. Do not add a second idle daemon for these actions. Timing policy still needs a separate decision. |
+| Idle and locking | Native idle actions lock after ten minutes and turn screens off after fifteen, respecting inhibitors. No automatic suspend or second idle daemon is configured. |
 | Plugins | Declarative enabled IDs select plugins; Noctalia fetches and updates built-in sources. Bar widgets require placement separately. |
 | App themes | Built-in/community templates render colors and run their own hooks. GTK's shipped hook imports CSS and changes live appearance; apps without activation hooks need native selection once. |
 | Authentication UI | Noctalia provides an optional polkit agent. This is distinct from GNOME Keyring and PAM login unlocking; do not start competing polkit agents. |
@@ -82,12 +82,12 @@ validation alone do not verify external tools or accounts.
 
 ## LibrePods and keymap
 
-Hyprland starts `librepods --hide` once on its startup event when
-`/sys/class/bluetooth/hci*` contains an adapter. Launch LibrePods manually if
-an adapter is connected after login. The adapter guard is tested locally;
+Hyprland starts `librepods --hide` once on its startup event when the command
+is available and `/sys/class/bluetooth/hci*` contains an adapter. Launch LibrePods
+manually if an adapter is connected after login. The startup guards are tested locally;
 its next-login behavior still needs verification. Do not also enable
 LibrePods' own autostart setting; use one startup owner. Reloading Hyprland
-only reloads the bindings, not the startup event. Every one of the 35 bindings
+only reloads the bindings, not the startup event. Every binding
 has a native `description`, including mouse actions and generated workspace
 bindings, for Noctalia's keymap display.
 
@@ -99,7 +99,7 @@ plugin compatibility. Resolve that package/source difference through Nimbus
 before claiming AirPods battery and listening controls work. Chezmoi does not
 build or replace system packages. No Bluetooth device data is imported.
 
-The VM apply passed native Hyprland validation, Chezmoi apply/verify and empty
+The earlier starter's VM apply passed native Hyprland validation, Chezmoi apply/verify and empty
 status/diff. After reload, `hyprctl -j binds` reports descriptions for all 35
 bindings and no config errors. LibrePods was started through Hyprland and is
 running with `--hide`; the expected plugin status file is still absent.
@@ -165,24 +165,29 @@ Noctalia owns CSS imports and generated palettes, so a Chezmoi rerun does not
 undo a light/dark switch. Nimbus supplies Fedora's `adw-gtk3-theme` and both
 Qt configuration plugins. Standalone users must supply those packages.
 
-Hyprland supplies a standard PATH only when greetd's environment lacks one;
-it does not source shell profiles or replace an existing PATH. This fixes
-executable discovery without suppressing Hyprland's GUI-utilities warning.
+Hyprland retains the inherited PATH, using a standard system fallback when it
+is empty. It adds missing `~/.local/bin` and Mise shim paths for GUI-launched
+apps, respecting `MISE_DATA_DIR` and `XDG_DATA_HOME`. It does not source shell
+profiles. GTK and Qt prefer Wayland with X11 fallback; cursors use Nimbus's
+Bibata Modern Ice theme at size 24, and
+`EDITOR`/`VISUAL` default to Neovim while preserving inherited choices.
+Optional renderer, hardware, and reference-specific environment settings are
+commented out in `environment.lua`.
 `QT_QPA_PLATFORMTHEME=qt5ct` selects Qt5's plugin; Qt6ct explicitly accepts this
 compatibility name too. Both configs use Noctalia's generated palette and Fusion.
 Hyprland natively exports the display, desktop, toolkit and PATH variables
-to D-Bus/systemd activation before signalling readiness. The tested plain
-Hyprland session still left `graphical-session.target` inactive, blocking
-Fedora's portal service. Nimbus retains plain Hyprland while native session
-integration and UWSM are researched. No custom session manager or duplicate
-environment-import hook is added.
+to D-Bus/systemd activation before signalling readiness. The earlier plain
+Hyprland session left `graphical-session.target` inactive, blocking Fedora's
+portal service. On 2026-09-10 the VM was running through UWSM, with the graphical
+session target and both the portal frontend and Hyprland backend active.
+No custom session manager or duplicate environment-import hook is added.
 The change needs a fresh session; Chezmoi does not change the running desktop.
 Super+M opens Noctalia's own session panel. Its Logout row calls logind's
 `loginctl terminate-session "${XDG_SESSION_ID:?No graphical login session}"`.
 This targets the login inherited by Noctalia, not all sessions of the user;
 missing or empty session IDs fail without invoking loginctl. UWSM documents
 this as a supported shutdown path and binds its units to the login lifetime.
-It also works with the VM's current plain Hyprland login. The separate logout
+It also worked with the VM's earlier plain Hyprland login. The separate logout
 script and compositor-exit fallback have been removed. Other menu rows retain
 the native actions. GUI row overrides still take precedence.
 
@@ -254,10 +259,27 @@ After installation, the native hook selected `adw-gtk3-dark` and `prefer-dark`;
 the owner confirmed the result works. Selected desktop Chezmoi checks remain
 free of drift. System changes belong to Nimbus, not a Chezmoi script.
 
-The owner subsequently selected plain Hyprland. Its graphical session target
-and portal remain inactive; UWSM login and portal testing are still pending.
-The owner deferred UWSM adoption for research on 2026-09-09. The release keeps
-the tested plain Hyprland session and does not claim portal readiness.
+The owner temporarily selected plain Hyprland and deferred UWSM on 2026-09-09.
+A read-only check on 2026-09-10 found `wayland-wm@hyprland.desktop.service`
+running through UWSM 0.26.7. `graphical-session.target`,
+`xdg-desktop-portal.service`, and `xdg-desktop-portal-hyprland.service` were
+active. The portal's D-Bus API reported ScreenCast source capabilities and
+FileChooser version 4. No session configuration or services were changed by
+this check. Interactive file picking and sharing still need a user check.
+
+On 2026-09-10 the modular Hyprland configuration passed native validation with
+Hyprland 0.56.2; Noctalia 5.0.1 also accepted the idle configuration. A disposable
+nested compositor verified the lone full-width column, half-width columns when
+another window opens, directional focus, width cycling, centering, fullscreen,
+floating, persistent workspaces and moving a window between two outputs with
+focus following. A test client using Noctalia's application ID matched the
+floating settings rule. Shortcut actions were invoked from their registered
+bindings; synthetic keyboard input did not trigger bindings in this nested
+session. Physical keys, touchpad gestures, hardware controls, actual Noctalia
+surfaces and idle lock/screen-off still need an interactive check. Autostart was
+omitted only in the disposable copy; the running desktop configuration was not
+applied or changed. The local gate passed 130 tests with three optional/native
+skips, plus the Bash foundation checks.
 
 These checks do not prove every app's light/dark rendering, reload behavior, keyring
 unlocking, portal file picking or screen sharing. Application prerequisites in

@@ -48,11 +48,10 @@ databases. Design 1Password rendering before adding secret-backed targets, and
 never print their contents during validation.
 
 Chezmoi scripts must stay exceptional and user-scoped. The after-apply script
-may install tools explicitly declared in the native Mise config. The optional
-VSCodium after-apply scripts may install declared editor extensions through its
-native CLI; keep them ignored until explicitly enabled. Scripts must not install
-system packages or Mise itself, use privilege elevation, change `/etc`, manage
-services, or select a login shell.
+may install tools explicitly declared in the native Mise config. The VSCodium
+after-apply scripts install declared editor extensions through its native CLI.
+Scripts must not install system packages or Mise itself, use privilege elevation,
+change `/etc`, manage services, or select a login shell.
 
 Do not use the HTML skill unless the user explicitly asks for it.
 

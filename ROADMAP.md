@@ -163,8 +163,7 @@ configuration.
 
 The application PRs are merged; TASKS records their integration and remaining
 live checks. Their tests and operator guidance are retained, including the
-Mise installation exception and disabled VSCodium extension hooks. Do not
-activate optional hooks as an integration side effect.
+Mise installation exception and the explicitly enabled VSCodium extension hooks.
 
 Each slice must define:
 
@@ -217,8 +216,8 @@ macOS input and visual behavior remain manual checks.
 
 VSCodium settings/keybindings are implemented independently, matching the Zed
 slice's core workflow while preserving notebook, debugger, and viewer extensions.
-Noctalia template selection is profile-managed. Extension after-apply hooks are
-prepared but ignored until explicitly enabled. See [README.md](README.md#vscodium)
+Noctalia template selection is profile-managed. Extension after-apply hooks and
+the Microsoft Marketplace override are enabled. See [README.md](README.md#vscodium)
 for extension availability, installation, validation, and migration limitations.
 Stop before apply and validate native input on each operating system.
 
@@ -322,8 +321,8 @@ user settings. Profile names and gates remain governed by PROFILES.
 At the owner's request, the `niri-dms` user configuration is prepared
 before installing the new system. It uses explicit native modules and curated
 DMS settings, replacing the layered Niriland/DMS/override keymaps. Match module
-responsibilities and common shortcuts in future Hyprland work, not file syntax
-or Niri-specific scrolling behavior. Usage and migration checks live in
+responsibilities, common shortcuts, and scrolling preferences in Hyprland's
+native configuration. Usage and validation checks live in
 [README](README.md#niri-and-dankmaterialshell).
 
 Retain the old handoff branch's launcher intent when this phase is implemented:
@@ -335,9 +334,9 @@ not add launcher files until the corresponding installed workflows are tested.
 
 ### Optional Hyprland starter
 
-A small Hyprland 0.55+ Lua starter is prepared: Ghostty, Brave Origin, Noctalia 5
-daemon startup, and basic native window/workspace controls. Keep it one
-readable file until tested with the actual packaged versions in the VM.
+A small Hyprland 0.56+ Lua starter is prepared: Ghostty, Brave Origin, Noctalia 5
+daemon startup, and basic native window/workspace controls. The entry point
+loads the populated modules from `conf.d/`; unused scaffolds remain ignored.
 See [starter usage and validation](README.md#hyprland-starter). Repair broken
 desktop configuration from a TTY; the full keymap revamp stays deferred.
 
@@ -383,8 +382,9 @@ these tasks.
 ## Phase 7 - Webapps and backgrounds
 
 The selected initial webapps are Google Maps and FotMob. Their
-desktop entries and local vendor icons are prepared but ignored until the
-Nimbus webapp helper is implemented and tested. Fastmail uses Nimbus's stable
+desktop entries and local vendor icons are enabled on Nimbus-managed Linux.
+The user reports Brave Origin detection fixed in Nimbus; VM launch validation
+awaits its release and installation. Fastmail uses Nimbus's stable
 Flatpak selection instead of a webapp. Background selection remains
 separate. See [README](README.md#webapps) for sources and activation checks.
 

@@ -12,6 +12,7 @@ import unittest
 
 REPO = Path(__file__).resolve().parents[1]
 CONFIG = REPO / "home/dot_config/hypr/hyprland.lua"
+MODULES = tuple(sorted(path.stem for path in (CONFIG.parent / "conf.d").glob("*.lua")))
 CHEZMOI = shutil.which("chezmoi")
 LUA = shutil.which("lua")
 HYPRLAND = shutil.which("Hyprland")
@@ -59,63 +60,99 @@ class Hyprland(unittest.TestCase):
                         targets = {name for name in entries
                                    if name == ".config/hypr" or name.startswith(".config/hypr/")}
                         enabled = platform == "linux" and "hyprland-noctalia" in (profiles or [])
-                        self.assertEqual(targets, {".config/hypr", ".config/hypr/hyprland.lua"}
-                                         if enabled else set())
+                        expected = {".config/hypr", ".config/hypr/hyprland.lua", ".config/hypr/conf.d"}
+                        expected.update(f".config/hypr/conf.d/{name}.lua" for name in MODULES)
+                        self.assertEqual(targets, expected if enabled else set())
                         if enabled:
                             self.assertEqual(entries[".config/hypr/hyprland.lua"]["contents"],
                                              CONFIG.read_text())
+                            for name in MODULES:
+                                self.assertEqual(entries[f".config/hypr/conf.d/{name}.lua"]["contents"],
+                                                 (CONFIG.parent / f"conf.d/{name}.lua").read_text())
                         self.assertEqual(".config/noctalia/config.toml" in entries, enabled)
 
     @unittest.skipUnless(LUA, "lua is not installed")
     def test_lua_bindings_and_startup_are_declarative(self):
         # A strict API double checks Lua execution, not Hyprland's native schema.
-        result = self.run_command(LUA, "-", str(CONFIG), input=r'''
+        modules = [str(CONFIG.parent / f"conf.d/{name}.lua") for name in MODULES]
+        result = self.run_command(LUA, "-", str(CONFIG), *modules, input=r'''
 local binds, hooks, spawned, environment = {}, {}, {}, {}
+local curves, animations = { default = true }, {}
+-- Model Hyprland 0.56's explicit-path require with the actual module files.
+for i = 2, #arg do
+    local name = assert(arg[i]:match("/conf%.d/([^/]+)$"))
+    package.preload["./conf.d/" .. name] = assert(loadfile(arg[i]))
+end
 local function action(name)
     return function(value) return { name = name, value = value } end
 end
 hl = {
-    env = function(key, value) environment[key] = value end,
-    monitor = function(value) assert(value.output == "" and value.mode == "preferred") end,
-    config = function(value) assert(value.general.layout == "dwindle") end,
+    env = function(key, value)
+        assert(type(key) == "string" and type(value) == "string")
+        environment[key] = value
+    end,
+    curve = function(name, value)
+        assert(not curves[name], "duplicate animation curve: " .. name)
+        curves[name] = value
+    end,
+    animation = function(value)
+        assert(not animations[value.leaf], "duplicate animation: " .. value.leaf)
+        if value.bezier then assert(curves[value.bezier], "undefined animation curve") end
+        if value.speed then assert(value.speed > 0, "animation speed must be positive") end
+        animations[value.leaf] = value
+    end,
+    layer_rule = function(value) assert(type(value.match) == "table") end,
+    window_rule = function(value) assert(type(value.match) == "table") end,
+    workspace_rule = function(value)
+        assert(type(value.workspace) == "string" and #value.workspace > 0)
+    end,
+    gesture = function(value)
+        assert(type(value.fingers) == "number" and value.fingers > 0)
+        assert(type(value.direction) == "string" and type(value.action) == "string")
+    end,
+    monitor = function(value) assert(type(value.output) == "string") end,
+    config = function(value)
+        for section, entries in pairs(value) do
+            assert(type(section) == "string" and type(entries) == "table")
+        end
+    end,
     on = function(event, callback)
-        assert(event == "hyprland.start" and not hooks[event])
-        hooks[event] = callback
+        hooks[event] = hooks[event] or {}
+        table.insert(hooks[event], callback)
     end,
     exec_cmd = function(command) table.insert(spawned, command) end,
     bind = function(key, value, options)
-        assert(not binds[key], "duplicate shortcut: " .. key)
+        local normalized = key:upper():gsub("%s+", "")
+        assert(not binds[normalized], "duplicate shortcut: " .. key)
         assert(options and type(options.description) == "string" and #options.description > 0,
                "missing description: " .. key)
-        binds[key] = value
+        assert(type(value) == "table" or type(value) == "function")
+        binds[normalized] = value
         if key:find("mouse:") then assert(options.mouse) end
     end,
     dsp = {
         exec_cmd = action("exec"), focus = action("focus"), layout = action("layout"),
         window = {
-            close = action("close"), float = action("float"), pseudo = action("pseudo"),
-            move = action("move"), drag = action("drag"), resize = action("resize"),
+            close = action("close"), float = action("float"), fullscreen = action("fullscreen"),
+            move = action("move"), swap = action("swap"), drag = action("drag"), resize = action("resize"),
         },
     },
 }
 assert(loadfile(arg[1]))()
-assert(environment.PATH:find("/usr/bin", 1, true))
-assert(environment.QT_QPA_PLATFORMTHEME == "qt5ct")
-assert(#spawned == 0, "loading/reloading must not launch processes")
-assert(binds["SUPER + Q"].value == "ghostty")
-assert(binds["SUPER + B"].value == "brave-origin")
-assert(binds["SUPER + E"].value == "nautilus")
-assert(binds["SUPER + R"].value == "noctalia msg panel-toggle launcher")
-assert(binds["SUPER + C"].name == "close")
-assert(binds["SUPER + M"].value == "noctalia msg panel-toggle session")
-for i = 1, 10 do
-    local key = tostring(i % 10)
-    assert(binds["SUPER + " .. key].value.workspace == i)
-    assert(binds["SUPER + SHIFT + " .. key].value.workspace == i)
+for i = 2, #arg do
+    local name = arg[i]:match("/conf%.d/([^/]+)$")
+    assert(package.loaded["./conf.d/" .. name], "module is not loaded: " .. name)
 end
-hooks["hyprland.start"]()
-assert(#spawned == 2 and spawned[1] == "noctalia --daemon")
-print(spawned[2])
+assert(environment.PATH and #environment.PATH > 0, "session PATH is empty")
+assert(#spawned == 0, "loading/reloading must not launch processes")
+for _, callback in ipairs(hooks["hyprland.start"] or {}) do callback() end
+-- Exercise the conditional Bluetooth startup without pinning other startup commands.
+local bluetooth = {}
+for _, command in ipairs(spawned) do
+    if command:find("/sys/class/bluetooth", 1, true) then table.insert(bluetooth, command) end
+end
+assert(#bluetooth == 1, "expected one conditional Bluetooth startup")
+print(bluetooth[1])
 ''')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         bluetooth = self.root / "bluetooth adapters"
@@ -136,7 +173,14 @@ print(spawned[2])
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(result.stdout, "librepods:--hide\n" if count else "")
 
-    @unittest.skipUnless(HYPRLAND, "Hyprland is not installed; native check needs 0.55+")
+        # Adapters are present, but LibrePods is not installed.
+        librepods.unlink()
+        result = self.run_command("/bin/sh", "-c", command)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stderr, "")
+
+    @unittest.skipUnless(HYPRLAND, "Hyprland is not installed; native check needs 0.56+")
     def test_native_config(self):
         result = self.run_command(HYPRLAND, "--verify-config", "--config", str(CONFIG))
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

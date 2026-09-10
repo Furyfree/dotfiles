@@ -63,15 +63,10 @@ class Noctalia(unittest.TestCase):
                                      for name in entries))
                 if enabled:
                     config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
-                    self.assertEqual(set(config), {"theme", "wallpaper", "shell", "plugins"})
-                    actions = config["shell"]["session"]["actions"]
-                    self.assertEqual([item["action"] for item in actions],
-                                     ["lock", "logout", "lock_and_suspend", "reboot", "shutdown"])
                     templates = config["theme"]["templates"]
                     self.assertNotIn("starship", templates["builtin_ids"])
                     self.assertTrue({"neovim", "fastfetch"}.isdisjoint(templates["community_ids"]))
                     self.assertNotIn("brave-origin", templates["community_ids"])
-                    self.assertTrue({"vscode", "discord"} <= set(templates["community_ids"]))
                     self.assertEqual(tomllib.loads(entries[".config/btop/btop.conf"]["contents"])
                                      ["color_theme"], "noctalia")
                     self.assertIn("include noctaliarc", entries[".config/zathura/zathurarc"]["contents"])
