@@ -484,7 +484,8 @@ It includes Noctalia's generated palette only for the desktop profile.
 
 The palette keeps the live/Niriland charcoal background and blue highlights,
 extending them to completions and the document index. A generic sans-serif
-font replaces the Inter dependency. Documents open fitted to width, page-sized
+font replaces the Inter dependency. New documents open with the whole page
+fitted to the window; use `s` for width fitting on long pages. Page-sized
 scrolls respect page boundaries, and selected text goes to the clipboard
 without a notification. Recolor stays off initially so document colors are
 preserved. Bookmarks, reading positions, and databases stay unmanaged.
