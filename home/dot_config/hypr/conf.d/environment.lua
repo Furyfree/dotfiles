@@ -29,6 +29,9 @@ hl.env("PATH", searchPath)
 hl.env("GDK_BACKEND", "wayland,x11,*")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 
+-- Enable GTK compose and dead keys, including apps activated through D-Bus.
+hl.env("GTK_IM_MODULE", "simple", true)
+
 -- qt6ct also accepts qt5ct, allowing both Qt generations to load their plugin.
 hl.env("QT_QPA_PLATFORMTHEME", "qt5ct")
 
