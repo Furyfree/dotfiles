@@ -609,25 +609,9 @@ scrolls respect page boundaries, and selected text goes to the clipboard
 without a notification. Recolor stays off initially so document colors are
 preserved. Bookmarks, reading positions, and databases stay unmanaged.
 
-Keep the [native Zathura shortcuts](https://pwmt.org/projects/zathura/documentation/)
-instead of overriding useful navigation:
-
-| Keys | Action |
-|---|---|
-| `h/j/k/l`, `J/K`, `gg/G` | Scroll, next/previous page, first/last page |
-| `a` / `s` | Fit page / fit width |
-| `/`, `n/N` | Search, next/previous match |
-| `Tab`, `f`, `r` | Document index, follow links, rotate |
-| `Ctrl-O` / `Ctrl-I` | Back/forward through jump history |
-| `Ctrl-R` or `F4` | Toggle recolor |
-| `R` | Reload document |
-| `d` or `F6` | Toggle one/two-page layout |
-| `b` | Toggle status bar |
-| `F5` / `F11` | Presentation / fullscreen |
-
-This deliberately replaces the old Ctrl-R reload / Ctrl-I recolor mappings.
-Only the three additional shortcuts are configured; the rest are application
-defaults. [Alex Balgavy's config](https://git.alex.balgavy.eu/dotfiles/file/zathura/zathurarc.html)
+See [Zathura keybindings](ZATHURA_KEYBINDS.md) for everyday reading, search,
+navigation, and view controls. Native bindings remain intact, with three extra
+view shortcuts. [Alex Balgavy's config](https://git.alex.balgavy.eu/dotfiles/file/zathura/zathurarc.html)
 also demonstrates the small status-bar toggle. No editor-specific SyncTeX
 command or default PDF-handler change is made.
 
