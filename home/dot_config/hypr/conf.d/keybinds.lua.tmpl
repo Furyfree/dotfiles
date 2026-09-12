@@ -43,6 +43,11 @@ hl.bind(
     { description = "Open Zed" }
 )
 hl.bind(
+    mainMod .. " + SHIFT + R",
+    hl.dsp.exec_cmd("zeron"),
+    { description = "Open Zeron" }
+)
+hl.bind(
     mainMod .. " + SHIFT + T",
     hl.dsp.exec_cmd([[for app in t3code-nightly t3code; do
         if command -v "$app" >/dev/null 2>&1; then exec "$app"; fi

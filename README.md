@@ -1629,6 +1629,7 @@ Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 | Super+Shift+P | 1Password |
 | Super+Shift+A | ChatGPT |
 | Super+Shift+Z | Zed |
+| Super+Shift+R | Zeron |
 | Super+Shift+V | VSCodium |
 | Super+Shift+D | Discord through Vesktop |
 | Super+Shift+E | Fastmail Flatpak |
