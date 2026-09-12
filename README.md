@@ -124,10 +124,10 @@ After installation, complete the applicable account steps in the applications:
 - Sign into Tailscale. Its local operator permission is a separate
   `nimbus postinstall tailscale-operator` action, not an account login.
 - In the Noctalia desktop session, run `nimbus postinstall noctalia-plugins`
-  to inspect and repair missing enabled plugins. This requires the Nimbus
-  engine containing that task; the change is not released yet. It uses the
-  effective Noctalia selection, updates affected sources through Noctalia
-  and waits for their missing runtime files. Noctalia refreshes the live bar. Standalone users can use Noctalia's native plugin controls.
+  to inspect and repair missing enabled plugins. This requires Nimbus 0.4.4
+  or newer. It uses the effective Noctalia selection, updates affected sources
+  through Noctalia and waits for their missing runtime files. Noctalia refreshes
+  the live bar. Standalone users can use Noctalia's native plugin controls.
 - Add Fastmail to Noctalia using a calendar-only app password stored in the
   keyring. See [Fastmail calendars](NOCTALIA.md#fastmail-calendars).
 - Sign into Claude, Grok and Codex. Connect the Codex and OpenRouter providers
