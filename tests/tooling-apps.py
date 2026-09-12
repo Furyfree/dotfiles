@@ -289,7 +289,11 @@ class ToolingApps(unittest.TestCase):
                              "--promptMultichoice", "Profiles=common/future-profile/development")
         content = "\n".join(line[1:] for line in diff.splitlines()
                              if line.startswith("+") and not line.startswith("+++"))
-        data = tomllib.loads(content)["data"]
+        config = tomllib.loads(content)
+        self.assertEqual(config["diff"]["exclude"], ["scripts"])
+        self.assertNotIn("exclude", config.get("status", {}))
+        self.assertNotIn("exclude", config.get("apply", {}))
+        data = config["data"]
         self.assertEqual(data["Machine"], "test-machine")
         self.assertTrue(data["ManagedByNimbus"])
         self.assertFalse(data["onePasswordSsh"])

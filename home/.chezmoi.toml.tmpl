@@ -44,6 +44,9 @@ the machine name defaults to the hostname and ManagedByNimbus to false.
 
 {{- $profiles := uniq (concat (list "common") $platformProfiles $machineProfiles) -}}
 
+[diff]
+exclude = ["scripts"]
+
 [data]
 Machine = {{ $machine | quote }}
 # Optional account metadata; app passwords remain in the local keyring.

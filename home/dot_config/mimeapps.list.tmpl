@@ -1,8 +1,10 @@
-# Desktop defaults for the Linux hyprland-noctalia profile.
-# Package installation belongs to Nimbus. Application URL handlers are retained.
+{{/*
+Desktop defaults for the Linux hyprland-noctalia profile.
+Package installation belongs to Nimbus. Application URL handlers are retained.
+*/ -}}
 [Default Applications]
 
-# Folders and archives
+{{- /* Folders and archives */}}
 inode/directory=org.gnome.Nautilus.desktop;
 application/x-7z-compressed=org.gnome.Nautilus.desktop;
 application/x-7z-compressed-tar=org.gnome.Nautilus.desktop;
@@ -30,7 +32,7 @@ application/vnd.rar=org.gnome.Nautilus.desktop;
 application/zstd=org.gnome.Nautilus.desktop;
 application/x-zstd-compressed-tar=org.gnome.Nautilus.desktop;
 
-# Web pages and email links
+{{- /* Web pages and email links */}}
 text/html=brave-origin.desktop;
 application/xhtml+xml=brave-origin.desktop;
 x-scheme-handler/http=brave-origin.desktop;
@@ -38,10 +40,10 @@ x-scheme-handler/https=brave-origin.desktop;
 x-scheme-handler/about=brave-origin.desktop;
 x-scheme-handler/unknown=brave-origin.desktop;
 
-# Mail
+{{- /* Mail */}}
 x-scheme-handler/mailto=com.fastmail.Fastmail.desktop;
 
-# Images for viewing
+{{- /* Images for viewing */}}
 image/apng=org.gnome.Loupe.desktop;
 image/bmp=org.gnome.Loupe.desktop;
 image/gif=org.gnome.Loupe.desktop;
@@ -69,13 +71,13 @@ image/avif=org.gnome.Loupe.desktop;
 image/heic=org.gnome.Loupe.desktop;
 image/jxl=org.gnome.Loupe.desktop;
 
-# Image editor project formats
+{{- /* Image editor project formats */}}
 image/x-xcf=gimp.desktop;
 image/x-compressed-xcf=gimp.desktop;
 image/vnd.adobe.photoshop=gimp.desktop;
 image/x-psd=gimp.desktop;
 
-# Video, local audio and playlists
+{{- /* Video, local audio and playlists */}}
 application/mxf=io.github.celluloid_player.Celluloid.desktop;
 application/ogg=io.github.celluloid_player.Celluloid.desktop;
 application/vnd.apple.mpegurl=io.github.celluloid_player.Celluloid.desktop;
@@ -184,7 +186,7 @@ video/x-ogm+ogg=io.github.celluloid_player.Celluloid.desktop;
 video/x-theora=io.github.celluloid_player.Celluloid.desktop;
 video/x-theora+ogg=io.github.celluloid_player.Celluloid.desktop;
 
-# Text, source code, shell scripts and configuration
+{{- /* Text, source code, shell scripts and configuration */}}
 text/plain=dev.zed.Zed.desktop;
 text/markdown=dev.zed.Zed.desktop;
 text/x-markdown=dev.zed.Zed.desktop;
@@ -219,7 +221,7 @@ application/xml=dev.zed.Zed.desktop;
 text/xml=dev.zed.Zed.desktop;
 application/x-desktop=dev.zed.Zed.desktop;
 
-# Word documents and templates
+{{- /* Word documents and templates */}}
 application/msword=libreoffice-writer.desktop;
 application/vnd.ms-word=libreoffice-writer.desktop;
 application/vnd.openxmlformats-officedocument.wordprocessingml.document=libreoffice-writer.desktop;
@@ -231,7 +233,7 @@ application/vnd.oasis.opendocument.text-template=libreoffice-writer.desktop;
 application/rtf=libreoffice-writer.desktop;
 text/rtf=libreoffice-writer.desktop;
 
-# Spreadsheets and delimited tables
+{{- /* Spreadsheets and delimited tables */}}
 application/vnd.ms-excel=libreoffice-calc.desktop;
 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=libreoffice-calc.desktop;
 application/vnd.openxmlformats-officedocument.spreadsheetml.template=libreoffice-calc.desktop;
@@ -241,7 +243,7 @@ application/vnd.oasis.opendocument.spreadsheet-template=libreoffice-calc.desktop
 text/csv=libreoffice-calc.desktop;
 text/tab-separated-values=libreoffice-calc.desktop;
 
-# Presentations
+{{- /* Presentations */}}
 application/vnd.ms-powerpoint=libreoffice-impress.desktop;
 application/vnd.openxmlformats-officedocument.presentationml.presentation=libreoffice-impress.desktop;
 application/vnd.openxmlformats-officedocument.presentationml.slideshow=libreoffice-impress.desktop;
@@ -249,16 +251,16 @@ application/vnd.openxmlformats-officedocument.presentationml.template=libreoffic
 application/vnd.oasis.opendocument.presentation=libreoffice-impress.desktop;
 application/vnd.oasis.opendocument.presentation-template=libreoffice-impress.desktop;
 
-# Draw documents
+{{- /* Draw documents */}}
 application/vnd.oasis.opendocument.graphics=libreoffice-draw.desktop;
 application/vnd.oasis.opendocument.graphics-template=libreoffice-draw.desktop;
 
-# PDFs: the Zathura plugin supplies this handler; Brave works until it is installed.
+{{- /* PDFs: the Zathura plugin supplies this handler; Brave works until it is installed. */}}
 application/pdf=org.pwmt.zathura-pdf-poppler.desktop;brave-origin.desktop;
 
-# Preserve application-registered URL handlers
-x-scheme-handler/codex=chatgpt.desktop;
-x-scheme-handler/t3code=t3code-url-handler.desktop;
+{{- /* Preserve application-registered URL handlers */}}
+x-scheme-handler/codex=chatgpt.desktop
+x-scheme-handler/t3code=t3code-url-handler.desktop
 x-scheme-handler/discord=vesktop.desktop;
 x-scheme-handler/claude-cli=claude-code-url-handler.desktop;
 

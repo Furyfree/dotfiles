@@ -218,6 +218,11 @@ new associations written by applications before the next apply; otherwise the
 managed file restores the declared preferences. File types and links not listed
 here keep their native application or distribution defaults.
 
+Explanatory comments stay in `home/dot_config/mimeapps.list.tmpl` as Chezmoi
+template comments. They do not appear in the generated file, whose compact
+format matches the desktop's current output. This avoids comment-only drift
+when desktop tools rewrite associations while keeping the source readable.
+
 ## Bootstrap
 
 On a new machine with access to the repository (authentication is required
@@ -252,11 +257,25 @@ Apply only after reviewing the diff:
 chezmoi apply
 ```
 
-`chezmoi diff` shows the install script and `chezmoi status` reports it as a
-script to run, including when the config files already match. Neither these
-preview commands nor `chezmoi apply --dry-run` installs tools. A full apply is
-the supported configuration-and-install flow; applying individual files need
-not run the after-apply script.
+`chezmoi diff` excludes scripts so its default output shows file changes.
+`chezmoi status` still reports scripts with `R`, including when configuration
+already matches. The scripts continue to run on a full apply. To review their
+contents too, use:
+
+```sh
+chezmoi diff --exclude=none
+```
+
+After changing the Chezmoi config template, refresh the local configuration
+without applying dotfiles or rerunning the stored prompts:
+
+```sh
+chezmoi init --apply=false
+```
+
+Neither the preview commands nor `chezmoi apply --dry-run` installs tools.
+A full apply is the supported configuration-and-install flow; applying
+individual files need not run the after-apply script.
 
 ## Update
 
