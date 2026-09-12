@@ -12,6 +12,10 @@ bindkey '^[[H' beginning-of-line
 bindkey '^[[F' end-of-line
 bindkey '^[[3~' delete-char
 
+# Page Up/Down search history using the text before the cursor.
+bindkey '^[[5~' history-beginning-search-backward
+bindkey '^[[6~' history-beginning-search-forward
+
 bindkey '^[[1;5D' backward-word
 bindkey '^[[1;5C' forward-word
 bindkey '^[[3;5~' kill-word
