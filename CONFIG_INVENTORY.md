@@ -16,7 +16,7 @@ evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 | Zed | Managed shared settings and one additive terminal keybind, with platform paths/modifiers. Noctalia theme on its Linux profile; bundled themes elsewhere. Generated themes, backups, and personal agent settings stay unmanaged. |
 | VSCodium | Managed settings/keybindings match the Zed workflow, with native platform paths. Microsoft Marketplace and after-apply extension installers are enabled; snippets and runtime state stay unmanaged. |
 | Starship | Shared basic prompt config is managed; Bash and Zsh initialization are implemented, PowerShell initialization is deferred. |
-| Fastfetch | Managed shared config: native OS logo, compact hardware/software groups, inherited terminal foreground; no commands or custom artwork. |
+| Fastfetch | Managed Linux Quiet rules layout: aligned fedora artwork, native Lua summaries, terminal palette, and read-only installer-age/process detection. macOS/Windows retain the native layout. |
 | Topgrade | Curated Linux/macOS user-scope updates; Mise owns its Cargo tools. System updates and pre/post recovery belong to Nimbus. Live update testing and Windows remain deferred. |
 | GitHub CLI | Managed canonical config: SSH, editor prompts, and `co` alias; platform wrappers. Verify authentication separately. Never track `hosts.yml`. |
 

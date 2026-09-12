@@ -63,6 +63,7 @@ Library/**
 
 # Other Linux user targets
 {{ if ne .chezmoi.os "linux" -}}
+.config/fastfetch/fedora-dot-colon.txt
 .config/mise/conf.d
 .config/mise/conf.d/linux-tools.toml
 .config/udiskie/**

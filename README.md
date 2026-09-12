@@ -29,7 +29,9 @@ Original configuration, scripts, and documentation are available under the
 [MIT License](LICENSE), copyright 2026 Patrick Byrne.
 
 The Google Maps and FotMob icons described under [Webapps](#webapps) are
-third-party brand assets and are not covered by the MIT license.
+third-party brand assets and are not covered by the MIT license. The Fastfetch
+fedora artwork is an ASCII rendering of the user-supplied Red Hat hat mark;
+Red Hat retains rights in its brand artwork and trademarks.
 
 The inactive Hyprland reference files retain their upstream terms: Omarchy's
 MIT notice is in `compare/omarchy.lua`; Ryoku's excerpts in `compare/ryoku.lua`
@@ -788,47 +790,78 @@ management but does not restore or delete an already deployed file.
 
 ## Fastfetch
 
-One shared `~/.config/fastfetch/config.jsonc` keeps hardware and software in
-compact groups with plain labels and the terminal's default foreground. The small
-built-in logo follows the detected OS; no Arch artwork or Nerd Font is required.
-Fastfetch uses this path on Linux, macOS, and Windows (below the user profile).
-Custom XDG paths or portable Windows installations may need an explicit config
-path; inspect the installed binary's search paths if it does not find the file.
+Linux uses the Quiet rules layout: System, Desktop and Hardware, followed by
+terminal palette swatches. The monochrome dot-colon fedora is 64 columns by
+21 rows; its first row aligns with System and its last row with the palette.
+Use a terminal at least 130 columns wide to show the complete layout. Line
+wrapping is disabled for this display, so narrower terminals clip long rows.
 
-Logo and keys inherit the terminal's foreground instead of imposing cyan or
-RGB colors. In Noctalia-themed Ghostty they follow Noctalia; elsewhere they
-follow that terminal's theme. This is terminal inheritance, not a separate
-Noctalia accent template. Do not enable Noctalia's community Fastfetch template:
-its hook rewrites the same config Chezmoi manages. No generated color files or
-extra hooks are needed for this setup.
+System shows OS, kernel, estimated OS age, uptime and packages. Desktop shows
+DE, WM, shell and terminal. Hardware shows CPU, combined GPUs, combined
+displays, memory and the root filesystem's usage. Battery is omitted. The
+Noctalia process is detected for the current user when no native DE is found,
+and explicitly labeled as a desktop shell. Missing detection retains a
+`not detected` row to preserve alignment. Multiple identical displays collapse
+into a count; long summaries end with an ellipsis. Disk reports `/` once,
+without repeating its Btrfs subvolumes.
 
-CPU, GPU, memory, disks, displays, and battery precede OS, kernel, window manager,
-shell, terminal, packages, and uptime. Native detection handles platform and
-hardware differences; unavailable modules are normally hidden. There are no
-network requests or shell-command modules, and the old root-filesystem "age"
-estimate is omitted. The old `arch.txt` remains unmanaged and untouched.
+OS age is an estimate from the birth timestamp of Fedora's retained
+`/var/log/anaconda` directory, marked with `~` (or `estimate` on the first day).
+This is installer-record metadata, not an authoritative installation clock;
+restoring or recreating that directory can change the estimate. Missing,
+unsupported or future timestamps show `not recorded`. Dotfile application,
+Nimbus initialization, RPM upgrades and root-directory dates are not used to
+start or reset an age counter. No logs are read and no timestamp is written.
 
-Use `fastfetch`, or the existing `f` alias in the managed Zsh config. It does not
-run automatically at startup. Preview the source without applying it:
+Fastfetch 2.64+ built with Lua is required for the Linux layout. The installed
+Fedora 2.66 build supports it; inspect `fastfetch --list-features` for `Lua` on
+other Linux distributions. Native modules collect live values in a single
+Fastfetch process; its built-in Lua formats combine them into fixed rows. Two
+small read-only command modules inspect installer metadata and the current
+user's Noctalia process. There is no wrapper, recursive Fastfetch invocation,
+network query, cache, installation hook or generated configuration at runtime.
+
+The canonical Linux config and formatting live under
+`home/.chezmoitemplates/configs/fastfetch/`; the target is
+`~/.config/fastfetch/config.jsonc`. Chezmoi also manages
+`~/.config/fastfetch/fedora-dot-colon.txt` on Linux. macOS and Windows retain
+the previous native layout and OS logo, without the Linux Lua or command
+requirements. Fastfetch uses the same config path below each user's home.
+
+Logo, keys and separators inherit the terminal foreground. Palette swatches
+use ANSI slots 0–7, so Noctalia-themed Ghostty supplies the colors naturally.
+Do not enable Noctalia's community Fastfetch template: it rewrites the same
+config Chezmoi manages. No separate accent template or color hook is needed.
+
+Use `fastfetch`, or the existing `f` alias. It does not run automatically at
+shell startup. Render a candidate outside the active config before applying:
 
 ```sh
-fastfetch --config home/dot_config/fastfetch/config.jsonc
+chezmoi cat ~/.config/fastfetch/config.jsonc > /tmp/fastfetch-preview.jsonc
+fastfetch --config /tmp/fastfetch-preview.jsonc
 ```
 
-Run the focused checks with Python 3.11+, Chezmoi, and optionally Fastfetch:
+The rendered Linux config references the managed logo in your home, so preview
+that way after the logo has been applied. Apply only these targets when
+installing this configuration without running unrelated after-apply hooks:
+
+```sh
+chezmoi apply --exclude=scripts ~/.config/fastfetch/config.jsonc ~/.config/fastfetch/fedora-dot-colon.txt
+```
+
+Run the focused checks with Python 3.11+, Chezmoi, and Fastfetch with Lua:
 
 ```sh
 python3 tests/fastfetch.py
 ```
 
-They check syntax, safe module selection, identical platform targets, native
-parsing, headless output, and foreground inheritance in built-in logos using
-isolated application state. Missing optional tools are reported as skips. Native
-macOS/Windows detection and visual appearance remain manual checks. Review the
-normal Chezmoi previews and back up the live config before applying; restoring
-that backup restores the previous layout.
+They check platform targets, native rendering, missing-hardware alignment,
+multiple-device aggregation, long text, plain output, process detection and
+installer timestamp fallbacks using isolated homes and fake native commands.
+Missing optional tools are reported as skips. Native macOS/Windows detection
+remains a manual check. The complete repository gate is `just check`.
 
-See the [Fastfetch configuration guide](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration).
+See the [Fastfetch formatting guide](https://github.com/fastfetch-cli/fastfetch/wiki/Format-String-Guide#scripting-support-experimental).
 
 ## Git
 

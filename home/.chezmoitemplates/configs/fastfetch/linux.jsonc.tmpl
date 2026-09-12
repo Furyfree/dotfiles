@@ -1,0 +1,180 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "type": "file-raw",
+    "source": {{ joinPath .chezmoi.homeDir ".config/fastfetch/fedora-dot-colon.txt" | toJson }},
+    "padding": {
+      "right": 5
+    }
+  },
+  "display": {
+    "separator": "  ",
+    "color": {
+      "keys": "default"
+    },
+    "size": {
+      "ndigits": 1
+    },
+    "disableLinewrap": true
+  },
+  "modules": [
+    {
+      "type": "custom",
+      "format": {{ printf "lua:%s" (include ".chezmoitemplates/configs/fastfetch/format.lua") | toJson }}
+    },
+    {
+      "type": "os",
+      "format": "lua:ff.os = ..."
+    },
+    {
+      "type": "kernel",
+      "format": "lua:ff.kernel = ..."
+    },
+    {
+      "type": "uptime",
+      "format": "lua:ff.uptime = ..."
+    },
+    {
+      "type": "packages",
+      "format": "lua:ff.packages = ..."
+    },
+    {
+      "type": "de",
+      "format": "lua:ff.de = ..."
+    },
+    {
+      "type": "wm",
+      "format": "lua:ff.wm = ..."
+    },
+    {
+      "type": "shell",
+      "format": "lua:ff.shell = ..."
+    },
+    {
+      "type": "terminal",
+      "format": "lua:ff.terminal = ..."
+    },
+    {
+      "type": "cpu",
+      "format": "lua:ff.cpu = ..."
+    },
+    {
+      "type": "memory",
+      "format": "lua:ff.memory = ..."
+    },
+    {
+      "type": "gpu",
+      "format": "lua:table.insert(ff.gpus, ...)"
+    },
+    {
+      "type": "display",
+      "format": "lua:table.insert(ff.displays, ...)"
+    },
+    {
+      "type": "disk",
+      "folders": "/",
+      "format": "lua:ff.disk = ..."
+    },
+    {
+      "type": "command",
+      "text": {{ include ".chezmoitemplates/configs/fastfetch/os-age.sh" | toJson }},
+      "format": "lua:ff.age = (...).result",
+      "timeout": 1000
+    },
+    {
+      "type": "command",
+      "text": {{ include ".chezmoitemplates/configs/fastfetch/noctalia.sh" | toJson }},
+      "format": "lua:ff.noctalia = (...).result",
+      "timeout": 1000
+    },
+    {
+      "type": "custom",
+      "format": "{#2}── {#}{#1}SYSTEM{#}{#2} ───────────────────────────────────────────────────{#}"
+    },
+    {
+      "type": "custom",
+      "key": "OS          ",
+      "format": "lua:return ff.text(ff.os and (ff.os.name .. ' ' .. ff.os.versionId))"
+    },
+    {
+      "type": "custom",
+      "key": "Kernel      ",
+      "format": "lua:return ff.text(ff.kernel and ff.kernel.release)"
+    },
+    {
+      "type": "custom",
+      "key": "OS age      ",
+      "format": "lua:return ff.text(ff.age or 'not recorded')"
+    },
+    {
+      "type": "custom",
+      "key": "Uptime      ",
+      "format": "lua:return ff.text(ff.uptimeText())"
+    },
+    {
+      "type": "custom",
+      "key": "Packages    ",
+      "format": "lua:return ff.text(ff.packageCounts())"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "{#2}── {#}{#1}DESKTOP{#}{#2} ──────────────────────────────────────────────────{#}"
+    },
+    {
+      "type": "custom",
+      "key": "DE          ",
+      "format": "lua:return ff.text(ff.name(ff.de) or ff.noctalia)"
+    },
+    {
+      "type": "custom",
+      "key": "WM          ",
+      "format": "lua:return ff.text(ff.name(ff.wm))"
+    },
+    {
+      "type": "custom",
+      "key": "Shell       ",
+      "format": "lua:return ff.text(ff.name(ff.shell))"
+    },
+    {
+      "type": "custom",
+      "key": "Terminal    ",
+      "format": "lua:return ff.text(ff.name(ff.terminal))"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "{#2}── {#}{#1}HARDWARE{#}{#2} ─────────────────────────────────────────────────{#}"
+    },
+    {
+      "type": "custom",
+      "key": "CPU         ",
+      "format": "lua:return ff.text(ff.cpuName())"
+    },
+    {
+      "type": "custom",
+      "key": "GPU         ",
+      "format": "lua:return ff.text(ff.gpuNames())"
+    },
+    {
+      "type": "custom",
+      "key": "Display     ",
+      "format": "lua:return ff.text(ff.displayNames())"
+    },
+    {
+      "type": "custom",
+      "key": "Memory      ",
+      "format": "lua:return ff.text(ff.usage(ff.memory))"
+    },
+    {
+      "type": "custom",
+      "key": "Disk        ",
+      "format": "lua:return ff.text(ff.disk and (ff.usage(ff.disk) .. ' · ' .. ff.disk.filesystem))"
+    },
+    "break",
+    {
+      "type": "custom",
+      "format": "{#40}  {#} {#41}  {#} {#42}  {#} {#43}  {#} {#44}  {#} {#45}  {#} {#46}  {#} {#47}  {#}"
+    }
+  ]
+}

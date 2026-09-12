@@ -198,11 +198,11 @@ The isolated lifecycle checks use a synthetic source, temporary home, and fake
 Mise, covering order, repair, failure/retry, prerequisite errors, and platform
 rendering. Native downloads and macOS/Windows execution remain untested.
 
-Fastfetch is implemented independently as one shared config with native OS
-logo/detection, compact hardware/software groups, and no command or network
-modules. The old Arch artwork remains unmanaged. See
-[README.md](README.md#fastfetch) for preview, validation, and recovery. Stop
-before apply; native macOS/Windows detection remains a manual check.
+Fastfetch uses the Quiet rules layout on Linux: a monochrome fedora and
+palette aligned at row 21, native Lua summaries, and two read-only commands
+for estimated installer age and running Noctalia detection. macOS/Windows
+retain their native layout. See [README.md](README.md#fastfetch) for usage,
+requirements and validation; native macOS/Windows detection remains a manual check.
 
 Git is implemented independently through its native XDG config and ignore
 paths, with personal `~/.gitconfig` left unmanaged. Shared defaults keep native
