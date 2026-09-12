@@ -1216,12 +1216,30 @@ does not install the application. Restart Zed if generated colors
 are not picked up. Other setups use bundled One Light/One Dark with the system
 appearance.
 
+### External agents
+
+On Linux and macOS, the settings register Claude (`claude-acp`), Codex
+(`codex-acp`) and OpenCode (`opencode`) through Zed's ACP registry. Zed downloads
+their adapters or executables when launched. Grok uses a custom agent command
+that runs `mise exec npm:@xai-official/grok -- grok agent stdio`, using the
+Grok tool declared in the native Mise configuration. This avoids Zed's npm
+registry launcher passing Grok's native executable to Node.js.
+
+Chezmoi renders Grok's Mise command as `~/.local/bin/mise` under the current
+user's home directory, matching Nimbus's official user installation. Standalone
+Linux/macOS setups need Mise at that location too. The existing
+[Mise install hook](#mise-tools) supplies Grok after apply; no Zed-specific
+installation script is needed. Windows does not receive these registrations.
+Account sign-in and agent sessions remain application-owned. The Linux Grok
+command passed ACP initialization and was confirmed working in Zed; macOS
+rendering is tested, but its live integration has not been checked.
+
 ### Privacy and validation
 
 Workspace trust remains required, unsaved-buffer restoration stays enabled,
 and the built-in agent defaults to Ask as in your current setup. Telemetry and
-agent feedback stay disabled; private-value redaction is enabled. Personal
-agent-server registrations, model preferences, authentication, caches, sessions,
+agent feedback stay disabled; private-value redaction is enabled. Additional
+personal agent-server registrations, model preferences, authentication, caches, sessions,
 downloaded extensions, and theme output are not imported.
 
 This replaces settings/keymap files, not just selected keys. Back up the live

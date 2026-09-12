@@ -72,6 +72,18 @@ class Zed(unittest.TestCase):
                     } if enabled else {
                         "mode": "system", "light": "One Light", "dark": "One Dark"})
                     self.assertEqual(".config/noctalia/config.toml" in files, enabled)
+                    if platform == "windows":
+                        self.assertNotIn("agent_servers", settings)
+                    else:
+                        agents = settings["agent_servers"]
+                        self.assertEqual(set(agents), {"opencode", "grok-build", "claude-acp", "codex-acp"})
+                        for name in ("opencode", "claude-acp", "codex-acp"):
+                            self.assertEqual(agents[name], {"type": "registry"})
+                        self.assertEqual(agents["grok-build"], {
+                            "type": "custom",
+                            "command": str(self.home / ".local/bin/mise"),
+                            "args": ["exec", "npm:@xai-official/grok", "--", "grok", "agent", "stdio"],
+                        })
 
     def test_privacy_and_preferences(self):
         settings = strict_json(self.render("linux")[".config/zed/settings.json"])
@@ -85,7 +97,6 @@ class Zed(unittest.TestCase):
         self.assertEqual(settings["autosave"], "off")
         self.assertEqual(settings["terminal"]["shell"], "system")
         self.assertNotIn("theme_overrides", settings)
-        self.assertNotIn("agent_servers", settings)
         self.assertNotIn("language_models", settings)
 
     def test_extension_inventory(self):

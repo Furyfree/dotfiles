@@ -126,6 +126,31 @@
 
   "session": { "restore_unsaved_buffers": true, "trust_all_worktrees": false },
   "agent": { "default_profile": "ask", "enable_feedback": false },
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") }}
+  "agent_servers": {
+    "opencode": {
+      "type": "registry"
+    },
+    "grok-build": {
+      "type": "custom",
+      "command": {{ printf "%s/.local/bin/mise" .chezmoi.homeDir | toJson }},
+      "args": [
+        "exec",
+        "npm:@xai-official/grok",
+        "--",
+        "grok",
+        "agent",
+        "stdio"
+      ]
+    },
+    "claude-acp": {
+      "type": "registry"
+    },
+    "codex-acp": {
+      "type": "registry"
+    }
+  },
+{{- end }}
   "telemetry": { "diagnostics": false, "metrics": false },
   "redact_private_values": true
 }
