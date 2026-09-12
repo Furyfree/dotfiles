@@ -28,6 +28,11 @@ hl.bind(
     { description = "Open 1Password" }
 )
 hl.bind(
+    "CTRL + SHIFT + Space",
+    hl.dsp.exec_cmd("1password --quick-access"),
+    { description = "Open 1Password Quick Access" }
+)
+hl.bind(
     mainMod .. " + SHIFT + A",
     hl.dsp.exec_cmd("chatgpt"),
     { description = "Open ChatGPT" }
