@@ -1,0 +1,10 @@
+{{- if and (eq .chezmoi.os "linux") (hasKey . "profiles") (has "development" .profiles) -}}
+#!/bin/sh
+set -eu
+
+# Refresh only the user's theme index; native Zeron owns the linked image.
+command -v gtk-update-icon-cache >/dev/null 2>&1 || exit 0
+theme="$HOME/.local/share/icons/hicolor"
+[ -e "$theme/512x512/apps/zeron.png" ] || exit 0
+gtk-update-icon-cache --force --ignore-theme-index --index-only "$theme"
+{{- end }}

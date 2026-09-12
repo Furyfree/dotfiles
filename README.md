@@ -127,6 +127,8 @@ After installation, complete the applicable account steps in the applications:
   in OpenCode. Installing a CLI does not establish account authorization.
 - When the Copilot application is installed, select and authorize its Codex
   backend through the application.
+- Zeron works locally without sign-in. For optional multi-device sync, follow
+  the [Zeron profile-switching steps](#zeron); existing local sessions stay local.
 - Choose application themes where Noctalia has no native activation hook.
 
 These are a first-login checklist, not a claim that accounts are connected.
@@ -1414,6 +1416,46 @@ References: [lazy.nvim](https://lazy.folke.io/),
 [Tree-sitter prerequisites](https://github.com/nvim-treesitter/nvim-treesitter),
 and [isolated Neovim application names](https://neovim.io/doc/user/starting/#%24NVIM_APPNAME).
 
+## Zeron
+
+On Linux, the `development` profile registers Zeron in the application launcher
+and adds its native updater to Topgrade. Nimbus bootstraps a missing binary
+with the [official installer][zeron-install] and installs its browser runtime
+dependencies, `webkit2gtk4.1` and `json-glib`. Standalone users install Zeron
+through its native installer before using these links.
+
+The desktop entry and icon are symlinks to the bundled assets under
+`~/.zeron/app/current`. Native updates switch that directory, so launcher
+assets follow without copying them into Git. Chezmoi does not manage Zeron's
+generated service, sessions, credentials or other application state.
+An after-apply hook refreshes the user's GTK icon index when Zeron's icon and
+`gtk-update-icon-cache` are available. It caches names only, leaving image data
+with the native application; generated caches stay outside Git.
+
+`zeron` opens the GUI; its user service runs the headless engine. The installer
+enables and restarts this service and attempts to enable user lingering, which
+allows user services to continue after logout. Nimbus discloses these effects
+before installation. `zeron update` owns application updates and can restart
+the engine; check its output for service restart warnings. Topgrade calls it
+only when the CLI is installed, without adding elevation or login steps.
+
+Local-only use needs no account. To switch to the optional synced profile:
+
+~~~sh
+zeron daemon stop
+zeron login
+zeron daemon start
+~~~
+
+Use `zeron logout` in place of `zeron login` to return to the local profile.
+Signing in does not import existing local sessions. Devices signed into the
+same account can access synced workspaces remotely; enabling ignored-file
+visibility also makes those files available. Keep authentication manual.
+`zeron daemon uninstall` removes its service, not the application or sessions;
+profile removal does not delete native application data.
+
+[zeron-install]: https://github.com/zeronsh/zeron#install-and-run-locally-linux
+
 ## Topgrade
 
 Linux and macOS share `~/.config/topgrade.toml`, rendered from
@@ -1436,6 +1478,7 @@ Applying the configuration does not run updates beyond the existing
 | Sheldon | Downloaded shell plugins and their runtime lock, not the managed plugin selection |
 | tldr | Local help-page data, not the tldr executable |
 | GitHub Copilot, managed Linux | The COPR installer helper updates the app when the helper is installed |
+| Zeron, Linux development | `zeron update` updates the native application when installed |
 
 The native Mise step in the tested Topgrade 17.9.0 runs in a fresh temporary
 directory, away from the caller's project and home-local Mise files. It still

@@ -44,14 +44,15 @@ class Topgrade(unittest.TestCase):
         self.rendered = self.render_config()
         self.config = tomllib.loads(self.rendered.read_text())
 
-    def render_config(self, managed=True, platform="linux"):
+    def render_config(self, managed=True, platform="linux", profiles=None):
         result = subprocess.run([
             CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
             "--config", str(self.root / "chezmoi.toml"),
             "--cache", str(self.root / "cache/chezmoi"),
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
             "--skip-secrets", "--override-data", json.dumps({
-                "chezmoi": {"os": platform}, "ManagedByNimbus": managed}),
+                "chezmoi": {"os": platform}, "ManagedByNimbus": managed,
+                "profiles": profiles or ["common"]}),
             "execute-template", CONFIG.read_text()],
             env=self.env, text=True, capture_output=True, check=True)
         config = self.root / (f"topgrade-{platform}-{managed}.toml")
@@ -72,8 +73,10 @@ class Topgrade(unittest.TestCase):
         self.assertEqual(self.config["pre_commands"],
                          {"Nimbus system updates": "nimbus upgrade --system"})
 
-    def fake_tools(self, copilot=False):
+    def fake_tools(self, copilot=False, zeron=False):
         tools = ["nimbus", "mise", "gh", "sheldon", "tldr"]
+        if zeron:
+            tools += ["zeron"]
         if copilot:
             tools += ["sudo", "github-copilot-installer"]
         for tool in tools:
@@ -93,11 +96,11 @@ if pathlib.Path(sys.argv[0]).name == "sudo":
 ''')
             path.chmod(0o755)
 
-    def run_topgrade(self, *args, copilot=False):
+    def run_topgrade(self, *args, copilot=False, zeron=False):
         # All updater names resolve to fakes. Even native discovery probes must
         # never reach the real tools or the caller's home/authentication/session.
         self.test_scope_and_confirmation_policy()
-        self.fake_tools(copilot)
+        self.fake_tools(copilot, zeron)
         (self.bin / "sh").symlink_to("/bin/sh")
         self.env["SHELL"] = "/bin/sh"
         return subprocess.run([
@@ -202,6 +205,49 @@ if pathlib.Path(sys.argv[0]).name == "sudo":
             self.assertNotIn("pre_commands", config)
             self.assertEqual(set(config["misc"]["only"]),
                              native | {"mise", "github_cli_extensions", "sheldon", "tldr"})
+
+    def test_zeron_profile_and_platform_selection(self):
+        for platform in ("linux", "darwin"):
+            for managed in (False, True):
+                for profiles in (["common"], ["common", "development"]):
+                    with self.subTest(platform=platform, managed=managed, profiles=profiles):
+                        config = tomllib.loads(self.render_config(
+                            managed, platform, profiles).read_text())
+                        enabled = platform == "linux" and "development" in profiles
+                        self.assertEqual("Zeron" in config.get("commands", {}), enabled)
+                        if enabled:
+                            self.assertIn("custom_commands", config["misc"]["only"])
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_zeron_native_update(self):
+        self.rendered = self.render_config(profiles=["development"])
+        result = self.run_topgrade(zeron=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual([c["args"] for c in self.calls() if c["tool"] == "zeron"],
+                         [["update"]])
+        self.assertFalse(any(c["tool"] == "sudo" for c in self.calls()))
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_zeron_failed_update_is_reported(self):
+        self.rendered = self.render_config(profiles=["development"])
+        self.env["FAKE_FAIL_TOOL"] = "zeron"
+        result = self.run_topgrade(zeron=True)
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Zeron: FAILED", result.stdout)
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_zeron_dry_run_does_not_update(self):
+        self.rendered = self.render_config(profiles=["development"])
+        result = self.run_topgrade("--dry-run", zeron=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(any(c["tool"] == "zeron" for c in self.calls()))
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_zeron_missing_binary_is_skipped(self):
+        self.rendered = self.render_config(profiles=["development"])
+        result = self.run_topgrade()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(any(c["tool"] == "zeron" for c in self.calls()))
 
     @unittest.skipUnless(MISE, "mise is not installed")
     def test_native_mise_global_fragment_discovery(self):

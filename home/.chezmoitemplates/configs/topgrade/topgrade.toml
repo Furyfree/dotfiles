@@ -1,10 +1,11 @@
 [misc]
 {{ $managed := and (eq .chezmoi.os "linux") (hasKey . "ManagedByNimbus") .ManagedByNimbus }}
+{{ $zeron := and (eq .chezmoi.os "linux") (hasKey . "profiles") (has "development" .profiles) }}
 {{ if $managed }}
 # Nimbus owns the system phase; its failure stops all later updates.
 only = ["mise", "github_cli_extensions", "sheldon", "tldr", "custom_commands"]
 {{ else if eq .chezmoi.os "linux" }}
-only = ["system", "flatpak", "mise", "github_cli_extensions", "sheldon", "tldr"]
+only = ["system", "flatpak", "mise", "github_cli_extensions", "sheldon", "tldr"{{ if $zeron }}, "custom_commands"{{ end }}]
 {{ else }}
 only = ["brew_formula", "brew_cask", "mise", "github_cli_extensions", "sheldon", "tldr"]
 {{ end }}
@@ -28,7 +29,14 @@ bump = false
 {{ if $managed }}
 [pre_commands]
 "Nimbus system updates" = "nimbus upgrade --system"
+{{ end }}
 
+{{ if or $managed $zeron }}
 [commands]
+{{ if $managed }}
 "GitHub Copilot" = "if command -v github-copilot-installer >/dev/null 2>&1; then sudo -- github-copilot-installer update; fi"
+{{ end }}
+{{ if $zeron }}
+"Zeron" = "if command -v zeron >/dev/null 2>&1; then zeron update; fi"
+{{ end }}
 {{ end }}

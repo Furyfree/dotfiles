@@ -77,7 +77,7 @@ Nimbus vocabulary; the machine manifest selects them:
 | Profile | User configuration |
 |---|---|
 | `common` | Base user configuration |
-| `development` | Development tool configuration (no managed files yet) |
+| `development` | Zeron launcher, icon and native Topgrade updater on Linux |
 | `virtualization` | No additional profile-gated files; VM Curator defaults are managed on all Linux machines |
 | `gaming` | ProtonPlus update preferences through its GSettings hook |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |

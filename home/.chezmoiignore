@@ -73,6 +73,12 @@ Library/**
 .local/**
 {{ end -}}
 
+# Zeron's native installation supplies these assets; no app state is managed.
+{{ if or (ne .chezmoi.os "linux") (not (has "development" $profiles)) -}}
+.local/share/applications/zeron.desktop
+.local/share/icons/hicolor/512x512/apps/zeron.png
+{{ end -}}
+
 # Niri and DankMaterialShell are a separate opt-in Linux session.
 {{ if or (ne .chezmoi.os "linux") (not $niriDms) -}}
 .config/niri/**

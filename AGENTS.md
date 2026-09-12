@@ -60,6 +60,8 @@ The Files after-apply script sets selected user preferences through GSettings;
 dconf databases themselves remain unmanaged.
 The ProtonPlus hook also uses GSettings for update preferences only. ProtonPlus
 owns its generated user timer; scripts do not copy credentials or start it.
+The Zeron icon hook refreshes only the user's GTK icon index after applying
+the bundled-asset link; generated caches and application state stay unmanaged.
 Scripts must not install system packages or Mise itself, use privilege elevation,
 change `/etc`, manage services, or select a login shell.
 
