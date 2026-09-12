@@ -102,9 +102,17 @@ also confirm that OBS, Prism, Heroic and Discord/Vesktop only write theme files.
 
 ## Enabled plugins
 
-The curated selection has 15 plugins, plus Lid Guard when `Machine = "laptop"`.
+The curated selection has 14 plugins, plus Lid Guard when `Machine = "laptop"`.
 The exact IDs are in `[plugins].enabled` in
 `home/dot_config/noctalia/config.toml.tmpl`. Wallhaven is no longer enabled.
+
+If a fresh install shows enabled plugins but bar slots display raw aliases,
+check installation as well as selection. A cached source catalog does not prove
+that Noctalia exported the plugin's runtime files. Nimbus provides a native
+repair task; see the [first-login commands](README.md#first-login-and-setup-ownership).
+It reads the effective selection, including GUI overrides, without keeping a
+second plugin list or copying caches. Account connections and widget visibility
+still need their own checks (for example, the idle timer may hide itself).
 
 Noctalia owns fetching and activating these plugins from its built-in official
 and community sources. Chezmoi manages the selection, not downloaded code,

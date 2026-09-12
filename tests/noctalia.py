@@ -167,6 +167,43 @@ class Noctalia(unittest.TestCase):
                 f"/.config/qt{version}ct/colors/noctalia.conf"))
             self.assertNotIn(f".config/qt{version}ct/colors/noctalia.conf", entries)
 
+    def test_files_hook_preserves_user_dirs_across_login_and_reapply(self):
+        entries = json.loads(self.chezmoi("dump", "--format=json", machine="laptop"))
+        script = self.root / "files.sh"
+        script.write_text(self.chezmoi("execute-template",
+                                     (REPO / "home/run_after_configure-files.sh.tmpl").read_text(),
+                                     machine="laptop"))
+        binaries = self.root / "bin"
+        binaries.mkdir()
+        # Exercise directory creation without changing live GSettings.
+        fake = binaries / "gsettings"
+        fake.write_text("#!/bin/sh\nexit 0\n")
+        fake.chmod(0o755)
+        env = dict(self.env, PATH=str(binaries) + os.pathsep + os.defpath)
+        config = self.home / ".config"
+        config.mkdir()
+        user_dirs = config / "user-dirs.dirs"
+        contents = entries[".config/user-dirs.dirs"]["contents"]
+        user_dirs.write_text(contents)
+        for repeat in range(2):
+            result = subprocess.run(["bash", str(script)], cwd=self.root, env=env,
+                                    text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            for line in contents.splitlines():
+                if line.startswith("XDG_"):
+                    value = line.split("=", 1)[1].strip('"').replace("$HOME", str(self.home))
+                    self.assertTrue(Path(value).is_dir(), value)
+            marker = self.home / "Documents/existing.txt"
+            if repeat == 0:
+                marker.write_text("preserve me")
+            self.assertEqual(marker.read_text(), "preserve me")
+            updater = shutil.which("xdg-user-dirs-update")
+            if updater:
+                result = subprocess.run([updater], cwd=self.root, env=env,
+                                        text=True, capture_output=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(user_dirs.read_text(), contents)
+
     def test_previews_and_generated_files_do_not_drift(self):
         # Apply into this disposable home only; no install scripts or live state.
         self.chezmoi("apply", "--exclude=scripts")

@@ -27,6 +27,13 @@ hl.window_rule({
     tag = "+centered-floating",
 })
 
+-- Assign verified game classes tag = "+game" above this rule to start fullscreen.
+hl.window_rule({
+    name = "game",
+    match = { tag = "game" },
+    fullscreen = true,
+})
+
 -- Other apps can opt in with tag = "+centered-floating" above this rule.
 hl.window_rule({
     name = "centered-floating",

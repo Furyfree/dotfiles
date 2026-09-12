@@ -2,7 +2,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir -p "$HOME/Projects" "$HOME/Pictures/Screenshots" \
+# Create every declared user directory before login-time xdg-user-dirs-update
+# can reset missing paths to HOME. Existing directories and contents are retained.
+mkdir -p "$HOME/Desktop" "$HOME/Downloads" "$HOME/Templates" "$HOME/Public" \
+    "$HOME/Documents" "$HOME/Music" "$HOME/Projects" "$HOME/Pictures/Screenshots" \
     "$HOME/Pictures/Wallpapers" "$HOME/Videos/Recordings"
 
 # Native user preferences live in dconf, not a portable file to copy into Git.

@@ -121,6 +121,11 @@ After installation, complete the applicable account steps in the applications:
 - Authenticate GitHub CLI and confirm the local Git author identity.
 - Sign into Tailscale. Its local operator permission is a separate
   `nimbus postinstall tailscale-operator` action, not an account login.
+- In the Noctalia desktop session, run `nimbus postinstall noctalia-plugins`
+  to inspect and repair missing enabled plugins. This requires the Nimbus
+  engine containing that task; the change is not released yet. It uses the
+  effective Noctalia selection, updates affected sources through Noctalia
+  and waits for their missing runtime files. Noctalia refreshes the live bar. Standalone users can use Noctalia's native plugin controls.
 - Add Fastmail to Noctalia using a calendar-only app password stored in the
   keyring. See [Fastmail calendars](NOCTALIA.md#fastmail-calendars).
 - Sign into Claude, Grok and Codex. Connect the Codex and OpenRouter providers
@@ -144,6 +149,11 @@ Documents, Downloads, Projects, Pictures, `Projects/dtu-bachelor`,
 `~/.config/gtk-3.0/bookmarks`, which Nautilus 50 also uses. Bookmarks do not clone projects. Chezmoi links `Projects/dotfiles` to its
 working tree and, on Nimbus-managed machines, `Projects/nimbus` to the canonical
 `~/.local/share/nimbus` checkout. Existing unrelated projects are preserved.
+
+The Files hook creates all declared standard user folders, plus Projects,
+Screenshots, Wallpapers and Recordings. This keeps login-time
+`xdg-user-dirs-update` from resetting missing folders to the home directory.
+Existing folders and their contents are retained on subsequent applies.
 
 The [Files hook](home/run_after_configure-files.sh.tmpl) sets user GSettings
 after apply: hidden files are visible, recent-file tracking is disabled, and
@@ -1589,10 +1599,13 @@ to revisit. They are ignored by Chezmoi and are not included by `hyprland.lua`.
 Ghostty, Brave Origin (`brave-origin`), and Nautilus match Nimbus's current
 application selection. These are direct commands, not shell aliases or future
 Nimbus launch helpers, and do not change system MIME defaults.
-`conf.d/monitors.lua.tmpl` keeps automatic monitor settings except on
-`Machine = "desktop"`: the BenQ XL2720Z (DP-4) starts at `0x0` and is the
+`conf.d/monitors.lua.tmpl` scopes output rules by machine. On
+`Machine = "desktop"`, the BenQ XL2720Z (DP-4) starts at `0x0` and is the
 default cursor display; the ZOWIE XL LCD (DP-3) is to its right at `1920x0`.
 Both use their advertised 1920x1080 at 144 Hz mode and scale 1.
+On `Machine=laptop`, the internal `eDP-1` panel uses its preferred mode and
+scale 1.5: 2880x1800 becomes a 1920x1200 logical workspace. Unlisted outputs
+keep automatic scaling. Window sizes remain unchanged pending visual review.
 
 `conf.d/layout.lua` selects native scrolling with half-width columns.
 Super+F toggles the focused column between half and full width, even when alone.
@@ -1630,8 +1643,10 @@ Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 | Super+Shift+A | ChatGPT |
 | Super+Shift+Z | Zed |
 | Super+Shift+R | Zeron |
+| Super+Shift+T | T3 Code (nightly preferred when installed) |
 | Super+Shift+V | VSCodium |
 | Super+Shift+D | Discord through Vesktop |
+| Super+Shift+G | Signal |
 | Super+Shift+E | Fastmail Flatpak |
 | Super+Escape | Noctalia Keybind Cheatsheet |
 | Super+Ctrl+G | Git Companion |
@@ -1666,6 +1681,18 @@ Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 | Super+Shift+1-9 / 0 | Move window to that local workspace and follow it |
 | Super+Shift+L | Open Noctalia's session menu |
 | Super+left/right mouse drag | Move/resize window |
+
+OBS, 1Password, ChatGPT, Zeron, T3 Code, Vesktop, Signal, and Fastmail shortcuts focus
+an existing window or launch the app when none is open. The Lua bindings select
+the most recently focused matching window on its existing workspace. 1Password
+uses native activation to distinguish its main window from Quick Access, which
+keeps its separate Ctrl+Shift+Space shortcut. Other app shortcuts retain their
+normal launch behavior.
+
+The shared `game` tag in `conf.d/window-rules.lua` starts tagged windows in
+fullscreen. Add class rules with `tag = "+game"` before that shared rule, using
+the actual game class reported by `hyprctl clients`. No games are assigned yet;
+Steam and other launchers retain their normal window behavior.
 
 Directional focus and swaps stay on the same monitor through Hyprland's
 [`window_direction_monitor_fallback` setting](https://wiki.hypr.land/Configuring/Basics/Variables/#binds).
@@ -1900,6 +1927,15 @@ existing system Flathub remote; the package supplies its launcher and icons.
 Chezmoi does not install it, track its account/offline-mail state, or set it as
 the default mail app automatically. Sign-in, notifications, and email-link
 handling need a live test after installation. See [Fastmail's official downloads](https://www.fastmail.com/download/).
+
+On Linux, Chezmoi manages
+`~/.local/share/flatpak/overrides/com.fastmail.Fastmail` with
+`GTK_THEME=Adwaita:dark` in its `[Environment]` section. This keeps Fastmail's
+native context menus dark when its startup theme detection falls back to light.
+The override applies to every launch method, including mail links, without
+changing permissions or other applications. It forces a dark native theme even
+if the desktop switches to light mode. Fully quit and reopen Fastmail after
+applying the override. No hook or launcher modification is required.
 
 Unmodified 512x512 PNGs from the vendor sites are stored under
 `home/dot_local/share/icons/hicolor/512x512/apps/`, using the unique

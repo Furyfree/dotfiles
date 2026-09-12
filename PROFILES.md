@@ -91,9 +91,10 @@ to Nimbus.
 Hyprland's monitor and workspace templates use the existing `Machine = "desktop"`
 value for the owner's two-display layout. Each display has local slots 1-10;
 only slots 1-5 persist. Unique IDs keep their matching labels independent. Other
-machines keep automatic outputs and five persistent workspaces without monitor
-assignments. This machine-specific setting does not add a `desktop` profile
-or change the Nimbus handoff.
+machines keep five persistent workspaces without monitor assignments.
+On `Machine = "laptop"`, the internal `eDP-1` panel uses its preferred mode at
+scale 1.5. Other outputs keep automatic scaling. These machine-specific
+settings do not add profiles or change the Nimbus handoff.
 
 Noctalia's Lid Guard plugin and its Hyprland shortcut use `Machine = "laptop"`.
 They are absent on other machines. Battery visibility stays automatic on all

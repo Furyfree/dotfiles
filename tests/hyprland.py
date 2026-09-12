@@ -15,7 +15,7 @@ CONFIG = REPO / "home/dot_config/hypr/hyprland.lua"
 MODULES = {path.name.removesuffix(".tmpl").removesuffix(".lua"): path
            for path in sorted((CONFIG.parent / "conf.d").glob("*.lua*"))}
 CHEZMOI = shutil.which("chezmoi")
-LUA = shutil.which("lua")
+LUA = shutil.which("lua") or shutil.which("luajit")
 HYPRLAND = shutil.which("Hyprland")
 
 
@@ -100,11 +100,13 @@ class Hyprland(unittest.TestCase):
                     data["Machine"] = machine
                 contents = self.dump_config(data)[".config/hypr/conf.d/monitors.lua"]["contents"]
                 self.assertIn('output = ""', contents)
+                self.assertEqual('output = "eDP-1"' in contents, machine == "laptop")
+                self.assertEqual('scale = 1.5' in contents, machine == "laptop")
                 if machine == "desktop":
                     self.assertIn('output = "DP-4"', contents)
                     self.assertIn('output = "DP-3"', contents)
                 else:
-                    self.assertNotIn("DP-", contents)
+                    self.assertNotIn('output = "DP-', contents)
                     self.assertNotIn("default_monitor", contents)
 
     @unittest.skipUnless(LUA and CHEZMOI, "lua or chezmoi is not installed")
@@ -115,6 +117,7 @@ class Hyprland(unittest.TestCase):
         result = self.run_command(LUA, "-", str(config), *modules, input=r'''
 local binds, hooks, spawned, environment = {}, {}, {}, {}
 local dispatched = {}
+local windows = {}
 local curves, animations = { default = true }, {}
 -- Model Hyprland 0.56's explicit-path require with the actual module files.
 for i = 2, #arg do
@@ -159,6 +162,14 @@ hl = {
         table.insert(hooks[event], callback)
     end,
     exec_cmd = function(command) table.insert(spawned, command) end,
+    get_windows = function(filter)
+        assert(filter.mapped == true)
+        local mapped = {}
+        for _, window in ipairs(windows) do
+            if window.mapped then table.insert(mapped, window) end
+        end
+        return mapped
+    end,
     dispatch = function(command) table.insert(dispatched, command) end,
     bind = function(key, value, options)
         local normalized = key:upper():gsub("%s+", "")
@@ -186,6 +197,55 @@ end
 assert(environment.PATH and #environment.PATH > 0, "session PATH is empty")
 assert(#spawned == 0, "loading/reloading must not launch processes")
 assert(#dispatched == 0, "loading/reloading must not move the pointer")
+-- Only the selected app shortcuts use compositor focus-or-launch.
+local apps = {
+    { "O", "com.obsproject.Studio", "obs" },
+    { "A", "Chatgpt", "chatgpt" },
+    { "R", "zeron", "zeron" },
+    { "T", "t3code" },
+    { "D", "vesktop", "vesktop" },
+    { "G", "signal", "signal-desktop" },
+    { "E", "com.fastmail.Fastmail", "flatpak run com.fastmail.Fastmail" },
+}
+for _, app in ipairs(apps) do
+    local binding = binds["SUPER+SHIFT+" .. app[1]]
+    windows, spawned, dispatched = {}, {}, {}
+    binding()
+    assert(#spawned == 1 and #dispatched == 0, "missing app must launch")
+    if app[3] then
+        assert(spawned[1] == app[3])
+    else
+        assert(spawned[1]:find("for app in t3code-nightly t3code", 1, true))
+    end
+    local recent = { class = app[2], mapped = true, focus_history_id = 2 }
+    windows = {
+        { class = app[2], mapped = true, focus_history_id = -1 },
+        { class = app[2], mapped = true, focus_history_id = 8 },
+        { class = app[2], mapped = true, hidden = true, focus_history_id = 0 },
+        { class = app[2], mapped = false, focus_history_id = 0 },
+        { class = app[2] .. ".other", mapped = true, focus_history_id = 0 },
+        recent,
+    }
+    spawned, dispatched = {}, {}
+    binding()
+    assert(#spawned == 0 and #dispatched == 1, "existing app must focus without launch")
+    assert(dispatched[1].name == "focus" and dispatched[1].value.window == recent,
+           "focus must select the most recently used eligible window")
+    recent.active = true
+    dispatched = {}
+    binding()
+    assert(#spawned == 0 and #dispatched == 0, "active app must be a no-op")
+end
+for key, command in pairs({
+    ["SUPER+SHIFT+B"] = "brave-origin", ["SUPER+SHIFT+F"] = "nautilus",
+    ["SUPER+SHIFT+Z"] = "zed", ["SUPER+SHIFT+V"] = "codium",
+    ["SUPER+RETURN"] = "ghostty", ["SUPER+SHIFT+P"] = "1password",
+    ["CTRL+SHIFT+SPACE"] = "1password --quick-access",
+}) do
+    assert(binds[key].name == "exec" and binds[key].value == command,
+           "native launch/activation must be preserved: " .. key)
+end
+windows, spawned, dispatched = {}, {}, {}
 -- Opening a background window must not move the pointer.
 for _, callback in ipairs(hooks["window.open"] or {}) do
     callback({ active = false })

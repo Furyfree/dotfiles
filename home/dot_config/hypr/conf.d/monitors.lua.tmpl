@@ -22,3 +22,12 @@ hl.monitor({
 })
 hl.config({ cursor = { default_monitor = "DP-4" } })
 {{ end -}}
+{{ if and (hasKey . "Machine") (eq .Machine "laptop") }}
+-- Laptop: the 2880x1800 internal panel uses a 1920x1200 logical workspace.
+hl.monitor({
+    output = "eDP-1",
+    mode = "preferred",
+    position = "auto",
+    scale = 1.5,
+})
+{{ end -}}

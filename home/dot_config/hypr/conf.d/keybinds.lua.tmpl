@@ -7,6 +7,30 @@ local workspaces = assert(package.loaded["./conf.d/workspaces.lua"])
 hl.config({ binds = { window_direction_monitor_fallback = false } })
 
 -- 1. Applications and panels
+-- Focus the most recently used app window, even on another workspace.
+-- Match exact compositor classes; launcher names and desktop metadata can differ.
+local function focus_or_launch(class, command)
+    return function()
+        local target
+        local newest = math.huge
+        for _, window in ipairs(hl.get_windows({ mapped = true })) do
+            if window.class == class and not window.hidden then
+                local rank = window.focus_history_id
+                if rank < 0 then rank = math.huge end
+                if not target or rank < newest then
+                    target = window
+                    newest = rank
+                end
+            end
+        end
+        if target then
+            if not target.active then hl.dispatch(hl.dsp.focus({ window = target })) end
+        else
+            hl.exec_cmd(command)
+        end
+    end
+end
+
 hl.bind(
     mainMod .. " + SHIFT + B",
     hl.dsp.exec_cmd("brave-origin"),
@@ -19,13 +43,14 @@ hl.bind(
 )
 hl.bind(
     mainMod .. " + SHIFT + O",
-    hl.dsp.exec_cmd("obs"),
-    { description = "Open OBS Studio" }
+    focus_or_launch("com.obsproject.Studio", "obs"),
+    { description = "Focus or open OBS Studio" }
 )
+-- Native activation targets the main window; Quick Access shares its class.
 hl.bind(
     mainMod .. " + SHIFT + P",
     hl.dsp.exec_cmd("1password"),
-    { description = "Open 1Password" }
+    { description = "Focus or open 1Password" }
 )
 hl.bind(
     "CTRL + SHIFT + Space",
@@ -34,8 +59,8 @@ hl.bind(
 )
 hl.bind(
     mainMod .. " + SHIFT + A",
-    hl.dsp.exec_cmd("chatgpt"),
-    { description = "Open ChatGPT" }
+    focus_or_launch("Chatgpt", "chatgpt"),
+    { description = "Focus or open ChatGPT" }
 )
 hl.bind(
     mainMod .. " + SHIFT + Z",
@@ -44,16 +69,16 @@ hl.bind(
 )
 hl.bind(
     mainMod .. " + SHIFT + R",
-    hl.dsp.exec_cmd("zeron"),
-    { description = "Open Zeron" }
+    focus_or_launch("zeron", "zeron"),
+    { description = "Focus or open Zeron" }
 )
 hl.bind(
     mainMod .. " + SHIFT + T",
-    hl.dsp.exec_cmd([[for app in t3code-nightly t3code; do
+    focus_or_launch("t3code", [[for app in t3code-nightly t3code; do
         if command -v "$app" >/dev/null 2>&1; then exec "$app"; fi
     done
     notify-send "T3 Code" "T3 Code is not installed."]]),
-    { description = "Open T3 Code" }
+    { description = "Focus or open T3 Code" }
 )
 hl.bind(
     mainMod .. " + SHIFT + V",
@@ -62,13 +87,18 @@ hl.bind(
 )
 hl.bind(
     mainMod .. " + SHIFT + D",
-    hl.dsp.exec_cmd("vesktop"),
-    { description = "Open Discord in Vesktop" }
+    focus_or_launch("vesktop", "vesktop"),
+    { description = "Focus or open Discord in Vesktop" }
+)
+hl.bind(
+    mainMod .. " + SHIFT + G",
+    focus_or_launch("signal", "signal-desktop"),
+    { description = "Focus or open Signal" }
 )
 hl.bind(
     mainMod .. " + SHIFT + E",
-    hl.dsp.exec_cmd("flatpak run com.fastmail.Fastmail"),
-    { description = "Open Fastmail" }
+    focus_or_launch("com.fastmail.Fastmail", "flatpak run com.fastmail.Fastmail"),
+    { description = "Focus or open Fastmail" }
 )
 hl.bind(
     mainMod .. " + Return",
