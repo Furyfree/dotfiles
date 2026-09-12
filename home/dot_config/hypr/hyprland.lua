@@ -10,3 +10,8 @@ require("./conf.d/animations.lua")
 require("./conf.d/window-rules.lua")
 require("./conf.d/autostart.lua")
 require("./conf.d/keybinds.lua")
+
+-- Noctalia owns the generated palette. First login works before it exists.
+if package.searchpath("noctalia", package.path) then
+    require("noctalia").apply_theme()
+end

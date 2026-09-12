@@ -6,8 +6,11 @@ check:
 
 # Run on a Hyprland/Noctalia machine; missing native validators fail this gate.
 check-desktop:
-    Hyprland --verify-config --config '{{justfile_directory()}}/home/dot_config/hypr/hyprland.lua'
-    noctalia config validate '{{justfile_directory()}}/home/dot_config/noctalia/config.toml'
+    command -v Hyprland >/dev/null
+    command -v chezmoi >/dev/null
+    command -v noctalia >/dev/null
+    python3 tests/hyprland.py Hyprland.test_native_config
+    python3 tests/noctalia.py Noctalia.test_native_config
 
 # Optional style report; existing Markdown formatting is not part of the gate.
 lint-docs:

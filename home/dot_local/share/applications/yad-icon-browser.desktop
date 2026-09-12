@@ -1,0 +1,13 @@
+# Keep installed and available to file associations; hide from application menus.
+[Desktop Entry]
+Name=Icon Browser
+Comment=Inspect GTK Icon Theme
+Categories=GTK;Utility;
+Exec=yad-icon-browser
+Icon=yad
+Terminal=false
+Type=Application
+StartupNotify=true
+X-Desktop-File-Install-Version=0.28
+NoDisplay=true
+TryExec=yad-icon-browser

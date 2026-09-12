@@ -12,10 +12,10 @@ toolkit and application selectors below still need a fresh-login visual trial.
 The VM's GUI choices live in `~/.local/state/noctalia/settings.toml`, not a
 legacy `settings.json`. The portable theme source, tonal-spot scheme, bundled
 wallpaper, selected integrations and enabled plugins are now in
-`home/dot_config/noctalia/config.toml`, enabled only on Linux with the canonical
-`hyprland-noctalia` profile. No monitor-specific lockscreen placement,
-`Virtual-1`, usage counts, last-wallpaper state, migration marker, downloaded
-catalog, agent state, keyring or other private data was copied.
+`home/dot_config/noctalia/config.toml.tmpl`, enabled only on Linux with the canonical
+`hyprland-noctalia` profile. The reviewed desktop lockscreen placement is gated on `Machine = "desktop"`.
+Usage counts, last-wallpaper state, migration markers, downloaded catalogs,
+agent state and keyrings remain unmanaged.
 
 Noctalia reads `~/.config/noctalia/*.toml`, then applies GUI overrides from its
 state directory. Existing overrides therefore still win. Reset individual
@@ -23,6 +23,16 @@ settings through the GUI when returning to the curated defaults; do not delete
 all state. A normal Chezmoi apply does not erase GUI experiments. Selecting both
 desktop profiles does not switch application themes with the active compositor.
 Disabling the profile stops management but does not remove deployed files.
+
+Screenshot output uses `~/Pictures/Screenshots`, matching the custom
+`XDG_SCREENSHOTS_DIR` entry in `user-dirs.dirs`. The wallpaper browser uses
+`~/Pictures/Wallpapers`, matching `XDG_WALLPAPERS_DIR`. Noctalia accepts these
+paths directly; it does not resolve those custom XDG directory names itself.
+The Files hook creates those folders, `~/Projects`, and `~/Videos/Recordings`.
+The recorder uses the latter explicitly. Three selected wallpaper images are
+managed under `Pictures/Wallpapers`; the desktop default is `wallhaven-gw178q.png`.
+Other machines use the bundled default, and per-monitor wallpaper history stays
+local.
 
 Chezmoi owns portable preferences and fixed application selections/includes.
 Noctalia owns rendered colors, community downloads and its native reload hooks.
@@ -40,13 +50,43 @@ second theme plugin. Terminal inheritance preserves their existing behavior and
 avoids competing writers or another dependency. Existing GUI template overrides
 must also omit those three to use this ownership model.
 
+## Fastmail calendars
+
+The managed config renders `[calendar.account.fastmail]` when local Chezmoi
+data contains `fastmailUsername`. The desktop has this value set; it survives
+`chezmoi init` without publishing the username. On another machine, add
+`fastmailUsername = "your-login@example.com"` under `[data]` in
+`~/.config/chezmoi/chezmoi.toml`, then apply. Leave it empty to omit the account.
+The template stores the CalDAV type and working DAV endpoint; the app password,
+discovered calendar IDs and event cache remain local. Existing GUI account
+overrides are retained, so reusing account ID `fastmail` keeps the keyring lookup.
+
+Use CalDAV with account ID `fastmail`, a descriptive display name, the full
+Fastmail login username and `https://caldav.fastmail.com/dav/` as the server.
+The account ID is a local label and keyring lookup identifier, not a calendar
+name or email address. Keep it stable after saving credentials. One account
+discovers all its calendars; select calendars within that account rather than
+adding a separate login for each calendar.
+
+Create a Fastmail app password with Calendars (CalDAV) access and store it
+through Noctalia's Keyring option. Read-only access is sufficient for viewing
+events. Enter the password locally in the application, not in these files.
+See [Fastmail's server documentation](https://www.fastmail.help/hc/en-us/articles/1500000278342-Server-names-and-ports).
+
+On 2026-09-12, Noctalia 5.0.1 sent its principal-discovery request directly to
+the configured server root and received HTTP 404. Changing only the saved
+URL from `/` to `/dav/` fixed discovery with the existing keyring credential.
+All four expected calendars were discovered and an event was visible in the
+calendar panel. No password reset or second account was needed. The general
+Fastmail root URL assumes a client that performs service discovery first.
+
 ## Native capabilities checked
 
 Use Noctalia's supported configuration before adding scripts:
 
 | Capability | Native mechanism and our boundary |
 |---|---|
-| Session controls | The existing session panel owns lock, logout, lock-and-suspend, reboot and shutdown. A row can override its command; Super+M opens this panel. |
+| Session controls | The existing session panel owns lock, logout, lock-and-suspend, reboot and shutdown. A row can override its command; Super+Shift+L opens this panel. |
 | Idle and locking | Native idle actions lock after ten minutes and turn screens off after fifteen, respecting inhibitors. No automatic suspend or second idle daemon is configured. |
 | Plugins | Declarative enabled IDs select plugins; Noctalia fetches and updates built-in sources. Bar widgets require placement separately. |
 | App themes | Built-in/community templates render colors and run their own hooks. GTK's shipped hook imports CSS and changes live appearance; apps without activation hooks need native selection once. |
@@ -62,31 +102,71 @@ also confirm that OBS, Prism, Heroic and Discord/Vesktop only write theme files.
 
 ## Enabled plugins
 
-On 2026-09-08 the VM had 17 enabled plugins, each with a materialized native
-manifest. The exact IDs and order are captured in `[plugins].enabled` in
-`home/dot_config/noctalia/config.toml`. This includes AI Usage Bar and Git
-Companion; it does not enable the remaining planned plugins automatically.
+The curated selection has 15 plugins, plus Lid Guard when `Machine = "laptop"`.
+The exact IDs are in `[plugins].enabled` in
+`home/dot_config/noctalia/config.toml.tmpl`. Wallhaven is no longer enabled.
 
 Noctalia owns fetching and activating these plugins from its built-in official
 and community sources. Chezmoi manages the selection, not downloaded code,
 plugin data, credentials or source caches. Source and update settings retain
-Noctalia's defaults. The VM has no custom plugin settings or bar placements in
-its GUI overrides to capture. Plugin widgets still need placement through the
-bar editor when wanted; enabling a plugin does not add its widget to a bar.
+Noctalia's defaults. Enabling a plugin does not add its widget to a bar.
 
-The existing VM's `[plugins].enabled` GUI override matches the captured list.
 Future GUI changes continue to override the managed selection. The VM-specific
 `Virtual-1` lockscreen layout remains local. Plugin functionality and first-run
 downloads on a clean machine still need a live test; enabled state and config
 validation alone do not verify external tools or accounts.
 
+## Bar and shortcuts
+
+The managed bar layout keeps workspaces at the start. The center contains the
+clock, date, weather, timer and notifications. The timer hides while idle;
+notifications hide when nothing is unread.
+
+The workspace widget shows only its own output and includes empty persistent
+workspaces. On the desktop, each display has ten local slots, with only 1-5
+persistent. Super+1-9/0 and Super+Shift+1-9/0 select or move within that
+monitor's set, creating optional slots 6-10 as needed. The widget displays
+workspace names, so both bars show local numbers 1-5 initially. Hyprland's
+unique IDs keep the workspaces independent even when their labels match.
+
+Super+Shift+W toggles the native wallpaper browser through
+`noctalia msg panel-toggle wallpaper`.
+
+Super+Ctrl+C opens the Crashes plugin using
+`noctalia msg panel-toggle umedbazarov/crashes:panel`. Select a crash and use
+its Diagnose button to launch the configured agent in a terminal. Opening the
+panel only displays history; it does not start an AI diagnosis. The plugin's
+notification does not provide an action button, so use this shortcut or open
+the panel from the plugin's Settings row.
+
+The end contains AI Usage, Tailnet, screen recorder, AirPods, battery, Udiskie,
+tray, volume and Control Center, in that order. Battery and AirPods retain their
+native conditional visibility. The tray retains its drawer, detached panel and
+hidden LibrePods icon. The reviewed bar opacity, font and popup placements are
+managed defaults; subsequent GUI overrides still take precedence.
+
+Git Companion, Docker, Portctl, screen mirroring, notes and SSH
+launcher open through the Super+Ctrl bindings in the
+[keymap](README.md#hyprland-starter). The cheatsheet stays on Super+Escape.
+Their plugins remain enabled without bar buttons. Bluetooth, caffeine and
+power profiles stay in Control Center; caffeine is built in, not a plugin.
+Lid Guard has a laptop-only Super+Ctrl+L binding and no persistent bar button.
+Enabling its plugin does not activate the lid inhibitor automatically.
+
 ## LibrePods and keymap
 
-Hyprland starts `librepods --hide` once on its startup event when the command
-is available and `/sys/class/bluetooth/hci*` contains an adapter. Launch LibrePods
-manually if an adapter is connected after login. The startup guards are tested locally;
-its next-login behavior still needs verification. Do not also enable
-LibrePods' own autostart setting; use one startup owner. Reloading Hyprland
+The cheatsheet reads `conf.d/keybinds.lua` directly. Plugin 0.2.7 converts dots
+in explicit Lua paths to separators and adds a second `.lua`, causing unreadable
+imports. Direct scanning avoids that parser limitation without modifying the
+downloaded plugin. Numbered headings and literal binding descriptions provide
+categories; Hyprland still supplies the actual active actions. The final live
+refresh reports all 80 bindings in eight categories, with no warnings or Other
+rows.
+
+Hyprland starts the fork's `librepods.service` on login only when the executable,
+user unit and a Bluetooth adapter are present. The older Terra build is skipped.
+Do not enable a second GUI autostart. Start the user service manually if an
+adapter is connected after login; next-login behavior still needs verification. Reloading Hyprland
 only reloads the bindings, not the startup event. Every binding
 has a native `description`, including mouse actions and generated workspace
 bindings, for Noctalia's keymap display.
@@ -182,7 +262,7 @@ portal service. On 2026-09-10 the VM was running through UWSM, with the graphica
 session target and both the portal frontend and Hyprland backend active.
 No custom session manager or duplicate environment-import hook is added.
 The change needs a fresh session; Chezmoi does not change the running desktop.
-Super+M opens Noctalia's own session panel. Its Logout row calls logind's
+Super+Shift+L opens Noctalia's own session panel. Its Logout row calls logind's
 `loginctl terminate-session "${XDG_SESSION_ID:?No graphical login session}"`.
 This targets the login inherited by Noctalia, not all sessions of the user;
 missing or empty session IDs fail without invoking loginctl. UWSM documents
@@ -202,8 +282,8 @@ content checks, with backups under
 `~/.local/state/nimbus/noctalia-native-session.c4gj29d2/`. Chezmoi verify and
 empty status/diff, native Noctalia/Hyprland validators and live Hyprland
 config-error checks passed. Noctalia's inherited session ID was verified to
-identify the owner's local graphical login without terminating it. Super+M
-is registered as a Lua binding; Hyprland IPC exposes its Lua callback ID,
+identify the owner's local graphical login without terminating it. The menu
+shortcut is registered as a Lua binding; Hyprland IPC exposes its Lua callback ID,
 so its command is verified by the isolated Lua test rather than an IPC string
 comparison. The native session-panel toggle was accepted; actual logout was
 left for the user to test.

@@ -1,0 +1,14 @@
+# Keep installed and available to file associations; hide from application menus.
+[Desktop Entry]
+Name=Wine Software Uninstaller
+Comment=Interface to uninstall software
+Exec=wine uninstaller.exe
+Icon=msiexec
+Terminal=false
+Type=Application
+StartupNotify=true
+StartupWMClass=uninstaller.exe
+Categories=X-Wine;
+X-Desktop-File-Install-Version=0.28
+NoDisplay=true
+TryExec=wine

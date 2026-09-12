@@ -117,7 +117,7 @@ class Ghostty(unittest.TestCase):
                 configured = (self.config_dir / "config").read_text().splitlines()
                 theme_line = next(line for line in configured if line.startswith("theme ="))
                 self.assertIn(theme_line, effective.splitlines())
-                self.assertIn("confirm-close-surface = true", effective)
+                self.assertIn("confirm-close-surface = false", effective)
                 self.assertIn("clipboard-paste-protection = true", effective)
                 self.assertIn("no-ssh-terminfo", effective)
 

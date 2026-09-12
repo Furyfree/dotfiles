@@ -13,6 +13,7 @@ import unittest
 
 REPO = Path(__file__).resolve().parents[1]
 CHEZMOI = shutil.which("chezmoi")
+NOCTALIA = shutil.which("noctalia")
 
 
 @unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
@@ -29,9 +30,12 @@ class Noctalia(unittest.TestCase):
                     "XDG_CACHE_HOME": str(self.root / "cache"),
                     "XDG_DATA_HOME": str(self.root / "data")}
 
-    def chezmoi(self, *args, platform="linux", profiles=None):
+    def chezmoi(self, *args, platform="linux", profiles=None, machine="desktop", fastmail_username=""):
         data = {"chezmoi": {"os": platform}, "profiles": ["hyprland-noctalia"] if profiles is None else profiles,
-                "onePasswordSsh": False, "ManagedByNimbus": False}
+                "onePasswordSsh": False, "ManagedByNimbus": False,
+                "fastmailUsername": fastmail_username}
+        if machine is not None:
+            data["Machine"] = machine
         result = subprocess.run([
             CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
             "--config", str(self.root / "chezmoi.toml"),
@@ -75,8 +79,25 @@ class Noctalia(unittest.TestCase):
                                      ["color_theme"], "TTY")
                     self.assertNotIn("include noctaliarc", entries[".config/zathura/zathurarc"]["contents"])
 
+    def test_calendar_metadata_and_display_layout_are_scoped(self):
+        for machine, username in (("desktop", "calendar@example.invalid"),
+                                  ("laptop", ""), (None, "")):
+            with self.subTest(machine=machine):
+                entries = json.loads(self.chezmoi("dump", "--format=json", machine=machine,
+                                                 fastmail_username=username))
+                config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
+                self.assertEqual("lockscreen_widgets" in config, machine == "desktop")
+                if username:
+                    account = config["calendar"]["account"]["fastmail"]
+                    self.assertEqual(account, {"type": "caldav", "provider": "custom",
+                                              "server_url": "https://caldav.fastmail.com/dav/",
+                                              "username": username})
+                else:
+                    self.assertNotIn("account", config.get("calendar", {}))
+
     def test_logout_requires_and_preserves_the_explicit_session_id(self):
-        config = tomllib.loads((REPO / "home/dot_config/noctalia/config.toml").read_text())
+        entries = json.loads(self.chezmoi("dump", "--format=json"))
+        config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
         command = next(row["command"] for row in config["shell"]["session"]["actions"]
                        if row["action"] == "logout")
         binaries = self.root / "bin"
@@ -99,6 +120,34 @@ class Noctalia(unittest.TestCase):
                     else:
                         self.assertNotEqual(result.returncode, 0)
                         self.assertEqual(result.stdout, "")
+
+    def test_lid_guard_and_its_shortcut_are_laptop_only(self):
+        for machine in (None, "", "desktop", "laptop"):
+            with self.subTest(machine=machine):
+                entries = json.loads(self.chezmoi("dump", "--format=json", machine=machine))
+                config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
+                keybinds = entries[".config/hypr/conf.d/keybinds.lua"]["contents"]
+                self.assertEqual("8bury/lid-guard" in config["plugins"]["enabled"],
+                                 machine == "laptop")
+                self.assertEqual("8bury/lid-guard:lid-guard-service" in keybinds,
+                                 machine == "laptop")
+                for zone in ("start", "center", "end"):
+                    for widget in config["bar"]["default"][zone]:
+                        kind = config.get("widget", {}).get(widget, {}).get("type", widget)
+                        if ":" in kind:
+                            self.assertIn(kind.split(":")[0], config["plugins"]["enabled"])
+
+    @unittest.skipUnless(NOCTALIA, "noctalia is not installed")
+    def test_native_config(self):
+        for machine in ("desktop", "laptop"):
+            with self.subTest(machine=machine):
+                entries = json.loads(self.chezmoi("dump", "--format=json", machine=machine))
+                config = self.root / f"{machine}.toml"
+                config.write_text(entries[".config/noctalia/config.toml"]["contents"])
+                result = subprocess.run([NOCTALIA, "config", "validate", str(config)],
+                                        cwd=self.root, env=self.env, text=True,
+                                        capture_output=True, timeout=30)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_toolkit_selection_leaves_colors_and_mode_to_noctalia(self):
         entries = json.loads(self.chezmoi("dump", "--format=json"))

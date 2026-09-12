@@ -12,16 +12,19 @@ window-padding-y = 14
 background-opacity = 0.95
 background-blur = true
 resize-overlay = never
+confirm-close-surface = false
 
 cursor-style = block
 cursor-style-blink = false
 cursor-click-to-move = false
 # Keep the block cursor and SSH compatibility, without remote terminfo installs.
 shell-integration-features = no-cursor,ssh-env,no-ssh-terminfo
-mouse-scroll-multiplier = 2
+mouse-scroll-multiplier = 4
 
 {{ if eq .chezmoi.os "linux" -}}
 gtk-toolbar-style = flat
+# Copy selections to PRIMARY; middle-click pastes PRIMARY, not the regular clipboard.
+copy-on-select = true
 {{ else if eq .chezmoi.os "darwin" -}}
 # Left Option reaches shell shortcuts; right Option still types special characters.
 macos-option-as-alt = left

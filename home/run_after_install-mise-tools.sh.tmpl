@@ -25,6 +25,7 @@ fi
 printf '%s\n' 'dotfiles: installing configured Mise runtimes and tools'
 {{ if get . "ManagedByNimbus" -}}
 printf '%s\n' 'Setup note: Open a new terminal after installation to load the shell and Mise configuration.'
+printf '%s\n' 'Setup note: Mise installs the agent CLIs and AI Usage. Sign into Claude, Grok and Codex, then connect Codex and OpenRouter in OpenCode. See the dotfiles README first-login checklist.'
 if command -v 1password >/dev/null 2>&1 || command -v op >/dev/null 2>&1; then
     printf '%s\n' 'Setup note: 1Password: open the desktop app, sign in and unlock it. Enable "Integrate with 1Password CLI" in Settings > Developer.'
 {{ if get . "onePasswordSsh" -}}
@@ -36,6 +37,7 @@ fi
 {{ if and (hasKey . "profiles") (has "hyprland-noctalia" .profiles) -}}
 printf '%s\n' 'Setup note: Noctalia: the desktop profile selects theme integrations. Log into the desktop to generate colors; see NOCTALIA.md for app prerequisites and existing GUI overrides.'
 printf '%s\n' 'Setup note: Brave Origin: select Use GTK in Settings > Appearance to follow the Noctalia GTK theme.'
+printf '%s\n' 'Setup note: Fastmail calendar credentials stay in the local keyring. Add the account in Noctalia; see NOCTALIA.md for the DAV endpoint and calendar selection.'
 {{ end -}}
 {{ end -}}
 cd "$HOME"

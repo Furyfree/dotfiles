@@ -1,0 +1,13 @@
+# Keep installed and available to file associations; hide from application menus.
+[Desktop Entry]
+Name=Goverlay
+Comment=Linux gaming tools, made easy
+Exec=goverlay
+Icon=io.github.benjamimgois.goverlay
+StartupWMClass=Goverlay
+Terminal=false
+Type=Application
+Categories=Game;
+Keywords=MangoHud;vkBasalt;msi;afterburner;OptiScaler;tweaks
+NoDisplay=true
+TryExec=goverlay

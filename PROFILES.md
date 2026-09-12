@@ -35,7 +35,9 @@ in the generated config as `Machine`, `ManagedByNimbus`, and `Profiles`, which
 `chezmoi data` shows. The profile list is stored as sent, without checking it
 against a fixed set, so a new Nimbus profile never breaks the handoff.
 `hyprland-noctalia` selects desktop files and the Noctalia preferences and app
-theme integrations and enabled plugins. `niri-dms` selects the separate Niri
+theme integrations and enabled plugins. It also selects Files bookmarks and
+the user GSettings hook described in [README.md](README.md#files).
+`niri-dms` selects the separate Niri
 and DankMaterialShell configuration. Targets that call Nimbus are gated on
 `ManagedByNimbus`;
 other Linux application configs deploy independently of machine profiles.
@@ -77,7 +79,7 @@ Nimbus vocabulary; the machine manifest selects them:
 | `common` | Base user configuration |
 | `development` | Development tool configuration (no managed files yet) |
 | `virtualization` | No additional profile-gated files; VM Curator defaults are managed on all Linux machines |
-| `gaming` | Gaming tool configuration (no managed files yet) |
+| `gaming` | ProtonPlus update preferences through its GSettings hook |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |
 | `hyprland-noctalia` | Hyprland Lua starter, portable Noctalia preferences, selected app templates and palette includes; see [NOCTALIA.md](NOCTALIA.md) |
 | `niri-dms` | Modular Niri and curated DankMaterialShell settings on Linux; generated shell state stays unmanaged |
@@ -85,6 +87,17 @@ Nimbus vocabulary; the machine manifest selects them:
 
 The profile does not imply a greeter. Greeters and system integration belong
 to Nimbus.
+
+Hyprland's monitor and workspace templates use the existing `Machine = "desktop"`
+value for the owner's two-display layout. Each display has local slots 1-10;
+only slots 1-5 persist. Unique IDs keep their matching labels independent. Other
+machines keep automatic outputs and five persistent workspaces without monitor
+assignments. This machine-specific setting does not add a `desktop` profile
+or change the Nimbus handoff.
+
+Noctalia's Lid Guard plugin and its Hyprland shortcut use `Machine = "laptop"`.
+They are absent on other machines. Battery visibility stays automatic on all
+machines; `laptop-gaming` remains a software profile, not a hardware selector.
 
 `niri-dms` is available for standalone Chezmoi selection. A Nimbus-managed
 source must keep its stored machine profiles equal to the machine manifest;

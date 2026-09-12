@@ -12,7 +12,8 @@ import unittest
 
 REPO = Path(__file__).resolve().parents[1]
 CONFIG = REPO / "home/dot_config/hypr/hyprland.lua"
-MODULES = tuple(sorted(path.stem for path in (CONFIG.parent / "conf.d").glob("*.lua")))
+MODULES = {path.name.removesuffix(".tmpl").removesuffix(".lua"): path
+           for path in sorted((CONFIG.parent / "conf.d").glob("*.lua*"))}
 CHEZMOI = shutil.which("chezmoi")
 LUA = shutil.which("lua")
 HYPRLAND = shutil.which("Hyprland")
@@ -37,6 +38,31 @@ class Hyprland(unittest.TestCase):
         return subprocess.run(args, input=input, cwd=self.root, env=self.env,
                               capture_output=True, text=True, timeout=30)
 
+    def dump_config(self, data):
+        result = self.run_command(
+            CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
+            "--config", str(self.root / "chezmoi.toml"),
+            "--cache", str(self.root / "chezmoi-cache"),
+            "--persistent-state", str(self.root / "chezmoi.boltdb"),
+            "--skip-secrets", "--override-data", json.dumps(data),
+            "dump", "--format=json")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return json.loads(result.stdout)
+
+    def render_config(self, machine):
+        entries = self.dump_config({
+            "chezmoi": {"os": "linux"}, "Machine": machine,
+            "profiles": ["hyprland-noctalia"], "ManagedByNimbus": False,
+            "onePasswordSsh": False,
+        })
+        target = self.root / machine / "hypr"
+        for name, entry in entries.items():
+            if name.startswith(".config/hypr/") and "contents" in entry:
+                path = target / name.removeprefix(".config/hypr/")
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(entry["contents"])
+        return target / "hyprland.lua"
+
     @unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
     def test_platform_and_profile_gate(self):
         for platform in ("linux", "darwin", "windows"):
@@ -48,15 +74,7 @@ class Hyprland(unittest.TestCase):
                                 "onePasswordSsh": False}
                         if profiles is not None:
                             data["profiles"] = profiles
-                        result = self.run_command(
-                            CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
-                            "--config", str(self.root / "chezmoi.toml"),
-                            "--cache", str(self.root / "chezmoi-cache"),
-                            "--persistent-state", str(self.root / "chezmoi.boltdb"),
-                            "--skip-secrets", "--override-data", json.dumps(data),
-                            "dump", "--format=json")
-                        self.assertEqual(result.returncode, 0, result.stderr)
-                        entries = json.loads(result.stdout)
+                        entries = self.dump_config(data)
                         targets = {name for name in entries
                                    if name == ".config/hypr" or name.startswith(".config/hypr/")}
                         enabled = platform == "linux" and "hyprland-noctalia" in (profiles or [])
@@ -66,17 +84,37 @@ class Hyprland(unittest.TestCase):
                         if enabled:
                             self.assertEqual(entries[".config/hypr/hyprland.lua"]["contents"],
                                              CONFIG.read_text())
-                            for name in MODULES:
-                                self.assertEqual(entries[f".config/hypr/conf.d/{name}.lua"]["contents"],
-                                                 (CONFIG.parent / f"conf.d/{name}.lua").read_text())
+                            for name, source in MODULES.items():
+                                if source.suffix != ".tmpl":
+                                    self.assertEqual(entries[f".config/hypr/conf.d/{name}.lua"]["contents"],
+                                                     source.read_text())
                         self.assertEqual(".config/noctalia/config.toml" in entries, enabled)
 
-    @unittest.skipUnless(LUA, "lua is not installed")
+    @unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
+    def test_monitor_machine_gate(self):
+        for machine in (None, "desktop", "laptop"):
+            with self.subTest(machine=machine):
+                data = {"chezmoi": {"os": "linux"}, "profiles": ["hyprland-noctalia"],
+                        "ManagedByNimbus": False, "onePasswordSsh": False}
+                if machine is not None:
+                    data["Machine"] = machine
+                contents = self.dump_config(data)[".config/hypr/conf.d/monitors.lua"]["contents"]
+                self.assertIn('output = ""', contents)
+                if machine == "desktop":
+                    self.assertIn('output = "DP-4"', contents)
+                    self.assertIn('output = "DP-3"', contents)
+                else:
+                    self.assertNotIn("DP-", contents)
+                    self.assertNotIn("default_monitor", contents)
+
+    @unittest.skipUnless(LUA and CHEZMOI, "lua or chezmoi is not installed")
     def test_lua_bindings_and_startup_are_declarative(self):
         # A strict API double checks Lua execution, not Hyprland's native schema.
-        modules = [str(CONFIG.parent / f"conf.d/{name}.lua") for name in MODULES]
-        result = self.run_command(LUA, "-", str(CONFIG), *modules, input=r'''
+        config = self.render_config("desktop")
+        modules = [str(config.parent / f"conf.d/{name}.lua") for name in MODULES]
+        result = self.run_command(LUA, "-", str(config), *modules, input=r'''
 local binds, hooks, spawned, environment = {}, {}, {}, {}
+local dispatched = {}
 local curves, animations = { default = true }, {}
 -- Model Hyprland 0.56's explicit-path require with the actual module files.
 for i = 2, #arg do
@@ -121,6 +159,7 @@ hl = {
         table.insert(hooks[event], callback)
     end,
     exec_cmd = function(command) table.insert(spawned, command) end,
+    dispatch = function(command) table.insert(dispatched, command) end,
     bind = function(key, value, options)
         local normalized = key:upper():gsub("%s+", "")
         assert(not binds[normalized], "duplicate shortcut: " .. key)
@@ -131,6 +170,7 @@ hl = {
         if key:find("mouse:") then assert(options.mouse) end
     end,
     dsp = {
+        cursor = { move = action("cursor.move") },
         exec_cmd = action("exec"), focus = action("focus"), layout = action("layout"),
         window = {
             close = action("close"), float = action("float"), fullscreen = action("fullscreen"),
@@ -145,6 +185,18 @@ for i = 2, #arg do
 end
 assert(environment.PATH and #environment.PATH > 0, "session PATH is empty")
 assert(#spawned == 0, "loading/reloading must not launch processes")
+assert(#dispatched == 0, "loading/reloading must not move the pointer")
+-- Opening a background window must not move the pointer.
+for _, callback in ipairs(hooks["window.open"] or {}) do
+    callback({ active = false })
+end
+assert(#dispatched == 0, "background windows must not take the pointer")
+for _, callback in ipairs(hooks["window.open"] or {}) do
+    callback({ active = true, at = { x = 100, y = 200 }, size = { x = 800, y = 600 } })
+end
+assert(#dispatched == 1, "a foreground window should receive the pointer once")
+assert(dispatched[1].name == "cursor.move")
+assert(dispatched[1].value.x == 500 and dispatched[1].value.y == 500)
 for _, callback in ipairs(hooks["hyprland.start"] or {}) do callback() end
 -- Exercise the conditional Bluetooth startup without pinning other startup commands.
 local bluetooth = {}
@@ -162,6 +214,11 @@ print(bluetooth[1])
         librepods = binaries / "librepods"
         librepods.write_text('#!/bin/sh\nprintf "librepods:%s\\n" "$@"\n')
         librepods.chmod(0o755)
+        systemctl = binaries / "systemctl"
+        systemctl.write_text('#!/bin/sh\n'
+                             'if [ "$2" = cat ]; then exit "${SERVICE_MISSING:-0}"; fi\n'
+                             'printf "systemctl:%s %s %s\\n" "$1" "$2" "$3"\n')
+        systemctl.chmod(0o755)
         self.env["PATH"] = str(binaries)
         for count in (None, 0, 1, 2):
             with self.subTest(adapters=count):
@@ -171,7 +228,14 @@ print(bluetooth[1])
                     (bluetooth / f"hci{count}").symlink_to(binaries, target_is_directory=True)
                 result = self.run_command("/bin/sh", "-c", command)
                 self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertEqual(result.stdout, "librepods:--hide\n" if count else "")
+                self.assertEqual(result.stdout,
+                                 "systemctl:--user start librepods.service\n" if count else "")
+
+        self.env["SERVICE_MISSING"] = "1"
+        result = self.run_command("/bin/sh", "-c", command)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+        del self.env["SERVICE_MISSING"]
 
         # Adapters are present, but LibrePods is not installed.
         librepods.unlink()
@@ -180,10 +244,13 @@ print(bluetooth[1])
         self.assertEqual(result.stdout, "")
         self.assertEqual(result.stderr, "")
 
-    @unittest.skipUnless(HYPRLAND, "Hyprland is not installed; native check needs 0.56+")
+    @unittest.skipUnless(HYPRLAND and CHEZMOI, "Hyprland or chezmoi is not installed; native check needs 0.56+")
     def test_native_config(self):
-        result = self.run_command(HYPRLAND, "--verify-config", "--config", str(CONFIG))
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for machine in ("desktop", "laptop"):
+            with self.subTest(machine=machine):
+                config = self.render_config(machine)
+                result = self.run_command(HYPRLAND, "--verify-config", "--config", str(config))
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

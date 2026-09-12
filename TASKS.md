@@ -20,6 +20,90 @@ Plan: [desktop preparation and platform validation](ROADMAP.md#current-phase---d
 
 ## Existing implementation
 
+### Desktop setup audit, 2026-09-12
+
+- [x] Hide the agreed 26 launcher entries, including mpv, through user desktop
+  overrides, preserving commands, file types and actions. Keep DOSBox and
+  Protontricks visible; DOSBox package removal is not authorized.
+- [x] Apply the agreed MIME defaults, with Nautilus handling archives and
+  Celluloid handling media. Retain application URL registrations. PDFs prefer
+  Zathura's Poppler handler, with Brave as the fallback when it is absent.
+  The owner installed the matching 2026.07.18 PDF plugin; native MIME queries
+  now select Zathura. An isolated viewer loaded the plugin and opened a sample
+  PDF using a private Broadway display, with no live document history changes.
+- [x] Keep Super+1-9/0 and Super+Shift+1-9/0 for ten local workspace slots
+  on each desktop monitor. Only the first five are persistent; optional slots
+  are created when selected. Show names 1-5 on both bars while retaining
+  unique IDs. Both labels were visually verified, and native selection of
+  slots 6 and 10 creates nonpersistent workspaces on the correct monitor.
+  Empty optional workspaces disappear after leaving; the other monitor stays
+  unchanged. Existing windows were not moved.
+- [x] Add Super+Ctrl+C for the Crashes panel, live and in the source keymap.
+  Native IPC opens the expected panel without launching an agent.
+- [x] Add Super+Shift+W to the live Hyprland keymap and its template. Native
+  validation and reload pass; the wallpaper panel opens through Noctalia IPC.
+- [x] Set the requested seven Files bookmarks and hidden-file preferences
+  live. Prepare the same bookmarks and user GSettings hook for future applies.
+  GTK 4 reports recent-file tracking disabled. Starred remains because
+  Nautilus 50.3 has no supported hide setting.
+- [x] Repair Fastmail discovery by changing the live server URL to `/dav/`.
+  The existing unlocked keyring credential discovers all four calendars;
+  the calendar panel displays an event. Credentials were not exported.
+- [x] Separate automatic tool installation from first-login authorization in
+  [the README](README.md#first-login-and-setup-ownership). Add reminders to the
+  existing Nimbus handoff output; no sign-in commands run during apply.
+- [x] Review Bash history at `~/.local/state/bash/history` and native package
+  history without importing either. Recorded manual categories include GitHub
+  CLI authentication, Tailscale setup, SSH server enablement, Mise setup and
+  two native package installs. History is evidence of commands, not success.
+- [x] Capture reviewed Hyprland gaps, animations, window rules, monitor focus,
+  clipboard/notification/T3 shortcuts and the half/full-width move behavior.
+  Keep the shared floating tag, monitor-local workspaces and laptop-only Lid
+  Guard. Capture Ghostty close behavior, Zed project-window settings, Noctalia
+  bar/panel preferences and desktop-only lockscreen geometry.
+- [x] Capture the non-secret Fastmail account template, with its username in
+  local Chezmoi data and the password still in the keyring. Add project
+  checkout links, three wallpaper assets and custom directory creation.
+- [x] Preserve ProtonPlus hourly/boot/launch update preferences through
+  GSettings. Its own application initializes and owns the user timer.
+- [x] Avoid the cheatsheet 0.2.7 explicit-path parser bug by scanning the
+  bindings file directly; use numbered headings and named descriptions.
+- [x] Keep the existing private 1Password directory and Zed settings modes;
+  move the guarded Noctalia theme include to the root file its hook recognizes.
+- [x] Preserve scrolling width when moving to an empty workspace; use half
+  width when the destination is occupied. Native tests cover workspace and
+  monitor moves, custom widths, no-op moves, floating and fullscreen windows.
+- [ ] Complete package delivery and installation of ble.sh, the LibrePods
+  fork and the prepared Copilot helper in the COPR/Nimbus repositories.
+- [ ] Publish the captured configuration on main. The owner subsequently
+  authorized commits and pushes, with no pull request or hosted review.
+- [ ] Deliver the Nimbus 0.4.1 engine and handle the package-owned XDG defaults
+  file's ownership migration. Normal Nimbus sync is blocked by the intentional
+  dirty checkouts. No system state changed through that failed preflight.
+
+The requested new Windows 11 VM is deferred by the owner's latest instruction.
+Only the Dockur image was downloaded before the pause; no VM, container or
+guest storage was created. OpenLogi is not selected for the attached G560
+speakers because upstream does not list that hardware as supported.
+
+Final validation: `just check` passes 137 tests with four optional skips, the
+Bash suite and whitespace gate. `just check-desktop`, live Hyprland/Noctalia
+validation and ShellCheck on both preference hooks pass. The full authorized
+Chezmoi apply succeeded: all 29 Mise tools and 52 VSCodium extensions were
+already installed. Managed/status/diff/verify ran against this desktop; status
+and diff are empty and verify passes with scripts excluded. Scripts run after
+every apply by design. No secret target contents were printed.
+
+The cheatsheet now reports 80 bindings in eight categories, no unreadable-file
+warnings and no Other rows. Native MIME queries match the selected applications,
+custom XDG paths resolve correctly, Files shows hidden items, ProtonPlus keeps
+its active hourly timer, and Fastmail metadata remains configured. Both GitHub
+repositories were reachable through their SSH remotes. Gitleaks scanned both
+repositories' tracked and nonignored untracked files with no findings. No
+commit, push, package publication, system-file mutation or VM creation occurred.
+Optional Lua execution, Niri, Neovim download and Zathura GUI checks remain
+skipped; isolated PDF opening was verified earlier as recorded above.
+
 The 2026-09-07 COPR VM installation completed, but source builds made the
 first run slow. The Linux CLI tools now use upstream stable binaries through
 native Mise Aqua and GitHub backends in `linux-tools.toml`. VM Curator uses
@@ -89,19 +173,25 @@ Plan: [shared applications](ROADMAP.md#phase-3---shared-applications).
 - [ ] Record authorized live testing per config and platform; retain pending
   status for untested systems instead of treating rendering as runtime proof.
 
-## Waiting for installation - 1Password, SSH, and gh
+## 1Password, SSH, and gh - remaining platform verification
 
 Plan: [1Password, SSH, and GitHub CLI](ROADMAP.md#phase-4---1password-ssh-and-github-cli).
-Status: Linux/macOS SSH wiring is prepared behind the opt-in toggle. Offline
-checks use fake data; the real document and keys have not been retrieved.
-Live setup and testing wait for the new machine. Windows remains deferred;
-gh is already merged. See [setup and recovery](README.md#1password-ssh).
+Status: the desktop's opt-in Linux configuration now renders from 1Password,
+with private keys staying in the agent. Both repository remotes passed read-only
+SSH access checks. Git identity and SSH signing settings are present; creating
+or pushing a signed commit was not part of the final no-commit audit. macOS
+live validation and Windows support remain deferred. See [setup and recovery](README.md#1password-ssh).
 
 - [x] Explain the agent and map the existing keys to GitHub and homelab roles.
 - [x] Design the private 1Password SSH-config document, agent selection, and
   Linux/macOS socket paths without exporting private keys.
 - [x] Implement and test feature gating, permissions, missing prerequisites,
   and simulated retrieval failures without printing secrets.
+- [x] Keep Git signing in the managed XDG template under the existing SSH
+  option, using the GitHub public-key selector and Linux/macOS helper paths.
+  Isolated checks cover disabled and legacy data, Windows exclusion, failed
+  signing without an unsigned commit, and repair preserving personal identity.
+  Actual commit signing and GitHub signature verification remain untested.
 - [ ] On the new setup, confirm the document, enable app integrations, authorize
   destination public keys, and test real retrieval and SSH on Linux and macOS.
 - [ ] Explain the existing gh config and its separate API login; verify GitHub

@@ -1,0 +1,14 @@
+# Keep installed and available to file associations; hide from application menus.
+[Desktop Entry]
+Name=Notepad
+Comment=Text Editor
+Exec=notepad
+Icon=notepad
+Terminal=false
+Type=Application
+StartupNotify=true
+StartupWMClass=notepad.exe
+Categories=X-Wine;
+X-Desktop-File-Install-Version=0.28
+NoDisplay=true
+TryExec=notepad

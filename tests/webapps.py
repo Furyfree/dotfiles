@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate webapps without launching browsers or using live state."""
+"""Validate desktop entries and webapps without launching applications."""
 
 import configparser
 import json
@@ -16,7 +16,7 @@ from urllib.parse import urlsplit
 REPO = Path(__file__).resolve().parents[1]
 ENTRIES = REPO / "home/dot_local/share/applications"
 ICONS = REPO / "home/dot_local/share/icons/hicolor/512x512/apps"
-APPS = tuple(sorted(path.stem for path in ENTRIES.glob("*.desktop")))
+APPS = ("FotMob", "GoogleMaps")
 CHEZMOI = shutil.which("chezmoi")
 VALIDATOR = shutil.which("desktop-file-validate")
 
@@ -50,7 +50,8 @@ class Webapps(unittest.TestCase):
     def test_native_desktop_syntax(self):
         if not APPS:
             self.skipTest("no webapps are declared")
-        result = subprocess.run([VALIDATOR, *(str(ENTRIES / f"{stem}.desktop") for stem in APPS)],
+        result = subprocess.run([VALIDATOR, "--no-hints",
+                                 *(str(path) for path in sorted(ENTRIES.glob("*.desktop")))],
                                 capture_output=True, text=True, timeout=10)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(result.stdout + result.stderr, "")

@@ -1,6 +1,8 @@
 {
   "$schema": "zed://schemas/settings",
   "base_keymap": "VSCode",
+  "cli_default_open_behavior": "new_window",
+  "default_open_behavior": "new_window",
   "restore_on_startup": "empty_tab",
   "preview_tabs": { "enabled": false },
 

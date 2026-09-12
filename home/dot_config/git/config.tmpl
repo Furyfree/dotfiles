@@ -1,0 +1,39 @@
+{{- $signing := and (hasKey . "onePasswordSsh") .onePasswordSsh (has .chezmoi.os (list "linux" "darwin")) -}}
+[user]
+	useConfigOnly = true
+{{- if $signing }}
+	signingkey = {{ joinPath .chezmoi.homeDir ".ssh" "github.pub" | quote }}
+{{- end }}
+
+[init]
+	defaultBranch = main
+
+[fetch]
+	prune = true
+
+[pull]
+	# Diverged branches need an explicit merge or rebase decision.
+	ff = only
+
+[push]
+	autoSetupRemote = true
+
+[merge]
+	conflictStyle = zdiff3
+
+[alias]
+	st = status --short --branch
+	lg = log --graph --oneline --decorate --all
+{{ if $signing }}
+[gpg]
+	format = ssh
+
+[gpg "ssh"]
+{{ if eq .chezmoi.os "linux" -}}
+	program = /opt/1Password/op-ssh-sign
+{{ else -}}
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+{{ end }}
+[commit]
+	gpgsign = true
+{{ end -}}

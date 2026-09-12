@@ -31,6 +31,12 @@ files. Machine manifests live in the Nimbus repository, never here.
 Treat the current machine and Niriland as references. Rewrite and review one
 configuration at a time; never import either wholesale.
 
+Match Hyprland application rules by the class reported by `hyprctl clients`,
+not by window titles or launcher names. For example, 1Password's class is
+`com.onepassword.OnePassword`. A rule's `name` is only its descriptive label.
+Use shared tags for reusable window behavior, with class rules before the
+rules that consume their tags.
+
 This repository is not in production. Change or remove source configuration
 directly; do not add migrations, compatibility layers, `.chezmoiremove` entries,
 or cleanup of earlier configurations or tool providers. Revisit this only when
@@ -50,6 +56,10 @@ never print their contents during validation.
 Chezmoi scripts must stay exceptional and user-scoped. The after-apply script
 may install tools explicitly declared in the native Mise config. The VSCodium
 after-apply scripts install declared editor extensions through its native CLI.
+The Files after-apply script sets selected user preferences through GSettings;
+dconf databases themselves remain unmanaged.
+The ProtonPlus hook also uses GSettings for update preferences only. ProtonPlus
+owns its generated user timer; scripts do not copy credentials or start it.
 Scripts must not install system packages or Mise itself, use privilege elevation,
 change `/etc`, manage services, or select a login shell.
 

@@ -16,13 +16,16 @@ CHEZMOI = shutil.which("chezmoi")
 
 
 @unittest.skipUnless(GIT, "git is not installed")
+@unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
 class GitConfig(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="dotfiles-git-")
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         self.home = self.root / "home with spaces"
-        shutil.copytree(SOURCE, self.home / ".config/git")
+        self.config = self.home / ".config/git/config"
+        self.config.parent.mkdir(parents=True)
+        shutil.copyfile(SOURCE / "ignore", self.config.parent / "ignore")
         self.env = {
             "HOME": str(self.home), "USERPROFILE": str(self.home),
             "PATH": "/usr/bin:/bin", "LANG": "C", "LC_ALL": "C",
@@ -34,7 +37,22 @@ class GitConfig(unittest.TestCase):
             "GIT_ALLOW_PROTOCOL": "file", "GIT_PAGER": "cat",
         }
         self.repo = self.root / "repository"
+        self.config.write_text(self.render_config())
         self.run_git("init", str(self.repo))
+
+    def chezmoi_args(self, platform="linux", enabled=False):
+        override = {"chezmoi": {"os": platform}, "profiles": ["common"]}
+        if enabled is not None:
+            override["onePasswordSsh"] = enabled
+        return (CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
+                "--config", str(self.root / "chezmoi.toml"),
+                "--cache", str(self.root / "cache/chezmoi"),
+                "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
+                "--skip-secrets", "--no-tty", "--override-data", json.dumps(override))
+
+    def render_config(self, platform="linux", enabled=False):
+        return self.run_command(*self.chezmoi_args(platform, enabled), "execute-template",
+                                input=(SOURCE / "config.tmpl").read_text())
 
     def run_command(self, *args, cwd=None, input=None, expected=0):
         result = subprocess.run(args, cwd=cwd or self.root, env=self.env, input=input,
@@ -80,6 +98,46 @@ class GitConfig(unittest.TestCase):
                                 env=self.env, capture_output=True, text=True, timeout=20)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("auto-detection is disabled", result.stderr)
+
+    def test_signing_platforms_and_opt_in(self):
+        programs = {"linux": "/opt/1Password/op-ssh-sign",
+                    "darwin": "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"}
+        for platform in ("linux", "darwin", "windows"):
+            for enabled in (None, False, True):
+                with self.subTest(platform=platform, enabled=enabled):
+                    self.config.write_text(self.render_config(platform, enabled))
+                    active = enabled and platform in programs
+                    if active:
+                        self.assertEqual(self.run_git("config", "user.signingkey").strip(),
+                                         str(self.home / ".ssh/github.pub"))
+                        self.assertEqual(self.run_git("config", "gpg.format").strip(), "ssh")
+                        self.assertEqual(self.run_git("config", "gpg.ssh.program").strip(),
+                                         programs[platform])
+                        self.assertEqual(self.run_git("config", "commit.gpgsign").strip(), "true")
+                    else:
+                        for key in ("user.signingkey", "gpg.format", "gpg.ssh.program", "commit.gpgsign"):
+                            self.run_git("config", "--get", key, expected=1)
+
+    def test_unavailable_signing_does_not_create_unsigned_commit(self):
+        self.config.write_text(self.render_config(enabled=True))
+        result = subprocess.run(
+            [GIT, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
+             "-c", "gpg.ssh.program=" + str(self.root / "missing-signer"),
+             "commit", "--allow-empty", "-m", "fixture"],
+            cwd=self.repo, env=self.env, capture_output=True, text=True, timeout=20)
+        self.assertNotEqual(result.returncode, 0)
+        self.run_git("rev-parse", "--verify", "HEAD", cwd=self.repo, expected=128)
+
+    def test_apply_restores_signing_without_replacing_personal_identity(self):
+        personal = self.home / ".gitconfig"
+        personal.write_text('[user]\nname = Fixture\nemail = fixture@example.invalid\n')
+        before = personal.read_bytes()
+        self.run_command(*self.chezmoi_args(enabled=True), "apply", "--exclude=scripts",
+                         str(self.config))
+        self.assertEqual(self.run_git("config", "commit.gpgsign").strip(), "true")
+        self.assertEqual(self.run_git("config", "user.name").strip(), "Fixture")
+        self.assertEqual(personal.read_bytes(), before)
+        self.run_command(*self.chezmoi_args(enabled=True), "verify", str(self.config))
 
     def test_global_ignores_are_narrow(self):
         ignored = [".DS_Store", "sub/Thumbs.db", "Desktop.ini", "desktop.ini"]
@@ -141,22 +199,15 @@ class GitConfig(unittest.TestCase):
         self.assertIn("fast-forward", result.stderr)
         self.assertEqual(self.run_git("rev-parse", "HEAD", cwd=self.repo).strip(), local_head)
 
-    @unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
     def test_platform_targets(self):
         for platform in ("linux", "darwin", "windows"):
             with self.subTest(platform=platform):
-                output = self.run_command(
-                    CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
-                    "--config", str(self.root / "chezmoi.toml"), "--cache", str(self.root / "cache/chezmoi"),
-                    "--persistent-state", str(self.root / "chezmoi-state.boltdb"), "--skip-secrets",
-                    "--override-data", json.dumps({"chezmoi": {"os": platform},
-                                                   "profiles": ["common"], "onePasswordSsh": False}),
-                    "dump", "--format=json")
+                output = self.run_command(*self.chezmoi_args(platform), "dump", "--format=json")
                 entries = json.loads(output)
                 files = {name: entry["contents"] for name, entry in entries.items()
                          if name.startswith(".config/git/") and entry["type"] == "file"}
-                self.assertEqual(files, {f".config/git/{name}": (SOURCE / name).read_text()
-                                         for name in ("config", "ignore")})
+                self.assertEqual(files, {".config/git/config": self.render_config(platform),
+                                         ".config/git/ignore": (SOURCE / "ignore").read_text()})
                 self.assertNotIn(".gitconfig", entries)
                 self.assertNotIn(".gitignore", entries)
 

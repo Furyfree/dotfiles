@@ -1,6 +1,7 @@
 -- Gaps, borders, rounding, opacity, blur, and shadows.
 hl.config({
-    general = { gaps_in = 5, gaps_out = 10, border_size = 2 },
+    -- Equal gaps keep off-screen scrolling columns outside the monitor edge.
+    general = { gaps_in = 3, gaps_out = 3, border_size = 2 },
     decoration = {
         -- Rounded corners with no extra transparency or dimming on inactive windows.
         rounding = 12,
@@ -21,8 +22,3 @@ hl.config({
         },
     },
 })
-
--- Noctalia owns the generated palette. First login works before it exists.
-if package.searchpath("noctalia", package.path) then
-    require("noctalia").apply_theme()
-end

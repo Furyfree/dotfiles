@@ -1,0 +1,26 @@
+# Keep installed and available to file associations; hide from application menus.
+[Desktop Entry]
+Version=1.0
+Terminal=false
+Icon=libreoffice-base
+Type=Application
+Categories=Office;Database;X-Red-Hat-Base;
+Exec=libreoffice --base %U
+MimeType=application/vnd.oasis.opendocument.base;application/vnd.sun.xml.base;
+Name=LibreOffice Base
+GenericName=Database Development
+Comment=Manage databases, create queries and reports to track and manage your information.
+StartupNotify=true
+X-GIO-NoFuse=true
+Keywords=Data;SQL;
+InitialPreference=5
+StartupWMClass=libreoffice-base
+X-KDE-Protocols=file,http,webdav,webdavs
+Actions=NewDocument;
+NoDisplay=true
+TryExec=libreoffice
+
+[Desktop Action NewDocument]
+Name=New Database
+Icon=document-new
+Exec=libreoffice --base

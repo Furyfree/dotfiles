@@ -120,7 +120,10 @@ class Zed(unittest.TestCase):
     def test_wrappers_and_legacy_data(self):
         for target in ("dot_config/zed", "AppData/Roaming/Zed"):
             for name in ("settings", "keymap"):
-                wrapper = (REPO / "home" / target / f"{name}.json.tmpl").read_text()
+                filename = f"{name}.json.tmpl"
+                if target == "dot_config/zed" and name == "settings":
+                    filename = "private_" + filename
+                wrapper = (REPO / "home" / target / filename).read_text()
                 self.assertEqual(wrapper.strip(), '{{- template "configs/zed/' + name + '.json" . -}}')
         settings = strict_json(self.render("linux", legacy=True)[".config/zed/settings.json"])
         self.assertEqual(settings["theme"]["dark"], "One Dark")

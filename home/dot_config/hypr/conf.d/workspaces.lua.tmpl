@@ -1,0 +1,71 @@
+-- Ten workspace slots are available; only the first five stay when empty.
+{{ if and (hasKey . "Machine") (eq .Machine "desktop") -}}
+-- Keep existing workspace IDs so open windows retain their workspaces.
+local monitorWorkspaces = {
+    ["DP-4"] = { 1, 2, 3, 4, 5, 11, 12, 13, 14, 15 },
+    ["DP-3"] = { 6, 7, 8, 9, 10, 16, 17, 18, 19, 20 },
+}
+
+for monitor, workspaces in pairs(monitorWorkspaces) do
+    for slot, workspace in ipairs(workspaces) do
+        hl.workspace_rule({
+            workspace = tostring(workspace),
+            default_name = tostring(slot),
+            persistent = slot <= 5,
+            monitor = monitor,
+            default = slot == 1,
+        })
+    end
+end
+{{ else -}}
+local monitorWorkspaces = {}
+for workspace = 1, 10 do
+    hl.workspace_rule({
+        workspace = tostring(workspace),
+        default_name = tostring(workspace),
+        persistent = workspace <= 5,
+    })
+end
+{{ end }}
+return {
+    move_window = function(target)
+        local window = hl.get_active_window()
+        if not window then
+            return
+        end
+
+        local destination
+        if target.workspace then
+            destination = hl.get_workspace(target.workspace)
+        elseif target.monitor then
+            destination = hl.get_active_workspace(target.monitor)
+        end
+        local workspace = target.workspace or (destination and destination.id)
+        if not workspace or (window.workspace and window.workspace.id == workspace) then
+            return
+        end
+
+        local layout = window.layout
+        local width
+        if not window.floating and window.fullscreen == 0
+            and layout and layout.name == "scrolling" and layout.column then
+            -- Native moves create a new column at the default width.
+            -- Keep the old width on an empty workspace; share occupied ones.
+            width = destination and destination.windows > 0 and 0.5 or layout.column.width
+        end
+
+        hl.dispatch(hl.dsp.window.move({ workspace = workspace, window = window }))
+
+        -- Resize only the moved, focused column after a successful move.
+        layout = window.layout
+        if width and window.active and window.workspace and window.workspace.id == workspace
+            and layout and layout.name == "scrolling" and layout.column then
+            hl.dispatch(hl.dsp.layout("colresize " .. width))
+        end
+    end,
+    on_current_monitor = function(slot)
+        local monitor = hl.get_active_monitor()
+        local workspaces = monitor and monitorWorkspaces[monitor.name]
+        return workspaces and workspaces[slot] or slot
+    end,
+}

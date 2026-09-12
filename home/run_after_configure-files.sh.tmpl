@@ -1,0 +1,25 @@
+{{- if and (eq .chezmoi.os "linux") (hasKey . "profiles") (has "hyprland-noctalia" .profiles) -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+mkdir -p "$HOME/Projects" "$HOME/Pictures/Screenshots" \
+    "$HOME/Pictures/Wallpapers" "$HOME/Videos/Recordings"
+
+# Native user preferences live in dconf, not a portable file to copy into Git.
+command -v gsettings >/dev/null 2>&1 || exit 0
+schemas=$(gsettings list-schemas)
+set_preference() {
+    local schema=$1 key=$2 value=$3
+    if grep -Fxq -- "$schema" <<< "$schemas"; then
+        gsettings set "$schema" "$key" "$value"
+    fi
+}
+
+set_preference org.gnome.nautilus.preferences show-hidden-files true
+set_preference org.gnome.desktop.privacy remember-recent-files false
+for schema in org.gtk.Settings.FileChooser org.gtk.gtk4.Settings.FileChooser; do
+    set_preference "$schema" show-hidden true
+    set_preference "$schema" sort-directories-first true
+    set_preference "$schema" startup-mode "'cwd'"
+done
+{{- end }}

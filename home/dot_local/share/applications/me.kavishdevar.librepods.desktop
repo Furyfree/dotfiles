@@ -1,0 +1,12 @@
+# Keep installed and available to file associations; hide from application menus.
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=LibrePods
+Comment=AirPods libreated from Apple's ecosystem
+Exec=librepods
+Icon=librepods
+Terminal=false
+Categories=Audio;AudioVideo;Utility;Qt;
+NoDisplay=true
+TryExec=librepods

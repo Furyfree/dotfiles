@@ -1,53 +1,55 @@
 -- Quick window transitions and vertical workspace movement.
 hl.config({ animations = { enabled = true } })
 
--- Start promptly and settle without overshooting. Speed is in 100 ms units.
-hl.curve("easeOut", { type = "bezier", points = { { 0.16, 1 }, { 0.3, 1 } } })
+-- Spread motion across the transition instead of jumping at the start.
+-- Speed is in 100 ms units.
+hl.curve("easeOut", { type = "bezier", points = { { 0.215, 0.61 }, { 0.355, 1 } } })
+hl.curve("easeIn", { type = "bezier", points = { { 0.4, 0 }, { 1, 1 } } })
 hl.curve("linear", { type = "bezier", points = { { 0, 0 }, { 1, 1 } } })
 hl.animation({
     leaf = "global",
     enabled = true,
-    speed = 1.8,
+    speed = 2.0,
     bezier = "easeOut",
 })
 
--- Open from 95% size in 150 ms; close with a small shrink in 120 ms.
+-- Open from 95% size in 180 ms; close with a small shrink in 140 ms.
 hl.animation({
     leaf = "windowsIn",
     enabled = true,
-    speed = 1.5,
+    speed = 1.8,
     bezier = "easeOut",
     style = "popin 95%",
 })
 hl.animation({
     leaf = "windowsOut",
     enabled = true,
-    speed = 1.2,
-    bezier = "easeOut",
+    speed = 1.4,
+    bezier = "easeIn",
     style = "popin 95%",
 })
-hl.animation({ leaf = "fadeIn", enabled = true, speed = 1.5, bezier = "linear" })
+hl.animation({ leaf = "fadeIn", enabled = true, speed = 1.8, bezier = "easeOut" })
 hl.animation({
     leaf = "fadeOut",
     enabled = true,
-    speed = 1.2,
-    bezier = "linear",
+    speed = 1.4,
+    bezier = "easeIn",
 })
 
 -- Keep moves, swaps, and resizing smooth, with a short focus-color transition.
 hl.animation({
     leaf = "windowsMove",
     enabled = true,
-    speed = 1.8,
+    speed = 2.0,
     bezier = "easeOut",
 })
 hl.animation({ leaf = "border", enabled = true, speed = 1, bezier = "linear" })
 
--- Workspaces feel stacked vertically, with full travel in 220 ms.
+-- Workspaces feel stacked vertically, with full travel in 240 ms.
 hl.animation({
     leaf = "workspaces",
     enabled = true,
-    speed = 2.2,
+    speed = 2.4,
     bezier = "easeOut",
     style = "slidevert",
 })

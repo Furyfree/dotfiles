@@ -38,6 +38,8 @@ dotfiles_bash_fzf() {
 
     if [[ -n ${BLE_VERSION-} ]]; then
       ble-import -d integration/fzf-key-bindings
+      # Use fzf for ordinary Tab completion, including bash-completion results.
+      ble-import -d integration/fzf-menu
     else
       fzf_source="$(command fzf --bash)" || return
       eval "$fzf_source"

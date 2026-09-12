@@ -9,7 +9,7 @@ evidence live in [TASKS.md](TASKS.md); this inventory describes scope only.
 
 | Config | Plan |
 |---|---|
-| Git | Managed shared XDG config and OS-metadata ignores on all platforms. Personal `~/.gitconfig`, identity, credentials, and signing remain unmanaged. |
+| Git | Managed shared XDG config and OS-metadata ignores on all platforms. The 1Password SSH option enables commit signing on Linux/macOS. Personal `~/.gitconfig`, identity, and credentials remain unmanaged. |
 | SSH client | Render private `~/.ssh/config` from 1Password. Key design is in [ROADMAP.md](ROADMAP.md). |
 | 1Password SSH agent | Track selected-key filters only. Nimbus owns installation; enable the agent in 1Password. |
 | Neovim | Small advanced-Vim Lua setup first; incremental IDE features, not a distribution. Isolate platform commands in Lua. |
@@ -44,11 +44,21 @@ their settings and runtime state remain unmanaged.
 
 ## Linux desktop
 
+XDG user directories are managed in `~/.config/user-dirs.dirs`, including
+the custom `XDG_PROJECTS_DIR="$HOME/Projects"`,
+`XDG_SCREENSHOTS_DIR="$HOME/Pictures/Screenshots"`,
+`XDG_WALLPAPERS_DIR="$HOME/Pictures/Wallpapers"` and
+`XDG_RECORDINGS_DIR="$HOME/Videos/Recordings"` entries. Noctalia's screenshot
+output and wallpaper browser use those same folders. Paths remain relative
+to the current user's home. The file is ignored on macOS and Windows.
+
 | Config | Plan |
 |---|---|
 | Hyprland | Minimal Lua starter on `hyprland-noctalia`: Ghostty, Brave Origin, Noctalia daemon startup. Test before splitting files or aligning the Niri keymap. Nimbus owns system integration. |
-| Noctalia | Profile-managed portable preferences, 17 enabled plugin selections, native Brave GTK integration and Noctalia's session menu. Generated themes, runtime state, caches and downloaded plugins remain unmanaged. See NOCTALIA.md. |
+| Files | Profile-managed GTK bookmarks and a user GSettings hook for hidden files, recent-file tracking and file chooser defaults. No dconf database is tracked. |
+| Noctalia | Profile-managed preferences and bar layout, 15 plugins plus laptop-only Lid Guard, native Brave GTK integration and Noctalia's session menu. Generated themes, runtime state, caches and downloaded plugins remain unmanaged. See NOCTALIA.md. |
 | Noctalia Greeter | Nimbus owns it and its files below `/var/lib`. |
+| MIME defaults | Profile-managed `mimeapps.list`: Nautilus archives, Loupe images, Celluloid media, Zed text/code, LibreOffice documents and Zathura PDFs with a Brave fallback until its plugin is installed. |
 | Niri | Modular native config on `niri-dms`, with one keybind source and no Nirius; mirror module responsibilities in future Hyprland work. |
 | DankMaterialShell | Curated portable settings on `niri-dms`; generated palettes, monitor state, caches, and plugins stay unmanaged. |
 | udiskie | Managed Linux-only user config: automount, notifications, smart tray, default file manager. No profile gate or autostart. |
@@ -89,6 +99,11 @@ Do not adopt config for:
 - OBS, Prism, Vesktop, Heroic and Herdr runtime settings
 
 An installed application is not a reason to track its state.
+
+The final desktop capture includes reviewed Hyprland and Noctalia preferences,
+optional Fastmail account metadata, Files bookmarks, project links, three
+wallpaper assets, native MIME/launcher overrides, and ProtonPlus update
+preferences. Generated user units and credential stores remain application-owned.
 
 ## Never import
 

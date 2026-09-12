@@ -2,9 +2,9 @@
 hl.config({
     general = { layout = "scrolling" },
     scrolling = {
-        -- A lone column fills the workspace; additional columns use half-width.
+        -- Start at half-width and honor Super+F even with only one column.
         column_width = 0.5,
-        fullscreen_on_one_column = true,
+        fullscreen_on_one_column = false,
         direction = "right",
 
         -- Bring focused columns into view without centering or scrolling on hover.

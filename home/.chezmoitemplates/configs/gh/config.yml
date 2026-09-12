@@ -1,3 +1,4 @@
+version: "1"
 git_protocol: ssh
 prefer_editor_prompt: enabled
 aliases:

@@ -208,7 +208,11 @@ Git is implemented independently through its native XDG config and ignore
 paths, with personal `~/.gitconfig` left unmanaged. Shared defaults keep native
 colors and add fast-forward-only pulls, remote-tracking pruning, upstream
 setup, conflict context, and two read-only aliases. See
-[README.md](README.md#git) for loading, validation, and recovery. Stop before apply.
+[README.md](README.md#git) for loading, validation, and recovery. The existing
+1Password SSH option also enables Git commit signing on Linux/macOS using
+the managed GitHub public-key file and each platform's signing helper.
+Personal identity and overrides remain outside Chezmoi. Windows signing
+stays deferred with its SSH targets.
 
 Ghostty uses one Linux/macOS config and native keybindings. The Linux
 `hyprland-noctalia` profile selects Noctalia's generated theme, with its built-in

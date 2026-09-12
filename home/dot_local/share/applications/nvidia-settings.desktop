@@ -1,0 +1,10 @@
+# Keep installed and available to file associations; hide from application menus.
+[Desktop Entry]
+Type=Application
+Name=NVIDIA X Server Settings
+Comment=Configure NVIDIA X Server Settings
+Exec=nvidia-settings
+Icon=nvidia-settings
+Categories=System;Settings;
+NoDisplay=true
+TryExec=nvidia-settings

@@ -51,7 +51,9 @@ Library/**
 {{ if or (ne .chezmoi.os "linux") (not $hyprlandNoctalia) -}}
 .config/hypr/**
 .config/noctalia/**
+.config/mimeapps.list
 .config/gtk-3.0/settings.ini
+.config/gtk-3.0/bookmarks
 .config/gtk-4.0/settings.ini
 .config/qt5ct/qt5ct.conf
 .config/qt6ct/qt6ct.conf
@@ -64,6 +66,7 @@ Library/**
 .config/mise/conf.d
 .config/mise/conf.d/linux-tools.toml
 .config/udiskie/**
+.config/user-dirs.dirs
 .config/vm-curator/**
 .config/voxtype/**
 .config/zathura/**
@@ -118,3 +121,13 @@ AppData/Roaming/VSCodium/User/snippets/**
 AppData/Roaming/topgrade.toml
 Documents/PowerShell/**
 Library/Application Support/VSCodium/User/snippets/**
+
+# Linux desktop folders and project checkout links.
+{{ if or (ne .chezmoi.os "linux") (not $hyprlandNoctalia) -}}
+Projects/**
+Pictures/**
+Videos/**
+{{ end -}}
+{{ if not (and (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
+Projects/nimbus
+{{ end -}}

@@ -1,0 +1,15 @@
+{{- if and (eq .chezmoi.os "linux") (hasKey . "profiles") (has "gaming" .profiles) -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ProtonPlus owns its user timer and reconciles it through the application.
+# Capture preferences only; never copy API tokens or the dconf database.
+command -v gsettings >/dev/null 2>&1 || exit 0
+schema=com.vysp3r.ProtonPlus.State
+schemas=$(gsettings list-schemas)
+grep -Fxq "$schema" <<< "$schemas" || exit 0
+gsettings set "$schema" background-updates-frequency "'1h'"
+gsettings set "$schema" check-updates-on-boot true
+gsettings set "$schema" check-updates-on-launch true
+gsettings set "$schema" background-updates true
+{{- end }}

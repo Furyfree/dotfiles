@@ -46,6 +46,7 @@ backends:
 | Tinymist | Registry `tinymist`, using Aqua |
 | Sheldon | Registry `sheldon`, using Aqua |
 | resvg | Registry `resvg`, using Aqua |
+| AI Usage | Cargo `ai-usagebar`, compiled from crates.io |
 | Caligula | GitHub `ifd3f/caligula`, native executable |
 | VM Curator | GitHub `mroboff/vm-curator`, Linux x86_64 tar archive |
 
@@ -60,6 +61,9 @@ and perform native checksum and available provenance checks. There is no
 separate `cargo-update` installation: Mise owns updates for its tools.
 See the [Aqua backend](https://mise.jdx.dev/dev-tools/backends/aqua.html)
 and [GitHub backend](https://mise.jdx.dev/dev-tools/backends/github.html).
+AI Usage uses the [Cargo backend](https://mise.jdx.dev/dev-tools/backends/cargo.html)
+and the managed Rust toolchain. Its `ai-usagebar` CLI supplies Noctalia's
+AI Usage plugin; account authentication remains outside these dotfiles.
 
 This Linux fragment is ignored on macOS and Windows. The existing runtime
 selections remain in `~/.config/mise/config.toml`. Typst comes from Terra
@@ -98,6 +102,119 @@ keeps native Mise output, command timestamps, exit codes, and durations in
 `mise.log`, while preserving terminal output. Log creation or write failures
 fail the apply. Chezmoi template output, input, and environment variables are
 not included in this tool log.
+
+## First login and setup ownership
+
+Installation and account authorization are separate steps:
+
+| Owner | Setup responsibility |
+|---|---|
+| Nimbus | System packages and services, the default login shell, and approved native post-install actions such as Tailscale operator permission and ProtonPlus setup. |
+| Chezmoi | User preferences, shortcuts, bookmarks, portable account metadata, and Mise declarations. |
+| Mise | Install the declared tools after apply, including AI Usage and the agent CLIs. These are not manual package installations. |
+| Each application | Account sign-in, credentials, sessions and provider connections. Keep these outside Git. |
+
+After installation, complete the applicable account steps in the applications:
+
+- Sign into and unlock 1Password; enable its CLI integration and, when selected,
+  SSH agent. Confirm GitHub SSH access and commit signing separately.
+- Authenticate GitHub CLI and confirm the local Git author identity.
+- Sign into Tailscale. Its local operator permission is a separate
+  `nimbus postinstall tailscale-operator` action, not an account login.
+- Add Fastmail to Noctalia using a calendar-only app password stored in the
+  keyring. See [Fastmail calendars](NOCTALIA.md#fastmail-calendars).
+- Sign into Claude, Grok and Codex. Connect the Codex and OpenRouter providers
+  in OpenCode. Installing a CLI does not establish account authorization.
+- When the Copilot application is installed, select and authorize its Codex
+  backend through the application.
+- Choose application themes where Noctalia has no native activation hook.
+
+These are a first-login checklist, not a claim that accounts are connected.
+Chezmoi and Nimbus must not infer successful authorization from the presence
+of a binary, configuration file or token file. Do not capture account databases,
+keyrings, passwords, API keys, browser sessions or calendar caches.
+
+## Files
+
+On the Linux `hyprland-noctalia` profile, Chezmoi writes GTK bookmarks for
+Documents, Downloads, Projects, Pictures, `Projects/dtu-bachelor`,
+`Projects/nimbus` and `Projects/dotfiles`, in that order. The native file is
+`~/.config/gtk-3.0/bookmarks`, which Nautilus 50 also uses. Bookmarks do not clone projects. Chezmoi links `Projects/dotfiles` to its
+working tree and, on Nimbus-managed machines, `Projects/nimbus` to the canonical
+`~/.local/share/nimbus` checkout. Existing unrelated projects are preserved.
+
+The [Files hook](home/run_after_configure-files.sh.tmpl) sets user GSettings
+after apply: hidden files are visible, recent-file tracking is disabled, and
+GTK file choosers show hidden files, put folders first and start in the current
+directory. It skips unavailable schemas and runs without elevated privileges.
+Other Nautilus preferences keep their native defaults, including double-click
+activation and local-file thumbnails. The dconf database is not copied to Git.
+
+Disabling recent-file tracking affects other GTK applications too. Nautilus
+50.3 does not expose a supported setting to hide Starred; that sidebar item
+remains. These preferences can be changed live, but the next full apply
+restores the declared values. Removing the hook relinquishes management and
+does not reset existing preferences.
+
+## ProtonPlus preferences
+
+The Linux `gaming` profile applies four native GSettings preferences: hourly
+background updates, checking at boot and checking when ProtonPlus opens.
+ProtonPlus owns and reconciles its generated user timer. The hook does not copy
+the timer, API keys, game selections, caches or the dconf database. On a new
+machine, open ProtonPlus once to initialize its application-owned scheduling.
+The existing desktop timer is already active. Nimbus owns the separate initial
+Proton-CachyOS Latest installation action; Steam authentication remains local.
+
+## Launcher visibility
+
+Linux user desktop entries under `~/.local/share/applications` hide selected
+tools with `NoDisplay=true`. Their native commands, file types and desktop
+actions remain available. This is a Chezmoi preference shared by launchers
+that follow the desktop entry specification; no system package is removed.
+`TryExec` also prevents a file handler being offered when its command is absent.
+
+The hidden entries are:
+
+- btop++, Neovim and Yazi File Manager.
+- mpv Media Player; Celluloid is the default desktop media player.
+- Icon Browser, Qt5 Settings, Qt6 Settings, NVIDIA X Server Settings,
+  Goverlay, uuctl and Noctalia.
+- LibrePods, pending review after the fork is installed.
+- LibreOffice Base and LibreOffice Math.
+- Remote Viewer and Winetricks.
+- Wine's Notepad, Regedit, Wine Boot, Wine Configuration, Wine File,
+  Wine Help, Wine OLE View, Wine Software Uninstaller, Wine Wordpad and
+  WineMine.
+
+Protontricks and DOSBox Staging remain visible. DOSBox emulates older DOS
+software; on the reviewed Fedora desktop it arrived as Wine's recommended
+weak dependency. Its visibility and installation are still awaiting a decision.
+
+These overrides retain the installed entries' nonlocalized metadata, with
+menu visibility changed. Review them if a package changes its executable,
+desktop ID, file types or actions. To show an entry again, change its managed
+`NoDisplay` value and apply that target. Removing a source file alone does not
+delete the existing user override.
+
+## Default applications
+
+On the Linux `hyprland-noctalia` profile, Chezmoi manages
+`~/.config/mimeapps.list`: Nautilus for folders and archives, Brave Origin for
+web pages, Fastmail for email links, Loupe for images, Celluloid for media,
+Zed for text/code/configuration, and the corresponding LibreOffice application
+for office documents. GIMP retains its image project formats.
+
+PDFs prefer `org.pwmt.zathura-pdf-poppler.desktop`, which Fedora's
+`zathura-pdf-poppler` package supplies. Nimbus selects that package alongside
+Zathura. Until the plugin is installed, the next handler is Brave; the core
+Zathura package alone cannot read PDFs. No File Roller installation is needed.
+
+Existing T3 Code, Claude, Codex and Discord URL registrations are retained.
+Their applications own the handlers and authentication. Review and capture
+new associations written by applications before the next apply; otherwise the
+managed file restores the declared preferences. File types and links not listed
+here keep their native application or distribution defaults.
 
 ## Bootstrap
 
@@ -703,7 +820,7 @@ See the [Fastfetch configuration guide](https://github.com/fastfetch-cli/fastfet
 Chezmoi manages `~/.config/git/config` and `~/.config/git/ignore` on Linux,
 macOS, and Windows. Git reads this config automatically, then `~/.gitconfig`,
 then repository-local settings. The existing `~/.gitconfig` stays unmanaged:
-your identity, LFS filters, credentials, and signing configuration are neither
+your identity, LFS filters, credentials, and personal overrides are neither
 copied nor replaced. Existing personal settings can override these defaults.
 With a custom `XDG_CONFIG_HOME`, make the files available under that directory;
 on Windows, the managed home must match Git's `HOME`.
@@ -719,7 +836,7 @@ The shared defaults are:
 - Git requires an explicit identity rather than guessing one from the machine.
 - `git st` shows compact status; `git lg` shows a one-line graph of all branches.
 
-No custom colors, external pager, URL rewrites, signing defaults, credential
+No custom colors, external pager, URL rewrites, credential
 helper, or global line-ending conversions are added. Git uses the terminal's
 palette, including Noctalia's palette in a themed terminal. Prefer SSH clone
 URLs when desired; existing remotes and HTTPS dependencies stay unchanged.
@@ -739,14 +856,37 @@ git config --file ~/.gitconfig user.email "your-address@example.com"
 ```
 
 Using `--file` avoids changing the managed XDG config when `~/.gitconfig` does
-not yet exist. Configure signing and authentication separately when needed.
+not yet exist.
+
+On Linux and macOS, the existing `onePasswordSsh` option also enables SSH
+commit signing. Git uses the managed `~/.ssh/github.pub` selector and the
+platform's 1Password signing helper. No key material or personal identity is
+stored in the Git template. Windows and installations with the option disabled
+keep the shared defaults without signing settings. Personal Git overrides
+still take precedence.
+
+Keep the 1Password app available and approve signing requests. Register the
+public key separately as a signing key on GitHub to get verified commits;
+SSH authentication alone does not register it for signing. Missing keys,
+unavailable signing helpers, or denied authorization fail the commit.
+
+Edit the source and apply only Git configuration with:
+
+~~~sh
+chezmoi edit ~/.config/git/config
+chezmoi diff ~/.config/git/config
+chezmoi apply --exclude=scripts ~/.config/git/config
+~~~
+
+Edit the template for future Git changes instead of re-adding the rendered
+file, which would replace its platform and opt-in conditions.
 Inspect one effective setting without dumping personal configuration:
 
 ```sh
 git config --show-origin --get pull.ff
 ```
 
-Run isolated checks with Python 3, Git 2.37+, and optionally Chezmoi:
+Run isolated checks with Python 3, Git 2.37+, and Chezmoi:
 
 ```sh
 python3 tests/git-config.py
@@ -754,8 +894,10 @@ python3 tests/git-config.py
 
 Tests use temporary homes and local fixture repositories only, including
 synthetic commits and local pushes. They check automatic loading, personal
-overrides, platform targets, ignore rules, aliases, upstream setup, pruning,
-and fast-forward-only pulls without network access or live configuration changes.
+overrides, platform targets, signing opt-in and repair, ignore rules, aliases,
+upstream setup, pruning, and fast-forward-only pulls without network access
+or live configuration changes. Signing failures use an unavailable test
+helper; no real 1Password authorization or signed commit is tested.
 Windows/macOS native discovery remains a manual check. Review the normal
 Chezmoi previews and back up any existing XDG Git files before applying;
 restore those backups to recover the previous shared configuration.
@@ -790,7 +932,7 @@ Existing `.bash_history` is neither migrated nor managed.
 Installed `bash-completion` supplies command completions. Ordinary Readline
 completion is case-insensitive and shows ambiguous matches; unlike Zsh, it
 does not try an exact-case-only pass first. Optional `ble.sh` supplies syntax
-highlighting, suggestions, and its native Tab menu instead of Zsh plugins.
+highlighting and history/completion suggestions instead of Zsh plugins.
 It is discovered under `$XDG_DATA_HOME/blesh`, Linux system share directories,
 or the standard Apple Silicon/Intel Homebrew prefixes. Its bell setting lives
 in `bash/blerc`, also exposed through `.blerc`. Other ble.sh defaults are kept.
@@ -799,9 +941,17 @@ Following [ble.sh's startup and fzf guidance](https://github.com/akinomyoga/ble.
 it loads before the modules and attaches last. With ble.sh, its bundled
 `integration/fzf-key-bindings` handles Ctrl-T, Ctrl-R, and Alt-C; without it,
 the installed `fzf --bash` integration handles them. Ctrl-T previews and
-Ctrl-R's clipboard shortcut match Zsh. Bash does not use `fzf-tab`: Tab stays
-with native/ble.sh completion (plain fzf also offers its standard `**` trigger).
+Ctrl-R's clipboard shortcut match Zsh. With both ble.sh and fzf installed,
+[`integration/fzf-menu`](https://github.com/akinomyoga/blesh-contrib/blob/master/integration/fzf.md#pencil-integrationfzf-menu)
+turns ordinary Tab completion into an fzf picker, including command-specific
+`bash-completion` candidates. Enter accepts a candidate and Escape cancels.
+Without ble.sh, Tab uses Readline completion and fzf's standard `**` trigger.
 Terminal-only integrations are skipped without a usable terminal.
+
+The Bash config does not install ble.sh. If suggestions and command coloring
+are missing, check for `~/.local/share/blesh/ble.sh` or a system installation.
+Installing fzf alone only provides its own shortcuts. Start a fresh Bash
+session after installing ble.sh or changing the integration.
 
 The empty `.profile`, `.bash_logout`, and `bash/logout` scaffold remains
 unmanaged. Back up existing startup files and inspect the diff before applying.
@@ -848,7 +998,12 @@ loaded. Shell integration keeps the block cursor, enables SSH TERM compatibility
 and does not install terminfo on remote hosts. Default close confirmation and
 paste protection remain enabled. No login shell is forced.
 
-Linux retains the flat GTK toolbar and native selection-clipboard behavior.
+Mouse scrolling uses a multiplier of 4. Linux retains the flat GTK toolbar and
+explicitly copies selected text to PRIMARY for middle-click paste. Hyprland's
+startup hook enables GTK's `gtk-enable-primary-paste` preference, which Ghostty
+reads when opening a terminal surface. After changing that preference, open a
+new tab or window. In applications that capture mouse input, hold Shift while
+selecting text to use Ghostty's selection instead.
 On macOS, left Option acts as Alt for shell shortcuts, while right Option
 remains available for special characters on layouts such as Danish. Selecting
 text does not replace the macOS clipboard; use the normal copy shortcut.
@@ -1369,11 +1524,14 @@ to revisit. They are ignored by Chezmoi and are not included by `hyprland.lua`.
 
 Ghostty, Brave Origin (`brave-origin`), and Nautilus match Nimbus's current
 application selection. These are direct commands, not shell aliases or future
-Nimbus launch helpers, and do not change system MIME defaults. Automatic
-monitor mode/placement/scaling is retained.
+Nimbus launch helpers, and do not change system MIME defaults.
+`conf.d/monitors.lua.tmpl` keeps automatic monitor settings except on
+`Machine = "desktop"`: the BenQ XL2720Z (DP-4) starts at `0x0` and is the
+default cursor display; the ZOWIE XL LCD (DP-3) is to its right at `1920x0`.
+Both use their advertised 1920x1080 at 144 Hz mode and scale 1.
 
-`conf.d/layout.lua` selects native scrolling with half-width columns. A lone
-column fills the workspace; a second opens to its right, making both half-width.
+`conf.d/layout.lua` selects native scrolling with half-width columns.
+Super+F toggles the focused column between half and full width, even when alone.
 Focus brings columns into view without centering them, while hovering does not
 scroll the view. Width presets match Niri's one-third, one-half, and two-thirds;
 the layout's column focus/swap commands do not wrap at the ends.
@@ -1404,18 +1562,29 @@ Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 | Super+Shift+B | Brave Origin |
 | Super+Shift+F | Nautilus |
 | Super+Shift+O | OBS Studio |
+| Super+Shift+P | 1Password |
 | Super+Shift+A | ChatGPT |
 | Super+Shift+Z | Zed |
 | Super+Shift+V | VSCodium |
 | Super+Shift+D | Discord through Vesktop |
 | Super+Shift+E | Fastmail Flatpak |
 | Super+Escape | Noctalia Keybind Cheatsheet |
+| Super+Ctrl+G | Git Companion |
+| Super+Ctrl+D | Docker manager |
+| Super+Ctrl+P | Portctl |
+| Super+Ctrl+M | Screen mirroring |
+| Super+Ctrl+N | Notes |
+| Super+Ctrl+T | Translator |
+| Super+Ctrl+S | SSH launcher |
+| Super+Ctrl+C | Noctalia crash history and diagnostics |
+| Super+Ctrl+L | Toggle Lid Guard (laptop only) |
 | Super+Return | Ghostty |
 | Super+W | Close focused window |
 | Super+Q | Toggle tiled/floating |
 | Super+R | Cycle column width presets |
 | Super+C | Center column |
-| Super+F | Toggle fullscreen |
+| Super+F | Toggle half/full column width |
+| Super+Shift+Return | Toggle fullscreen |
 | Super+L | Lock session |
 | Alt+Tab | Open Noctalia window switcher |
 | Super+Shift+S | Capture screen region |
@@ -1424,33 +1593,61 @@ Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 | Brightness keys | Adjust display brightness through Noctalia |
 | Super+Space | Noctalia launcher |
 | Super+comma | Toggle Noctalia settings window |
+| Super+Shift+W | Toggle Noctalia wallpaper browser |
 | Super+arrows | Focus in that direction on this monitor |
 | Super+Shift+arrows | Swap windows in that direction on this monitor |
 | Super+Shift+Ctrl+arrows | Move window to the monitor in that direction |
-| Super+1-9 / 0 | Workspaces 1-9 / 10 |
-| Super+Shift+1-9 / 0 | Move window to that workspace and follow it |
-| Super+Shift+L / Super+M | Open Noctalia's session menu |
+| Super+1-9 / 0 | Select local workspace 1-9 / 10 on the current monitor |
+| Super+Shift+1-9 / 0 | Move window to that local workspace and follow it |
+| Super+Shift+L | Open Noctalia's session menu |
 | Super+left/right mouse drag | Move/resize window |
 
 Directional focus and swaps stay on the same monitor through Hyprland's
 [`window_direction_monitor_fallback` setting](https://wiki.hypr.land/Configuring/Basics/Variables/#binds).
 Explicit monitor moves follow the window to the destination monitor's active
-workspace. The Noctalia shortcuts use its [native IPC commands](https://docs.noctalia.dev/noctalia/compositor-settings/hyprland/#ipc-keybinds).
+workspace. Workspace and monitor move shortcuts preserve a tiled scrolling
+window's column width when the destination is empty. With another window there,
+the moved window gets half width. Floating and fullscreen windows keep native
+move behavior.
+The Noctalia shortcuts use its [native IPC commands](https://docs.noctalia.dev/noctalia/compositor-settings/hyprland/#ipc-keybinds).
 Volume and brightness repeat while held and work on the lock screen; mute
 toggles work while locked without repeating. Noctalia's window switcher uses
 Tab/Shift+Tab or arrows to select, Enter to activate, and Escape to cancel.
 Its settings window floats and centers instead of joining the scrolling columns.
 
+1Password matches the class `com.onepassword.OnePassword` and opens floating
+in the center of the usable monitor area. It keeps its preferred width and
+uses a height of 700 pixels, capped at 80% of the monitor height.
+The reusable `centered-floating` tag in `conf.d/window-rules.lua` selects this
+behavior. To include another app, add its matching rule with
+`tag = "+centered-floating"` above the shared rule for that tag.
+
 Input settings live in `conf.d/input.lua`: Danish keyboard layout, Num Lock,
-fast key repeat, and focus following the pointer. The touchpad uses natural
+fast key repeat, and focus following the pointer. The pointer moves to newly
+opened foreground windows and follows workspace changes. Activation requests
+can bring already-running apps forward. The touchpad uses natural
 scrolling, tap to click, and finger-count clicks, and is disabled while typing.
 Swipe up or down with three fingers to switch workspaces.
 Swipe horizontally with three fingers to scroll through window columns.
 
-`conf.d/workspaces.lua` keeps workspaces 1-10 present even when empty, giving
-Noctalia stable numbered workspace indicators. Swiping past the last workspace
-can create another; ten is not a hard limit. Monitor assignments remain unset
-until both monitor setups are known. Workspaces inherit the global layout and
+`conf.d/workspaces.lua.tmpl` defines ten local slots per desktop monitor.
+Only slots 1-5 are persistent. The number shortcuts select all ten slots,
+creating 6-10 when needed; empty optional workspaces disappear after leaving.
+Shift moves the focused window into the selected local slot and follows it.
+Use the monitor shortcuts to cross displays.
+
+On `Machine = "desktop"`, DP-4 and DP-3 have separate sets of unique global
+IDs. The existing first-five IDs remain 1-5 and 6-10 respectively; optional
+slots use 11-15 and 16-20. The shared workspace module resolves a local slot
+on the currently focused monitor when the shortcut is pressed. This also
+addresses slots that do not exist yet, which an open-workspace index cannot.
+Default workspace names are local numbers, and Noctalia displays those names
+instead of global IDs. Both bars therefore show 1-5 initially and include
+their own optional workspaces as they are used. Clicks and shortcuts still
+target unique IDs, so identical display names do not share a workspace.
+
+Other machines keep five persistent workspaces and optional slots 6-10
+without fixed monitor assignments. Workspaces inherit the global layout and
 appearance.
 
 Every binding has a native description for Noctalia's Hyprland Keymap.
@@ -1461,14 +1658,17 @@ after editing them, refresh its snapshot with
 Application bindings use `obs`, `chatgpt`, `zed`, `codium`, `vesktop`, and
 `flatpak run com.fastmail.Fastmail`. Zed is not installed in the current VM;
 its shortcut requires `zed` on PATH. Shell aliases are not used.
-LibrePods starts hidden once per Hyprland login when its command is available
-and a Bluetooth adapter is present. Reloading the config does not start another
-instance. If an adapter is connected later, launch LibrePods manually. Nimbus supplies the package. The
+The compatible LibrePods fork starts through its headless user unit when the
+command, service and Bluetooth adapter are available. Older builds are skipped.
+Reloading the config does not launch another instance. Nimbus supplies the package. The
 AirPods widget additionally needs a compatible LibrePods build, as
 [NOCTALIA.md](NOCTALIA.md) records.
 
-Super+M opens the menu; choose an action there. Save work before choosing
-Logout. Noctalia locks after ten idle minutes and turns screens off after
+Super+Shift+L opens the menu; choose an action there. Save work before choosing
+Logout. Super+V opens clipboard history; Super+Shift+N opens notifications.
+Super+Ctrl+arrows focuses another monitor and moves the pointer.
+Super+Shift+T prefers T3 Code Nightly and falls back to the stable command.
+Noctalia locks after ten idle minutes and turns screens off after
 fifteen, restoring them on activity. Idle inhibitors are respected; automatic
 suspend is not configured. Extra scratchpad and wheel shortcuts are deferred. Noctalia's bar provides its
 other controls. The launcher uses [Noctalia 5 IPC](https://docs.noctalia.dev/noctalia/ipc/surfaces/).

@@ -1,0 +1,11 @@
+# Keep installed and available to file associations; hide from application menus.
+[Desktop Entry]
+Name=Winetricks
+Comment=Work around problems and install applications under Wine
+Exec=winetricks --gui
+Terminal=false
+Icon=winetricks
+Type=Application
+Categories=Utility;
+NoDisplay=true
+TryExec=winetricks

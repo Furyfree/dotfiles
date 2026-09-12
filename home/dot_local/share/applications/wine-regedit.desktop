@@ -1,0 +1,14 @@
+# Keep installed and available to file associations; hide from application menus.
+[Desktop Entry]
+Name=Regedit
+Comment=Wine registry editor
+Exec=regedit
+Icon=regedit
+Terminal=false
+Type=Application
+StartupNotify=true
+StartupWMClass=regedit.exe
+Categories=X-Wine;
+X-Desktop-File-Install-Version=0.28
+NoDisplay=true
+TryExec=regedit
