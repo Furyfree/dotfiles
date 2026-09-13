@@ -99,6 +99,77 @@ class Zed(unittest.TestCase):
         self.assertNotIn("theme_overrides", settings)
         self.assertNotIn("language_models", settings)
 
+    def test_local_model_options_survive_without_changing_managed_settings(self):
+        for platform in ("linux", "darwin", "windows"):
+            with self.subTest(platform=platform):
+                target = "AppData/Roaming/Zed/settings.json" if platform == "windows" else ".config/zed/settings.json"
+                path = self.home / target
+                path.parent.mkdir(parents=True, exist_ok=True)
+                local = {
+                    "agent": {
+                        "default_model": {"provider": "example", "model": "local-choice"},
+                        "commit_message_model": {"provider": "example", "model": "commit-choice"},
+                        "enable_feedback": True,
+                    },
+                    "agent_servers": {
+                        name: {"default_config_options": {"fast-mode": False, "model": "chosen"},
+                               "command": "/unmanaged/launcher"}
+                        for name in ("opencode", "grok-build", "claude-acp", "codex-acp")
+                    },
+                    "telemetry": {"metrics": True},
+                }
+                # Zed accepts JSONC. Rendering must not change the live input.
+                contents = "// Local model choices\n" + json.dumps(local)[:-1] + ",}\n"
+                path.write_text(contents)
+                rendered = self.render(platform)[target]
+                settings = strict_json(rendered)
+                self.assertEqual(path.read_text(), contents)
+                for key in ("default_model", "commit_message_model"):
+                    self.assertEqual(settings["agent"][key], local["agent"][key])
+                self.assertFalse(settings["agent"]["enable_feedback"])
+                self.assertFalse(settings["telemetry"]["metrics"])
+                if platform != "windows":
+                    for name, server in settings["agent_servers"].items():
+                        self.assertEqual(server["default_config_options"],
+                                         local["agent_servers"][name]["default_config_options"])
+                        self.assertNotEqual(server.get("command"), "/unmanaged/launcher")
+                path.write_text(rendered)
+                self.assertEqual(self.render(platform)[target], rendered)
+                # Changing a choice and removing it both take effect locally.
+                settings["agent"]["default_model"] = None
+                del settings["agent"]["commit_message_model"]
+                if platform != "windows":
+                    settings["agent_servers"]["codex-acp"]["default_config_options"] = {"fast-mode": True}
+                    del settings["agent_servers"]["claude-acp"]["default_config_options"]
+                path.write_text(json.dumps(settings))
+                changed = strict_json(self.render(platform)[target])
+                self.assertIsNone(changed["agent"]["default_model"])
+                self.assertNotIn("commit_message_model", changed["agent"])
+                if platform != "windows":
+                    self.assertEqual(changed["agent_servers"]["codex-acp"]["default_config_options"],
+                                     {"fast-mode": True})
+                    self.assertNotIn("default_config_options", changed["agent_servers"]["claude-acp"])
+                path.unlink()
+
+    def test_local_only_changes_keep_exact_jsonc_without_diff(self):
+        target = ".config/zed/settings.json"
+        settings = strict_json(self.render("linux")[target])
+        settings["agent"]["default_model"] = {"provider": "example", "model": "chosen"}
+        settings["agent_servers"]["codex-acp"]["default_config_options"] = {"fast-mode": True}
+        path = self.home / target
+        path.parent.mkdir(parents=True)
+        contents = "// My local choices\n" + json.dumps(settings, indent=4)[:-1] + ",}\n"
+        path.write_text(contents)
+        self.assertEqual(self.render("linux")[target], contents)
+
+    def test_invalid_local_json_fails_without_overwriting(self):
+        path = self.home / ".config/zed/settings.json"
+        path.parent.mkdir(parents=True)
+        path.write_text("{invalid")
+        with self.assertRaises(AssertionError):
+            self.render("linux")
+        self.assertEqual(path.read_text(), "{invalid")
+
     def test_extension_inventory(self):
         settings = strict_json(self.render("linux")[".config/zed/settings.json"])
         enabled = set("""

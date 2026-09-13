@@ -1366,12 +1366,27 @@ rendering is tested, but its live integration has not been checked.
 Workspace trust remains required, unsaved-buffer restoration stays enabled,
 and the built-in agent defaults to Ask as in your current setup. Telemetry and
 agent feedback stay disabled; private-value redaction is enabled. Additional
-personal agent-server registrations, model preferences, authentication, caches, sessions,
-downloaded extensions, and theme output are not imported.
+personal agent-server registrations, authentication, caches, sessions, downloaded
+extensions, and theme output are not imported.
 
-This replaces settings/keymap files, not just selected keys. Back up the live
-files and review any personal agent/model settings you want to retain before
-an approved apply. Restoring that backup restores the previous setup.
+Frequently changed model choices remain local: the settings template preserves
+`agent.default_model`, `agent.commit_message_model`, and
+`default_config_options` for each of the four managed external agents. This
+includes Codex's `fast-mode` option. Change them in Zed; later Chezmoi applies
+retain the current values without syncing them to other machines. Removing a
+local option keeps it absent. Fresh installations use Zed's defaults.
+Chezmoi parses Zed's JSONC, including comments and trailing commas; malformed
+settings stop rendering instead of silently discarding preferences. Changing
+only these local choices preserves the file's exact formatting and comments,
+so it does not create a Chezmoi diff. When shared settings change, the template
+rewrites the file and retains the local values, but not comments or formatting.
+
+The agent-panel selection is already stored in Zed's local application state,
+not in managed settings. Chezmoi leaves that state alone. The preservation
+rules above do not ignore the entire settings file: appearance, privacy and
+launcher configuration remain managed. Other local settings are replaced, so
+review `chezmoi diff` before applying. Model/provider credentials belong in
+Zed's provider setup and system keychain, never in this repository.
 
 Run isolated structural/rendering tests with Python 3.11+ and Chezmoi:
 
