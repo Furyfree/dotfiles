@@ -57,6 +57,15 @@ see its [operator guide](https://github.com/Furyfree/nimbus#readme). Greeter blu
 and automatic wallpaper processing are not configured. The lockscreen image
 wrapper is rendered from the one maintained JPEG below.
 
+Noctalia's native greeter auto-sync follows wallpaper and palette changes through
+`[shell.greeter_sync] auto_sync = true`. It owns the copies under
+`/var/lib/noctalia-greeter`; Chezmoi never writes there. Noctalia 5.0.1 requires
+administrator authentication for sync. Prompt-free sync requires Noctalia 5.1.0
+or newer, Greeter 1.5.0 or newer, and the constrained authorization in the
+[upstream sync guide](https://docs.noctalia.dev/greeter/sync/). Existing
+GUI overrides still take precedence. Settings > Security > Noctalia Greeter >
+Sync Now refreshes the current wallpaper immediately.
+
 ## Account picture
 
 The Linux `hyprland-noctalia` profile supplies
