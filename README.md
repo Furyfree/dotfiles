@@ -37,6 +37,37 @@ The inactive Hyprland reference files retain their upstream terms: Omarchy's
 MIT notice is in `compare/omarchy.lua`; Ryoku's excerpts in `compare/ryoku.lua`
 are GPL-3.0-only.
 
+## Login and lockscreen appearance
+
+The Linux `hyprland-noctalia` profile supplies the minimal lockscreen: date and
+clock above a circular avatar and compact password field, with wallpaper blur
+0.35 and tint 0.2. Desktop `DP-3`/`DP-4` and laptop `eDP-1` use the same relative
+placement; the password field sits at about 69% of the output height.
+Other machines use the first output for clock/date/avatar and retain native
+login-box placement until their connectors are configured. Extra displays use
+Noctalia's native fallback login boxes.
+
+Preview with `chezmoi diff`, then use `chezmoi apply` when ready. Existing
+Noctalia GUI overrides take precedence: use the lockscreen settings/editor to
+reset only the affected overrides if an older layout persists. Do not delete
+all Noctalia state. Test with `noctalia msg session lock`.
+
+Nimbus owns the corresponding greeter appearance and its system activation;
+see its [operator guide](https://github.com/Furyfree/nimbus#readme). Greeter blur
+and automatic wallpaper processing are not configured. The lockscreen image
+wrapper is rendered from the one maintained JPEG below.
+
+## Account picture
+
+The Linux `hyprland-noctalia` profile supplies
+`~/.config/noctalia/assets/profile-picture.jpg`. After applying dotfiles, run
+`nimbus postinstall account-picture` on Nimbus-managed machines to register it
+through AccountsService. This task requires Nimbus 0.4.6 or newer.
+AccountsService owns its system copy;
+Chezmoi does not write account-service state or require elevated permissions.
+The greeter reads the picture when it next starts. Re-run the task after
+changing the source image; matching images need no action.
+
 ## Mise tools
 
 On Linux, Chezmoi manages `~/.config/mise/conf.d/linux-tools.toml` alongside
@@ -1138,9 +1169,26 @@ settings are off, without claiming every extension is telemetry-free.
 ### Themes and extensions
 
 Linux with `hyprland-noctalia` selects `NoctaliaTheme`, the name contributed by
-`noctalia.noctaliatheme`. The profile selects the `vscode` community template,
-which includes VSCodium. The template currently targets extension version
-0.0.5; check its target again if the extension version changes. Other setups follow system
+`noctalia.noctaliatheme`. Keep the `vscode` community template enabled so Noctalia
+fetches and updates its color definitions. A user template in
+`~/.config/noctalia/vscodium.toml` renders that same input to the extension path
+returned by `codium --locate-extension noctalia.noctaliatheme` (or `vscodium`).
+It runs after community templates. This handles gallery differences such as
+`-universal` and extension version changes without guessing directory names.
+The path helper skips an absent editor or extension and rejects incomplete
+extension folders. Generated theme files remain owned by Noctalia.
+
+After installing or updating the extension, run these inside the Noctalia
+session to reload configuration and apply the current palette:
+
+```sh
+noctalia msg config-reload
+noctalia msg templates-apply
+```
+
+Wallpaper/theme changes subsequently run the template automatically. The theme
+extension declares live file watching; if an existing window retains old colors,
+use VSCodium's **Developer: Reload Window** command. Other setups follow system
 appearance with Atom One Light/Dark, close counterparts to Zed's One themes.
 Theme extensions must be installed before these selections can take effect.
 
@@ -1528,8 +1576,8 @@ On Nimbus-managed Linux, `nimbus upgrade` runs Topgrade with this configuration.
 A pre-command runs `nimbus upgrade --system` for native DNF and system Flatpak
 updates. It does not sync definitions or call Topgrade again. A failure or
 cancellation stops all later updates. Use `nimbus sync` separately for system
-drift, or `nimbus sync --upgrade` for both. These Nimbus command changes are
-local and unreleased; deploy the matching engine before using this config.
+drift, or `nimbus sync --upgrade` for both. Use Nimbus 0.4.6 or newer with
+this configuration.
 Extra native arguments follow `--`, for example `nimbus upgrade -- --dry-run`.
 Standalone Linux uses native system/Flatpak steps; macOS uses Homebrew.
 Applying the configuration does not run updates beyond the existing
@@ -1632,6 +1680,49 @@ to revisit. They are ignored by Chezmoi and are not included by `hyprland.lua`.
 Ghostty, Brave Origin (`brave-origin`), and Nautilus match Nimbus's current
 application selection. These are direct commands, not shell aliases or future
 Nimbus launch helpers, and do not change system MIME defaults.
+
+ScrollOverview uses Super+O to toggle a vertical overview on all monitors, at
+scale 0.5 with a blurred background. Chezmoi owns its Lua settings, shortcut and
+`~/.config/hypr/plugins.toml` selection. HyprPM owns installation, compiled
+plugins and updates. Nimbus's Hyprland component supplies the matching
+`hyprland-devel` package and its build dependencies.
+
+On Nimbus machines, apply the selection and run the explicit post-install task
+from a terminal inside Hyprland:
+
+```sh
+chezmoi apply ~/.config/hypr/plugins.toml
+nimbus postinstall hyprland-plugins --plan
+nimbus postinstall hyprland-plugins
+```
+
+The task requires Nimbus 0.4.6 or newer.
+It installs missing ScrollOverview files, repairs builds, enables and loads the
+plugin, then reloads Lua settings. Completed setups need no action. If Hyprland
+was upgraded, log out and back in first. Native updates may rebuild other HyprPM
+plugins too. `enabled = []` stops requesting setup; use HyprPM itself to disable
+or remove an installed plugin. Unknown plugin IDs require engine support.
+
+On standalone systems, install the distribution's matching development package
+first, then use native HyprPM:
+
+```sh
+hyprpm update
+hyprpm add https://github.com/yayuuu/hyprland-scroll-overview.git
+hyprpm enable scrolloverview
+hyprpm reload
+hyprctl reload config-only
+```
+
+Hyprland 0.56 stores HyprPM files under `/var/cache/hyprpm/<user>` and asks for
+administrator authentication during installation and updates. Dotfile apply
+does not install plugins or elevate privileges. Startup reloads an existing
+HyprPM installation and then its Lua settings. Before installation, the shortcut
+shows a notification and the remaining desktop configuration still works.
+After updating Hyprland, run `hyprpm update`, then `hyprpm reload` to rebuild and
+load compatible plugins. See the
+[upstream installation guide](https://github.com/yayuuu/hyprland-scroll-overview/blob/main/docs/wiki/Installation.md).
+
 `conf.d/monitors.lua.tmpl` scopes output rules by machine. On
 `Machine = "desktop"`, the BenQ XL2720Z (DP-4) starts at `0x0` and is the
 default cursor display; the ZOWIE XL LCD (DP-3) is to its right at `1920x0`.
@@ -1646,10 +1737,18 @@ Focus brings columns into view without centering them, while hovering does not
 scroll the view. Width presets match Niri's one-third, one-half, and two-thirds;
 the layout's column focus/swap commands do not wrap at the ends.
 
-Decoration uses inner/outer gaps of 5/10, 2-pixel borders, 12-pixel circular
-corners, light blur (size 3, two passes), and small shadows. Active and inactive
-windows receive no extra opacity reduction or dimming; apps retain their own
-transparency. Noctalia supplies border and group colors through the generated
+Decoration uses inner/outer gaps of 3/3, 2-pixel borders, 12-pixel circular
+corners, light blur (size 3, two passes), and small shadows. Ordinary windows use
+97% active and 95% inactive opacity, with no extra dimming. Ghostty and Noctalia
+settings preserve native background alpha and receive only a 2% inactive fade.
+Games tagged `game` and fullscreen windows stay opaque and skip blur.
+Ghostty, the Noctalia bar, dock, notifications and OSD use 80% background
+opacity; the dock has a 2% inactive fade. Ghostty applies background alpha to
+explicitly colored terminal cells too. Noctalia settings retain native 80%
+translucency and panels retain glass styling. Hyprland keeps blur strength
+independent of window opacity; the content behind each surface still changes
+its appearance. Standalone Ghostty and macOS retain their previous 95%
+background opacity. Noctalia supplies border and group colors through the generated
 palette, loaded after these settings. Device-specific hardware rules remain
 for the installed session.
 
@@ -1705,6 +1804,7 @@ Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 | Volume / mute / microphone mute keys | Adjust audio through Noctalia |
 | Brightness keys | Adjust display brightness through Noctalia |
 | Super+Space | Noctalia launcher |
+| Super+O | ScrollOverview on all monitors |
 | Super+comma | Toggle Noctalia settings window |
 | Super+Shift+W | Toggle Noctalia wallpaper browser |
 | Super+arrows | Focus in that direction on this monitor |

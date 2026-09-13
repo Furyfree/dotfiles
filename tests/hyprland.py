@@ -7,6 +7,7 @@ import shlex
 import shutil
 import subprocess
 import tempfile
+import tomllib
 import unittest
 
 
@@ -78,10 +79,14 @@ class Hyprland(unittest.TestCase):
                         targets = {name for name in entries
                                    if name == ".config/hypr" or name.startswith(".config/hypr/")}
                         enabled = platform == "linux" and "hyprland-noctalia" in (profiles or [])
-                        expected = {".config/hypr", ".config/hypr/hyprland.lua", ".config/hypr/conf.d"}
+                        expected = {".config/hypr", ".config/hypr/hyprland.lua", ".config/hypr/conf.d",
+                                    ".config/hypr/plugins.toml"}
                         expected.update(f".config/hypr/conf.d/{name}.lua" for name in MODULES)
                         self.assertEqual(targets, expected if enabled else set())
                         if enabled:
+                            self.assertEqual(
+                                tomllib.loads(entries[".config/hypr/plugins.toml"]["contents"]),
+                                {"schema": 1, "enabled": ["scrolloverview"]})
                             self.assertEqual(entries[".config/hypr/hyprland.lua"]["contents"],
                                              CONFIG.read_text())
                             for name, source in MODULES.items():
@@ -128,6 +133,7 @@ local function action(name)
     return function(value) return { name = name, value = value } end
 end
 hl = {
+    plugin = {},
     env = function(key, value)
         assert(type(key) == "string" and type(value) == "string")
         environment[key] = value
@@ -245,6 +251,20 @@ for key, command in pairs({
     assert(binds[key].name == "exec" and binds[key].value == command,
            "native launch/activation must be preserved: " .. key)
 end
+-- A fresh installation must keep the keymap usable before HyprPM setup.
+spawned, dispatched = {}, {}
+binds["SUPER+O"]()
+assert(#spawned == 1 and #dispatched == 0)
+assert(spawned[1]:find("Workspace overview unavailable", 1, true))
+local overview_calls = {}
+hl.plugin.scrolloverview = {
+    -- In a keybind callback the plugin executes directly and returns nothing.
+    overview = function(value) table.insert(overview_calls, value) end,
+}
+spawned, dispatched = {}, {}
+binds["SUPER+O"]()
+assert(#overview_calls == 1 and overview_calls[1] == "toggle all")
+assert(#spawned == 0 and #dispatched == 0)
 windows, spawned, dispatched = {}, {}, {}
 -- Opening a background window must not move the pointer.
 for _, callback in ipairs(hooks["window.open"] or {}) do

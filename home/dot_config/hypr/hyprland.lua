@@ -8,6 +8,7 @@ require("./conf.d/workspaces.lua")
 require("./conf.d/decoration.lua")
 require("./conf.d/animations.lua")
 require("./conf.d/window-rules.lua")
+require("./conf.d/overview.lua")
 require("./conf.d/autostart.lua")
 require("./conf.d/keybinds.lua")
 

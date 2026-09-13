@@ -125,6 +125,13 @@ hl.bind(
     hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard"),
     { description = "Open clipboard history" }
 )
+hl.bind(mainMod .. " + O", function()
+    if hl.plugin.scrolloverview then
+        hl.plugin.scrolloverview.overview("toggle all")
+    else
+        hl.exec_cmd("notify-send 'Workspace overview unavailable' 'Install and enable ScrollOverview with HyprPM, then reload Hyprland.'")
+    end
+end, { description = "Toggle workspace overview on all monitors" })
 hl.bind(
     mainMod .. " + SHIFT + N",
     hl.dsp.exec_cmd("noctalia msg panel-toggle control-center notifications"),

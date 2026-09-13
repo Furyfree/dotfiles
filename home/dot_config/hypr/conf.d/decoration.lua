@@ -3,15 +3,16 @@ hl.config({
     -- Equal gaps keep off-screen scrolling columns outside the monitor edge.
     general = { gaps_in = 3, gaps_out = 3, border_size = 2 },
     decoration = {
-        -- Rounded corners with no extra transparency or dimming on inactive windows.
+        -- Subtle whole-window fade; native translucent apps override this below.
         rounding = 12,
         rounding_power = 2,
-        active_opacity = 1,
-        inactive_opacity = 1,
+        active_opacity = 0.97,
+        inactive_opacity = 0.95,
+        fullscreen_opacity = 1,
         dim_inactive = false,
 
-        -- Light blur behind transparent backgrounds; apps control their own opacity.
-        blur = { enabled = true, size = 3, passes = 2 },
+        -- Shared blur for windows and shell layers; keep its strength stable on focus.
+        blur = { enabled = true, size = 3, passes = 2, ignore_opacity = true, xray = false },
 
         -- Small, soft shadows give overlapping windows some separation.
         shadow = {

@@ -27,11 +27,36 @@ hl.window_rule({
     tag = "+centered-floating",
 })
 
+-- These classes expose background alpha while keeping their content opaque.
+-- Verified with hyprctl clients; the presentation profile has its own app ID.
+hl.window_rule({
+    name = "native-background-transparency",
+    match = { class = "^(com\\.mitchellh\\.ghostty(\\.presentation)?|dev\\.noctalia\\.Noctalia)$" },
+    tag = "+native-transparency",
+})
+hl.window_rule({
+    name = "preserve-native-transparency",
+    match = { tag = "native-transparency" },
+    opacity = "1.0 override 0.98 override 1.0 override",
+})
+
 -- Assign verified game classes tag = "+game" above this rule to start fullscreen.
 hl.window_rule({
     name = "game",
     match = { tag = "game" },
     fullscreen = true,
+    opacity = "1.0 override 1.0 override 1.0 override",
+    force_rgbx = true,
+    no_blur = true,
+})
+
+-- Actual fullscreen content stays opaque, including native-alpha terminals.
+hl.window_rule({
+    name = "fullscreen-opaque",
+    match = { fullscreen = true },
+    opacity = "1.0 override 1.0 override 1.0 override",
+    force_rgbx = true,
+    no_blur = true,
 })
 
 -- Other apps can opt in with tag = "+centered-floating" above this rule.

@@ -58,6 +58,10 @@ class Noctalia(unittest.TestCase):
                 entries = json.loads(self.chezmoi("dump", "--format=json",
                                                platform=platform, profiles=profiles))
                 self.assertEqual(".config/noctalia/config.toml" in entries, enabled)
+                self.assertEqual(".config/noctalia/vscodium.toml" in entries, enabled)
+                self.assertEqual(".config/noctalia/templates/vscodium-output-path.sh" in entries, enabled)
+                self.assertEqual(".config/noctalia/assets/profile-picture.jpg" in entries, enabled)
+                self.assertEqual(".config/noctalia/assets/profile-picture-circle.svg" in entries, enabled)
                 self.assertEqual(".config/zsh/conf.d/noctalia.zsh" in entries, enabled)
                 self.assertEqual(".config/bash/conf.d/noctalia.bash" in entries, enabled)
                 for target in ("gtk-3.0/settings.ini", "gtk-4.0/settings.ini",
@@ -79,6 +83,42 @@ class Noctalia(unittest.TestCase):
                                      ["color_theme"], "TTY")
                     self.assertNotIn("include noctaliarc", entries[".config/zathura/zathurarc"]["contents"])
 
+    def test_vscodium_target_uses_installed_extension(self):
+        helper = REPO / "home/dot_config/noctalia/templates/vscodium-output-path.sh"
+        tools = self.root / "bin"
+        tools.mkdir()
+        editor = tools / "codium"
+        editor.write_text("#!/bin/sh\n"
+                          "[ \"$1\" = --locate-extension ] || exit 2\n"
+                          "[ \"$2\" = noctalia.noctaliatheme ] || exit 2\n"
+                          "printf '%s' \"$LOCATED_EXTENSION\"\n")
+        editor.chmod(0o755)
+        env = dict(self.env, PATH=str(tools))
+        for name in ("noctalia.noctaliatheme-0.0.5",
+                     "noctalia.noctaliatheme-0.0.6-universal"):
+            extension = self.home / ".vscode-oss/extensions" / name
+            (extension / "themes").mkdir(parents=True)
+            (extension / "package.json").write_text("{}")
+            theme = extension / "themes/NoctaliaTheme-color-theme.json"
+            theme.write_text("original")
+            env["LOCATED_EXTENSION"] = str(extension)
+            result = subprocess.run(["/bin/bash", str(helper)], env=env,
+                                    text=True, capture_output=True, check=True)
+            self.assertEqual(result.stdout, str(theme) + "\n")
+            self.assertEqual(theme.read_text(), "original")
+        for value, success in (("", True), ("relative/path", False),
+                               (str(self.home / "missing"), False),
+                               (str(extension) + "\n/another/path", False)):
+            env["LOCATED_EXTENSION"] = value
+            result = subprocess.run(["/bin/bash", str(helper)], env=env,
+                                    text=True, capture_output=True)
+            self.assertEqual(result.returncode == 0, success)
+            self.assertEqual(result.stdout, "")
+        editor.unlink()
+        result = subprocess.run(["/bin/bash", str(helper)], env=env,
+                                text=True, capture_output=True, check=True)
+        self.assertEqual(result.stdout, "")
+
     def test_calendar_metadata_and_display_layout_are_scoped(self):
         for machine, username in (("desktop", "calendar@example.invalid"),
                                   ("laptop", ""), (None, "")):
@@ -86,7 +126,7 @@ class Noctalia(unittest.TestCase):
                 entries = json.loads(self.chezmoi("dump", "--format=json", machine=machine,
                                                  fastmail_username=username))
                 config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
-                self.assertEqual("lockscreen_widgets" in config, machine == "desktop")
+                self.assertIn("lockscreen_widgets", config)
                 if username:
                     account = config["calendar"]["account"]["fastmail"]
                     self.assertEqual(account, {"type": "caldav", "provider": "custom",
@@ -94,6 +134,41 @@ class Noctalia(unittest.TestCase):
                                               "username": username})
                 else:
                     self.assertNotIn("account", config.get("calendar", {}))
+
+    def test_lockscreen_layout_and_avatar_follow_selected_outputs(self):
+        import base64
+        import xml.etree.ElementTree as ET
+        for machine, outputs in (("desktop", ["DP-3", "DP-4"]),
+                                 ("laptop", ["eDP-1"]), (None, [""])):
+            with self.subTest(machine=machine):
+                entries = json.loads(self.chezmoi("dump", "--format=json", machine=machine))
+                config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
+                self.assertEqual(config["lockscreen"]["blur_intensity"], 0.35)
+                widgets = config["lockscreen_widgets"]
+                self.assertFalse(widgets["grid"]["visible"])
+                self.assertEqual(set(widgets["widget_order"]), set(widgets["widget"]))
+                self.assertEqual({w["output"] for w in widgets["widget"].values()}, set(outputs))
+                for output in outputs:
+                    clock = widgets["widget"]["minimal-clock-" + output]
+                    date = widgets["widget"]["minimal-date-" + output]
+                    avatar = widgets["widget"]["minimal-avatar-" + output]
+                    self.assertEqual(avatar["box_width"], 72)
+                    self.assertFalse(avatar["settings"]["background"])
+                    self.assertEqual(avatar["settings"]["image_path"],
+                                     str(self.home / ".config/noctalia/assets/profile-picture-circle.svg"))
+                    self.assertLess(date["cy"], clock["cy"])
+                    self.assertLess(clock["cy"], avatar["cy"])
+                    if output:
+                        login = widgets["widget"]["lockscreen-login-box@" + output]
+                        self.assertAlmostEqual(login["cy"] / login["placement_height"], 0.69, places=2)
+                        self.assertGreater(login["cy"], avatar["cy"] + avatar["box_height"] / 2)
+                        self.assertEqual(login["settings"]["layout"], "compact")
+                        self.assertFalse(login["settings"]["show_session_buttons"])
+                svg = ET.fromstring(entries[".config/noctalia/assets/profile-picture-circle.svg"]["contents"])
+                embedded = svg.find("{http://www.w3.org/2000/svg}image").attrib[
+                    "{http://www.w3.org/1999/xlink}href"]
+                self.assertEqual(base64.b64decode(embedded.split(",", 1)[1]),
+                                 (REPO / "home/dot_config/noctalia/assets/profile-picture.jpg").read_bytes())
 
     def test_logout_requires_and_preserves_the_explicit_session_id(self):
         entries = json.loads(self.chezmoi("dump", "--format=json"))

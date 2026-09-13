@@ -2,10 +2,12 @@
 # Colors, credentials, discovered calendars and usage history remain unmanaged.
 [theme]
 source = "wallpaper"
-wallpaper_scheme = "m3-tonal-spot"
+wallpaper_scheme = "soft"
 builtin = "Noctalia"
 community_palette = "Oxocarbon"
 mode = "dark"
+shell_mode = "follow"
+pure_black_dark = false
 
 [theme.templates]
 enable_builtin_templates = true
@@ -39,7 +41,7 @@ directory = "~/Pictures/Wallpapers"
 
 [wallpaper.default]
 {{ if and (hasKey . "Machine") (eq .Machine "desktop") -}}
-path = "~/Pictures/Wallpapers/wallhaven-gw178q.png"
+path = "~/Pictures/Wallpapers/slate-rose-cathedral.png"
 {{ else -}}
 path = "/usr/share/noctalia/assets/noctalia-wallpaper.png"
 {{ end -}}
@@ -58,7 +60,7 @@ end = [
     "volume",
     "control-center",
 ]
-background_opacity = 0.65
+background_opacity = 0.80
 font_family = "JetBrainsMono Nerd Font Propo"
 
 [widget.workspaces]
@@ -259,7 +261,17 @@ show_week_numbers = true
 [location]
 auto_locate = true
 
+# Match bar and terminal backgrounds; fade the dock only subtly when inactive.
+[dock]
+background_opacity = 0.80
+active_opacity = 1.0
+inactive_opacity = 0.98
+
+[notification]
+background_opacity = 0.80
+
 [osd]
+background_opacity = 0.80
 position = "bottom_center"
 position_vertical = "bottom_right"
 
@@ -275,86 +287,125 @@ username = {{ .fastmailUsername | quote }}
 
 {{ end -}}
 
-# The desktop lockscreen layout is tied to its two 1080p outputs.
-{{ if and (hasKey . "Machine") (eq .Machine "desktop") -}}
+# Shared appearance; positions use a 1920x1080 reference and scale with output height.
+[lockscreen]
+blurred_desktop = false
+wallpaper = ""
+blur_intensity = 0.35
+tint_intensity = 0.2
+
+{{ $outputs := list "" -}}
+{{ if eq (get . "Machine") "desktop" -}}
+{{ $outputs = list "DP-3" "DP-4" -}}
+{{ else if eq (get . "Machine") "laptop" -}}
+{{ $outputs = list "eDP-1" -}}
+{{ end -}}
 [lockscreen_widgets]
 enabled = true
 schema_version = 2
 widget_order = [
-    "lockscreen-login-box@DP-4",
-    "lockscreen-login-box@DP-3",
-    "lockscreen-widget-0000000000000001",
+{{ range $output := $outputs -}}
+{{ if $output }}    "lockscreen-login-box@{{ $output }}",
+{{ end }}    "minimal-date-{{ $output }}",
+    "minimal-clock-{{ $output }}",
+    "minimal-avatar-{{ $output }}",
+{{ end -}}
 ]
 
 [lockscreen_widgets.grid]
 cell_size = 16
 major_interval = 4
-visible = true
+visible = false
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-3"]
-box_height = 196
-box_width = 810
-cx = 960
-cy = 898
-output = "DP-3"
-placement_height = 1080
-placement_width = 1920
-rotation = 0
+{{ range $output := $outputs -}}
+{{ if $output -}}
+[lockscreen_widgets.widget."lockscreen-login-box@{{ $output }}"]
 type = "login_box"
+output = {{ $output | quote }}
+cx = 960.0
+cy = 745.0
+box_width = 400.0
+box_height = 70.0
+placement_width = 1920.0
+placement_height = 1080.0
+rotation = 0.0
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-3".settings]
+[lockscreen_widgets.widget."lockscreen-login-box@{{ $output }}".settings]
+layout = "compact"
 background_color = "surface_variant"
-background_opacity = 0.88
-background_radius = 12
-center_password_text = false
-input_opacity = 1
-input_radius = 6
-layout = "regular"
+background_opacity = 0.0
+background_radius = 12.0
+input_opacity = 0.55
+input_radius = 12.0
+center_password_text = true
 show_caps_lock = true
-show_keyboard_layout = true
-show_login_button = true
-show_media = true
-show_session_buttons = true
-show_unlock_hint = true
-show_weather = true
+show_keyboard_layout = false
+show_login_button = false
+show_media = false
+show_session_buttons = false
+show_unlock_hint = false
+show_weather = false
 
-[lockscreen_widgets.widget."lockscreen-login-box@DP-4"]
-box_height = 196
-box_width = 810
-cx = 960
-cy = 898
-output = "DP-4"
-placement_height = 1080
-placement_width = 1920
-rotation = 0
-type = "login_box"
-
-[lockscreen_widgets.widget."lockscreen-login-box@DP-4".settings]
-background_color = "surface_variant"
-background_opacity = 0.88
-background_radius = 12
-center_password_text = false
-input_opacity = 1
-input_radius = 6
-layout = "regular"
-show_caps_lock = true
-show_keyboard_layout = true
-show_login_button = true
-show_media = true
-show_session_buttons = true
-show_unlock_hint = true
-show_weather = true
-
-[lockscreen_widgets.widget.lockscreen-widget-0000000000000001]
-box_height = 0
-box_width = 0
-cx = 960
-cy = 696.5
-output = "DP-4"
-placement_height = 1080
-placement_width = 1920
-rotation = 0
+{{ end -}}
+[lockscreen_widgets.widget."minimal-date-{{ $output }}"]
 type = "clock"
+output = {{ $output | quote }}
+cx = 960.0
+cy = 240.0
+box_width = 440.0
+box_height = 38.0
+placement_width = 1920.0
+placement_height = 1080.0
+rotation = 0.0
+
+[lockscreen_widgets.widget."minimal-date-{{ $output }}".settings]
+clock_style = "digital"
+format = "{:%A, %d %B}"
+font_family = "Inter"
+color = "#F5F5F7"
+background = false
+background_padding = 0.0
+center_text = true
+shadow = true
+
+[lockscreen_widgets.widget."minimal-clock-{{ $output }}"]
+type = "clock"
+output = {{ $output | quote }}
+cx = 960.0
+cy = 330.0
+box_width = 460.0
+box_height = 140.0
+placement_width = 1920.0
+placement_height = 1080.0
+rotation = 0.0
+
+[lockscreen_widgets.widget."minimal-clock-{{ $output }}".settings]
+clock_style = "digital"
+format = "{:%H:%M}"
+font_family = "Inter"
+color = "#F5F5F7"
+background = false
+background_padding = 0.0
+center_text = true
+shadow = true
+
+[lockscreen_widgets.widget."minimal-avatar-{{ $output }}"]
+type = "sticker"
+output = {{ $output | quote }}
+cx = 960.0
+cy = 654.0
+box_width = 72.0
+box_height = 72.0
+placement_width = 1920.0
+placement_height = 1080.0
+rotation = 0.0
+
+[lockscreen_widgets.widget."minimal-avatar-{{ $output }}".settings]
+image_path = {{ joinPath $.chezmoi.homeDir ".config/noctalia/assets/profile-picture-circle.svg" | quote }}
+opacity = 1.0
+background = false
+background_padding = 0.0
+
 {{ end -}}
 
 # Read the bindings file directly: plugin 0.2.7 misparses explicit Lua paths.

@@ -13,7 +13,11 @@ The VM's GUI choices live in `~/.local/state/noctalia/settings.toml`, not a
 legacy `settings.json`. The portable theme source, tonal-spot scheme, bundled
 wallpaper, selected integrations and enabled plugins are now in
 `home/dot_config/noctalia/config.toml.tmpl`, enabled only on Linux with the canonical
-`hyprland-noctalia` profile. The reviewed desktop lockscreen placement is gated on `Machine = "desktop"`.
+`hyprland-noctalia` profile. The minimal lockscreen appearance is shared by this profile. The desktop uses
+`DP-3`/`DP-4` and the laptop uses `eDP-1`, with positions scaled from a common
+1920x1080 reference. Other machines get date, clock and avatar on Noctalia's
+first available output, retaining its native login-box placement until their
+outputs are configured. Unlisted external displays retain native login boxes.
 Usage counts, last-wallpaper state, migration markers, downloaded catalogs,
 agent state and keyrings remain unmanaged.
 
@@ -29,8 +33,8 @@ Screenshot output uses `~/Pictures/Screenshots`, matching the custom
 `~/Pictures/Wallpapers`, matching `XDG_WALLPAPERS_DIR`. Noctalia accepts these
 paths directly; it does not resolve those custom XDG directory names itself.
 The Files hook creates those folders, `~/Projects`, and `~/Videos/Recordings`.
-The recorder uses the latter explicitly. Three selected wallpaper images are
-managed under `Pictures/Wallpapers`; the desktop default is `wallhaven-gw178q.png`.
+The recorder uses the latter explicitly. 33 selected wallpaper images are
+managed under `Pictures/Wallpapers`; the desktop default is `slate-rose-cathedral.png`.
 Other machines use the bundled default, and per-monitor wallpaper history stays
 local.
 
@@ -49,6 +53,71 @@ rewrite Chezmoi-owned files with generated RGB values; Neovim's hook would add a
 second theme plugin. Terminal inheritance preserves their existing behavior and
 avoids competing writers or another dependency. Existing GUI template overrides
 must also omit those three to use this ownership model.
+
+## Wallpaper collection
+
+The managed theme uses Wallpaper with the `soft` generator, Dark mode,
+Follow shell mode and Pure Black disabled. Noctalia generates colors when the
+default wallpaper changes; existing GUI overrides take precedence.
+
+Color-and-subject names describe the original selection. Theme-prefixed names
+identify the palette collection that supplied an image; they do not promise
+that every pixel is an exact palette entry. The downloaded image bytes are
+unchanged. Source links record provenance, not a grant of redistribution rights.
+
+| Filename | Resolution | Palette and subject | Source |
+|---|---|---|---|
+| `catppuccin-macchiato-starfield.png` | 3840x2160 | Catppuccin Macchiato: warm planets and pastel stars on a dark sky | Kurzgesagt artwork; recolor by [teowelton/Wallpapers](https://github.com/teowelton/Wallpapers/blob/HEAD/catppuccin/macchiato/kurzgesagt/Stars-Catppuccin_Macchiato.png) |
+| `catppuccin-mocha-black-hole.png` | 3840x2160 | Catppuccin Mocha: pastel accretion disk against dark space | Kurzgesagt artwork; recolor by [teowelton/Wallpapers](https://github.com/teowelton/Wallpapers/blob/HEAD/catppuccin/mocha/kurzgesagt/Black_Hole_1-Catppuccin_Mocha.png) |
+| `catppuccin-mocha-enchanted-forest.jpg` | 3840x2160 | Catppuccin Mocha: dark woodland with pale blue and lavender lights | [orangci/walls-catppuccin-mocha](https://github.com/orangci/walls-catppuccin-mocha/blob/HEAD/dark-forest.jpg) |
+| `catppuccin-mocha-space-piano.png` | 3840x2160 | Catppuccin Mocha: astronaut at a piano against a lavender planet | [orangci/walls-catppuccin-mocha](https://github.com/orangci/walls-catppuccin-mocha/blob/HEAD/space-piano.png) |
+| `charcoal-amber-lookout.png` | 1920x1080 | Almost monochrome mountains with a small gold accent | Wallhaven `mdjrqy` |
+| `charcoal-amber-mountain-horizon.jpg` | 4000x2660 | Dark mountain silhouette beneath a teal sky and narrow amber horizon | Elliott Engelmann, Unsplash `DjlKxYFJlTc` (original filename) |
+| `copper-brown-highland-valley.png` | 5120x2880 | Copper grass, brown slopes, slate clouds and snowy peaks | Dominic Reardon; [Wallhaven vpe1e8](https://wallhaven.cc/w/vpe1e8) |
+| `dracula-moon-and-bats.png` | 8001x4501 | Dracula: concentric dark purple rings, moon and bat silhouettes | [dracula/wallpaper](https://github.com/dracula/wallpaper/blob/HEAD/first-collection/base.png); [MIT notice](THIRD_PARTY_NOTICES.md#dracula-wallpaper) |
+| `ember-sunset-lookout.png` | 1920x1080 | Saturated orange/red sky above burgundy forest silhouettes | Wallhaven `lmm9k2` |
+| `everforest-misty-woodland.jpg` | 3840x2160 | Everforest: dark green and ochre woodland beneath muted fog | [krishna4a6av/Wallpapers](https://github.com/krishna4a6av/Wallpapers/blob/HEAD/Everforest/forest.jpg) |
+| `gruvbox-geometric-maze.png` | 7680x4320 | Gruvbox: muted cream and olive maze on charcoal | [krishna4a6av/Wallpapers](https://github.com/krishna4a6av/Wallpapers/blob/HEAD/Gruvbox/gruv-minimal/gruv-abstract-maze.png) |
+| `gruvbox-neon-foliage.png` | 3840x2160 | Gruvbox: subdued foliage behind a small illuminated frame | [Axenide/Wallpapers](https://github.com/Axenide/Wallpapers/blob/HEAD/Gruvbox/neon-leaves-gruv.png) |
+| `indigo-lilac-starry-peaks.jpg` | 4096x2733 | Snowy peaks and dark forest beneath an indigo/lilac Milky Way | Benjamin Voros, Unsplash `phIFdC6lA4E` (original filename) |
+| `indigo-magenta-watchtower.png` | 1920x1080 | Navy forest, violet/magenta layers and a warm lookout light | Wallhaven `3z72w9` |
+| `lavender-peach-alpine-lake.jpg` | 4740x3163 | Lavender/peach sky reflected in a lake, with green forest | Nunzio Guerrera, Unsplash `37XGaPVDTEg` |
+| `mauve-teal-city.png` | 1920x1080 | Mauve/pink sky above dark teal streets and architecture | Wallhaven `28jq1x` |
+| `midnight-blue-spiral.png` | 7680x4320 | Subtle blue spiral against an almost black navy background | [Wallhaven 1q22pg](https://wallhaven.cc/w/1q22pg) |
+| `nord-fluid-ribbons.png` | 3840x2160 | Nord: flowing frost-blue and muted coral ribbons on slate | [Axenide/Wallpapers](https://github.com/Axenide/Wallpapers/blob/HEAD/Nord/nord-fluid.png) |
+| `nord-forest-lake.png` | 3840x2160 | Nord: blue-gray forest and lake with a dark foreground | [dharmx/walls](https://github.com/dharmx/walls/blob/HEAD/nord/a_video_game_graphics_of_a_forest_and_a_lake.png) |
+| `nord-moonlit-mountains.png` | 3840x2160 | Nord: muted blue moon above dark mountain silhouettes | [dharmx/walls](https://github.com/dharmx/walls/blob/HEAD/nord/a_moon_over_mountains_and_clouds.png) |
+| `olive-gold-alpine-village.jpg` | 3840x2400 | Painted alpine village with olive meadows and golden trees | [Philipp A. Urlich](https://www.artstation.com/somartist); [Wallhaven w5xjex](https://wallhaven.cc/w/w5xjex) |
+| `peach-blue-ocean-doorway.jpg` | 3840x2160 | A surreal doorway in calm water under a peach/blue sunset | [Davidostudio](https://www.reddit.com/user/Davidostudio/); [Wallhaven mlyx18](https://wallhaven.cc/w/mlyx18) |
+| `pine-green-forest-road.jpg` | 5120x2880 | Deep green canopy crossed by a quiet forest road | [Fynn Zentner](https://unsplash.com/photos/an-aerial-view-of-a-road-in-the-middle-of-a-forest-JHOaHuTJVvU); [Wallhaven 6lyyvx](https://wallhaven.cc/w/6lyyvx) |
+| `rose-pine-marbled-swirls.jpg` | 3840x2160 | Rose Pine: dusty rose and pale blue marbling over dark violet | [krishna4a6av/Wallpapers](https://github.com/krishna4a6av/Wallpapers/blob/HEAD/Rosepine/swirls.jpg) |
+| `sage-mist-forest.png` | 3840x2160 | Muted green trees and pale fog across a forest valley | [Wallhaven 7jlm7o](https://wallhaven.cc/w/7jlm7o) |
+| `seafoam-coral-polygon-mountains.jpg` | 3840x2160 | Low-poly mountains with coral light under a seafoam sky | [Wallhaven 832852](https://wallhaven.cc/w/832852) |
+| `silver-pine-winter-lake.jpg` | 5120x2880 | Snow-covered evergreens, a small cabin and dark green reflections | [Andras Deak](https://www.flickr.com/photos/deakandras/54365573630); [Wallhaven yq99dk](https://wallhaven.cc/w/yq99dk) |
+| `slate-rose-cathedral.png` | 1920x1080 | Slate/blue shadows, pale light and a rose-colored flower | Wallhaven `gw178q` |
+| `solarized-dark-cyan-orbit.jpg` | 3840x2160 | Solarized collection: cyan planet and clouds beneath black space | [dharmx/walls](https://github.com/dharmx/walls/blob/HEAD/solarized/a_planet_in_space_with_clouds.jpg) |
+| `terracotta-teal-moonlit-dunes.jpg` | 3840x2160 | Minimal terracotta dunes, deep teal shadows and a small moon | [Justin Wirtalla](https://www.instagram.com/jwirtalla/); [Wallhaven kxoqdm](https://wallhaven.cc/w/kxoqdm) |
+| `tokyo-night-neon-street.png` | 5120x2880 | Tokyo Night: dark Japanese street with blue and pink neon | [Axenide/Wallpapers](https://github.com/Axenide/Wallpapers/blob/HEAD/Tokyonight/tokyonight-japan.png) |
+| `violet-rose-mountain-lake.jpg` | 3904x2176 | Violet mountain reflected in open water under a rose sky | Original filename `zeipaperv2.jpg`; creator/source unrecorded |
+| `violet-rose-pagoda-lake.jpg` | 3516x1960 | Violet mountain lake, pink sunset and a pagoda on the left | Original filename `zeipaper.jpg`; creator/source unrecorded |
+
+The additional images are landscape JPG/PNG originals, at least 3840x2160.
+The alpine village is 16:10 (3840x2400); the remaining additions are approximately
+16:9. They have enough resolution to fill the laptop's 2880x1800 screen without
+upscaling. Filling a 16:10 screen with a 16:9 image crops about 5% from each side;
+subjects were selected with that crop in mind. No images are stretched,
+recolored or upscaled in this repository.
+
+The five original 1920x1080 PNGs remain in the collection and require enlargement
+on the laptop. The other existing images have sufficient resolution, with
+cropping depending on their aspect ratio.
+
+The selection favors dark backgrounds. The predominantly white torii and
+ribbons, the bright tropical cove, and the redundant purple moonlit valley are
+not included. Theme-specific additions cover Nord, Catppuccin Mocha and
+Macchiato, Tokyo Night, Gruvbox, Everforest, Rose Pine, Dracula and Solarized.
+Selecting a wallpaper changes Noctalia's wallpaper-derived palette; it does not
+select an identically named fixed color scheme automatically.
 
 ## Fastmail calendars
 
@@ -227,7 +296,7 @@ catalog. Template generation does not install applications or their extensions.
 | Vesktop / `discord` | `.config/vesktop/themes/noctalia.theme.css`; enable this stylesheet once in Vesktop/Vencord theme settings; Noctalia owns subsequent file updates. |
 | LibreOffice / `libreoffice` | `.local/state/noctalia/libreoffice-theme-staging/Theme_Colors.xcu`; native hook installs/activates user theme data while LibreOffice is closed; regenerate with it closed if skipped, then reopen. |
 | Obsidian / `obsidian` | Native hook searches below HOME for vaults, limited to four directory levels; open/create vaults first and verify snippet activation, including Flatpak/external vaults. Vault contents are never copied. |
-| VSCodium / `vscode` | `.vscode-oss/extensions/noctalia.noctaliatheme-0.0.5-universal/themes/NoctaliaTheme-color-theme.json`; install the declared theme extension first. Managed settings already select `NoctaliaTheme`. |
+| VSCodium / `vscode` + user `vscodium` | Community selection keeps the upstream input cached. `vscodium.toml` uses the native CLI to locate the installed extension and renders its theme there. No fixed version or gallery suffix. Managed settings select `NoctaliaTheme`; see README for activation. |
 | Zed / `zed` | `.config/zed/themes/noctalia.json`; managed settings select `Noctalia Light` / `Noctalia Dark`. Restart if needed. |
 | Heroic / `heroiclauncher` | `.config/heroic/themes/matugen.css`; launch Heroic once, set its custom theme directory to this themes folder, and select matugen.css in Heroic. Regenerate after first launch. Catalog also supports Flatpak. |
 | Prism Launcher / `prismlauncher` | `.local/share/PrismLauncher/themes/Matugen/theme.json`; select Matugen in Prism Launcher theme settings once. |

@@ -9,7 +9,13 @@ theme = charcoal-blue
 window-theme = ghostty
 window-padding-x = 14
 window-padding-y = 14
+{{ if and (eq .chezmoi.os "linux") (has "hyprland-noctalia" (get . "profiles" | default (list))) -}}
+# Match Noctalia's translucent backgrounds; text remains fully opaque.
+background-opacity = 0.80
+background-opacity-cells = true
+{{ else -}}
 background-opacity = 0.95
+{{ end -}}
 background-blur = true
 resize-overlay = never
 confirm-close-surface = false

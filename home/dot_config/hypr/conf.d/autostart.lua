@@ -5,6 +5,12 @@ hl.on("hyprland.start", function()
 
     hl.exec_cmd("noctalia --daemon")
 
+    -- HyprPM owns the compiled plugins; reload the enabled set on login.
+    -- Hyprland 0.56 uses this system cache. Avoid initializing it on first login.
+    hl.exec_cmd([[if [ -d "/var/cache/hyprpm/$(id -un)" ]; then
+        hyprpm reload && hyprctl reload config-only
+    fi]])
+
     -- Automount removable drives; Noctalia provides the drive UI and notifications.
     hl.exec_cmd("udiskie --no-tray --no-notify")
 
