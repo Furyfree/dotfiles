@@ -329,6 +329,14 @@ Neither the preview commands nor `chezmoi apply --dry-run` installs tools.
 A full apply is the supported configuration-and-install flow; applying
 individual files need not run the after-apply script.
 
+## Nimbus integration
+
+On Nimbus machines, `nimbus postinstall onepassword` guides the GUI prerequisites
+and applies only the selected SSH/public-selector/agent/Git targets through
+Chezmoi. Skip manual SSH/Git file edits from app onboarding. The workflow keeps
+the existing explicit SSH choice and does not replace keys. Standalone setup
+continues to use the 1Password instructions below.
+
 ## Update
 
 Pull without applying, review, then apply:

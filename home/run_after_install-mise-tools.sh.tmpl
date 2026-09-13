@@ -23,23 +23,6 @@ if [ ! -x "$mise_binary" ]; then
 fi
 
 printf '%s\n' 'dotfiles: installing configured Mise runtimes and tools'
-{{ if get . "ManagedByNimbus" -}}
-printf '%s\n' 'Setup note: Open a new terminal after installation to load the shell and Mise configuration.'
-printf '%s\n' 'Setup note: Mise installs the agent CLIs and AI Usage. Sign into Claude, Grok and Codex, then connect Codex and OpenRouter in OpenCode. See the dotfiles README first-login checklist.'
-if command -v 1password >/dev/null 2>&1 || command -v op >/dev/null 2>&1; then
-    printf '%s\n' 'Setup note: 1Password: open the desktop app, sign in and unlock it. Enable "Integrate with 1Password CLI" in Settings > Developer.'
-{{ if get . "onePasswordSsh" -}}
-    printf '%s\n' 'Setup note: 1Password SSH: enable the SSH agent in Settings > Developer and keep the desktop app running.'
-{{ else -}}
-    printf '%s\n' 'Setup note: 1Password SSH is not enabled in dotfiles. Follow the 1Password SSH section of the dotfiles README before opting in.'
-{{ end -}}
-fi
-{{ if and (hasKey . "profiles") (has "hyprland-noctalia" .profiles) -}}
-printf '%s\n' 'Setup note: Noctalia: the desktop profile selects theme integrations. Log into the desktop to generate colors; see NOCTALIA.md for app prerequisites and existing GUI overrides.'
-printf '%s\n' 'Setup note: Brave Origin: select Use GTK in Settings > Appearance to follow the Noctalia GTK theme.'
-printf '%s\n' 'Setup note: Fastmail calendar credentials stay in the local keyring. Add the account in Noctalia; see NOCTALIA.md for the DAV endpoint and calendar selection.'
-{{ end -}}
-{{ end -}}
 cd "$HOME"
 export MISE_CONFIG_DIR="$mise_config_dir"
 # Do not load project/version files from the home directory or its parents.
@@ -77,7 +60,8 @@ fi
 
 run_mise() {
     local started=$SECONDS status=0
-    local -a command_status
+    local -a command_status command_args
+    local command_text
     if [[ -z $mise_log ]]; then
         "$mise_binary" -C "$HOME" "$@"
         return
@@ -87,7 +71,13 @@ run_mise() {
         printf ' %q' mise "$@"
         printf '\n'
     } >> "$mise_log"
-    if "$mise_binary" -C "$HOME" "$@" 2>&1 | tee -a -- "$mise_log"; then
+    command_args=("$mise_binary" -C "$HOME" "$@")
+    if [[ -t 0 && -t 1 ]] && command -v script >/dev/null 2>&1; then
+        # A native terminal relay preserves download/build progress under tee.
+        printf -v command_text '%q ' "${command_args[@]}"
+        command_args=(script --quiet --return --flush --command "exec $command_text" /dev/null)
+    fi
+    if "${command_args[@]}" 2>&1 | tee -a -- "$mise_log"; then
         status=0
     else
         command_status=("${PIPESTATUS[@]}")

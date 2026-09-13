@@ -15,6 +15,9 @@ Keep user-facing commands in `README.md`; planning documents should link to it
 instead of duplicating usage instructions.
 
 On Nimbus-managed machines, Nimbus owns system packages and system state.
+Nimbus also owns its private local setup-note history and task evidence under
+`$XDG_STATE_HOME/nimbus` (default `~/.local/state/nimbus`). Never manage or sync
+those records. Nimbus also owns the setup-note catalog and its presentation.
 Chezmoi owns Topgrade configuration: managed Linux delegates system updates
 to Nimbus; standalone Linux uses native system/Flatpak steps, and macOS uses
 Homebrew. Applying dotfiles does not run Topgrade.

@@ -93,6 +93,10 @@ Library/**
 .local/share/icons/hicolor/512x512/apps/nimbus-webapp-*.png
 {{ end -}}
 
+# Nimbus completion and note history stay local to this user and machine.
+.local/state/nimbus
+.local/state/nimbus/**
+
 # Reference notes and shell-generated palettes do not belong to Chezmoi.
 .config/hypr/compare/**
 .config/ghostty/themes/noctalia

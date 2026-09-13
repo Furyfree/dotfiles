@@ -128,10 +128,8 @@ if (home / "fail").exists():
         self.assertEqual(self.calls(), [])
         result = self.chezmoi("apply", stored=True)
         self.assert_success(result)
-        self.assertIn('Setup note: 1Password: open the desktop app', result.stdout)
-        self.assertIn('1Password SSH is not enabled', result.stdout)
-        self.assertLess(result.stdout.index('Setup note:'),
-                        result.stdout.index('fake Mise: native output'))
+        self.assertNotIn('Setup note:', result.stdout)
+        self.assertIn('fake Mise: native output', result.stdout)
 
         # Model the user's opt-in, then Nimbus's complete refresh command.
         enabled = [arg.replace("integration=false", "integration=true") for arg in initial]
@@ -155,7 +153,7 @@ if (home / "fail").exists():
         (self.home / "fail").touch()
         result = self.chezmoi("apply", stored=True)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn('Setup note: 1Password SSH: enable the SSH agent', result.stdout)
+        self.assertNotIn('Setup note:', result.stdout)
         self.assertIn('fake Mise: install failed', result.stderr)
         self.assertNotIn('1Password SSH is not enabled', result.stdout)
         (self.home / "fail").unlink()
