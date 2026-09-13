@@ -1599,6 +1599,14 @@ declared LTS/stable selectors rather than rewriting them to new major versions.
 Mise's own self-update is allowed for its user-owned installation; Topgrade's
 self-update is disabled because its package manager owns the executable.
 
+On Linux, `~/.local/bin/topgrade` launches `/usr/bin/topgrade` with
+`MISE_YES=1`. This lets the native Mise step confirm self-updates even when
+Topgrade captures its input/output. Mise confirmations are accepted only within
+this workflow; ordinary Mise commands and other tools' prompts are unchanged.
+The launcher forwards arguments and exit status, including Nimbus's calls.
+It requires the system Topgrade package and `~/.local/bin` before `/usr/bin`
+on PATH. macOS retains its Homebrew executable without this Linux launcher.
+
 No separate Cargo, Rustup, npm, Bun, or uv updater is enabled for tools already
 owned by Mise. Independently installed Cargo tools under `~/.cargo/bin` are not
 upgraded by this config. Editor/plugin updates retain their native workflow;

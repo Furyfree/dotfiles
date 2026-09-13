@@ -3,6 +3,7 @@
 
 import json
 from pathlib import Path
+import shlex
 import shutil
 import subprocess
 import sys
@@ -13,7 +14,8 @@ import unittest
 
 REPO = Path(__file__).resolve().parents[1]
 CONFIG = REPO / "home/.chezmoitemplates/configs/topgrade/topgrade.toml"
-TOPGRADE = shutil.which("topgrade")
+TOPGRADE = shutil.which("topgrade", path="/usr/bin:/bin") or shutil.which("topgrade")
+LAUNCHER = REPO / "home/dot_local/bin/executable_topgrade"
 CHEZMOI = shutil.which("chezmoi")
 MISE = shutil.which("mise")
 
@@ -85,7 +87,12 @@ class Topgrade(unittest.TestCase):
 import json, os, pathlib, sys
 with open(os.environ["FAKE_LOG"], "a") as log:
     log.write(json.dumps({"tool": pathlib.Path(sys.argv[0]).name,
-        "args": sys.argv[1:], "cwd": os.getcwd()}) + "\\n")
+        "args": sys.argv[1:], "cwd": os.getcwd(),
+        "mise_yes": os.environ.get("MISE_YES")}) + "\\n")
+if (pathlib.Path(sys.argv[0]).name == "mise" and sys.argv[1:] == ["self-update"]
+        and os.environ.get("FAKE_REQUIRE_CONFIRMATION") and os.environ.get("MISE_YES") != "1"):
+    print("AbortedError: the update was not confirmed", file=sys.stderr)
+    sys.exit(1)
 if pathlib.Path(sys.argv[0]).name == "mise" and sys.argv[1:] == ["env", "--json"]:
     print("{}")
 if pathlib.Path(sys.argv[0]).name == os.environ.get("FAKE_FAIL_TOOL"):
@@ -96,15 +103,23 @@ if pathlib.Path(sys.argv[0]).name == "sudo":
 ''')
             path.chmod(0o755)
 
-    def run_topgrade(self, *args, copilot=False, zeron=False):
+    def run_topgrade(self, *args, copilot=False, zeron=False, launcher=False):
         # All updater names resolve to fakes. Even native discovery probes must
         # never reach the real tools or the caller's home/authentication/session.
         self.test_scope_and_confirmation_policy()
         self.fake_tools(copilot, zeron)
-        (self.bin / "sh").symlink_to("/bin/sh")
+        if not (self.bin / "sh").exists():
+            (self.bin / "sh").symlink_to("/bin/sh")
         self.env["SHELL"] = "/bin/sh"
+        executable = TOPGRADE
+        if launcher:
+            executable = self.root / "topgrade"
+            # CI can install Topgrade outside the Linux distribution path.
+            executable.write_text(LAUNCHER.read_text().replace(
+                "/usr/bin/topgrade", shlex.quote(TOPGRADE)))
+            executable.chmod(0o755)
         return subprocess.run([
-            TOPGRADE, "--config", str(self.rendered), "--no-self-update", "--no-tmux",
+            executable, "--config", str(self.rendered), "--no-self-update", "--no-tmux",
             "--no-ask-retry", "--allow-root", *args],
             cwd=self.home, env=self.env, stdin=subprocess.DEVNULL,
             text=True, capture_output=True, timeout=30)
@@ -146,6 +161,23 @@ if pathlib.Path(sys.argv[0]).name == "sudo":
             self.assertEqual(Path(call["cwd"]).parent, self.root)
 
     @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
+    def test_launcher_confirms_mise_with_closed_input(self):
+        self.env["FAKE_REQUIRE_CONFIRMATION"] = "1"
+        result = self.run_topgrade()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("AbortedError", result.stdout + result.stderr)
+        self.log.unlink()
+        result = self.run_topgrade(launcher=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIsNone(self.env.get("MISE_YES"))
+        calls = self.calls()
+        self.assertTrue(all(c["mise_yes"] == "1" for c in calls))
+        self.assertEqual([c["args"] for c in calls if c["tool"] == "mise"],
+                         [["plugins", "update"], ["self-update"], ["upgrade"],
+                          ["env", "--json"]])
+        self.assertFalse(any("--yes" in c["args"] or "-y" in c["args"] for c in calls))
+
+    @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
     def test_explicit_config_ignores_automatic_hook_fragments(self):
         fragments = self.home / ".config/topgrade.d"
         fragments.mkdir()
@@ -159,7 +191,7 @@ if pathlib.Path(sys.argv[0]).name == "sudo":
     @unittest.skipUnless(TOPGRADE, "topgrade is not installed")
     def test_failed_update_is_not_reported_as_success(self):
         self.env["FAKE_FAIL_TOOL"] = "sheldon"
-        result = self.run_topgrade()
+        result = self.run_topgrade(launcher=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("sheldon: FAILED", result.stdout)
         self.assertEqual(self.calls()[-1]["tool"], "gh")
@@ -284,8 +316,14 @@ if pathlib.Path(sys.argv[0]).name == "sudo":
                     cwd=self.root, env=self.env, stdin=subprocess.DEVNULL,
                     text=True, capture_output=True, timeout=30)
                 self.assertEqual(result.returncode, 0, result.stderr)
+                entries = json.loads(result.stdout)
+                self.assertEqual(".local/bin/topgrade" in entries, platform == "linux")
+                if platform == "linux":
+                    self.assertEqual(entries[".local/bin/topgrade"]["contents"],
+                                     LAUNCHER.read_text())
+                    self.assertTrue(entries[".local/bin/topgrade"]["perm"] & 0o111)
                 files = {name: entry["contents"]
-                         for name, entry in json.loads(result.stdout).items()
+                         for name, entry in entries.items()
                          if name.endswith("topgrade.toml") and entry["type"] == "file"}
                 expected = {} if platform == "windows" else {
                     ".config/topgrade.toml": self.render_config(managed=False, platform=platform).read_text()}

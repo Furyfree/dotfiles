@@ -65,7 +65,7 @@ class Webapps(unittest.TestCase):
             shutil.copy2(REPO / "VSCODIUM_EXTENSIONS.json", root)
             # A normal Linux user file must not inherit the Nimbus webapp gate.
             fixture = source / "dot_local/bin/fixture-tool"
-            fixture.parent.mkdir(parents=True)
+            fixture.parent.mkdir(parents=True, exist_ok=True)
             fixture.write_text("#!/bin/sh\nexit 0\n")
             home = root / "home with spaces"
             home.mkdir()

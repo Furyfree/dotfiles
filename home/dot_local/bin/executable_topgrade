@@ -1,0 +1,4 @@
+#!/bin/sh
+# Confirm Mise updates only within the Topgrade workflow.
+export MISE_YES=1
+exec /usr/bin/topgrade "$@"
