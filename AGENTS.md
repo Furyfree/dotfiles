@@ -18,9 +18,15 @@ On Nimbus-managed machines, Nimbus owns system packages and system state.
 Nimbus also owns its private local setup-note history and task evidence under
 `$XDG_STATE_HOME/nimbus` (default `~/.local/state/nimbus`). Never manage or sync
 those records. Nimbus also owns the setup-note catalog and its presentation.
+Nimbus may perform the explicitly approved lockscreen-widget override repair
+and retain a private backup. Chezmoi still owns the layout; do not add an
+after-apply runtime-state reset or manage those backups.
 Chezmoi owns Topgrade configuration: managed Linux delegates system updates
 to Nimbus; standalone Linux uses native system/Flatpak steps, and macOS uses
 Homebrew. Applying dotfiles does not run Topgrade.
+Chezmoi owns the selected agent-proxy configuration only. Nimbus coordinates
+its native installer and Copilot registration APIs and owns private model
+inventory evidence; never manage proxy credentials or runtime databases.
 Chezmoi owns native Mise tool configuration, including Cargo tools, and invokes
 `mise install` after applying it. Mise owns tool installation and updates.
 Nimbus supplies the machine ID, the managed-by-Nimbus flag, and the machine
@@ -63,8 +69,9 @@ The Files after-apply script sets selected user preferences through GSettings;
 dconf databases themselves remain unmanaged.
 The ProtonPlus hook also uses GSettings for update preferences only. ProtonPlus
 owns its generated user timer; scripts do not copy credentials or start it.
-The Zeron icon hook refreshes only the user's GTK icon index after applying
-the bundled-asset link; generated caches and application state stay unmanaged.
+The application icon hook refreshes only the user's GTK icon cache after
+applying the local theme index, managed images and package-asset links;
+generated caches and application state stay unmanaged.
 Scripts must not install system packages or Mise itself, use privilege elevation,
 change `/etc`, manage services, or select a login shell.
 

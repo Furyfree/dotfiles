@@ -1,0 +1,81 @@
+{{- $state := env "XDG_STATE_HOME" | default (joinPath .chezmoi.homeDir ".local/state") -}}
+server:
+  host: 127.0.0.1
+  port: 8300
+  cors:
+    origins: []
+database:
+  path: ${AGENT_PROXY_DATABASE_PATH}
+herdr:
+  binary: herdr
+  workspace_label: agent-proxy
+auth:
+  enabled: true
+  admin_token: ${ADMIN_TOKEN}
+  initial_keys:
+    - name: default
+      key: ${PROXY_API_KEY}
+providers:
+  claude:
+    enabled: true
+    cli_path: claude
+    default_model: sonnet
+    max_concurrent: 1
+    max_queue_size: 32
+    max_queue_wait_ms: 30000
+    timeout_ms: 300000
+    extra_args:
+      - --strict-mcp-config
+      - --mcp-config
+      - '{"mcpServers":{}}'
+      - --no-session-persistence
+      - --setting-sources
+      - ""
+      - --tools
+      - ""
+    working_dir: {{ joinPath $state "agent-proxy/workspace" | quote }}
+  codex:
+    enabled: true
+    cli_path: codex
+    default_model: default
+    max_concurrent: 1
+    max_queue_size: 32
+    max_queue_wait_ms: 30000
+    timeout_ms: 300000
+    extra_args:
+      - --skip-git-repo-check
+      - -c
+      - model_provider="openai"
+      - --sandbox
+      - read-only
+    cli_options:
+      ephemeral: true
+      enable_session_reuse: false
+    working_dir: {{ joinPath $state "agent-proxy/workspace" | quote }}
+  agy:
+    enabled: true
+    cli_path: agy
+    default_model: default
+    working_dir: {{ joinPath $state "agent-proxy/workspace" | quote }}
+    extra_args: [--mode, plan, --sandbox, --disable-slash-commands]
+    max_queue_size: 32
+    max_queue_wait_ms: 30000
+  grok:
+    enabled: true
+    cli_path: grok
+    default_model: default
+    max_concurrent: 1
+    max_queue_size: 32
+    max_queue_wait_ms: 30000
+    timeout_ms: 300000
+    extra_args:
+      - --no-memory
+      - --no-subagents
+      - --disable-web-search
+      - --tools
+      - ""
+    working_dir: {{ joinPath $state "agent-proxy/workspace" | quote }}
+responses:
+  retention_ttl_ms: 1800000
+  max_entries: 1000
+model_mappings: []

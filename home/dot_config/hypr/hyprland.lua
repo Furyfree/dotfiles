@@ -12,6 +12,9 @@ require("./conf.d/overview.lua")
 require("./conf.d/autostart.lua")
 require("./conf.d/keybinds.lua")
 
+-- Hide update announcements; configuration errors remain visible.
+hl.config({ ecosystem = { no_update_news = true } })
+
 -- Noctalia owns the generated palette. First login works before it exists.
 if package.searchpath("noctalia", package.path) then
     require("noctalia").apply_theme()

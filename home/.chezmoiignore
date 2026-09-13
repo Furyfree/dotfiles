@@ -142,3 +142,8 @@ Videos/**
 {{ if not (and (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
 Projects/nimbus
 {{ end -}}
+
+# Local-agent proxy configuration is selected with the Nimbus Copilot desktop.
+{{ if not (and (eq .chezmoi.os "linux") $hyprlandNoctalia (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
+.config/agent-proxy/config.yaml
+{{ end -}}

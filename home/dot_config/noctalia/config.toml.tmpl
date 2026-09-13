@@ -137,13 +137,13 @@ variant = "default"
 [[shell.session.actions]]
 action = "logout"
 command = "loginctl terminate-session \"${XDG_SESSION_ID:?No graphical login session}\""
-countdown_seconds = 0
+countdown_seconds = 5
 enabled = true
 shortcut = "x"
 variant = "default"
 
 [[shell.session.actions]]
-action = "suspend"
+action = "lock_and_suspend"
 countdown_seconds = 0
 enabled = true
 shortcut = "s"
@@ -151,14 +151,14 @@ variant = "default"
 
 [[shell.session.actions]]
 action = "reboot"
-countdown_seconds = 0
+countdown_seconds = 5
 enabled = true
 shortcut = "r"
 variant = "default"
 
 [[shell.session.actions]]
 action = "shutdown"
-countdown_seconds = 0
+countdown_seconds = 5
 enabled = true
 shortcut = "p"
 variant = "destructive"
@@ -182,13 +182,18 @@ wallpaper_placement = "floating"
 [shell.window_switcher]
 mru = true
 
+[idle]
+pre_action_fade_seconds = 5.0
+
 [idle.behavior.lock]
-timeout = 600
+timeout = 300
 action = "lock"
 enabled = true
 
 [idle.behavior.screen-off]
-timeout = 900
+timeout = 360
+# Locking re-arms idle timers; turn screens off after one minute locked.
+locked_timeout = 60
 action = "screen_off"
 enabled = true
 

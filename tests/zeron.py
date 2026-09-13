@@ -18,7 +18,7 @@ ASSETS = {
     ".local/share/icons/hicolor/512x512/apps/zeron.png":
         "dot_local/share/icons/hicolor/512x512/apps/symlink_zeron.png.tmpl",
 }
-HOOK = REPO / "home/run_after_refresh-zeron-icon.sh.tmpl"
+HOOK = REPO / "home/run_after_refresh-application-icons.sh.tmpl"
 
 
 @unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
@@ -32,6 +32,9 @@ class Zeron(unittest.TestCase):
                 target = source / name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(REPO / "home" / name, target)
+            (source / "dot_local/share/icons/hicolor/index.theme").write_text(
+                "[Icon Theme]\nName=Hicolor\nComment=Fixture\nHidden=true\n"
+                "Directories=512x512/apps\n[512x512/apps]\nSize=512\nType=Fixed\n")
             home = root / "home with spaces"
             home.mkdir()
             env = {"HOME": str(home), "USERPROFILE": str(home), "PATH": "",
@@ -63,7 +66,7 @@ class Zeron(unittest.TestCase):
                                                  platform == "linux" and development)
                             hook = run(data, "execute-template", HOOK.read_text())
                             self.assertEqual(bool(hook.strip()),
-                                             platform == "linux" and development)
+                                             platform == "linux")
 
             # Applying the links before installation is valid. A native install
             # or version switch supplies their targets without another apply.
@@ -103,7 +106,7 @@ class Zeron(unittest.TestCase):
             self.assertFalse(log.exists())
             subprocess.run(["/bin/sh"], input=hook, text=True, env=hook_env, check=True)
             self.assertEqual(json.loads(log.read_text()), [
-                "--force", "--ignore-theme-index", "--index-only",
+                "--force", "--index-only",
                 str(home / ".local/share/icons/hicolor")])
             failed = subprocess.run(["/bin/sh"], input=hook, text=True,
                                     env=hook_env | {"FAKE_EXIT": "23"})

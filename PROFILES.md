@@ -66,7 +66,7 @@ Derived from `.chezmoi.os`:
 |---|---|
 | `common` | Every machine |
 | `unix` | Linux and macOS |
-| `linux` | Linux |
+| `linux` | Linux; shared application-icon discovery index, package-icon links and user cache refresh |
 | `macos` | macOS (`darwin` in Chezmoi) |
 | `windows` | Windows |
 
@@ -141,3 +141,9 @@ Direct Linux:  common, unix, linux
 MacBook:       common, unix, macos
 Windows:       common, windows
 ```
+
+The `hyprland-noctalia` profile on Nimbus-managed Linux also selects the static
+agent-proxy configuration for the Copilot desktop. This gate changes only the
+configuration file; Nimbus's postinstall owns native installation, registration
+and model refresh. Runtime databases, credentials and Nimbus model evidence are
+unmanaged. See the [README](README.md#local-agent-proxy-configuration).

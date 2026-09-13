@@ -1,0 +1,14 @@
+{{- /* Preserve the installed theme's directories when extending its local copy. */ -}}
+{{- $index := . -}}
+{{- if not $index -}}
+{{- $index = "[Icon Theme]\nName=Hicolor\nComment=Local application icons\nHidden=true\nDirectories=\n" -}}
+{{- end -}}
+{{- range $size := list "512" "1024" -}}
+{{- $directory := printf "%sx%s/apps" $size $size -}}
+{{- if not (contains (printf "[%s]" $directory) $index) -}}
+{{- $index = regexReplaceAll "(?m)^Directories=([^\\r\\n]*)" $index (printf "Directories=${1},%s" $directory) -}}
+{{- $index = printf "%s\n[%s]\nSize=%s\nContext=Applications\nType=Fixed\n" $index $directory $size -}}
+{{- end -}}
+{{- end -}}
+{{- $index = replace "Directories=," "Directories=" $index -}}
+{{ $index -}}

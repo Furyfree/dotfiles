@@ -1,0 +1,1 @@
+{{ $base := "" }}{{ if stat "/usr/share/icons/hicolor/index.theme" }}{{ $base = include "/usr/share/icons/hicolor/index.theme" }}{{ end }}{{ template "configs/icons/hicolor.tmpl" $base }}

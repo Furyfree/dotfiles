@@ -49,8 +49,23 @@ Noctalia's native fallback login boxes.
 
 Preview with `chezmoi diff`, then use `chezmoi apply` when ready. Existing
 Noctalia GUI overrides take precedence: use the lockscreen settings/editor to
-reset only the affected overrides if an older layout persists. Do not delete
-all Noctalia state. Test with `noctalia msg session lock`.
+reset only the affected overrides if an older layout persists. On Nimbus-managed
+machines, Nimbus 0.5.2 or newer also offers:
+
+```sh
+nimbus postinstall noctalia-lockscreen --plan
+nimbus postinstall noctalia-lockscreen
+```
+
+Run in the unlocked desktop session with Noctalia's editor and panels closed.
+The approved task briefly stops Noctalia, saves a private settings backup under
+`$XDG_STATE_HOME/nimbus` (default `~/.local/state/nimbus`), removes only saved
+lockscreen-widget overrides, and restarts Noctalia. Hyprland and applications
+stay running. Nimbus owns this explicit repair and its backup; Chezmoi keeps
+the layout and never manages runtime state. Standalone users retain the GUI
+reset workflow. See Nimbus's [guided setup](https://github.com/Furyfree/nimbus#guided-setup)
+for recovery and verification limits. Do not delete all Noctalia state.
+Test with `noctalia msg session lock`.
 
 Nimbus owns the corresponding greeter appearance and its system activation;
 see its [operator guide](https://github.com/Furyfree/nimbus#readme). Greeter blur
@@ -135,10 +150,10 @@ dependencies stay outside Chezmoi, and this install step does not request
 runtime upgrades or a Mise self-update. It does not install Mise itself or run
 on Windows. Shell startup still only activates tools.
 
-For Nimbus-managed installs, the script prints applicable `Setup note: `
-instructions before tool installation. Nimbus repeats them after its final
-summary, even if Mise fails. They cover shell activation, 1Password sign-in and
-its SSH opt-in, and Noctalia theme generation. Notes never contain credentials.
+Nimbus owns setup guidance and displays new or revised notes after its final
+summary. Use `nimbus setup-notes` to review all applicable guidance. Chezmoi
+does not print or track setup notes; standalone users use this README's
+first-login checklist.
 When Nimbus supplies its private installation log directory, the script also
 keeps native Mise output, command timestamps, exit codes, and durations in
 `mise.log`, while preserving terminal output. Log creation or write failures
@@ -1572,9 +1587,9 @@ The desktop entry and icon are symlinks to the bundled assets under
 `~/.zeron/app/current`. Native updates switch that directory, so launcher
 assets follow without copying them into Git. Chezmoi does not manage Zeron's
 generated service, sessions, credentials or other application state.
-An after-apply hook refreshes the user's GTK icon index when Zeron's icon and
-`gtk-update-icon-cache` are available. It caches names only, leaving image data
-with the native application; generated caches stay outside Git.
+The shared application-icon hook refreshes the user's GTK icon cache when
+local icons and `gtk-update-icon-cache` are available. It caches names only,
+leaving image data with the native application; generated caches stay outside Git.
 
 `zeron` opens the GUI; its user service runs the headless engine. The installer
 enables and restarts this service and attempts to enable user lingering, which
@@ -1929,12 +1944,17 @@ Reloading the config does not launch another instance. Nimbus supplies the packa
 AirPods widget additionally needs a compatible LibrePods build, as
 [NOCTALIA.md](NOCTALIA.md) records.
 
-Super+Shift+L opens the menu; choose an action there. Save work before choosing
-Logout. Super+V opens clipboard history; Super+Shift+N opens notifications.
+Super+Shift+L opens the menu; choose an action there. Lock acts immediately;
+Sleep locks before suspending. Logout, Restart and Shutdown have a five-second
+cancellable countdown. Save work first; the countdown does not close apps or
+provide save prompts. Super+V opens clipboard history; Super+Shift+N opens notifications.
 Super+Ctrl+arrows focuses another monitor and moves the pointer.
 Super+Shift+T prefers T3 Code Nightly and falls back to the stable command.
-Noctalia locks after ten idle minutes and turns screens off after
-fifteen, restoring them on activity. Idle inhibitors are respected; automatic
+Noctalia locks after five idle minutes and turns screens off after one minute
+of inactivity while locked, restoring them on activity. A five-second dim
+precedes each action and allows activity to cancel it. The normal screen-off
+timeout is six minutes; `locked_timeout = 60` explicitly shortens the timer
+that Noctalia re-arms when locking. Idle inhibitors are respected; automatic
 suspend is not configured. Extra scratchpad and wheel shortcuts are deferred. Noctalia's bar provides its
 other controls. The launcher uses [Noctalia 5 IPC](https://docs.noctalia.dev/noctalia/ipc/surfaces/).
 
@@ -2116,8 +2136,23 @@ Unmodified 512x512 PNGs from the vendor sites are stored under
 FotMob publish these icons in their web manifests. These are third-party
 brand assets, not original artwork
 or a claim of an open-source license; their rights remain with their owners.
-Icons are local, so apply and launcher display do not download them. No icon
-theme, desktop settings, browser profiles, or wallpapers are changed.
+Icons are local, so apply and launcher display do not download them. The
+selected icon theme, desktop settings, browser profiles and wallpapers stay unchanged.
+
+On Linux, Chezmoi manages `~/.local/share/icons/hicolor/index.theme`, extending
+the installed `/usr/share/icons/hicolor/index.theme` with the 512px and 1024px
+application directories when missing. This preserves the system's other sizes
+and scalable icons. Without an installed index, it supplies those two directories.
+T3 Code and Yazi have local links to their package-owned 1024px icons; links
+remain harmlessly dangling until the application is installed. Zeron's link
+keeps its development-profile gate, and the webapp assets keep their Nimbus gate.
+
+The Linux `refresh-application-icons.sh` after-apply hook refreshes the user's
+cache whenever a local application image is available, including Maps or FotMob
+without Zeron. It skips missing tools and absent images, preserves unrelated
+icons, and never writes system directories. Papirus folder colors remain owned
+by Noctalia's existing theme integration. Its generated theme copies and icon
+caches are not stored in Git. Native installers retain their generated launchers.
 
 The entries and icons retain their Linux and `ManagedByNimbus` gates.
 The Nimbus gate applies only to these launchers and icons; unrelated `.local`
@@ -2294,3 +2329,16 @@ See [PROFILES.md](PROFILES.md) for the profile vocabulary,
 [CONFIG_INVENTORY.md](CONFIG_INVENTORY.md) for migration scope,
 [ROADMAP.md](ROADMAP.md) for implementation order, and
 [TASKS.md](TASKS.md) for current status and dependencies.
+
+## Local-agent proxy configuration
+
+Nimbus-managed Linux machines with `hyprland-noctalia` select
+`~/.config/agent-proxy/config.yaml`. It binds to localhost, requires the native
+installer's environment credentials, and configures Codex, Claude, Grok and
+Antigravity without static model lists. Mise continues to own their installation.
+
+Chezmoi only manages that configuration file. It does not install or start the
+proxy, register Copilot models, store credentials or reset runtime databases.
+Initial setup and subsequent model refresh require Nimbus 0.5.2 or newer; see its
+[operator commands](https://github.com/Furyfree/nimbus#local-agents-in-copilot).
+Standalone Chezmoi and other desktop/platform profiles do not select this file.
