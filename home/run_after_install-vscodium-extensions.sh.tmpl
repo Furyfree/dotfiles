@@ -27,10 +27,8 @@ set --{{ range $manifest.install }} \
     {{ . | shellQuote }}{{ end }}
 
 installed_count=0
-skipped_count=0
 for extension do
     if printf '%s\n' "$installed" | grep -Fqx -- "$extension"; then
-        skipped_count=$((skipped_count + 1))
         continue
     fi
     printf 'dotfiles: installing VSCodium extension: %s\n' "$extension"
@@ -48,6 +46,7 @@ for extension do
         exit 1
     fi
 done
-printf 'dotfiles: VSCodium extensions verified (install requests: %s, already present: %s).\n' "$installed_count" "$skipped_count"
-printf '%s\n' 'dotfiles: {{ len $manifest.manual }} manifest entries are excluded from automatic installation; see the manual list.'
+if [ "$installed_count" -gt 0 ]; then
+    printf 'dotfiles: VSCodium extensions verified (%s installed).\n' "$installed_count"
+fi
 {{ end -}}

@@ -8,7 +8,7 @@ theme="$HOME/.local/share/icons/hicolor"
 [ -f "$theme/index.theme" ] || exit 0
 for icon in "$theme"/*/apps/*; do
     [ -f "$icon" ] || continue
-    gtk-update-icon-cache --force --index-only "$theme"
+    gtk-update-icon-cache --quiet --force --index-only "$theme"
     exit 0
 done
 {{- end }}

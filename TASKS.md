@@ -450,3 +450,21 @@ Validation: the full local gate passed (including native Hyprland and Noctalia
 parsing), as did ShellCheck for both UWSM environment files. Local file
 verification matches Chezmoi; only the five always-run scripts remain pending.
 The current session was not restarted.
+
+## Quiet maintenance hooks, 2026-09-14
+
+- [x] Remove the redundant Mise banner while retaining native progress/errors.
+- [x] Make unchanged VSCodium extension verification quiet on Unix and Windows;
+  retain installation, failure and post-install verification behavior.
+- [x] Use GTK's native quiet icon-cache option; retain user-only cache refresh.
+- [x] Complete full regression checks and coordinated Nimbus validator review.
+- [ ] Owner applies and tests the candidate locally after review.
+
+Nimbus owns orchestration, approvals, reporting and private diagnostic records.
+These changes do not apply files, alter application state or publish a release.
+
+Validation: `just check` passes (156 tests, three documented optional skips).
+`chezmoi --skip-secrets diff` is empty; managed/status checks pass. Verify lists
+five always-run scripts and passes with scripts excluded. No apply was run.
+The optional Markdown style report retains pre-existing findings outside this
+change; new prose follows the repository's existing style.

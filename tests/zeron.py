@@ -106,7 +106,7 @@ class Zeron(unittest.TestCase):
             self.assertFalse(log.exists())
             subprocess.run(["/bin/sh"], input=hook, text=True, env=hook_env, check=True)
             self.assertEqual(json.loads(log.read_text()), [
-                "--force", "--index-only",
+                "--quiet", "--force", "--index-only",
                 str(home / ".local/share/icons/hicolor")])
             failed = subprocess.run(["/bin/sh"], input=hook, text=True,
                                     env=hook_env | {"FAKE_EXIT": "23"})

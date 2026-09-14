@@ -23,10 +23,8 @@ $extensions = @(
 {{- end }}
 )
 $installedCount = 0
-$skippedCount = 0
 foreach ($extension in $extensions) {
     if ($installed -contains $extension) {
-        $skippedCount++
         continue
     }
     Write-Host "dotfiles: installing VSCodium extension: $extension"
@@ -43,6 +41,7 @@ foreach ($extension in $extensions) {
         throw "Extension missing after installation: $extension"
     }
 }
-Write-Host "dotfiles: VSCodium extensions verified (install requests: $installedCount, already present: $skippedCount)."
-Write-Host 'dotfiles: {{ len $manifest.manual }} manifest entries are excluded from automatic installation; see the manual list.'
+if ($installedCount -gt 0) {
+    Write-Host "dotfiles: VSCodium extensions verified ($installedCount installed)."
+}
 {{ end -}}

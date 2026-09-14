@@ -142,7 +142,9 @@ and its tool fragment still load; normal interactive Mise discovery is unchanged
 Run Chezmoi as your normal user; the Bash install script refuses root execution.
 The [after-apply script](home/run_after_install-mise-tools.sh.tmpl) runs even
 when configuration is unchanged, so another apply repairs missing tools.
-Native output stays visible; missing Mise, missing config, or a failed install
+The hook does not repeat its own installation banner. Native Mise output stays
+visible, including progress and errors; missing Mise, missing config, or a
+failed install
 fails the apply. Fix the reported problem and rerun the full apply to retry.
 Files already written and tools already installed are retained after failure.
 Only native Mise tool declarations request installation; other app configs do
@@ -2389,3 +2391,17 @@ proxy, register Copilot models, store credentials or reset runtime databases.
 Initial setup and subsequent model refresh require Nimbus 0.5.2 or newer; see its
 [operator commands](https://github.com/Furyfree/nimbus#local-agents-in-copilot).
 Standalone Chezmoi and other desktop/platform profiles do not select this file.
+
+## Quiet maintenance hooks
+
+Repeated applies still repair missing Mise tools and VSCodium extensions and
+refresh the user icon cache. Extension verification is silent when all declared
+extensions are present; actual installs and failures remain visible. The manual
+extension list remains in this README and the manifest. Icon refresh uses GTK's
+native quiet option. Nimbus does not filter Chezmoi output or force conflicts.
+Standalone applies retain the same repair behavior and native prompts.
+
+Nimbus owns maintenance summaries and private run metadata. Topgrade configuration
+continues to use native prompts by default; an explicit Nimbus combined-upgrade
+`--yes` overrides that for automated updates only. No local Nimbus records belong
+in this repository.

@@ -252,6 +252,7 @@ else:
         self.assertEqual(result.returncode, 0, result.stderr)
         data = strict_json(state.read_text())
         self.assertEqual([args for args in data["calls"] if args[0] == "--install-extension"], installs)
+        self.assertEqual(result.stdout, "", "unchanged verification should be quiet")
 
     @unittest.skipUnless(os.name == "posix", "POSIX installer execution requires /bin/sh")
     def test_installer_missing_cli_and_listing_failure(self):

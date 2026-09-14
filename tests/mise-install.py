@@ -199,7 +199,7 @@ if (home / "fail").exists():
         for _ in range(2):
             result = self.chezmoi("apply")
             self.assert_success(result)
-            self.assertIn("installing configured Mise runtimes and tools", result.stdout)
+            self.assertNotIn("installing configured Mise runtimes and tools", result.stdout)
             self.assertIn("fake Mise: native output", result.stdout)
             tool = self.home / "fake-installed-tool"
             self.assertTrue(tool.exists())
@@ -396,7 +396,7 @@ sys.exit(result.returncode)
                 if command != "verify":
                     self.assert_success(result)
                 if command == "diff":
-                    self.assertIn("installing configured Mise runtimes and tools", result.stdout)
+                    self.assertNotIn("installing configured Mise runtimes and tools", result.stdout)
                 self.assertEqual(self.calls(), [])
         self.assert_success(self.chezmoi("apply", "--dry-run"))
         self.assertEqual(self.calls(), [])
