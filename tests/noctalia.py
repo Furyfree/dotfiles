@@ -170,14 +170,14 @@ class Noctalia(unittest.TestCase):
                 self.assertEqual(base64.b64decode(embedded.split(",", 1)[1]),
                                  (REPO / "home/dot_config/noctalia/assets/profile-picture.jpg").read_bytes())
 
-    def test_logout_requires_and_preserves_the_explicit_session_id(self):
+    def test_logout_delegates_to_uwsm_and_preserves_failure(self):
         entries = json.loads(self.chezmoi("dump", "--format=json"))
         config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
         command = next(row["command"] for row in config["shell"]["session"]["actions"]
                        if row["action"] == "logout")
         binaries = self.root / "bin"
         binaries.mkdir()
-        fake = binaries / "loginctl"
+        fake = binaries / "uwsm"
         fake.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\nexit "${RESULT:-0}"\n')
         fake.chmod(0o755)
         env = dict(self.env, PATH=str(binaries))
@@ -189,12 +189,8 @@ class Noctalia(unittest.TestCase):
                         invocation_env["XDG_SESSION_ID"] = session
                     result = subprocess.run(["/bin/sh", "-c", command],
                                             env=invocation_env, text=True, capture_output=True)
-                    if session:
-                        self.assertEqual(result.returncode, status)
-                        self.assertEqual(result.stdout.splitlines(), ["terminate-session", session])
-                    else:
-                        self.assertNotEqual(result.returncode, 0)
-                        self.assertEqual(result.stdout, "")
+                    self.assertEqual(result.returncode, status)
+                    self.assertEqual(result.stdout.splitlines(), ["stop"])
 
     def test_lid_guard_and_its_shortcut_are_laptop_only(self):
         for machine in (None, "", "desktop", "laptop"):

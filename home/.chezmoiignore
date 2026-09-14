@@ -50,6 +50,8 @@ Library/**
 # Hyprland and Noctalia targets
 {{ if or (ne .chezmoi.os "linux") (not $hyprlandNoctalia) -}}
 .config/hypr/**
+.config/uwsm/**
+.config/systemd/**
 .config/noctalia/**
 .config/mimeapps.list
 .config/gtk-3.0/settings.ini

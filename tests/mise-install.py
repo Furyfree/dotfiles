@@ -161,6 +161,38 @@ if (home / "fail").exists():
         self.assertTrue((self.home / "fake-installed-tool").exists())
         self.assertEqual(len(self.calls()), 3)
 
+    @unittest.skipUnless(sys.platform == "linux", "Nimbus postinstall targets Linux")
+    def test_password_opt_in_saves_only_config_without_authentication(self):
+        shutil.copyfile(REPO / "home/.chezmoi.toml.tmpl",
+                        self.source / ".chezmoi.toml.tmpl")
+        op = self.path_bin / "op"
+        op.write_text(f'#!/bin/sh\ntouch "{self.root}/unexpected-op"\nexit 97\n')
+        op.chmod(0o755)
+        (self.path_bin / "touch").symlink_to(shutil.which("touch"))
+        initial = ["--promptString", "Machine=vm", "--promptBool",
+                   "ManagedByNimbus=true", "--promptMultichoice",
+                   "Profiles=development/common/future-profile", "--promptBool",
+                   "Enable 1Password SSH integration=false"]
+        self.assert_success(self.chezmoi("init", "--no-tty", *initial, stored=True))
+        config = self.root / "chezmoi.toml"
+        config.write_text(config.read_text().replace(
+            'fastmailUsername = ""', 'fastmailUsername = "fixture@example.invalid"'))
+        enabled = [arg.replace("integration=false", "integration=true") for arg in initial]
+        self.assert_success(self.chezmoi(
+            "init", "--prompt", "--no-tty", *enabled, stored=True))
+        data = self.chezmoi("data", "--format=json", stored=True)
+        self.assert_success(data)
+        selection = json.loads(data.stdout)
+        self.assertTrue(selection["onePasswordSsh"])
+        self.assertTrue(selection["ManagedByNimbus"])
+        self.assertEqual(selection["Machine"], "vm")
+        self.assertEqual(selection["Profiles"], ["development", "common", "future-profile"])
+        self.assertEqual(selection["fastmailUsername"], "fixture@example.invalid")
+        self.assertEqual(self.calls(), [])
+        self.assertFalse((self.root / "unexpected-op").exists())
+        self.assertFalse((self.home / ".config/mise/config.toml").exists())
+        self.assertFalse((self.home / ".ssh").exists())
+
     def test_apply_writes_configs_before_install_and_repairs_missing_tool(self):
         # A PATH installation must not override Nimbus's installed binary.
         self.fake_mise(self.path_bin / "mise")

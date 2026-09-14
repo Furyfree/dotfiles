@@ -29,6 +29,10 @@ chezmoi init \
 
 Existing initialized sources keep their stored SSH integration choice. A fresh
 Nimbus init therefore never needs to ask about 1Password.
+The explicit 1Password postinstall workflow can offer opt-in later. It saves an
+approved choice with the same four native prompt flags and `init --prompt`,
+preserving the stored machine and ordered profiles. Saving the choice does not
+apply files or run scripts; the guided task previews selected files separately.
 
 The template consumes them with the `prompt*Once` functions and stores them
 in the generated config as `Machine`, `ManagedByNimbus`, and `Profiles`, which
@@ -81,7 +85,7 @@ Nimbus vocabulary; the machine manifest selects them:
 | `virtualization` | No additional profile-gated files; VM Curator defaults are managed on all Linux machines |
 | `gaming` | ProtonPlus update preferences through its GSettings hook |
 | `laptop-gaming` | Light gaming configuration (no managed files yet) |
-| `hyprland-noctalia` | Hyprland Lua starter, portable Noctalia preferences, selected app templates and palette includes; see [NOCTALIA.md](NOCTALIA.md) |
+| `hyprland-noctalia` | Hyprland Lua starter, UWSM session environment and startup, portable Noctalia preferences, selected app templates and palette includes; see [NOCTALIA.md](NOCTALIA.md) |
 | `niri-dms` | Modular Niri and curated DankMaterialShell settings on Linux; generated shell state stays unmanaged |
 | `windows-vm` | The Windows guest entries (no managed files yet) |
 

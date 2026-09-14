@@ -3,6 +3,37 @@
 [ROADMAP.md](ROADMAP.md) owns order and design; this file owns actionable status
 and evidence. Commands live in [README.md](README.md).
 
+## UWSM timeout and greeter integration, 2026-09-14
+
+- [x] Set `TimeoutStopFailureMode=terminate` in per-unit drop-ins for the two
+  named UWSM services; preserve Noctalia's ten-second timeout and disabled
+  final kill.
+- [x] Keep greeter auto-sync in Noctalia preferences and document Nimbus's
+  normal installation/sync authorization. No user script or postinstall added.
+- [x] Apply both drop-ins locally and reload the user manager. Both running
+  services report terminate mode; neither was restarted. A disposable unit
+  survived a stop timeout without SIGABRT and exited normally.
+- [x] Full `just check` passes 156 tests (three optional skips) and Bash checks.
+  Rerun the four Hyprland checks after adding the drop-ins; all pass, including
+  native validation and platform/profile gating. File diff is empty and file
+  verification passes; only five always-run scripts are pending.
+- [ ] Verify prompt-free wallpaper sync after native authorization. Nimbus owns
+  that root action; no rule was enabled during this change.
+
+## Guided 1Password selection, 2026-09-14
+
+- [x] Document Nimbus's explicit postinstall opt-in through existing Chezmoi
+  prompt flags. Chezmoi retains ownership of SSH/Git files; standalone behavior
+  and the default-disabled choice remain unchanged.
+- [x] Exercise real config regeneration in a temporary home, preserving machine,
+  ordered profiles and account metadata without running scripts, applying target
+  files or invoking 1Password. See the [README workflow](README.md#1password-ssh).
+- [x] `just check` passed, including Bash checks; three optional checks skipped
+  (Neovim downloads, unavailable Niri, opt-in Zathura GUI). Secret-skipping live
+  diff is empty and file verification passes; only five run-always scripts are
+  pending. No live apply or authentication was performed.
+- [ ] User verification of the updated Nimbus task against desktop authorization.
+
 ## Current phase - Desktop preparation and platform validation
 
 Plan: [desktop preparation and platform validation](ROADMAP.md#current-phase---desktop-preparation-and-platform-validation).
@@ -403,3 +434,19 @@ installation, update, and apply require their own explicit authorization.
   repository visibility are unchanged.
 - Validation: `just check` passes 115 Python tests with three skips plus the
   Bash suite. The focused native handoff test also passes.
+
+## UWSM session integration
+
+- [x] Move session environment from Hyprland Lua to profile-gated UWSM files.
+- [x] Launch apps through UWSM; keep focus and native IPC behavior.
+- [x] Start Noctalia and udiskie as named graphical-session user services.
+- [x] Use UWSM for Noctalia's launcher and logout; retain native power actions.
+- [x] Show topbar clock seconds and increase widget spacing to 10.
+- [ ] Confirm fresh-login services, launcher, logout and laptop bar fit visually.
+
+See [README](README.md#hyprland-starter) for activation and inspection.
+
+Validation: the full local gate passed (including native Hyprland and Noctalia
+parsing), as did ShellCheck for both UWSM environment files. Local file
+verification matches Chezmoi; only the five always-run scripts remain pending.
+The current session was not restarted.

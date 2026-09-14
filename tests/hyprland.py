@@ -94,6 +94,14 @@ class Hyprland(unittest.TestCase):
                                     self.assertEqual(entries[f".config/hypr/conf.d/{name}.lua"]["contents"],
                                                      source.read_text())
                         self.assertEqual(".config/noctalia/config.toml" in entries, enabled)
+                        self.assertEqual(".config/uwsm/env" in entries, enabled)
+                        self.assertEqual(".config/uwsm/env-hyprland" in entries, enabled)
+                        self.assertEqual(".config/systemd" in entries, enabled)
+                        for unit in ("app-noctalia.service", "app-udiskie.service"):
+                            target = f".config/systemd/user/{unit}.d/20-graceful-stop.conf"
+                            self.assertEqual(target in entries, enabled)
+                            if enabled:
+                                self.assertIn("TimeoutStopFailureMode=terminate", entries[target]["contents"])
 
     @unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
     def test_monitor_machine_gate(self):
@@ -200,7 +208,7 @@ for i = 2, #arg do
     local name = arg[i]:match("/conf%.d/([^/]+)$")
     assert(package.loaded["./conf.d/" .. name], "module is not loaded: " .. name)
 end
-assert(environment.PATH and #environment.PATH > 0, "session PATH is empty")
+assert(next(environment) == nil, "session environment belongs to UWSM")
 assert(#spawned == 0, "loading/reloading must not launch processes")
 assert(#dispatched == 0, "loading/reloading must not move the pointer")
 -- Only the selected app shortcuts use compositor focus-or-launch.
@@ -219,7 +227,7 @@ for _, app in ipairs(apps) do
     binding()
     assert(#spawned == 1 and #dispatched == 0, "missing app must launch")
     if app[3] then
-        assert(spawned[1] == app[3])
+        assert(spawned[1] == "uwsm-app -- " .. app[3])
     else
         assert(spawned[1]:find("for app in t3code-nightly t3code", 1, true))
     end
@@ -248,7 +256,7 @@ for key, command in pairs({
     ["SUPER+RETURN"] = "ghostty", ["SUPER+SHIFT+P"] = "1password",
     ["CTRL+SHIFT+SPACE"] = "1password --quick-access",
 }) do
-    assert(binds[key].name == "exec" and binds[key].value == command,
+    assert(binds[key].name == "exec" and binds[key].value == "uwsm-app -- " .. command,
            "native launch/activation must be preserved: " .. key)
 end
 -- A fresh installation must keep the keymap usable before HyprPM setup.

@@ -33,76 +33,76 @@ end
 
 hl.bind(
     mainMod .. " + SHIFT + B",
-    hl.dsp.exec_cmd("brave-origin"),
+    hl.dsp.exec_cmd("uwsm-app -- brave-origin"),
     { description = "Open Brave browser" }
 )
 hl.bind(
     mainMod .. " + SHIFT + F",
-    hl.dsp.exec_cmd("nautilus"),
+    hl.dsp.exec_cmd("uwsm-app -- nautilus"),
     { description = "Open file manager" }
 )
 hl.bind(
     mainMod .. " + SHIFT + O",
-    focus_or_launch("com.obsproject.Studio", "obs"),
+    focus_or_launch("com.obsproject.Studio", "uwsm-app -- obs"),
     { description = "Focus or open OBS Studio" }
 )
 -- Native activation targets the main window; Quick Access shares its class.
 hl.bind(
     mainMod .. " + SHIFT + P",
-    hl.dsp.exec_cmd("1password"),
+    hl.dsp.exec_cmd("uwsm-app -- 1password"),
     { description = "Focus or open 1Password" }
 )
 hl.bind(
     "CTRL + SHIFT + Space",
-    hl.dsp.exec_cmd("1password --quick-access"),
+    hl.dsp.exec_cmd("uwsm-app -- 1password --quick-access"),
     { description = "Open 1Password Quick Access" }
 )
 hl.bind(
     mainMod .. " + SHIFT + A",
-    focus_or_launch("Chatgpt", "chatgpt"),
+    focus_or_launch("Chatgpt", "uwsm-app -- chatgpt"),
     { description = "Focus or open ChatGPT" }
 )
 hl.bind(
     mainMod .. " + SHIFT + Z",
-    hl.dsp.exec_cmd("zed"),
+    hl.dsp.exec_cmd("uwsm-app -- zed"),
     { description = "Open Zed" }
 )
 hl.bind(
     mainMod .. " + SHIFT + R",
-    focus_or_launch("zeron", "zeron"),
+    focus_or_launch("zeron", "uwsm-app -- zeron"),
     { description = "Focus or open Zeron" }
 )
 hl.bind(
     mainMod .. " + SHIFT + T",
     focus_or_launch("t3code", [[for app in t3code-nightly t3code; do
-        if command -v "$app" >/dev/null 2>&1; then exec "$app"; fi
+        if command -v "$app" >/dev/null 2>&1; then exec uwsm-app -- "$app"; fi
     done
     notify-send "T3 Code" "T3 Code is not installed."]]),
     { description = "Focus or open T3 Code" }
 )
 hl.bind(
     mainMod .. " + SHIFT + V",
-    hl.dsp.exec_cmd("codium"),
+    hl.dsp.exec_cmd("uwsm-app -- codium"),
     { description = "Open VSCodium" }
 )
 hl.bind(
     mainMod .. " + SHIFT + D",
-    focus_or_launch("vesktop", "vesktop"),
+    focus_or_launch("vesktop", "uwsm-app -- vesktop"),
     { description = "Focus or open Discord in Vesktop" }
 )
 hl.bind(
     mainMod .. " + SHIFT + G",
-    focus_or_launch("signal", "signal-desktop"),
+    focus_or_launch("signal", "uwsm-app -- signal-desktop"),
     { description = "Focus or open Signal" }
 )
 hl.bind(
     mainMod .. " + SHIFT + E",
-    focus_or_launch("com.fastmail.Fastmail", "flatpak run com.fastmail.Fastmail"),
+    focus_or_launch("com.fastmail.Fastmail", "uwsm-app -- flatpak run com.fastmail.Fastmail"),
     { description = "Focus or open Fastmail" }
 )
 hl.bind(
     mainMod .. " + Return",
-    hl.dsp.exec_cmd("ghostty"),
+    hl.dsp.exec_cmd("uwsm-app -- ghostty"),
     { description = "Open Ghostty terminal" }
 )
 hl.bind(

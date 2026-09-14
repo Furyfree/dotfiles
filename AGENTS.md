@@ -21,6 +21,9 @@ those records. Nimbus also owns the setup-note catalog and its presentation.
 Nimbus may perform the explicitly approved lockscreen-widget override repair
 and retain a private backup. Chezmoi still owns the layout; do not add an
 after-apply runtime-state reset or manage those backups.
+Nimbus coordinates selected greeter appearance authorization through its
+normal approved init/sync. The native greeter owns its Polkit rule; Chezmoi
+only selects automatic sync in user preferences.
 Chezmoi owns Topgrade configuration: managed Linux delegates system updates
 to Nimbus; standalone Linux uses native system/Flatpak steps, and macOS uses
 Homebrew. Applying dotfiles does not run Topgrade.

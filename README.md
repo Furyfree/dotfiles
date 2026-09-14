@@ -78,6 +78,9 @@ Noctalia's native greeter auto-sync follows wallpaper and palette changes throug
 administrator authentication for sync. Prompt-free sync requires Noctalia 5.1.0
 or newer, Greeter 1.5.0 or newer, and the constrained authorization in the
 [upstream sync guide](https://docs.noctalia.dev/greeter/sync/). Existing
+Nimbus 0.5.3+ installs the selected constrained authorization through normal
+approved init/sync; there is no separate greeter postinstall. Standalone users
+follow the upstream authorization guide. Chezmoi does not create Polkit rules.
 GUI overrides still take precedence. Settings > Security > Noctalia Greeter >
 Sync Now refreshes the current wallpaper immediately.
 
@@ -685,7 +688,8 @@ under `program_options`; the smart-tray value is `auto`, not `smart`.
 `xdg-open` follows the default file manager instead of requiring Nautilus.
 These correct the live/Niriland reference structure using the
 [upstream configuration example](https://github.com/coldfix/udiskie/blob/master/doc/udiskie.8.txt).
-The Hyprland startup hook runs `udiskie --no-tray --no-notify` once per
+The Hyprland startup hook runs `udiskie --no-tray --no-notify` through UWSM
+as `app-udiskie.service` in the background graphical slice once per
 session. Automounting uses this config; Noctalia's enabled Udiskie Manager
 plugin supplies drive controls and notifications. Other sessions receive the
 config without a startup entry.
@@ -1715,7 +1719,7 @@ with `hyprland.lua` loading explicit relative module paths.
 macOS, Windows, and other profiles do not receive it; Nimbus is not required
 to use the user config. Nimbus owns package and greeter/session installation.
 
-`home/dot_config/hypr/conf.d/` reserves separate Lua files for environment,
+`home/dot_config/hypr/conf.d/` reserves separate Lua files for
 monitors, input, layout, decoration, animations, workspaces, window rules,
 keybindings, and autostart. All are populated, deployed, and loaded.
 Decoration loads Noctalia's optional generated palette;
@@ -1733,8 +1737,8 @@ record exact revisions and licenses; sections explain dependencies and choices
 to revisit. They are ignored by Chezmoi and are not included by `hyprland.lua`.
 
 Ghostty, Brave Origin (`brave-origin`), and Nautilus match Nimbus's current
-application selection. These are direct commands, not shell aliases or future
-Nimbus launch helpers, and do not change system MIME defaults.
+application selection. These native commands launch through `uwsm-app --`; they do not use shell
+aliases or change system MIME defaults.
 
 ScrollOverview uses Super+O to toggle a vertical overview on all monitors, at
 scale 0.5 with a blurred background. Chezmoi owns its Lua settings, shortcut and
@@ -1814,10 +1818,48 @@ transitions. Noctalia surfaces receive blur and keep their own animations, follo
 and optional Hyprland palette loading. See [NOCTALIA.md](NOCTALIA.md) for the
 application mapping, GUI override precedence, and remaining manual setup.
 
-The `hyprland.start` hook runs `noctalia --daemon` once per session, following
-[Noctalia's startup documentation](https://docs.noctalia.dev/noctalia/getting-started/running-the-shell/).
-Config reload does not start another instance. Do not also enable a Noctalia
-service or duplicate autostart entry. No old Quickshell startup command is used.
+The session must start through UWSM (the packaged Hyprland UWSM session entry).
+Nimbus installs that entry; standalone users supply UWSM and select it at login.
+Chezmoi owns `~/.config/uwsm/env` for shared PATH/Mise/editor defaults and
+`~/.config/uwsm/env-hyprland` for toolkit and cursor settings. UWSM resolves
+these below `XDG_CONFIG_HOME` when set and publishes the session environment;
+Hyprland does not duplicate it in Lua. Display and session identifiers remain
+runtime-owned. Log out and back in after environment/startup changes.
+
+The `hyprland.start` hook starts Noctalia through `uwsm app` as the named
+`app-noctalia.service` in `session-graphical.slice`, and udiskie as
+`app-udiskie.service` in `background-graphical.slice`. Both are transient user
+services tied to the graphical session; config reloads do not start duplicates.
+Noctalia has a ten-second graceful stop timeout with forced killing disabled.
+Chezmoi installs `20-graceful-stop.conf` in each service's directory below
+`~/.config/systemd/user/`. These drop-ins set `TimeoutStopFailureMode=terminate`,
+overriding Fedora's generic abort-on-timeout drop-in. A launch property alone
+loses to the packaged drop-in. This prevents a timeout from
+sending SIGABRT; udiskie retains systemd's normal final-kill behavior.
+After applying changed drop-ins, run `systemctl --user daemon-reload` or log in
+again. Chezmoi scripts do not reload or restart services.
+No separate service enablement, after-apply service hook or sudo is required.
+
+App shortcuts use `uwsm-app --`, preserving existing focus-or-launch behavior.
+Short-lived Noctalia IPC and other setup commands stay direct. Noctalia's own
+launcher uses `launch_apps_custom_command = "uwsm-app -- $CMD"` with its
+built-in service wrapper disabled. Logout uses `uwsm stop`; lock, suspend,
+reboot and shutdown retain their native actions and countdowns. This coordinates
+shutdown but does not guarantee application save dialogs.
+
+The topbar clock uses `HH:MM:SS`, with widget spacing 10 (native default 6).
+GUI overrides still win: reset only conflicting settings through Noctalia.
+Do not delete all runtime preferences. Inspect session services and logs with:
+
+```sh
+systemctl --user status app-noctalia.service app-udiskie.service
+journalctl --user -u app-noctalia.service -u app-udiskie.service -b
+```
+
+Nimbus's source lockscreen repair recognizes this service and restarts it
+through UWSM after verification. Until that engine change is released, use the
+updated checkout's `go run ./cmd/nimbus postinstall noctalia-lockscreen` when
+repairing a UWSM-managed shell. Older engines restart Noctalia directly.
 
 Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 
@@ -2209,6 +2251,11 @@ SSH targets stay ignored, including when the feature is selected.
 Standalone initialization asks whether to enable the integration, defaulting
 to false. Nimbus supplies false during fresh initialization so there is no
 extra prompt; its explicit `--onepassword-ssh` option enables the integration.
+On a Nimbus-managed machine, `nimbus postinstall onepassword` also offers to
+enable SSH/Git integration, defaulting to no. It saves an explicit yes through
+Chezmoi, preserving machine and profiles, then guides GUI setup and previews only
+the selected files before applying. `--mark-done` checks existing setup without
+changing the choice. A later setup failure leaves the choice enabled for retry.
 Existing stored choices survive ordinary reruns. The prompt itself requires
 neither `op` nor an unlocked vault, but applying enabled targets does.
 On Linux/macOS,
