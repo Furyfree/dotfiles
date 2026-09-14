@@ -1722,8 +1722,9 @@ macOS, Windows, and other profiles do not receive it; Nimbus is not required
 to use the user config. Nimbus owns package and greeter/session installation.
 
 `home/dot_config/hypr/conf.d/` reserves separate Lua files for
-monitors, input, layout, decoration, animations, workspaces, window rules,
-keybindings, and autostart. All are populated, deployed, and loaded.
+monitors, input, layout, decoration, animations, workspaces, workspace layout
+choices, shared window actions, window rules, keybindings, and autostart.
+All are populated, deployed, and loaded.
 Decoration loads Noctalia's optional generated palette;
 window rules let Noctalia animate its own surfaces.
 The grouping follows the native module layouts in
@@ -1792,11 +1793,33 @@ On `Machine=laptop`, the internal `eDP-1` panel uses its preferred mode and
 scale 1.5: 2880x1800 becomes a 1920x1200 logical workspace. Unlisted outputs
 keep automatic scaling. Window sizes remain unchanged pending visual review.
 
-`conf.d/layout.lua` selects native scrolling with half-width columns.
-Super+F toggles the focused column between half and full width, even when alone.
-Focus brings columns into view without centering them, while hovering does not
-scroll the view. Width presets match Niri's one-third, one-half, and two-thirds;
-the layout's column focus/swap commands do not wrap at the ends.
+`conf.d/layout.lua` defaults to Dwindle. Super+Alt+L toggles the active
+workspace between Dwindle and Scrolling. Each workspace's choice survives reload
+and login: the helper writes `$XDG_STATE_HOME/hypr/workspace-layouts/choices.tsv`
+(default `~/.local/state/hypr/workspace-layouts/choices.tsv`). Chezmoi manages
+the helper, not those local choices.
+
+Dwindle preserves split orientation and places new tiles on the right or bottom.
+Super+J changes the focused split between side-by-side and above/below.
+Scrolling starts columns at half width; a lone column fills the available width.
+Its presets are one-third, one-half, and two-thirds. Super+R cycles them,
+Super+C centers the column, and Super+F switches half/full column width.
+In Dwindle, Super+F maximizes/restores the focused window. Super+Shift+Return
+controls actual fullscreen in either layout. Layout-specific shortcuts safely
+do nothing when the current layout or window does not support the action.
+
+Super+Minus/Plus narrows/widens by 50 logical pixels; add Shift to change
+height instead. These use the Danish Minus/Plus keys and repeat while held.
+The shared action handles resizing from either side of a tiled split so Plus
+enlarges the focused window. Available space and minimum sizes still limit
+resizing. Super+Alt+Left/Right joins the focused scrolling window into an
+adjacent column, or separates it from a stacked column in that direction.
+Window moves and swaps operate on individual windows, not whole columns.
+
+Window movement uses a critically damped spring (mass 1, stiffness 800,
+dampening 56.56854249). Vertical workspace transitions use the tested spring
+(mass 1, stiffness 523, dampening 39). Gestures trigger these normal transitions;
+they do not drag the layout continuously.
 
 Decoration uses inner/outer gaps of 3/3, 2-pixel borders, 12-pixel circular
 corners, light blur (size 3, two passes), and small shadows. Ordinary windows use
@@ -1885,19 +1908,24 @@ Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 | Super+Ctrl+P | Portctl |
 | Super+Ctrl+M | Screen mirroring |
 | Super+Ctrl+N | Notes |
-| Super+Ctrl+T | Translator |
 | Super+Ctrl+S | SSH launcher |
 | Super+Ctrl+C | Noctalia crash history and diagnostics |
 | Super+Ctrl+L | Toggle Lid Guard (laptop only) |
 | Super+Return | Ghostty |
 | Super+W | Close focused window |
 | Super+Q | Toggle tiled/floating |
-| Super+R | Cycle column width presets |
-| Super+C | Center column |
-| Super+F | Toggle half/full column width |
+| Super+R | Scrolling: cycle column width presets |
+| Super+C | Scrolling: center column |
+| Super+F | Scrolling: half/full column width; Dwindle: maximize/restore |
+| Super+J | Dwindle: toggle split orientation |
+| Super+Minus / Plus | Narrow / widen by 50 logical pixels; hold to repeat |
+| Super+Shift+Minus / Plus | Shorten / grow height by 50 logical pixels; hold to repeat |
+| Super+Alt+Left / Right | Scrolling: join/separate the window toward that side |
+| Super+Alt+L | Toggle workspace layout: Dwindle / Scrolling |
 | Super+Shift+Return | Toggle fullscreen |
 | Super+L | Lock session |
-| Alt+Tab | Open Noctalia window switcher |
+| Super+Tab | Open Noctalia window picker |
+| Alt+Tab | Return to the last workspace on this monitor |
 | Super+Shift+S | Capture screen region |
 | Print / Shift+Print | Capture region / current monitor |
 | Volume / mute / microphone mute keys | Adjust audio through Noctalia |
@@ -1908,6 +1936,9 @@ Bindings live in `conf.d/keybinds.lua`. Super is the Windows key:
 | Super+Shift+W | Toggle Noctalia wallpaper browser |
 | Super+arrows | Focus in that direction on this monitor |
 | Super+Shift+arrows | Swap windows in that direction on this monitor |
+| Super+Ctrl+arrows | Focus the monitor in that direction |
+| Super+Alt+Up / Down | Previous / next workspace on this monitor |
+| Super+Shift+Alt+Up / Down | Move window there and follow |
 | Super+Shift+Ctrl+arrows | Move window to the monitor in that direction |
 | Super+1-9 / 0 | Select local workspace 1-9 / 10 on the current monitor |
 | Super+Shift+1-9 / 0 | Move window to that local workspace and follow it |
@@ -1936,7 +1967,9 @@ move behavior.
 The Noctalia shortcuts use its [native IPC commands](https://docs.noctalia.dev/noctalia/compositor-settings/hyprland/#ipc-keybinds).
 Volume and brightness repeat while held and work on the lock screen; mute
 toggles work while locked without repeating. Noctalia's window switcher uses
-Tab/Shift+Tab or arrows to select, Enter to activate, and Escape to cancel.
+Tab/Shift+Tab or arrows to select, Enter or a click to activate, and Escape to
+cancel. Super+Shift+Tab and Super+Ctrl+Tab are unbound globally; opening the
+picker directly in reverse is not exposed by Noctalia 5.1.
 Its settings window floats and centers instead of joining the scrolling columns.
 
 1Password matches the class `com.onepassword.OnePassword` and opens floating
@@ -1951,8 +1984,22 @@ fast key repeat, and focus following the pointer. The pointer moves to newly
 opened foreground windows and follows workspace changes. Activation requests
 can bring already-running apps forward. The touchpad uses natural
 scrolling, tap to click, and finger-count clicks, and is disabled while typing.
-Swipe up or down with three fingers to switch workspaces.
-Swipe horizontally with three fingers to scroll through window columns.
+Three-finger swipes perform one keyboard-equivalent action when the gesture
+ends, in either layout. Their directions follow content movement:
+
+| Swipe | Action |
+|---|---|
+| Left | Focus the neighbouring window to the right |
+| Right | Focus the neighbouring window to the left |
+| Up | Switch to the next workspace below |
+| Down | Switch to the previous workspace above |
+
+Vertical swipes use the same helper as Super+Alt+Up/Down; horizontal swipes use
+the same directional focus action as Super+arrows. There is no continuous
+dragging, momentum-based destination or repeated action during one swipe.
+Workspace stepping stops at the first workspace and can create empty slots
+when moving forward. Continuous-swipe tuning in the input config is inactive
+with these callback gestures.
 
 `conf.d/workspaces.lua.tmpl` defines ten local slots per desktop monitor.
 Only slots 1-5 are persistent. The number shortcuts select all ten slots,
@@ -2026,9 +2073,11 @@ just check-desktop
 ```
 
 The local tests check platform/profile gates, module loading, duplicate
-shortcuts, descriptions, startup guards and generated-file ownership. They
-do not pin gaps, rounding, animation timing, shortcut choices or session-menu
-order. The Lua test double cannot validate Hyprland's complete native schema.
+shortcuts, descriptions, startup guards and generated-file ownership. Hyprland
+regressions cover the picker mapping, natural swipe directions, one action per
+swipe, layout-specific guards and local workspace-layout persistence. They do
+not pin gaps, rounding, animation timing or session-menu order. The Lua test
+double cannot validate Hyprland's complete native schema.
 Run `just check-desktop` on the desktop or VM to validate both Hyprland and
 Noctalia with their installed parsers; missing tools fail this gate instead
 of skipping it. These parsers still cannot prove rendering, physical input,

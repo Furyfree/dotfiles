@@ -6,6 +6,10 @@ hl.config({ animations = { enabled = true } })
 hl.curve("easeOut", { type = "bezier", points = { { 0.215, 0.61 }, { 0.355, 1 } } })
 hl.curve("easeIn", { type = "bezier", points = { { 0.4, 0 }, { 1, 1 } } })
 hl.curve("linear", { type = "bezier", points = { { 0, 0 }, { 1, 1 } } })
+-- Firm column settling and gentle workspace movement.
+-- Hyprland 0.56 uses dampening as the damping coefficient.
+hl.curve("gentleMove", { type = "spring", mass = 1, stiffness = 800, dampening = 56.56854249 })
+hl.curve("gentleWorkspace", { type = "spring", mass = 1, stiffness = 523, dampening = 39 })
 hl.animation({
     leaf = "global",
     enabled = true,
@@ -41,15 +45,15 @@ hl.animation({
     leaf = "windowsMove",
     enabled = true,
     speed = 2.0,
-    bezier = "easeOut",
+    spring = "gentleMove",
 })
 hl.animation({ leaf = "border", enabled = true, speed = 1, bezier = "linear" })
 
--- Workspaces feel stacked vertically, with full travel in 240 ms.
+-- Workspaces remain stacked vertically, with gentle spring settling.
 hl.animation({
     leaf = "workspaces",
     enabled = true,
     speed = 2.4,
-    bezier = "easeOut",
+    spring = "gentleWorkspace",
     style = "slidevert",
 })

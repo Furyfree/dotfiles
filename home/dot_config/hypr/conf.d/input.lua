@@ -29,7 +29,11 @@ hl.config({
         warp_on_toggle_special = 1,
     },
     -- Persistent workspaces are a starting set, not a limit on swipe navigation.
-    gestures = { workspace_swipe_create_new = true },
+    gestures = {
+        workspace_swipe_create_new = true,
+        -- Retained continuous-swipe preferences; callbacks below do not use them.
+        scrolling = { move_snap_to_grid = true, move_snap_cursor = false },
+    },
 })
 
 -- New windows already receive keyboard focus; move the pointer there too.
@@ -43,8 +47,16 @@ hl.on("window.open", function(window)
     end
 end)
 
--- Swipe between workspaces vertically, matching their animations.
-hl.gesture({ fingers = 3, direction = "vertical", action = "workspace" })
+-- Natural direction: swipe content up to reach the next workspace below.
+-- The root config loads workspaces.lua after this file, before any swipe runs.
+hl.gesture({ fingers = 3, direction = "up", action = function()
+    assert(package.loaded["./conf.d/workspaces.lua"]).step(1, false)
+end })
+hl.gesture({ fingers = 3, direction = "down", action = function()
+    assert(package.loaded["./conf.d/workspaces.lua"]).step(-1, false)
+end })
 
--- Scroll through window columns horizontally.
-hl.gesture({ fingers = 3, direction = "horizontal", action = "scroll_move" })
+-- Natural direction: swipe content left to focus the window to the right.
+local window_actions = assert(package.loaded["./conf.d/window-actions.lua"])
+hl.gesture({ fingers = 3, direction = "left", action = function() window_actions.focus("r") end })
+hl.gesture({ fingers = 3, direction = "right", action = function() window_actions.focus("l") end })

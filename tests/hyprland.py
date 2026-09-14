@@ -130,7 +130,11 @@ class Hyprland(unittest.TestCase):
         result = self.run_command(LUA, "-", str(config), *modules, input=r'''
 local binds, hooks, spawned, environment = {}, {}, {}, {}
 local dispatched = {}
-local windows = {}
+local windows, gestures = {}, {}
+local active_window
+local monitor = { name = "DP-4" }
+local active_workspace = { id = 2, monitor = monitor }
+local previous_workspace = { id = 1, monitor = monitor }
 local curves, animations = { default = true }, {}
 -- Model Hyprland 0.56's explicit-path require with the actual module files.
 for i = 2, #arg do
@@ -163,7 +167,9 @@ hl = {
     end,
     gesture = function(value)
         assert(type(value.fingers) == "number" and value.fingers > 0)
-        assert(type(value.direction) == "string" and type(value.action) == "string")
+        assert(type(value.direction) == "string" and type(value.action) == "function")
+        assert(not gestures[value.direction], "duplicate gesture direction")
+        gestures[value.direction] = value.action
     end,
     monitor = function(value) assert(type(value.output) == "string") end,
     config = function(value)
@@ -176,6 +182,14 @@ hl = {
         table.insert(hooks[event], callback)
     end,
     exec_cmd = function(command) table.insert(spawned, command) end,
+    get_active_window = function() return active_window end,
+    get_active_workspace = function() return active_workspace end,
+    get_active_monitor = function() return monitor end,
+    get_last_workspace = function(selected)
+        assert(selected == monitor)
+        return previous_workspace
+    end,
+    get_workspaces = function() return { previous_workspace, active_workspace } end,
     get_windows = function(filter)
         assert(filter.mapped == true)
         local mapped = {}
@@ -285,6 +299,71 @@ end
 assert(#dispatched == 1, "a foreground window should receive the pointer once")
 assert(dispatched[1].name == "cursor.move")
 assert(dispatched[1].value.x == 500 and dispatched[1].value.y == 500)
+-- The final picker mapping must not regress to direct window cycling.
+assert(binds["SUPER+TAB"].name == "exec")
+assert(binds["SUPER+TAB"].value == "noctalia msg window-switcher")
+assert(not binds["SUPER+SHIFT+TAB"] and not binds["SUPER+CTRL+TAB"])
+dispatched = {}
+binds["ALT+TAB"]()
+assert(#dispatched == 1 and dispatched[1].value.workspace == previous_workspace)
+
+-- Each swipe calls exactly one directional action, in natural-scroll direction.
+for direction, expected in pairs({ left = "r", right = "l" }) do
+    dispatched = {}
+    gestures[direction]()
+    assert(#dispatched == 1 and dispatched[1].name == "focus")
+    assert(dispatched[1].value.direction == expected)
+end
+for direction, expected in pairs({ up = "r+1", down = "r-1" }) do
+    dispatched = {}
+    gestures[direction]()
+    assert(#dispatched == 1 and dispatched[1].value.workspace == expected)
+end
+assert(not gestures.horizontal and not gestures.vertical)
+active_workspace = previous_workspace
+dispatched = {}
+gestures.down()
+assert(#dispatched == 0, "swiping down at the first workspace must not wrap")
+
+-- Regression: scrolling-only bindings used to raise errors in Dwindle.
+active_window = { mapped = true, floating = false, fullscreen = 0,
+    workspace = active_workspace, layout = { name = "dwindle" } }
+windows = { active_window }
+for _, key in ipairs({ "SUPER+R", "SUPER+C", "SUPER+ALT+LEFT", "SUPER+ALT+RIGHT", "SUPER+J" }) do
+    dispatched = {}
+    binds[key]()
+    assert(#dispatched == 0, "unsupported/single-tile action must be ignored: " .. key)
+end
+dispatched = {}
+binds["SUPER+F"]()
+assert(dispatched[1].name == "fullscreen" and dispatched[1].value.mode == "maximized")
+local second = { mapped = true, floating = false, layout = { name = "dwindle" } }
+windows[2] = second
+dispatched = {}
+binds["SUPER+J"]()
+assert(#dispatched == 1 and dispatched[1].value == "togglesplit")
+
+active_window.layout = { name = "scrolling", column = { width = 0.5, index = 0 } }
+active_window.layout.column.windows = { active_window }
+second.layout = { name = "scrolling", column = { index = 1 } }
+dispatched = {}
+binds["SUPER+J"]()
+binds["SUPER+ALT+LEFT"]()
+assert(#dispatched == 0, "no split action or nonexistent previous column")
+binds["SUPER+ALT+RIGHT"]()
+assert(#dispatched == 1 and dispatched[1].value == "consume_or_expel next")
+active_window.layout.column.windows = { active_window, second }
+dispatched = {}
+binds["SUPER+ALT+LEFT"]()
+assert(dispatched[1].value == "consume_or_expel prev")
+for _, floating in ipairs({ true, false }) do
+    active_window.floating = floating
+    active_window.fullscreen = floating and 0 or 2
+    dispatched = {}
+    binds["SUPER+R"](); binds["SUPER+C"](); binds["SUPER+J"](); binds["SUPER+ALT+RIGHT"]()
+    assert(#dispatched == 0, "floating/fullscreen window must skip tiled layout commands")
+end
+active_window, windows, dispatched = nil, {}, {}
 for _, callback in ipairs(hooks["hyprland.start"] or {}) do callback() end
 -- Exercise the conditional Bluetooth startup without pinning other startup commands.
 local bluetooth = {}
@@ -331,6 +410,41 @@ print(bluetooth[1])
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, "")
         self.assertEqual(result.stderr, "")
+
+    @unittest.skipUnless(LUA and shutil.which("mkdir"), "lua or mkdir is not installed")
+    def test_workspace_layout_choices_persist_as_local_data(self):
+        state = self.root / "state with ' quote"
+        self.env["XDG_STATE_HOME"] = str(state)
+        self.env["PATH"] = str(Path(shutil.which("mkdir")).parent)
+        module = CONFIG.parent / "conf.d/workspace-layouts.lua"
+        result = self.run_command(LUA, "-", str(module), input=r'''
+local current = { id = 1, tiled_layout = "dwindle" }
+local rules = {}
+hl = {
+    get_active_workspace = function() return current end,
+    workspace_rule = function(rule) rules[rule.workspace] = rule.layout end,
+    exec_cmd = function(_) end,
+}
+local actions = assert(loadfile(arg[1]))()
+assert(next(rules) == nil)
+actions.toggle()
+assert(rules["1"] == "scrolling")
+current = { id = 2, tiled_layout = "scrolling" }
+actions.toggle()
+assert(rules["2"] == "dwindle")
+local path = os.getenv("XDG_STATE_HOME") .. "/hypr/workspace-layouts/choices.tsv"
+local file = assert(io.open(path, "r"))
+assert(file:read("*a") == "1\tscrolling\n2\tdwindle\n")
+file:close()
+file = assert(io.open(path, "a"))
+file:write("invalid\tmaster\n3\tunknown\nthis is not Lua code\n")
+file:close()
+rules = {}
+assert(loadfile(arg[1]))()
+assert(rules["1"] == "scrolling" and rules["2"] == "dwindle")
+assert(rules["3"] == nil and rules.invalid == nil)
+''')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     @unittest.skipUnless(HYPRLAND and CHEZMOI, "Hyprland or chezmoi is not installed; native check needs 0.56+")
     def test_native_config(self):

@@ -1,10 +1,12 @@
 -- Load the Hyprland configuration modules from conf.d.
 
 -- UWSM prepares the session environment before starting Hyprland.
+require("./conf.d/window-actions.lua")
 require("./conf.d/input.lua")
 require("./conf.d/monitors.lua")
 require("./conf.d/layout.lua")
 require("./conf.d/workspaces.lua")
+require("./conf.d/workspace-layouts.lua")
 require("./conf.d/decoration.lua")
 require("./conf.d/animations.lua")
 require("./conf.d/window-rules.lua")

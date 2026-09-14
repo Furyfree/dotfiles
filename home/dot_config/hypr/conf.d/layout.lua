@@ -1,10 +1,11 @@
--- Scrolling columns, window widths, and focus behavior.
+-- Dwindle by default; individual workspaces can switch to scrolling.
 hl.config({
-    general = { layout = "scrolling" },
+    general = { layout = "dwindle" },
+    dwindle = { preserve_split = true, force_split = 2 },
     scrolling = {
-        -- Start at half-width and honor Super+F even with only one column.
+        -- Half-width columns; a lone column fills the available width.
         column_width = 0.5,
-        fullscreen_on_one_column = false,
+        fullscreen_on_one_column = true,
         direction = "right",
 
         -- Bring focused columns into view without centering or scrolling on hover.
