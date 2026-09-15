@@ -2309,8 +2309,9 @@ the selected files before applying. `--mark-done` checks existing setup without
 changing the choice. A later setup failure leaves the choice enabled for retry.
 Existing stored choices survive ordinary reruns. The prompt itself requires
 neither `op` nor an unlocked vault, but applying enabled targets does.
-On Linux/macOS,
-`onePasswordSsh = true` manages:
+On Linux/macOS, `onePasswordSsh = true` manages the following personal-machine
+targets. The work-laptop selection below replaces the Homelab identity and
+does not retrieve the SSH Document.
 
 - `~/.ssh/` with mode `0700`, without removing unrelated files
 - `~/.ssh/config` with mode `0600`, rendered from the SSH Document item
@@ -2337,6 +2338,41 @@ The generated Chezmoi config sets `secret.command = "op"` and
 `onepassword.prompt = false`: authorization stays with the desktop app instead
 of Chezmoi requesting CLI session tokens. `op` uses its selected account;
 ensure it is the account containing all three items.
+
+### Work laptop
+
+During standalone `chezmoi init --prompt`, set `Machine` to `work-laptop`,
+leave `ManagedByNimbus` false, and enable 1Password SSH integration.
+This is a machine selection, not a new profile. Linux and macOS are supported;
+Windows SSH integration remains deferred.
+
+Chezmoi retrieves the public fields of GitHub item
+`n6imsp5vfs5nmlt5rmxgs6zdci` and work item `cwlhpt5lcyn3dsuyx4wyms2ama` into
+`~/.ssh/github.pub` and `~/.ssh/work.pub`. The agent configuration selects only
+those two items. The personal SSH Document and Homelab key are not requested.
+Ensure the selected 1Password account can retrieve both items.
+
+`Host github.com` selects the personal GitHub key and user `git`.
+`Host * !github.com` selects the work key for every other destination; it does
+not set a username. Global `IdentitiesOnly yes` prevents offering unrelated
+agent keys. Both use the platform's 1Password agent socket. The exclusion keeps
+the work identity out of GitHub's accumulated `IdentityFile` list.
+GitHub aliases and alternative hostnames match the work rule unless explicitly
+configured otherwise. HTTPS Git remotes do not use these SSH rules.
+
+Preview the change locally before applying. Existing work host settings such as
+usernames, ports and jump hosts must be incorporated before replacing an existing
+SSH config. Ignoring a previously deployed `homelab.pub` does not delete it.
+
+```sh
+chezmoi diff ~/.ssh/config ~/.ssh/github.pub ~/.ssh/work.pub ~/.config/1Password/ssh/agent.toml
+```
+
+Private keys stay in 1Password. This selection changes SSH authentication only:
+the existing Git configuration still enables signing with the personal GitHub
+key globally. Work-repository signing overrides remain separately configured.
+
+### Changing or disabling the integration
 
 When disabled, those targets are ignored but existing files are not deleted.
 Run `chezmoi init --prompt` to change the choice; this still does not apply.

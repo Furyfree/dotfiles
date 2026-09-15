@@ -115,6 +115,12 @@ when logging into a different compositor. See [desktop setup](README.md#niri-and
 GPU hardware is not a profile. Nimbus inspection detects hardware; a selected
 graphics component declares the desired capability.
 
+With 1Password SSH enabled, `Machine = "work-laptop"` selects the personal
+GitHub key for `github.com` and the work key for other SSH destinations on Linux
+and macOS. Other machines retain the GitHub/Homelab selection. This uses the
+existing machine value without adding a profile or changing the Nimbus handoff.
+See [work laptop setup](README.md#work-laptop).
+
 ## Deferred machine profiles
 
 These names are reserved but disabled in the initial setup:

@@ -2,6 +2,12 @@
 [[ssh-keys]]
 item = "n6imsp5vfs5nmlt5rmxgs6zdci"
 
+{{ if eq (get . "Machine") "work-laptop" -}}
+# Work
+[[ssh-keys]]
+item = "cwlhpt5lcyn3dsuyx4wyms2ama"
+{{ else -}}
 # Homelab
 [[ssh-keys]]
 item = "3ppqekfxnmjtg2iapnr5d7gewi"
+{{ end -}}
