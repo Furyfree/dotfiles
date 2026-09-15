@@ -111,7 +111,15 @@ AppData/Roaming/Zed/themes/**
 .ssh/config
 .ssh/github.pub
 .ssh/homelab.pub
+.ssh/work.pub
 .config/1Password/**
+{{ end -}}
+
+# The work laptop uses its work identity instead of the Homelab identity.
+{{ if eq (get . "Machine") "work-laptop" -}}
+.ssh/homelab.pub
+{{ else -}}
+.ssh/work.pub
 {{ end -}}
 
 # Git's personal settings remain unmanaged; shared defaults use .config/git/.
