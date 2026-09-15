@@ -1095,6 +1095,12 @@ opacity, and steady block cursor. Ghostty falls back to its bundled font if
 the requested font is unavailable; font installation stays outside this config.
 Blur depends on the compositor/platform and is not guaranteed on Linux.
 
+On Linux, Ghostty reuses its process while windows are open and exits when the
+last window closes. Hyprland's Super+Return uses `ghostty +new-window` through
+UWSM for native D-Bus activation. No background autostart or keep-alive is enabled.
+The installed Ghostty package must supply its D-Bus activation files; see the
+[upstream launch documentation](https://ghostty.org/docs/linux/systemd).
+
 Linux with `hyprland-noctalia` selects `theme = noctalia`, whether or not Nimbus
 manages the machine. The profile enables Ghostty's built-in integration.
 Noctalia generates `~/.config/ghostty/themes/noctalia`; Chezmoi manages the

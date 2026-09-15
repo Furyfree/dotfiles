@@ -267,7 +267,7 @@ end
 for key, command in pairs({
     ["SUPER+SHIFT+B"] = "brave-origin", ["SUPER+SHIFT+F"] = "nautilus",
     ["SUPER+SHIFT+Z"] = "zed", ["SUPER+SHIFT+V"] = "codium",
-    ["SUPER+RETURN"] = "ghostty", ["SUPER+SHIFT+P"] = "1password",
+    ["SUPER+RETURN"] = "ghostty +new-window", ["SUPER+SHIFT+P"] = "1password",
     ["CTRL+SHIFT+SPACE"] = "1password --quick-access",
 }) do
     assert(binds[key].name == "exec" and binds[key].value == "uwsm-app -- " .. command,
