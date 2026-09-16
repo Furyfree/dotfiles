@@ -2037,6 +2037,27 @@ after editing them, refresh its snapshot with
 Application bindings use `obs`, `chatgpt`, `zed`, `codium`, `vesktop`, and
 `flatpak run com.fastmail.Fastmail`. Zed is not installed in the current VM;
 its shortcut requires `zed` on PATH. Shell aliases are not used.
+
+On Linux, the managed `~/.local/bin/chatgpt` launcher passes
+`--ozone-platform=wayland` in a Wayland session. The user desktop entry uses
+that launcher too, so terminal launches, the app menu, Codex links and the
+Hyprland shortcut keep native rendering after package updates. Fully quit and
+reopen ChatGPT after applying; an existing process retains its display backend.
+For troubleshooting, `chatgpt --ozone-platform=x11` explicitly selects XWayland.
+OpenAI currently defaults to XWayland and describes native Wayland support as
+experimental, with possible focus, shortcut and floating-window limitations:
+see the [Linux app documentation](https://learn.chatgpt.com/docs/linux/linux-app#wayland-support).
+
+UWSM already prefers Wayland for GTK and Qt and also supplies
+`ELECTRON_OZONE_PLATFORM_HINT=auto` for older Electron apps. Modern Electron
+uses `XDG_SESSION_TYPE` and ignores that retired hint; an app can still override
+its backend. Session environment changes take effect at the next login.
+Inspect live backends with `hyprctl clients` (`xwayland: 0` is native Wayland).
+X11-only apps cannot be forced onto Wayland. Global
+`xwayland.force_zero_scaling` is left at its default because disabling
+compositor scaling can make those apps too small on the laptop's 150% display;
+handle their own HiDPI settings individually.
+
 The compatible LibrePods fork starts through its headless user unit when the
 command, service and Bluetooth adapter are available. Older builds are skipped.
 Reloading the config does not launch another instance. Nimbus supplies the package. The

@@ -3,6 +3,10 @@
 export GDK_BACKEND='wayland,x11,*'
 export QT_QPA_PLATFORM='wayland;xcb'
 
+# Older Electron apps need this hint; newer versions use XDG_SESSION_TYPE.
+# Apps that explicitly select X11 still need their own launch override.
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+
 # GTK compose/dead keys, including applications activated through D-Bus.
 export GTK_IM_MODULE=simple
 
@@ -20,9 +24,8 @@ export HYPRCURSOR_SIZE=24
 # export XDG_CURRENT_DESKTOP="Hyprland"
 # export XDG_SESSION_DESKTOP="Hyprland"
 
-# Older or app-specific Wayland overrides; modern Electron removed its hint variable.
+# Older or app-specific Wayland overrides.
 # export MOZ_ENABLE_WAYLAND="1"
-# export ELECTRON_OZONE_PLATFORM_HINT="auto"
 # export OZONE_PLATFORM="wayland"
 
 # Qt alternatives: use only when deliberately changing theming, scaling, or titlebars.

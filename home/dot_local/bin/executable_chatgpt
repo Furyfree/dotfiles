@@ -1,0 +1,16 @@
+#!/bin/sh
+# The Linux app defaults to XWayland; use native rendering on Wayland desktops.
+# Keep an explicit backend available for troubleshooting.
+for argument do
+    case "$argument" in
+        --ozone-platform|--ozone-platform=*)
+            exec /usr/bin/chatgpt "$@"
+            ;;
+    esac
+done
+
+if [ "${XDG_SESSION_TYPE:-}" = wayland ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    set -- --ozone-platform=wayland "$@"
+fi
+
+exec /usr/bin/chatgpt "$@"

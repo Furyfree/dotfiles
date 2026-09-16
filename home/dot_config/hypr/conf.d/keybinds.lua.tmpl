@@ -10,12 +10,12 @@ hl.config({ binds = { window_direction_monitor_fallback = false } })
 -- 1. Applications and panels
 -- Focus the most recently used app window, even on another workspace.
 -- Match exact compositor classes; launcher names and desktop metadata can differ.
-local function focus_or_launch(class, command)
+local function focus_or_launch(class, command, alternate_class)
     return function()
         local target
         local newest = math.huge
         for _, window in ipairs(hl.get_windows({ mapped = true })) do
-            if window.class == class and not window.hidden then
+            if (window.class == class or window.class == alternate_class) and not window.hidden then
                 local rank = window.focus_history_id
                 if rank < 0 then rank = math.huge end
                 if not target or rank < newest then
@@ -60,7 +60,8 @@ hl.bind(
 )
 hl.bind(
     mainMod .. " + SHIFT + A",
-    focus_or_launch("Chatgpt", "uwsm-app -- chatgpt"),
+    -- Native Wayland and explicit XWayland launches report different classes.
+    focus_or_launch("chatgpt", "uwsm-app -- chatgpt", "Chatgpt"),
     { description = "Focus or open ChatGPT" }
 )
 hl.bind(

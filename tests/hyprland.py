@@ -228,6 +228,7 @@ assert(#dispatched == 0, "loading/reloading must not move the pointer")
 -- Only the selected app shortcuts use compositor focus-or-launch.
 local apps = {
     { "O", "com.obsproject.Studio", "obs" },
+    { "A", "chatgpt", "chatgpt" },
     { "A", "Chatgpt", "chatgpt" },
     { "R", "zeron", "zeron" },
     { "T", "t3code" },
