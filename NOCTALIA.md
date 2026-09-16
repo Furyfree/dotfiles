@@ -56,6 +56,24 @@ second theme plugin. Terminal inheritance preserves their existing behavior and
 avoids competing writers or another dependency. Existing GUI template overrides
 must also omit those three to use this ownership model.
 
+## Upstream issues to track
+
+Reported on 2026-09-16 with Noctalia 5.1.0, Hyprland 0.56.2 and Fedora 44
+on Wayland. Keep these public desktop-behavior reports here alongside the
+profile integration; Nimbus continues to own package updates and private
+diagnostics. No configuration workaround has been added for either report.
+
+| Report | Status checked 2026-09-16 | Behavior to retest after a Noctalia update |
+|---|---|---|
+| [1Password paste into Noctalia text fields (#4457)](https://github.com/noctalia-dev/noctalia/issues/4457) | Open. With 1Password 8.12.36, Noctalia pastes older clipboard content, or nothing, into Wi-Fi fields, launcher search and other text fields. Other applications paste the new value correctly. | Copy a dummy field from 1Password and paste into the Wi-Fi dialog and launcher. The current value should paste while remaining excluded from clipboard history. |
+| [Clipboard lost after closing Ghostty (follow-up on #3793)](https://github.com/noctalia-dev/noctalia/issues/3793#issuecomment-5694186795) | Follow-up posted on the closed upstream issue: copying text from Ghostty and closing its window still prevents pasting on 5.1.0, with `clipboard_keep_from_closed_apps = true`. Selecting the saved history entry restores pasting. | Copy harmless text from Ghostty, close the source window, then paste into another application without selecting a history entry first. |
+
+The earlier clipboard-preservation fix
+[`f3b13fc`](https://github.com/noctalia-dev/noctalia/commit/f3b13fcd2cbc6a105278c68d96f90613f56de2a2)
+is already included in 5.1.0; the Ghostty follow-up remains locally unresolved.
+When upstream ships a relevant fix, record the tested version and outcome here.
+An upstream closure alone does not establish that the local reproduction passes.
+
 ## Wallpaper collection
 
 The managed theme uses Wallpaper with the `soft` generator, Dark mode,

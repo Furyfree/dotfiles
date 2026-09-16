@@ -21,6 +21,8 @@ activation hooks. Apps without such a hook need a one-time theme choice in
 their own settings; no custom config-rewriting scripts are used. Select
 **Use GTK** in Brave Appearance settings. See
 [NOCTALIA.md](NOCTALIA.md) for paths, prerequisites and recovery.
+Reported clipboard bugs and update retests are tracked under
+[Noctalia upstream issues](NOCTALIA.md#upstream-issues-to-track).
 Other empty configs remain ignored until they are implemented and reviewed.
 
 ## License
