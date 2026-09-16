@@ -3,7 +3,7 @@
 	useConfigOnly = true
 {{- if $signing }}
 	signingkey = {{ joinPath .chezmoi.homeDir ".ssh" "github.pub" | quote }}
-{{- end }}
+{{- end -}}
 {{ if or (eq .Machine "laptop") (eq .Machine "desktop")}}
 	email = pby.accounts@byrne.dk
 	name = Patrick Byrne
