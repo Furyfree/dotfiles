@@ -4,7 +4,7 @@
 {{- if $signing }}
 	signingkey = {{ joinPath .chezmoi.homeDir ".ssh" "github.pub" | quote }}
 {{- end -}}
-{{ if or (eq .Machine "laptop") (eq .Machine "desktop")}}
+{{ if and (hasKey . "Machine") (or (eq .Machine "laptop") (eq .Machine "desktop")) }}
 	email = pby.accounts@byrne.dk
 	name = Patrick Byrne
 {{- end }}
