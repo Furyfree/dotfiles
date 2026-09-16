@@ -1,6 +1,9 @@
 {{- $localAgent := .localAgent -}}
 {{- $servers := .servers -}}
 {
+  "edit_predictions": {
+    "mode": "subtle"
+  },
   "$schema": "zed://schemas/settings",
   "base_keymap": "VSCode",
   "cli_default_open_behavior": "new_window",
