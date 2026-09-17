@@ -491,3 +491,8 @@ Validation: `just check` passes (156 tests, three documented optional skips).
 five always-run scripts and passes with scripts excluded. No apply was run.
 The optional Markdown style report retains pre-existing findings outside this
 change; new prose follows the repository's existing style.
+
+## Wallpaper history, 2026-09-17
+
+- [x] Keep the wallpaper history in Git (Furyfree/dotfiles#23). The assets are
+  needed at runtime, and the roughly 90 MB history stays as is; no rewrite.
