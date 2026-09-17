@@ -752,8 +752,9 @@ editing the source config. Checked with btop 1.4.7.
 ### Voxtype
 
 Linux manages `~/.config/voxtype/config.toml`. Nimbus supplies Voxtype and its
-Wayland output tools. The config uses local Whisper with the multilingual
-`small` model, detects English or Danish, and keeps speech in its original
+Wayland output tools. The template selects the multilingual model per machine:
+`large-v3-turbo` on the desktop (RTX 3080, GPU recommended) and `small` on the
+laptop and VM. It detects English or Danish and keeps speech in its original
 language. The packaged 0.3 build ships x86-64-v3 CPU kernels and the Vulkan
 GPU backend, so the daemon uses the GPU when a Vulkan driver is present and
 falls back to the CPU otherwise; it requires an x86-64-v3 CPU (Intel Haswell
@@ -766,11 +767,13 @@ disabled. Notifications show recording progress without the transcription.
 Native recording commands replace built-in input-device hotkeys, following the
 [Voxtype configuration reference](https://github.com/peteonrails/voxtype/blob/v1.0.1/docs/CONFIGURATION.md).
 
-Download the selected model explicitly, then start the packaged service (a
-new Hyprland session starts it through the hook below once a model exists):
+Download the machine's selected model explicitly, then start the packaged
+service (a new Hyprland session starts it through the hook below once a model
+exists):
 
 ```sh
-voxtype setup --download --model small
+voxtype setup --download --model large-v3-turbo   # desktop
+voxtype setup --download --model small            # laptop and VM
 systemctl --user start voxtype.service
 ```
 
@@ -786,8 +789,9 @@ retry. Fedora leaves the unit disabled, so nothing starts on machines that
 have not downloaded a model. From a terminal, the same `voxtype record`
 commands work. Chezmoi does not download models or enable the service. Nimbus
 source offers `nimbus postinstall voxtype` for the approved model download and
-unit enablement; it arrives with the next engine release, and the hook above
-stays as the per-session fallback.
+unit enablement; it arrives with the next engine release, currently downloads
+the fixed `small` model, and per-machine download is tracked in Nimbus issue
+#69. The hook above stays as the per-session fallback.
 Models, recordings, and runtime state remain outside the repository.
 Edit the source config to persist choices: the native configuration TUI writes
 the managed file and a later Chezmoi apply would replace those edits.

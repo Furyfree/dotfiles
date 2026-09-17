@@ -11,10 +11,12 @@ device = "default"
 max_duration_secs = 60
 pause_media = true
 
-# Multilingual CPU starting point; tune the model after laptop/desktop trials.
+# Multilingual model per machine; Nimbus downloads the selected model.
+# Desktop (RTX 3080): large-v3-turbo is the recommended model (1.6 GB, GPU
+# recommended). Laptop (Radeon 890M) and VM keep the small model.
 [whisper]
 mode = "local"
-model = "small"
+model = {{ if and (hasKey . "Machine") (eq .Machine "desktop") }}"large-v3-turbo"{{ else }}"small"{{ end }}
 language = ["en", "da"]
 translate = false
 

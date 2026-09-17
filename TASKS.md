@@ -18,6 +18,13 @@ and evidence. Commands live in [README.md](README.md).
   and an editor on the laptop (2026-09-17). The packaged daemon loaded the
   model over Vulkan (RADV, Radeon 890M) and typed the transcription.
 - [ ] Repeat the live dictation check on the desktop (RTX 3080).
+- [x] Select the model per machine in a template (2026-09-17):
+  `large-v3-turbo` on `Machine = "desktop"`, `small` on the laptop and VM.
+- [ ] Compare `large-v3-turbo` against `small` on the desktop and record
+  latency, accuracy and memory; adjust the template if the recommendation
+  does not hold.
+- [ ] Nimbus `postinstall voxtype` downloads the model selected in the managed
+  config; tracked in Furyfree/nimbus#69.
 
 ## UWSM timeout and greeter integration, 2026-09-14
 
