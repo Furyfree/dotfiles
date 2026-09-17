@@ -784,7 +784,10 @@ command, its unit, and a downloaded model under
 `~/.local/share/voxtype/models` all exist; otherwise the daemon would fail and
 retry. Fedora leaves the unit disabled, so nothing starts on machines that
 have not downloaded a model. From a terminal, the same `voxtype record`
-commands work. Chezmoi does not download models or enable the service.
+commands work. Chezmoi does not download models or enable the service. Nimbus
+source offers `nimbus postinstall voxtype` for the approved model download and
+unit enablement; it arrives with the next engine release, and the hook above
+stays as the per-session fallback.
 Models, recordings, and runtime state remain outside the repository.
 Edit the source config to persist choices: the native configuration TUI writes
 the managed file and a later Chezmoi apply would replace those edits.
