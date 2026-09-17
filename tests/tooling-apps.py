@@ -277,6 +277,18 @@ class ToolingApps(unittest.TestCase):
                 "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
                 "--skip-secrets", "--no-tty", "--override-data", override)
 
+    def test_voxtype_model_per_machine(self):
+        template = (CONFIG / "voxtype/config.toml.tmpl").read_text()
+        for machine, want in (("desktop", "large-v3-turbo"), ("laptop", "small"),
+                              ("vm", "small"), (None, "small")):
+            with self.subTest(machine=machine):
+                data = {"chezmoi": {"os": "linux"}, "profiles": ["common"], "onePasswordSsh": False}
+                if machine is not None:
+                    data["Machine"] = machine
+                rendered = self.run_tool(*self.chezmoi_args(json.dumps(data)), "execute-template",
+                                         input=template)
+                self.assertEqual(tomllib.loads(rendered)["whisper"]["model"], want)
+
     def test_init_preserves_nimbus_handoff(self):
         # Real init uses the host OS, even with --override-data. Do not claim emulation.
         platforms = {"linux": ["unix", "linux"], "darwin": ["unix", "macos"], "win32": ["windows"]}

@@ -63,7 +63,7 @@ to the current user's home. The file is ignored on macOS and Windows.
 | DankMaterialShell | Curated portable settings on `niri-dms`; generated palettes, monitor state, caches, and plugins stay unmanaged. |
 | udiskie | Managed Linux-only user config: automount, notifications, smart tray, default file manager. No profile gate or autostart. |
 | Zathura | Managed Linux-only reading defaults, dark UI, and shortcuts. No profile gate or document state. |
-| Voxtype | Linux config for local English/Danish dictation through native recording commands; Hyprland binds Super+D toggle and Super+Shift+Escape cancel and starts the user unit once a model exists. Model download and hardware trials remain separate. |
+| Voxtype | Linux config for local English/Danish dictation through native recording commands; Hyprland binds Super+D toggle and Super+Shift+Escape cancel and starts the user unit once a model exists. The template selects `large-v3-turbo` on `Machine = "desktop"` and `small` elsewhere; model download and hardware trials remain separate. |
 | VM Curator | Linux config for a home-relative VM library and new-guest defaults; guest data and GPU passthrough setup remain unmanaged. |
 | Launchers and icons | Remove stale and duplicate web apps before adopting selected files. |
 | Wallpapers | Manage selected user assets for the Linux desktop. |
