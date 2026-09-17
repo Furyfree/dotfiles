@@ -21,4 +21,13 @@ hl.on("hyprland.start", function()
     for adapter in /sys/class/bluetooth/hci*; do
         if [ -d "$adapter" ]; then exec systemctl --user start librepods.service; fi
     done]])
+
+    -- Dictation daemon for the Super+D shortcut. Fedora leaves the packaged
+    -- user unit disabled; start it per session only once a model has been
+    -- downloaded, since the daemon fails and retries without one.
+    hl.exec_cmd([[command -v voxtype >/dev/null 2>&1 || exit 0
+    systemctl --user cat voxtype.service >/dev/null 2>&1 || exit 0
+    set -- "${XDG_DATA_HOME:-$HOME/.local/share}/voxtype/models"/*
+    [ -e "$1" ] || exit 0
+    exec systemctl --user start voxtype.service]])
 end)

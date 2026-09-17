@@ -3,6 +3,22 @@
 [ROADMAP.md](ROADMAP.md) owns order and design; this file owns actionable status
 and evidence. Commands live in [README.md](README.md).
 
+## Voxtype dictation shortcuts, 2026-09-16
+
+- [x] Bind Super+D to `voxtype record toggle` and Super+Shift+Escape to
+  `voxtype record cancel` in the Hyprland keybinds. Toggle rather than
+  hold-to-talk avoids stopping before the daemon has started recording.
+- [x] Start the packaged `voxtype.service` user unit from the Hyprland startup
+  hook only when the command, its unit, and a downloaded model exist. Fedora's
+  preset keeps the unit disabled; nothing is enabled or downloaded by Chezmoi.
+- [x] The Lua harness asserts both binds and exercises the guarded startup
+  command through missing-daemon, missing-unit, missing-models, empty-models
+  and model stages. All five Hyprland checks pass.
+- [x] Download the `small` model, start the unit, and dictate into a terminal
+  and an editor on the laptop (2026-09-17). The packaged daemon loaded the
+  model over Vulkan (RADV, Radeon 890M) and typed the transcription.
+- [ ] Repeat the live dictation check on the desktop (RTX 3080).
+
 ## UWSM timeout and greeter integration, 2026-09-14
 
 - [x] Set `TimeoutStopFailureMode=terminate` in per-unit drop-ins for the two

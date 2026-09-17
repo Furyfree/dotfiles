@@ -754,8 +754,11 @@ editing the source config. Checked with btop 1.4.7.
 Linux manages `~/.config/voxtype/config.toml`. Nimbus supplies Voxtype and its
 Wayland output tools. The config uses local Whisper with the multilingual
 `small` model, detects English or Danish, and keeps speech in its original
-language. This is a CPU starting point; model quality, latency, and GPU choices
-still need laptop/desktop trials.
+language. The packaged 0.3 build ships x86-64-v3 CPU kernels and the Vulkan
+GPU backend, so the daemon uses the GPU when a Vulkan driver is present and
+falls back to the CPU otherwise; it requires an x86-64-v3 CPU (Intel Haswell
+or AMD Excavator, 2013, or newer). Live dictation over Vulkan was verified on
+the laptop; the desktop remains untested.
 
 Recording uses the default microphone, pauses media, and stops after at most
 60 seconds. Output tries `wtype`, then the clipboard, with automatic submission
@@ -763,17 +766,26 @@ disabled. Notifications show recording progress without the transcription.
 Native recording commands replace built-in input-device hotkeys, following the
 [Voxtype configuration reference](https://github.com/peteonrails/voxtype/blob/v1.0.1/docs/CONFIGURATION.md).
 
-Download the selected model explicitly before running the daemon:
+Download the selected model explicitly, then start the packaged service (a
+new Hyprland session starts it through the hook below once a model exists):
 
 ```sh
 voxtype setup --download --model small
-voxtype daemon
+systemctl --user start voxtype.service
 ```
 
-From another terminal, `voxtype record toggle` starts/stops recording;
-`voxtype record cancel` discards it. Compositor shortcuts and automatic daemon
-startup remain to be selected. Chezmoi does not download models or start the
-daemon. Models, recordings, and runtime state remain outside the repository.
+On the Linux `hyprland-noctalia` profile, Super+D runs `voxtype record toggle`
+(press once to record, again to transcribe into the focused window) and
+Super+Shift+Escape runs `voxtype record cancel` to discard a take. Toggle is
+used instead of hold-to-talk because a press/release pair can stop before the
+daemon has started recording. The Hyprland startup hook starts the packaged
+`voxtype.service` user unit for the session, but only when the `voxtype`
+command, its unit, and a downloaded model under
+`~/.local/share/voxtype/models` all exist; otherwise the daemon would fail and
+retry. Fedora leaves the unit disabled, so nothing starts on machines that
+have not downloaded a model. From a terminal, the same `voxtype record`
+commands work. Chezmoi does not download models or enable the service.
+Models, recordings, and runtime state remain outside the repository.
 Edit the source config to persist choices: the native configuration TUI writes
 the managed file and a later Chezmoi apply would replace those edits.
 

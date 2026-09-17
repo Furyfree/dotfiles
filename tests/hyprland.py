@@ -274,6 +274,10 @@ for key, command in pairs({
     assert(binds[key].name == "exec" and binds[key].value == "uwsm-app -- " .. command,
            "native launch/activation must be preserved: " .. key)
 end
+-- Dictation drives the daemon through its native recording commands only.
+assert(binds["SUPER+D"].name == "exec" and binds["SUPER+D"].value == "voxtype record toggle")
+assert(binds["SUPER+SHIFT+ESCAPE"].name == "exec"
+       and binds["SUPER+SHIFT+ESCAPE"].value == "voxtype record cancel")
 -- A fresh installation must keep the keymap usable before HyprPM setup.
 spawned, dispatched = {}, {}
 binds["SUPER+O"]()
@@ -372,11 +376,19 @@ for _, command in ipairs(spawned) do
     if command:find("/sys/class/bluetooth", 1, true) then table.insert(bluetooth, command) end
 end
 assert(#bluetooth == 1, "expected one conditional Bluetooth startup")
+local dictation = {}
+for _, command in ipairs(spawned) do
+    if command:find("voxtype", 1, true) then table.insert(dictation, command) end
+end
+assert(#dictation == 1, "expected one conditional dictation startup")
 print(bluetooth[1])
+print("\0")
+print(dictation[1])
 ''')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        bluetooth_command, dictation_command = result.stdout.split("\0\n")
         bluetooth = self.root / "bluetooth adapters"
-        command = result.stdout.replace("/sys/class/bluetooth", shlex.quote(str(bluetooth)))
+        command = bluetooth_command.replace("/sys/class/bluetooth", shlex.quote(str(bluetooth)))
         binaries = self.root / "bin"
         binaries.mkdir()
         librepods = binaries / "librepods"
@@ -411,6 +423,30 @@ print(bluetooth[1])
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout, "")
         self.assertEqual(result.stderr, "")
+
+        # Dictation starts only with the daemon installed and a model downloaded.
+        data_home = self.root / "data home"
+        self.env["XDG_DATA_HOME"] = str(data_home)
+        models = data_home / "voxtype" / "models"
+        voxtype = binaries / "voxtype"
+        for stage in ("missing-daemon", "missing-unit", "missing-models", "empty-models", "model"):
+            with self.subTest(stage=stage):
+                if stage == "missing-unit":
+                    voxtype.write_text("#!/bin/sh\nexit 0\n")
+                    voxtype.chmod(0o755)
+                    self.env["SERVICE_MISSING"] = "1"
+                if stage == "missing-models":
+                    del self.env["SERVICE_MISSING"]
+                if stage == "empty-models":
+                    models.mkdir(parents=True)
+                if stage == "model":
+                    (models / "ggml-small.bin").write_text("fixture")
+                result = self.run_command("/bin/sh", "-c", dictation_command)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stderr, "")
+                self.assertEqual(result.stdout,
+                                 "systemctl:--user start voxtype.service\n" if stage == "model" else "")
+        del self.env["XDG_DATA_HOME"]
 
     @unittest.skipUnless(LUA and shutil.which("mkdir"), "lua or mkdir is not installed")
     def test_workspace_layout_choices_persist_as_local_data(self):

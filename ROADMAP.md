@@ -181,8 +181,10 @@ not a new machine profile. GitHub CLI shares canonical content across its
 platform paths. btop uses terminal colors without saving runtime UI changes.
 
 Voxtype and VM Curator now have Linux-only native configs. Voxtype starts with
-local multilingual Whisper settings; model download, activation, shortcuts, and
-hardware trials remain pending. VM Curator manages portable new-guest defaults
+local multilingual Whisper settings; Hyprland supplies the toggle and cancel
+shortcuts and per-session daemon startup once a model exists. Model download
+and the laptop dictation trial are complete, including the Vulkan backend; the
+desktop trial remains. VM Curator manages portable new-guest defaults
 and a home-relative library, leaving guest data and host setup outside Chezmoi.
 
 See [README.md](README.md#tooling-and-applications) for settings, sources,
