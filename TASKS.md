@@ -23,8 +23,9 @@ and evidence. Commands live in [README.md](README.md).
 - [ ] Compare `large-v3-turbo` against `small` on the desktop and record
   latency, accuracy and memory; adjust the template if the recommendation
   does not hold.
-- [ ] Nimbus `postinstall voxtype` downloads the model selected in the managed
-  config; tracked in Furyfree/nimbus#69.
+- [x] Nimbus `postinstall voxtype` downloads the model selected in the managed
+  config (Furyfree/nimbus#69, merged in 648a18b); it arrives with the next
+  engine release.
 
 ## UWSM timeout and greeter integration, 2026-09-14
 
