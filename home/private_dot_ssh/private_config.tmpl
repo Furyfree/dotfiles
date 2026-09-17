@@ -1,3 +1,16 @@
+{{- if eq (get . "Machine") "work-laptop" -}}
+# Personal GitHub
+Host github.com
+    User git
+    IdentityFile ~/.ssh/github.pub
+
+# Work key for every other destination
+Host * !github.com
+    IdentityFile ~/.ssh/work.pub
+
+Host *
+    IdentitiesOnly yes
+{{ else -}}
 {{- $config := onepasswordDocument "3223bqk2tzqdut7gdhiqjyqj34" | trim -}}
 {{- if not $config -}}
 {{-   fail "1Password SSH Document is empty; populate it before applying" -}}
@@ -9,6 +22,7 @@ Host github.com
     User git
     IdentityFile ~/.ssh/github.pub
     IdentitiesOnly yes
+{{ end }}
 
 Host *
 {{ if eq .chezmoi.os "linux" }}    IdentityAgent ~/.1password/agent.sock

@@ -19,6 +19,7 @@ CHEZMOI = shutil.which("chezmoi")
 SSH = shutil.which("ssh")
 SSH_KEYGEN = shutil.which("ssh-keygen")
 KEYS = {"github": "n6imsp5vfs5nmlt5rmxgs6zdci", "homelab": "3ppqekfxnmjtg2iapnr5d7gewi"}
+WORK_KEY = "cwlhpt5lcyn3dsuyx4wyms2ama"
 AGENT = ".config/1Password/ssh/agent.toml"
 TARGETS = (".ssh/config", ".ssh/github.pub", ".ssh/homelab.pub", AGENT)
 HOSTS = """Host test-lab
@@ -72,6 +73,7 @@ class OnePasswordSsh(unittest.TestCase):
         self.config.write_text(content)
         self.payload = {"document": HOSTS, **{item: public_key(i)
                        for i, item in enumerate(KEYS.values(), 1)}}
+        self.payload[WORK_KEY] = public_key(3)
         self.save_payload()
         fake = self.bin / "op"
         fake.write_text(f"#!{sys.executable}\n" + '''import json, os, pathlib, sys
@@ -100,8 +102,10 @@ else:
     def save_payload(self):
         (self.root / "payload.json").write_text(json.dumps(self.payload))
 
-    def run_chezmoi(self, *args, platform="linux", enabled=True):
+    def run_chezmoi(self, *args, platform="linux", enabled=True, machine=None):
         override = {"chezmoi": {"os": platform}, "profiles": ["common"]}
+        if machine is not None:
+            override["Machine"] = machine
         if enabled is not None:
             override["onePasswordSsh"] = enabled
         return subprocess.run(self.args + ["--override-data", json.dumps(override), *args],
@@ -118,7 +122,10 @@ else:
                                   ("windows", False), ("windows", True)):
             with self.subTest(platform=platform, enabled=enabled):
                 paths = self.dump(platform=platform, enabled=enabled)
-                for target in (*TARGETS, ".ssh", "AppData/Local/1Password/config/ssh/agent.toml"):
+                for target in (*TARGETS, ".ssh/work.pub", ".ssh", "AppData/Local/1Password/config/ssh/agent.toml"):
+                    self.assertNotIn(target, paths)
+                paths = self.dump(platform=platform, enabled=enabled, machine="work-laptop")
+                for target in (*TARGETS, ".ssh/work.pub", ".ssh"):
                     self.assertNotIn(target, paths)
         self.config.write_text("")
         for target in TARGETS:
@@ -131,6 +138,7 @@ else:
         for platform, socket in sockets.items():
             with self.subTest(platform=platform):
                 paths = self.dump(platform=platform)
+                self.assertNotIn(".ssh/work.pub", paths)
                 config = paths[".ssh/config"]["contents"]
                 self.assertTrue(config.startswith(HOSTS.rstrip()))
                 self.assertIn("Host *\n    IdentityAgent " + socket, config)
@@ -142,6 +150,47 @@ else:
         calls = [json.loads(line) for line in (self.root / "calls").read_text().splitlines()]
         for item in KEYS.values():
             self.assertIn(["item", "get", item, "--fields", "label=public key", "--format", "json"], calls)
+
+    @unittest.skipUnless(SSH, "OpenSSH client is not installed")
+    def test_work_laptop_uses_only_the_destination_key(self):
+        # Work setup must not depend on access to the personal Homelab document.
+        self.payload["failure"] = "document"
+        del self.payload[KEYS["homelab"]]
+        self.save_payload()
+        for platform in ("linux", "darwin"):
+            with self.subTest(platform=platform):
+                paths = self.dump(platform=platform, machine="work-laptop")
+                self.assertNotIn(".ssh/homelab.pub", paths)
+                self.assertEqual(paths[".ssh/work.pub"]["contents"].strip(), self.payload[WORK_KEY])
+                self.assertEqual(tomllib.loads(paths[AGENT]["contents"]),
+                                 {"ssh-keys": [{"item": KEYS["github"]}, {"item": WORK_KEY}]})
+                config = self.root / "work-ssh-config"
+                config.write_text(paths[".ssh/config"]["contents"])
+                for host, role in (("github.com", "github"), ("server.example.com", "work"),
+                                   ("192.0.2.20", "work"), ("work-alias", "work")):
+                    result = subprocess.run([SSH, "-G", "-F", str(config), host], env=self.env,
+                                            text=True, capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    identities = [line for line in result.stdout.splitlines()
+                                  if line.startswith("identityfile ")]
+                    self.assertEqual(identities, [f"identityfile ~/.ssh/{role}.pub"])
+                    self.assertIn("identitiesonly yes\n", result.stdout)
+                    if host == "github.com":
+                        self.assertIn("user git\n", result.stdout)
+        calls = [json.loads(line) for line in (self.root / "calls").read_text().splitlines()]
+        self.assertFalse(any(call[:2] == ["document", "get"] for call in calls))
+        self.assertFalse(any(KEYS["homelab"] in call for call in calls))
+
+    def test_work_key_failure_and_secret_skipping(self):
+        self.payload[WORK_KEY] = "not a public key"
+        self.save_payload()
+        result = self.run_chezmoi("cat", str(self.home / ".ssh/work.pub"), machine="work-laptop")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "")
+        (self.bin / "op").unlink()
+        paths = self.run_chezmoi("--skip-secrets", "dump", "--format=json", machine="work-laptop")
+        self.assertEqual(paths.returncode, 0, paths.stderr)
+        self.assertNotIn(".ssh/work.pub", json.loads(paths.stdout))
 
     @unittest.skipUnless(SSH, "OpenSSH client is not installed")
     def test_native_ssh_config_without_connecting(self):
