@@ -130,8 +130,8 @@ AppData/Roaming/Zed/themes/**
 
 # Placeholder files remain unmanaged until their config slice is implemented.
 **/.keep
-AppData/Local
 {{ if ne .chezmoi.os "windows" -}}
+AppData/Local
 Documents
 {{ end -}}
 .profile
