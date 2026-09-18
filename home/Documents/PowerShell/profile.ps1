@@ -1,8 +1,8 @@
 # Minimal PowerShell profile: parity with the zsh/bash setup.
 
-if (Get-Command starship -ErrorAction SilentlyContinue) { Invoke-Expression (& starship init powershell) }
-if (Get-Command mise -ErrorAction SilentlyContinue) { Invoke-Expression (& mise activate pwsh) }
-if (Get-Command zoxide -ErrorAction SilentlyContinue) { Invoke-Expression (& zoxide init powershell) }
+if (Get-Command starship -ErrorAction SilentlyContinue) { Invoke-Expression (& starship init powershell | Out-String) }
+if (Get-Command mise -ErrorAction SilentlyContinue) { Invoke-Expression (& mise activate pwsh | Out-String) }
+if (Get-Command zoxide -ErrorAction SilentlyContinue) { Invoke-Expression (& zoxide init powershell | Out-String) }
 
 Set-PSReadLineOption -HistorySearchCursorMovesToEnd
 Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
