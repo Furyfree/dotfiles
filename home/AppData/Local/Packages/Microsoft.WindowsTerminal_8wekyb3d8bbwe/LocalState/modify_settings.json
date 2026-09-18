@@ -1,0 +1,21 @@
+{{/* chezmoi:modify-template */}}
+{{- $list := list
+  (dict "guid" "{574e775e-4f2a-5b96-ac1e-a2962a402336}" "name" "PowerShell" "commandline" "pwsh.exe")
+  (dict "guid" "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}" "name" "Windows PowerShell" "commandline" "powershell.exe")
+  (dict "guid" "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}" "name" "Command Prompt" "commandline" "cmd.exe")
+-}}
+{{- $doc := dict -}}
+{{- if .chezmoi.stdin -}}{{- $doc = .chezmoi.stdin | fromJsonc -}}{{- end -}}
+{{- $doc = $doc | setValueAtPath "theme" "dark" -}}
+{{- $doc = $doc | setValueAtPath "startOnUserLogin" false -}}
+{{- $doc = $doc | setValueAtPath "profiles.defaults.font.face" "JetBrainsMono Nerd Font" -}}
+{{- $doc = $doc | setValueAtPath "profiles.defaults.colorScheme" "One Half Dark" -}}
+{{- $doc = $doc | setValueAtPath "profiles.defaults.opacity" 85 -}}
+{{- $doc = $doc | setValueAtPath "profiles.defaults.useAcrylic" true -}}
+{{- if not (dig "profiles" "list" nil $doc) -}}
+{{-   $doc = $doc | setValueAtPath "profiles.list" $list -}}
+{{- end -}}
+{{- if not (get $doc "defaultProfile") -}}
+{{-   $doc = $doc | setValueAtPath "defaultProfile" "{574e775e-4f2a-5b96-ac1e-a2962a402336}" -}}
+{{- end -}}
+{{ $doc | toPrettyJson }}
