@@ -131,7 +131,9 @@ AppData/Roaming/Zed/themes/**
 # Placeholder files remain unmanaged until their config slice is implemented.
 **/.keep
 AppData/Local
+{{ if ne .chezmoi.os "windows" -}}
 Documents
+{{ end -}}
 .profile
 .bash_logout
 .config/VSCodium/User/snippets/**
