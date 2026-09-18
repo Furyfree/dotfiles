@@ -10,7 +10,14 @@ for uwsm_directory in "$uwsm_mise_data/shims" "$HOME/.local/bin"; do
         *) PATH="$uwsm_directory:$PATH" ;;
     esac
 done
+# Rider detects SDKs from the real dotnet on PATH; the shim resolves to mise.
+case ":$PATH:" in
+    *":$uwsm_mise_data/dotnet-root:"*) ;;
+    *) PATH="$uwsm_mise_data/dotnet-root:$PATH" ;;
+esac
 export PATH
+# Apphosts use DOTNET_ROOT; GUI apps don't run mise activation.
+export DOTNET_ROOT="$uwsm_mise_data/dotnet-root"
 unset uwsm_mise_data uwsm_directory
 
 # Respect an inherited choice of editor.

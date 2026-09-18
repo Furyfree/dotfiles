@@ -26,6 +26,21 @@ hl.window_rule({
     },
     tag = "+centered-floating",
 })
+hl.window_rule({
+    name = "jetbrains-welcome",
+    -- Every JetBrains IDE shares this class prefix and titles its welcome
+    -- frame "Welcome to ...". Use a fixed size instead of the shared
+    -- centered-floating tag: that tag keeps the app's remembered width, which
+    -- the IDEs can grow to the full monitor. Opening a project disposes this
+    -- frame and opens the project in a separate window, which stays tiled.
+    match = {
+        class = "^jetbrains-.*$",
+        initial_title = "^Welcome to .*$",
+    },
+    float = true,
+    size = { "min(900,monitor_w*0.7)", "min(700,monitor_h*0.8)" },
+    center = true,
+})
 
 -- These classes expose background alpha while keeping their content opaque.
 -- Verified with hyprctl clients; the presentation profile has its own app ID.
