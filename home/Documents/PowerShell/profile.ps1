@@ -11,3 +11,5 @@ Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
 Set-Alias -Name ls -Value eza -ErrorAction SilentlyContinue
 Set-Alias -Name cat -Value bat -ErrorAction SilentlyContinue
 Set-Alias -Name lg -Value lazygit -ErrorAction SilentlyContinue
+
+function ll { eza -l @args }
