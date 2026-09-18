@@ -1,0 +1,29 @@
+{{- $onePassword := and (hasKey . "onePasswordSsh") .onePasswordSsh -}}
+# AI Usage providers for Noctalia's felipeartur/ai-usagebar plugin.
+# Claude, Codex and SuperGrok reuse their own CLI logins; no keys here.
+[ui]
+primary = "openai"
+
+[anthropic]
+enabled = true
+
+[openai]
+enabled = true
+
+[supergrok]
+enabled = true
+
+# Enabled upstream by default; unused here.
+[zai]
+enabled = false
+
+[openrouter]
+enabled = true
+{{- if $onePassword }}
+{{- $credential := secret "item" "get" "ckdtbjoeapxd4zykhui5aktn5i" "--fields" "label=credential" "--reveal" "--format" "json" | fromJson }}
+{{- $key := $credential.value | trim -}}
+{{- if not (regexMatch `^sk-or-v1-[A-Za-z0-9]+$` $key) -}}
+{{-   fail "1Password OpenRouter key is empty or malformed; check the API Credential item" -}}
+{{- end }}
+api_key = {{ $key | quote }}
+{{- end }}

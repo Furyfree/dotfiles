@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import tomllib
 import unittest
@@ -30,19 +31,29 @@ class Noctalia(unittest.TestCase):
                     "XDG_CACHE_HOME": str(self.root / "cache"),
                     "XDG_DATA_HOME": str(self.root / "data")}
 
-    def chezmoi(self, *args, platform="linux", profiles=None, machine="desktop", fastmail_username=""):
+    def run_chezmoi(self, *args, platform="linux", profiles=None, machine="desktop",
+                    fastmail_username="", one_password_ssh=False, path_prefix=None,
+                    skip_secrets=True):
         data = {"chezmoi": {"os": platform}, "profiles": ["hyprland-noctalia"] if profiles is None else profiles,
-                "onePasswordSsh": False, "ManagedByNimbus": False,
+                "onePasswordSsh": one_password_ssh, "ManagedByNimbus": False,
                 "fastmailUsername": fastmail_username}
         if machine is not None:
             data["Machine"] = machine
-        result = subprocess.run([
-            CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
-            "--config", str(self.root / "chezmoi.toml"),
-            "--cache", str(self.root / "cache/chezmoi"),
-            "--persistent-state", str(self.root / "chezmoi.boltdb"),
-            "--skip-secrets", "--override-data", json.dumps(data), *args],
-            cwd=self.root, env=self.env, text=True, capture_output=True, timeout=30)
+        env = self.env
+        if path_prefix:
+            env = dict(self.env, PATH=str(path_prefix) + os.pathsep + os.defpath)
+        argv = [CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
+                "--config", str(self.root / "chezmoi.toml"),
+                "--cache", str(self.root / "cache/chezmoi"),
+                "--persistent-state", str(self.root / "chezmoi.boltdb")]
+        if skip_secrets:
+            argv.append("--skip-secrets")
+        argv += ["--override-data", json.dumps(data), *args]
+        return subprocess.run(argv, cwd=self.root, env=env, text=True,
+                              capture_output=True, timeout=30)
+
+    def chezmoi(self, *args, **kwargs):
+        result = self.run_chezmoi(*args, **kwargs)
         self.assertEqual(result.returncode, 0, result.stderr)
         return result.stdout
 
@@ -82,6 +93,56 @@ class Noctalia(unittest.TestCase):
                     self.assertEqual(tomllib.loads(entries[".config/btop/btop.conf"]["contents"])
                                      ["color_theme"], "TTY")
                     self.assertNotIn("include noctaliarc", entries[".config/zathura/zathurarc"]["contents"])
+
+    def test_ai_usagebar_providers_and_widget_settings(self):
+        for platform, profiles, enabled in (
+                ("linux", ["hyprland-noctalia"], True),
+                ("linux", ["common"], False),
+                ("darwin", ["hyprland-noctalia"], False),
+                ("windows", ["hyprland-noctalia"], False)):
+            with self.subTest(platform=platform, profiles=profiles):
+                entries = json.loads(self.chezmoi("dump", "--format=json",
+                                                platform=platform, profiles=profiles))
+                self.assertEqual(".config/ai-usagebar/config.toml" in entries, enabled)
+                if not enabled:
+                    continue
+                widget = tomllib.loads(entries[".config/noctalia/config.toml"]
+                                       ["contents"])["widget"]["ai-usage"]
+                self.assertEqual(widget["type"], "felipeartur/ai-usagebar:bar")
+                self.assertEqual(widget["provider_limit"], 2)
+                self.assertTrue(widget["show_name"])
+                usage = tomllib.loads(entries[".config/ai-usagebar/config.toml"]["contents"])
+                self.assertEqual(usage["ui"]["primary"], "openai")
+                for provider in ("anthropic", "openai", "supergrok", "openrouter"):
+                    self.assertTrue(usage[provider]["enabled"], provider)
+                self.assertFalse(usage["zai"]["enabled"])
+                self.assertNotIn("api_key", usage["openrouter"])
+
+    def test_ai_usagebar_key_renders_only_with_1password(self):
+        binaries = self.root / "bin"
+        binaries.mkdir()
+        fake = binaries / "op"
+        fake.write_text(f"#!{sys.executable}\n"
+                        "import json\n"
+                        "print(json.dumps({'id': 'credential', 'label': 'credential',\n"
+                        "                  'value': 'sk-or-v1-testkey'}))\n")
+        fake.chmod(0o700)
+        (self.root / "chezmoi.toml").write_text(
+            '[secret]\ncommand = "op"\n[onepassword]\nprompt = false\n')
+        target = str(self.home / ".config/ai-usagebar/config.toml")
+        result = self.run_chezmoi("cat", target, one_password_ssh=True,
+                                  path_prefix=binaries, skip_secrets=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(tomllib.loads(result.stdout)["openrouter"]["api_key"],
+                         "sk-or-v1-testkey")
+        fake.write_text(f"#!{sys.executable}\n"
+                        "import json\n"
+                        "print(json.dumps({'id': 'credential', 'label': 'credential',\n"
+                        "                  'value': 'not-a-key'}))\n")
+        result = self.run_chezmoi("cat", target, one_password_ssh=True,
+                                  path_prefix=binaries, skip_secrets=False)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("1Password OpenRouter key", result.stderr)
 
     def test_vscodium_target_uses_installed_extension(self):
         helper = REPO / "home/dot_config/noctalia/templates/vscodium-output-path.sh"

@@ -125,7 +125,12 @@ See the [Aqua backend](https://mise.jdx.dev/dev-tools/backends/aqua.html)
 and [GitHub backend](https://mise.jdx.dev/dev-tools/backends/github.html).
 AI Usage uses the [Cargo backend](https://mise.jdx.dev/dev-tools/backends/cargo.html)
 and the managed Rust toolchain. Its `ai-usagebar` CLI supplies Noctalia's
-AI Usage plugin; account authentication remains outside these dotfiles.
+AI Usage plugin. The plugin's provider configuration is managed at
+`~/.config/ai-usagebar/config.toml` on the `hyprland-noctalia` profile: Claude,
+Codex and SuperGrok reuse their own CLI logins, and the OpenRouter key is
+rendered from 1Password only when the SSH integration below is enabled. Edit
+that template, not the plugin's TUI settings, or the change becomes drift.
+Other profiles and platforms ignore the file.
 
 This Linux fragment is ignored on macOS and Windows. The existing runtime
 selections remain in `~/.config/mise/config.toml`. Typst comes from Terra
@@ -2006,6 +2011,11 @@ The reusable `centered-floating` tag in `conf.d/window-rules.lua` selects this
 behavior. To include another app, add its matching rule with
 `tag = "+centered-floating"` above the shared rule for that tag.
 
+JetBrains IDEs share the `jetbrains-` class prefix and open their Welcome frame
+as a centered floating window, sized at most 900 by 700 pixels. Opening a
+project disposes that frame and opens the project in a separate, tiled window,
+so no further rule is needed.
+
 Input settings live in `conf.d/input.lua`: Danish keyboard layout, Num Lock,
 fast key repeat, and focus following the pointer. The pointer moves to newly
 opened foreground windows and follows workspace changes. Activation requests
@@ -2386,6 +2396,14 @@ The generated Chezmoi config sets `secret.command = "op"` and
 `onepassword.prompt = false`: authorization stays with the desktop app instead
 of Chezmoi requesting CLI session tokens. `op` uses its selected account;
 ensure it is the account containing all three items.
+
+The same flag also renders the OpenRouter credential for Noctalia's AI Usage
+plugin into `~/.config/ai-usagebar/config.toml` (mode `0600`) on machines with
+the `hyprland-noctalia` profile, requesting only the API Credential item's
+`credential` field with `--reveal`. The other providers in that file use their
+own CLI logins. Disabling the integration keeps existing `.ssh` files on disk
+but re-renders the usage configuration without the key, and `--skip-secrets`
+skips it too.
 
 ### Work laptop
 
