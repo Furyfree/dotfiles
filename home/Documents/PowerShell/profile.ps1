@@ -1,6 +1,6 @@
 # Minimal PowerShell profile: parity with the zsh/bash setup.
 
-if (Get-Command starship -ErrorAction SilentlyContinue) { Invoke-Expression (& starship init powershell | Out-String) }
+if (Get-Command starship -ErrorAction SilentlyContinue) { $env:STARSHIP_CONFIG = "$HOME\.config\starship.toml"; Invoke-Expression (& starship init powershell | Out-String) }
 if (Get-Command mise -ErrorAction SilentlyContinue) { Invoke-Expression (& mise activate pwsh | Out-String) }
 if (Get-Command zoxide -ErrorAction SilentlyContinue) { Invoke-Expression (& zoxide init powershell | Out-String) }
 
