@@ -83,7 +83,7 @@ run_mise() {
         status=${command_status[0]}
         if ((command_status[1] != 0)); then
             printf '%s\n' 'dotfiles: cannot write the Mise installation log.' >&2
-            if ((status == 0)); then status=${command_status[1]}; fi
+            exit 1
         fi
     fi
     printf '%s exit=%s duration=%ss\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
@@ -91,5 +91,9 @@ run_mise() {
     return "$status"
 }
 
-run_mise install
+# Tool downloads depend on networks and GitHub rate limits; a partial install
+# must never fail the Chezmoi apply. The next nimbus sync retries every tool.
+if ! run_mise install; then
+    printf 'dotfiles: Mise tools are incomplete; the next nimbus sync retries. See %s\n' "${mise_log:-the terminal}" >&2
+fi
 {{ end -}}

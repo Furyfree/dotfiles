@@ -1,51 +1,91 @@
 {{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
 {{- $manifest := include "../VSCODIUM_EXTENSIONS.json" | fromJson -}}
 #!/bin/sh
-set -eu
+set -u
 
+# Extensions are user state, and gallery or network hiccups must never fail
+# the Chezmoi apply: failures are logged, retried once per apply and reported.
 if [ "$(id -u)" = 0 ]; then
     printf '%s\n' 'dotfiles: run VSCodium extension setup as your normal user, not root.' >&2
     exit 1
 fi
 
+if [ -n "${NIMBUS_INSTALL_LOG_DIR:-}" ] && [ -d "$NIMBUS_INSTALL_LOG_DIR" ] && [ ! -L "$NIMBUS_INSTALL_LOG_DIR" ]; then
+    log_dir=$NIMBUS_INSTALL_LOG_DIR
+else
+    log_dir=${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles
+fi
+if (umask 077; mkdir -p "$log_dir") 2>/dev/null; then
+    log=$log_dir/vscodium-extensions.log
+else
+    log=/dev/null
+fi
+
 cli=$(command -v codium || command -v vscodium) || {
-    printf '%s\n' 'dotfiles: VSCodium CLI is required; install it before applying extensions.' >&2
-    exit 1
+    printf '%s\n' 'dotfiles: VSCodium CLI is not installed; skipping extension setup.' >&2
+    exit 0
 }
 cd "$HOME"
 
 list_extensions() {
-    listed=$("$cli" --list-extensions) || {
-        printf '%s\n' 'dotfiles: could not list VSCodium extensions.' >&2
+    if ! listed=$("$cli" --list-extensions 2>>"$log"); then
         return 1
-    }
+    fi
     printf '%s\n' "$listed" | tr -d '\r' | tr '[:upper:]' '[:lower:]'
 }
 
-installed=$(list_extensions)
+installed=$(list_extensions) || {
+    printf '%s\n' "dotfiles: could not list VSCodium extensions; skipping. See $log" >&2
+    exit 0
+}
 set --{{ range $manifest.install }} \
     {{ . | shellQuote }}{{ end }}
 
+# A flaky marketplace response gets bounded retries with linear backoff;
+# DOTFILES_RETRY_DELAY shortens the wait in tests.
+retry_delay=${DOTFILES_RETRY_DELAY:-5}
+install_extension() {
+    extension=$1
+    attempt=1
+    while [ "$attempt" -le 3 ]; do
+        if "$cli" --install-extension "$extension" >>"$log" 2>&1; then
+            return 0
+        fi
+        printf 'dotfiles: attempt %d failed for %s; retrying in %ds.\n' \
+            "$attempt" "$extension" "$((attempt * retry_delay))" >&2
+        sleep "$((attempt * retry_delay))"
+        attempt=$((attempt + 1))
+    done
+    return 1
+}
+
 installed_count=0
+failed_count=0
 for extension do
     if printf '%s\n' "$installed" | grep -Fqx -- "$extension"; then
         continue
     fi
     printf 'dotfiles: installing VSCodium extension: %s\n' "$extension"
-    if ! "$cli" --install-extension "$extension"; then
-        printf 'dotfiles: failed to install %s; rerun after fixing the error.\n' "$extension" >&2
-        exit 1
+    if install_extension "$extension"; then
+        installed_count=$((installed_count + 1))
+    else
+        failed_count=$((failed_count + 1))
+        printf 'dotfiles: could not install %s; the next nimbus sync retries.\n' "$extension" >&2
     fi
-    installed_count=$((installed_count + 1))
 done
 
-installed=$(list_extensions)
+installed=$(list_extensions) || installed=
+missing_count=0
 for extension do
     if ! printf '%s\n' "$installed" | grep -Fqx -- "$extension"; then
-        printf 'dotfiles: extension missing after installation: %s\n' "$extension" >&2
-        exit 1
+        missing_count=$((missing_count + 1))
     fi
 done
+if [ "$failed_count" -gt 0 ] || [ "$missing_count" -gt 0 ]; then
+    printf 'dotfiles: VSCodium extensions incomplete (%s installed, %s failed, %s missing); see %s\n' \
+        "$installed_count" "$failed_count" "$missing_count" "$log" >&2
+    exit 0
+fi
 if [ "$installed_count" -gt 0 ]; then
     printf 'dotfiles: VSCodium extensions verified (%s installed).\n' "$installed_count"
 fi
