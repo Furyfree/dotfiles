@@ -74,12 +74,12 @@ class VSCodium(unittest.TestCase):
                     self.assertFalse(any(name.startswith((".vscode-oss/",)) for name in files))
                     settings = strict_json(files[f"{target}/settings.json"])
                     enabled = platform == "linux" and noctalia
-                    self.assertEqual(settings["workbench.colorTheme"], "NoctaliaTheme" if enabled else "Atom One Dark")
+                    self.assertEqual(settings["workbench.colorTheme"], "NoctaliaTheme" if enabled else "Default Dark Modern")
                     self.assertEqual(settings["window.autoDetectColorScheme"], not enabled)
                     if enabled:
                         self.assertNotIn("workbench.preferredDarkColorTheme", settings)
                     else:
-                        self.assertEqual(settings["workbench.preferredLightColorTheme"], "Atom One Light")
+                        self.assertEqual(settings["workbench.preferredLightColorTheme"], "Default Light Modern")
 
     def test_shared_editor_behavior_and_privacy(self):
         expected = {
@@ -152,13 +152,13 @@ class VSCodium(unittest.TestCase):
                 wrapper = (REPO / "home" / target / f"{name}.json.tmpl").read_text()
                 self.assertEqual(wrapper.strip(), '{{- template "configs/vscodium/' + name + '.json" . -}}')
         settings = strict_json(self.render("linux", legacy=True)[".config/VSCodium/User/settings.json"])
-        self.assertEqual(settings["workbench.colorTheme"], "Atom One Dark")
+        self.assertEqual(settings["workbench.colorTheme"], "Default Dark Modern")
 
     def test_product_configuration_is_managed(self):
         source = (REPO / "home/.chezmoitemplates/configs/vscodium/product.json").read_text()
         configuration = strict_json(source)
         self.assertEqual(configuration["extensionsGallery"]["serviceUrl"],
-                         "https://marketplace.visualstudio.com/_apis/public/gallery")
+                         "https://open-vsx.org/vscode/gallery")
         for platform, target in TARGETS.items():
             with self.subTest(platform=platform):
                 files = self.render(platform)
@@ -178,9 +178,6 @@ class VSCodium(unittest.TestCase):
 
     def test_managed_installers_match_platform_and_manifest(self):
         manifest = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())
-        # The shell installer is held in .chezmoiignore until extension
-        # installs retry flaky marketplace responses.
-        held = "install-vscodium-extensions.sh"
         for platform in TARGETS:
             with self.subTest(platform=platform):
                 scripts = self.render(platform, entry_type="script")
@@ -191,6 +188,7 @@ class VSCodium(unittest.TestCase):
                         self.assertEqual(script.strip(), "")
                         self.assertNotIn(target, scripts)
                         continue
+                    self.assertEqual(scripts[target], script)
                     for extension in manifest["install"]:
                         self.assertIn(extension, script)
                     for extension in manifest["manual"]:
@@ -199,10 +197,6 @@ class VSCodium(unittest.TestCase):
                         result = subprocess.run(["/bin/sh", "-n"], input=script,
                             capture_output=True, text=True, timeout=10)
                         self.assertEqual(result.returncode, 0, result.stderr)
-                    if target == held:
-                        self.assertNotIn(target, scripts)
-                        continue
-                    self.assertEqual(scripts[target], script)
 
     def fake_cli(self, installed=(), name="codium"):
         bin_dir = self.root / "bin with spaces"
@@ -264,52 +258,49 @@ else:
     def test_installer_missing_cli_and_listing_failure(self):
         env, state, cli = self.fake_cli()
         result = self.run_installer(env | {"FAKE_LIST_FAIL": "1"})
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("fake listing failed", result.stderr)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("could not list VSCodium extensions", result.stderr)
         self.assertEqual(strict_json(state.read_text())["calls"], [["--list-extensions"]])
         cli.unlink()
         result = self.run_installer(env)
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("CLI is required", result.stderr)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("not installed; skipping", result.stderr)
         (cli.parent / "id").write_text("#!/bin/sh\nprintf '%s\\n' 0\n")
         result = self.run_installer(env)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("not root", result.stderr)
 
     @unittest.skipUnless(os.name == "posix", "POSIX installer execution requires /bin/sh")
-    def test_installer_propagates_install_failure_and_verifies_success(self):
+    def test_installer_tolerates_failures_and_reports_them(self):
         desired = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())["install"]
-        env, _, _ = self.fake_cli(desired[:-1])
-        result = self.run_installer(env | {"FAKE_INSTALL_FAIL": "1"})
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("fake install failed", result.stderr)
-        result = self.run_installer(env | {"FAKE_NOOP": "1"})
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("extension missing after installation", result.stderr)
+        env, state, _ = self.fake_cli(desired[:-1])
+        result = self.run_installer(env | {"FAKE_INSTALL_FAIL": "1", "DOTFILES_RETRY_DELAY": "0"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("could not install", result.stderr)
+        self.assertIn("extensions incomplete", result.stderr)
+        self.assertEqual(set(strict_json(state.read_text())["installed"]), set(desired[:-1]))
+        result = self.run_installer(env | {"FAKE_NOOP": "1", "DOTFILES_RETRY_DELAY": "0"})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("extensions incomplete", result.stderr)
 
 
 class Extensions(unittest.TestCase):
     def test_inventory(self):
         manifest = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())
         self.assertEqual(set(manifest), {"install", "manual"})
-        self.assertEqual(len(manifest["install"]), 52)
-        self.assertEqual(len(manifest["manual"]), 8)
+        self.assertEqual(len(manifest["install"]), 36)
+        self.assertEqual(manifest["manual"], [])
         ids = manifest["install"] + manifest["manual"]
         self.assertEqual(len(ids), len(set(ids)))
         for group in manifest.values():
             self.assertEqual(group, sorted(group))
             for extension in group:
                 self.assertRegex(extension, r"^[a-z0-9-]+\.[a-z0-9-]+$")
-        self.assertEqual(set(manifest["manual"]), {
-            "github.copilot-chat", "ms-dotnettools.csharp", "ms-python.vscode-pylance",
-            "ms-vscode-remote.remote-ssh", "ms-vscode-remote.remote-ssh-edit",
-            "ms-vscode.remote-explorer", "visualstudioexptteam.intellicode-api-usage-examples",
-            "visualstudioexptteam.vscodeintellicode",
-        })
-        for extension in ("ms-toolsai.jupyter", "grapecity.gc-excelviewer", "cweijan.vscode-office",
-                          "pomdtr.excalidraw-editor", "myriad-dreamin.tinymist", "golang.go",
-                          "noctalia.noctaliatheme", "akamud.vscode-theme-onedark",
-                          "akamud.vscode-theme-onelight", "usernamehw.errorlens"):
+        for extension in ("ms-toolsai.jupyter", "pomdtr.excalidraw-editor", "myriad-dreamin.tinymist",
+                          "golang.go", "noctalia.noctaliatheme", "usernamehw.errorlens",
+                          "charliermarsh.ruff", "detachhead.basedpyright", "sumneko.lua",
+                          "jeanp413.open-remote-ssh", "vscjava.vscode-java-pack",
+                          "muhammad-sammy.csharp", "oderwat.indent-rainbow"):
             self.assertIn(extension, manifest["install"])
 
 

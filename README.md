@@ -1202,7 +1202,7 @@ One-line wrappers deploy `User/settings.json`, `User/keybindings.json`, and
 
 These are standard installation paths, not portable mode, custom user-data
 directories, or named profile overrides. Review those separately if used.
-The canonical `product.json` selects Microsoft Marketplace on each platform.
+The canonical `product.json` selects the Open VSX gallery on each platform.
 Snippets, credentials, chat provider settings, workspace storage, caches,
 history, and extension binaries remain outside Chezmoi's managed files.
 
@@ -1211,11 +1211,10 @@ history, and extension binaries remain outside Chezmoi's managed files.
 The shared behavior matches the Zed slice on `config/zed`: 15px JetBrainsMono
 Nerd Font, no ligatures, block cursor, absolute line numbers, bracket colors,
 selected whitespace, no inlay hints or minimap, persistent tabs, left sidebar,
-bottom terminal, and manual save/formatting. Prettier remains installed but is
-disabled globally to match Zed's Prettier policy; choose a language formatter
-or opt in per project. Go/Zig format-on-save, Go import organization on save,
-and Pylance format-on-type defaults are explicitly overridden to keep editing
-manual. Error Lens supplies inline diagnostics without line
+bottom terminal, and manual save/formatting. Formatting stays manual, matching Zed's Prettier policy; choose a language
+formatter or opt in per project. Go format-on-save, Go import organization on
+save, and Python format-on-type defaults are explicitly overridden to keep
+editing manual. Error Lens supplies inline diagnostics without line
 background fills. Go's extension supplies Chezmoi template highlighting;
 Tinymist exports PDFs beside the source on save. Fonts and runtimes must
 already be installed; Python environment activation remains off as in your
@@ -1259,14 +1258,17 @@ noctalia msg templates-apply
 Wallpaper/theme changes subsequently run the template automatically. The theme
 extension declares live file watching; if an existing window retains old colors,
 use VSCodium's **Developer: Reload Window** command. Other setups follow system
-appearance with Atom One Light/Dark, close counterparts to Zed's One themes.
+appearance with the built-in Default Light/Dark Modern themes.
 Theme extensions must be installed before these selections can take effect.
 
-`VSCODIUM_EXTENSIONS.json` preserves all 57 IDs from the current installation:
-49 available on Open VSX plus eight listed under `manual`. Three theme extensions
-are added, making 52 entries in `install`. The old DMS theme is retained as an
-available extension but not selected. Notebook/Jupyter, Excel/Office,
-Excalidraw, Git Graph/GitLens, language, and debugger selections are preserved.
+`VSCODIUM_EXTENSIONS.json` lists 36 extensions, all available on Open VSX; the
+`manual` list is empty and no Microsoft-gallery-only pieces remain. The set
+covers Go, Python and Jupyter, Typst, F#, C# through the open
+`muhammad-sammy.csharp` fork, Java/Maven, C, Lua, Rust, TypeScript/React with
+ESLint and Tailwind, OpenTofu, Ansible, Nix, Docker, PowerShell,
+Markdown/TOML/YAML, Git tooling, themes, Error Lens, indent-rainbow and
+Excalidraw. `detachhead.basedpyright` replaces Pylance and
+`jeanp413.open-remote-ssh` replaces the Microsoft Remote-SSH trio.
 The manifest lives at the repository root because it is installation metadata,
 not a VSCodium user config. VSCodium does not load it; Chezmoi embeds its
 `install` entries into the scripts below when rendering them. Keeping it outside
@@ -1287,7 +1289,10 @@ even if the manifest has not changed.
 
 The scripts require an existing `codium` or `vscodium` CLI on PATH. They list
 installed extensions, compare IDs case-insensitively, request only missing
-`install` entries, and verify all those entries through a final native listing.
+`install` entries, retry each install three times with backoff, and verify all
+entries through a final native listing. Gallery, network and rate-limit
+failures are logged and reported, never fatal: an incomplete result prints a
+summary pointing at the hook log, and the next `nimbus sync` retries the rest.
 Existing extensions are not forcibly updated or uninstalled; native auto-update
 settings own updates. The `manual` list is reported but never installed.
 

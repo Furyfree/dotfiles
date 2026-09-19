@@ -7,14 +7,22 @@
   "workbench.sideBar.location": "left",
   "workbench.panel.defaultLocation": "bottom",
   "workbench.secondarySideBar.defaultVisibility": "hidden",
+  "window.titleBarStyle": "custom",
+  "window.customTitleBarVisibility": "windowed",
+  "window.menuBarVisibility": "hidden",
+  "window.commandCenter": false,
+  "workbench.activityBar.location": "top",
+  "workbench.layoutControl.enabled": true,
+  "workbench.layoutControl.type": "menu",
+  "breadcrumbs.enabled": false,
   "workbench.iconTheme": "material-icon-theme",
 {{- if and (eq .chezmoi.os "linux") (has "hyprland-noctalia" (get . "profiles" | default (list))) }}
   "workbench.colorTheme": "NoctaliaTheme",
   "window.autoDetectColorScheme": false,
 {{- else }}
-  "workbench.colorTheme": "Atom One Dark",
-  "workbench.preferredDarkColorTheme": "Atom One Dark",
-  "workbench.preferredLightColorTheme": "Atom One Light",
+  "workbench.colorTheme": "Default Dark Modern",
+  "workbench.preferredDarkColorTheme": "Default Dark Modern",
+  "workbench.preferredLightColorTheme": "Default Light Modern",
   "window.autoDetectColorScheme": true,
 {{- end }}
 
