@@ -44,11 +44,14 @@ class Zed(unittest.TestCase):
         data = {"chezmoi": {"os": platform}, "onePasswordSsh": False}
         if not legacy:
             data["profiles"] = ["common", "hyprland-noctalia"] if noctalia else ["common"]
+        roots = {"linux": [".config", ".local"],
+                 "darwin": [".config", "Library/Application Support"],
+                 "windows": [".config", "AppData/Roaming"]}[platform]
         result = subprocess.run([
             CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
             "--config", str(self.root / "chezmoi.toml"), "--cache", str(self.root / "cache/chezmoi"),
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"), "--skip-secrets",
-            "--override-data", json.dumps(data), "dump", "--format=json",
+            "--override-data", json.dumps(data), "dump", "--format=json", *[str(self.home / root) for root in roots],
         ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20)
         self.assertEqual(result.returncode, 0, result.stderr)
         # Rendering without init may warn about the intentionally absent generated config.

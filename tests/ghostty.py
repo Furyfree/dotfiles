@@ -49,7 +49,7 @@ class Ghostty(unittest.TestCase):
             "--config", str(self.home / "chezmoi.toml"), "--cache", str(self.root / "cache/chezmoi"),
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"), "--skip-secrets",
             "--override-data", json.dumps(data),
-            *args, input=input)
+            *args, *([str(self.home / ".config")] if args[:1] == ("dump",) else []), input=input)
 
     def render(self, platform, noctalia=False):
         content = self.chezmoi(platform, "execute-template", noctalia=noctalia,

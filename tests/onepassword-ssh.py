@@ -112,7 +112,10 @@ else:
                               cwd=self.root, env=self.env, text=True, capture_output=True, timeout=20)
 
     def dump(self, **kwargs):
-        result = self.run_chezmoi("dump", "--format=json", **kwargs)
+        targets = [str(self.home / ".config")]
+        if kwargs.get("enabled", True) is True and kwargs.get("platform", "linux") in ("linux", "darwin"):
+            targets.append(str(self.home / ".ssh"))
+        result = self.run_chezmoi("dump", "--format=json", *targets, **kwargs)
         self.assertEqual(result.returncode, 0, result.stderr)
         return json.loads(result.stdout)
 
@@ -188,7 +191,7 @@ else:
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(result.stdout, "")
         (self.bin / "op").unlink()
-        paths = self.run_chezmoi("--skip-secrets", "dump", "--format=json", machine="work-laptop")
+        paths = self.run_chezmoi("--skip-secrets", "dump", "--format=json", str(self.home / ".config"), str(self.home / ".ssh"), machine="work-laptop")
         self.assertEqual(paths.returncode, 0, paths.stderr)
         self.assertNotIn(".ssh/work.pub", json.loads(paths.stdout))
 
@@ -269,7 +272,7 @@ else:
         for target in TARGETS[:3]:
             result = self.run_chezmoi("cat", str(self.home / target))
             self.assertNotEqual(result.returncode, 0)
-        result = self.run_chezmoi("--skip-secrets", "dump", "--format=json")
+        result = self.run_chezmoi("--skip-secrets", "dump", "--format=json", str(self.home / ".config"), str(self.home / ".ssh"))
         self.assertEqual(result.returncode, 0, result.stderr)
         paths = json.loads(result.stdout)
         for target in TARGETS[:3]:

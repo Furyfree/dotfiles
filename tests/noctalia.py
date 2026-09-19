@@ -53,6 +53,8 @@ class Noctalia(unittest.TestCase):
                               capture_output=True, timeout=30)
 
     def chezmoi(self, *args, **kwargs):
+        if args[:1] == ("dump",):
+            args = (*args, str(self.home / ".config"))
         result = self.run_chezmoi(*args, **kwargs)
         self.assertEqual(result.returncode, 0, result.stderr)
         return result.stdout

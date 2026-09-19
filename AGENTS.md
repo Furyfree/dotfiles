@@ -81,6 +81,7 @@ change `/etc`, manage services, or select a login shell.
 
 Do not use the HTML skill unless the user explicitly asks for it.
 
-Before handoff, run `chezmoi managed`, `chezmoi status`, `chezmoi diff`,
+Before handoff, run `just check` (suites run in parallel; `JOBS=1` gives the
+serial baseline), `chezmoi managed`, `chezmoi status`, `chezmoi diff`,
 `chezmoi verify`, and `git diff --check`. Do not run `chezmoi apply`, commit,
 push, or create remote resources without explicit permission.

@@ -92,7 +92,7 @@ class Niri(unittest.TestCase):
                             "--cache", str(self.root / "chezmoi-cache"),
                             "--persistent-state", str(self.root / "chezmoi.boltdb"),
                             "--skip-secrets", "--override-data", json.dumps(data),
-                            "dump", "--format=json")
+                            "dump", "--format=json", str(self.home / ".config"))
                         self.assertEqual(result.returncode, 0, result.stderr)
                         targets = {name: entry["contents"]
                                    for name, entry in json.loads(result.stdout).items()

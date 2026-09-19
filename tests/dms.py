@@ -101,7 +101,7 @@ class Dms(unittest.TestCase):
                                 [CHEZMOI, "--source", str(REPO), "--destination", str(home),
                                  "--config", str(root / "chezmoi.toml"), "--cache", str(root / "cache"),
                                  "--persistent-state", str(root / "state.boltdb"), "--skip-secrets",
-                                 "--override-data", json.dumps(data), "dump", "--format=json"],
+                                 "--override-data", json.dumps(data), "dump", "--format=json", str(home / ".config")],
                                 cwd=root, env=env, text=True, capture_output=True, timeout=20)
                             self.assertEqual(result.returncode, 0, result.stderr)
                             entries = json.loads(result.stdout)

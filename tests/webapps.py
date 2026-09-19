@@ -79,13 +79,16 @@ class Webapps(unittest.TestCase):
                                 "profiles": ["common"]}
                         if managed is not None:
                             data["ManagedByNimbus"] = managed
+                        roots = {"linux": [".local", ".config"],
+                                 "darwin": ["Library/Application Support", ".config"],
+                                 "windows": ["AppData/Roaming", ".config"]}[platform]
                         result = subprocess.run([
                             CHEZMOI, "--source", str(source), "--destination", str(home),
                             "--config", str(root / "chezmoi.toml"),
                             "--cache", str(root / "cache/chezmoi"),
                             "--persistent-state", str(root / "chezmoi-state.boltdb"),
                             "--skip-secrets", "--override-data", json.dumps(data),
-                            "dump", "--format=json",
+                            "dump", "--format=json", *[str(home / root) for root in roots],
                         ], env=env, cwd=root, capture_output=True, text=True, timeout=20)
                         self.assertEqual(result.returncode, 0, result.stderr)
                         entries = json.loads(result.stdout)
