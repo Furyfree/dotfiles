@@ -178,6 +178,9 @@ class VSCodium(unittest.TestCase):
 
     def test_managed_installers_match_platform_and_manifest(self):
         manifest = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())
+        # The shell installer is held in .chezmoiignore until extension
+        # installs retry flaky marketplace responses.
+        held = "install-vscodium-extensions.sh"
         for platform in TARGETS:
             with self.subTest(platform=platform):
                 scripts = self.render(platform, entry_type="script")
@@ -188,7 +191,6 @@ class VSCodium(unittest.TestCase):
                         self.assertEqual(script.strip(), "")
                         self.assertNotIn(target, scripts)
                         continue
-                    self.assertEqual(scripts[target], script)
                     for extension in manifest["install"]:
                         self.assertIn(extension, script)
                     for extension in manifest["manual"]:
@@ -197,6 +199,10 @@ class VSCodium(unittest.TestCase):
                         result = subprocess.run(["/bin/sh", "-n"], input=script,
                             capture_output=True, text=True, timeout=10)
                         self.assertEqual(result.returncode, 0, result.stderr)
+                    if target == held:
+                        self.assertNotIn(target, scripts)
+                        continue
+                    self.assertEqual(scripts[target], script)
 
     def fake_cli(self, installed=(), name="codium"):
         bin_dir = self.root / "bin with spaces"

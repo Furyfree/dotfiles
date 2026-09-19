@@ -165,3 +165,7 @@ Projects/nimbus
 {{ if not (and (eq .chezmoi.os "linux") $hyprlandNoctalia (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
 .config/agent-proxy/config.yaml
 {{ end -}}
+
+# Held until extension installs retry flaky marketplace responses; remove
+# this rule to re-enable the after-apply script.
+install-vscodium-extensions.sh
