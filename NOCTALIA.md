@@ -19,7 +19,11 @@ wallpaper, selected integrations and enabled plugins are now in
 first available output, retaining its native login-box placement until their
 outputs are configured. Unlisted external displays retain native login boxes.
 Usage counts, last-wallpaper state, migration markers, downloaded catalogs,
-agent state and keyrings remain unmanaged.
+agent state and keyrings remain unmanaged. The one exception is created, not
+managed: `create_private_Default_keyring.keyring` writes the empty passwordless
+default keyring only when none exists, so auto-login never meets a keyring
+password prompt. From then on the file belongs to the applications that store
+secrets in it; Chezmoi never compares, diffs or overwrites it.
 
 Noctalia reads `~/.config/noctalia/*.toml`, then applies GUI overrides from its
 state directory. Existing overrides therefore still win. Reset individual
