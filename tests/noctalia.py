@@ -84,6 +84,7 @@ class Noctalia(unittest.TestCase):
                                      for name in entries))
                 if enabled:
                     config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
+                    self.assertTrue(config["nightlight"]["enabled"])
                     templates = config["theme"]["templates"]
                     self.assertNotIn("starship", templates["builtin_ids"])
                     self.assertTrue({"neovim", "fastfetch"}.isdisjoint(templates["community_ids"]))
