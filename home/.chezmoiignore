@@ -63,6 +63,7 @@ Library/**
 .config/qt6ct/qt6ct.conf
 .config/zsh/conf.d/noctalia.zsh
 .config/bash/conf.d/noctalia.bash
+.local/share/keyrings/**
 {{ end -}}
 
 # Other Linux user targets
