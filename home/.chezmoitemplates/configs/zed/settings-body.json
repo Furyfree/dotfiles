@@ -131,6 +131,7 @@
   "git_panel": { "dock": "right" },
   "outline_panel": { "dock": "right" },
   "jupyter": { "enabled": true },
+  "feature_flags": { "tabular-data-preview": "on", "notebooks": "on" },
   "agent": { "default_profile": "ask", "enable_feedback": false, "dock": "left", "sidebar_side": "left"{{ range $key := list "default_model" "commit_message_model" }}{{ if hasKey $localAgent $key }}, {{ $key | toJson }}: {{ get $localAgent $key | toJson }}{{ end }}{{ end }} },
 
   "edit_predictions": {

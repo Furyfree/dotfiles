@@ -1375,8 +1375,8 @@ the active theme. Language servers, outline, folding, Git indicators, and
 other features use Zed's defaults instead of copying hundreds of settings.
 The terminal uses the system shell and project directory; it never forces Zsh
 onto Windows or replaces the machine's chosen shell. The file, Git, and outline
-panels dock on the right; the agent docks on the left. Jupyter notebooks and
-the REPL are enabled.
+panels dock on the right; the agent docks on the left. Jupyter REPL is on, and
+the notebook preview flag matches Niriland (`feature_flags.notebooks`).
 
 Your Chezmoi file associations and Tinymist PDF-on-save settings are kept.
 The extension list retains all 33 enabled selections from your live settings,

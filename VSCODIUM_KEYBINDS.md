@@ -24,9 +24,9 @@ commands. Language actions require the corresponding language support.
 | Format document | Alt+Shift+F | Option+Shift+F |
 | Save | Ctrl+S | Cmd+S |
 | Reopen closed tab | Ctrl+Shift+T | Cmd+Shift+T |
-| Toggle file explorer | Ctrl+B | Cmd+B |
+| Toggle agent sidebar (left) | Ctrl+B | Cmd+B |
 | Focus outline | Ctrl+Shift+B | Cmd+Shift+B |
-| Toggle agent sidebar | Ctrl+Alt+B | Cmd+Option+B |
+| Toggle file explorer (right) | Ctrl+Alt+B | Cmd+Option+B |
 | Toggle bottom panel | Ctrl+J | Cmd+J |
 | Toggle terminal specifically | Ctrl+Alt+Shift+J | Cmd+Option+Shift+J |
 | Source control | Ctrl+Shift+G | Ctrl+Shift+G |
@@ -38,7 +38,7 @@ whichever panel was last selected, not necessarily the terminal. Use the custom
 four-key shortcut to target the terminal directly. Inside the terminal, Ctrl+R
 remains shell history search.
 
-VSCodium needs explicit aliases for formatting, outline, right sidebar, source
+VSCodium needs explicit aliases for formatting, outline, left/right sidebars, source
 control, chat, and macOS recent projects to match Zed. On Linux/Windows,
 Ctrl+Shift+A toggles block comments like Zed's VS Code base map.
 Ctrl+Shift+B therefore no longer runs a build task in VSCodium; use the command
@@ -68,8 +68,8 @@ Zed toggles focus to its own agent, whose default profile is Ask.
 | Ctrl+Shift+O: recent projects | File symbols; recent projects use Ctrl+R |
 | Ctrl+Shift+J: file symbols | Old override removed; use Ctrl+Shift+O |
 | Ctrl+Shift+F: new Search Editor | Standard project-search view |
-| Ctrl+Shift+B: primary sidebar | Outline; primary sidebar uses Ctrl+B |
-| Ctrl+Shift+A: secondary sidebar | Block comment; secondary sidebar uses Ctrl+Alt+B |
+| Ctrl+Shift+B: primary sidebar | Outline; left (agent) uses Ctrl+B, right (explorer) uses Ctrl+Alt+B |
+| Ctrl+Shift+A: secondary sidebar | Block comment; explorer uses Ctrl+Alt+B |
 | Ctrl+Shift+Y: workspace symbols | Old override removed; native Ctrl+T finds workspace symbols |
 | Ctrl+K Ctrl+K: keyboard settings | Native Ctrl+K Ctrl+S opens keyboard settings |
 | Ctrl+Alt+G: Git Graph | Kept |

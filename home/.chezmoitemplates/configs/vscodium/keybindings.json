@@ -9,12 +9,16 @@
     "when": "editorHasDocumentFormattingEditProvider && editorTextFocus && !editorReadonly"
   },
   {
+    "key": "{{ if eq .chezmoi.os "darwin" }}cmd{{ else }}ctrl{{ end }}+b",
+    "command": "workbench.action.toggleAuxiliaryBar"
+  },
+  {
     "key": "{{ if eq .chezmoi.os "darwin" }}cmd{{ else }}ctrl{{ end }}+shift+b",
     "command": "outline.focus"
   },
   {
     "key": "{{ if eq .chezmoi.os "darwin" }}cmd{{ else }}ctrl{{ end }}+alt+b",
-    "command": "workbench.action.toggleAuxiliaryBar"
+    "command": "workbench.action.toggleSidebarVisibility"
   },
   {
     "key": "ctrl+shift+g",

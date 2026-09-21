@@ -99,6 +99,9 @@ class Zed(unittest.TestCase):
         self.assertEqual(settings["git_panel"], {"dock": "right"})
         self.assertEqual(settings["outline_panel"], {"dock": "right"})
         self.assertEqual(settings["jupyter"], {"enabled": True})
+        self.assertEqual(settings["feature_flags"], {
+            "tabular-data-preview": "on", "notebooks": "on",
+        })
         self.assertFalse(settings["session"]["trust_all_worktrees"])
         self.assertTrue(settings["session"]["restore_unsaved_buffers"])
         self.assertEqual(settings["telemetry"], {"diagnostics": False, "metrics": False})

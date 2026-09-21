@@ -131,13 +131,14 @@ class VSCodium(unittest.TestCase):
         for platform, target in TARGETS.items():
             with self.subTest(platform=platform):
                 bindings = strict_json(self.render(platform)[f"{target}/keybindings.json"])
-                self.assertEqual(len(bindings), 8)
+                self.assertEqual(len(bindings), 9)
                 keys = {binding["key"]: binding for binding in bindings}
                 self.assertEqual(len(keys), len(bindings))
                 mod = "cmd" if platform == "darwin" else "ctrl"
                 self.assertEqual(keys[f"{mod}+alt+shift+j"]["command"], "workbench.action.terminal.toggleTerminal")
+                self.assertEqual(keys[f"{mod}+b"]["command"], "workbench.action.toggleAuxiliaryBar")
                 self.assertEqual(keys[f"{mod}+shift+b"]["command"], "outline.focus")
-                self.assertEqual(keys[f"{mod}+alt+b"]["command"], "workbench.action.toggleAuxiliaryBar")
+                self.assertEqual(keys[f"{mod}+alt+b"]["command"], "workbench.action.toggleSidebarVisibility")
                 self.assertEqual(keys["alt+shift+f"]["command"], "editor.action.formatDocument")
                 self.assertIn("!editorReadonly", keys["alt+shift+f"]["when"])
                 self.assertEqual(keys["ctrl+shift+g"]["command"], "workbench.view.scm")
