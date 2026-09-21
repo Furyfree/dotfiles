@@ -1,16 +1,14 @@
-#!/usr/bin/env python3
 """Exercise the apply lifecycle in a tiny temporary source with a fake Mise."""
 
 import json
 import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 import tomllib
 import unittest
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 SCRIPT = "run_after_install-mise-tools.sh.tmpl"
@@ -96,7 +94,7 @@ if (home / "fail").exists():
         return subprocess.run(command + list(args),
             env=self.env | {"FAKE_EXPECT_LINUX_TOOLS": str(platform == "linux").lower()},
             cwd=self.root, input=input,
-            capture_output=True, text=True, timeout=20)
+            capture_output=True, text=True, timeout=20, check=False)
 
     def calls(self, all_commands=False):
         log = self.home / "calls.jsonl"
@@ -384,7 +382,7 @@ sys.exit(result.returncode)
                 else:
                     self.assertTrue(result.stdout.startswith("#!/bin/bash\n"))
                     syntax = subprocess.run(["/bin/bash", "-n"], input=result.stdout,
-                                            text=True, capture_output=True)
+                                            text=True, capture_output=True, check=False)
                     self.assert_success(syntax)
         self.assert_success(self.chezmoi("apply", platform="windows"))
         self.assertEqual(self.calls(), [])

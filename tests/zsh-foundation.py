@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
 """Run actual Zsh code with temporary state and fake external integrations."""
 
 import os
-from pathlib import Path
 import shutil
 import stat
 import subprocess
 import tempfile
 import unittest
-
+from pathlib import Path
 
 SOURCE = Path(__file__).resolve().parents[1] / "home"
 ZSH = shutil.which("zsh")
@@ -59,7 +57,7 @@ class ZshFoundation(unittest.TestCase):
         try:
             result = subprocess.run([ZSH, "-d", "-f", "-i", "-c", code], env=self.env,
                                     stdin=descriptors[1] if terminal else subprocess.DEVNULL,
-                                    cwd=self.home, capture_output=True, text=True, timeout=15)
+                                    cwd=self.home, capture_output=True, text=True, timeout=15, check=False)
         finally:
             for descriptor in descriptors:
                 os.close(descriptor)
@@ -74,7 +72,7 @@ class ZshFoundation(unittest.TestCase):
         for path in paths:
             with self.subTest(path=path.name):
                 result = subprocess.run([ZSH, "-d", "-f", "-n", str(path)], env=self.env,
-                                        capture_output=True, text=True, timeout=15)
+                                        capture_output=True, text=True, timeout=15, check=False)
                 self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_xdg_defaults_and_overrides(self):

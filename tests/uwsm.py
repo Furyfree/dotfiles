@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
 """Exercise sourced session settings without changing any user manager."""
 
 import json
-from pathlib import Path
 import subprocess
 import unittest
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -18,8 +17,8 @@ class UwsmEnvironment(unittest.TestCase):
                 env = {"HOME": "/home/example with spaces", "PATH": "", **overrides}
                 result = subprocess.run([
                     "/bin/sh", "-c",
-                    '. "$1"; . "$1"; . "$2"; exec /usr/bin/python3 -c '
-                    "'import os,json; print(json.dumps(dict(os.environ)))'", "sh",
+                    ('. "$1"; . "$1"; . "$2"; exec /usr/bin/python3 -c '
+                    "'import os,json; print(json.dumps(dict(os.environ)))'"), "sh",
                     str(ROOT / "home/dot_config/uwsm/env"),
                     str(ROOT / "home/dot_config/uwsm/env-hyprland"),
                 ], env=env, capture_output=True, text=True, check=True)

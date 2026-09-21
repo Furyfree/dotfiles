@@ -1,17 +1,15 @@
-#!/usr/bin/env python3
 """Validate desktop entries and webapps without launching applications."""
 
 import configparser
 import json
-from pathlib import Path
 import shlex
 import shutil
 import struct
 import subprocess
 import tempfile
 import unittest
+from pathlib import Path
 from urllib.parse import urlsplit
-
 
 REPO = Path(__file__).resolve().parents[1]
 ENTRIES = REPO / "home/dot_local/share/applications"
@@ -52,7 +50,7 @@ class Webapps(unittest.TestCase):
             self.skipTest("no webapps are declared")
         result = subprocess.run([VALIDATOR, "--no-hints",
                                  *(str(path) for path in sorted(ENTRIES.glob("*.desktop")))],
-                                capture_output=True, text=True, timeout=10)
+                                capture_output=True, text=True, timeout=10, check=False)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(result.stdout + result.stderr, "")
 
@@ -89,7 +87,7 @@ class Webapps(unittest.TestCase):
                             "--persistent-state", str(root / "chezmoi-state.boltdb"),
                             "--skip-secrets", "--override-data", json.dumps(data),
                             "dump", "--format=json", *[str(home / root) for root in roots],
-                        ], env=env, cwd=root, capture_output=True, text=True, timeout=20)
+                        ], env=env, cwd=root, capture_output=True, text=True, timeout=20, check=False)
                         self.assertEqual(result.returncode, 0, result.stderr)
                         entries = json.loads(result.stdout)
                         self.assertEqual(".local/bin/fixture-tool" in entries, platform == "linux")

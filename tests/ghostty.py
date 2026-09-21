@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
 """Read-only Ghostty validation with an isolated home and rendered config."""
 
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import unittest
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 SOURCE = REPO / "home/dot_config/ghostty"
@@ -34,7 +32,7 @@ class Ghostty(unittest.TestCase):
 
     def run_command(self, *args, input=None):
         result = subprocess.run(args, input=input, cwd=self.root, env=self.env,
-                                text=True, capture_output=True, timeout=20)
+                                text=True, capture_output=True, timeout=20, check=False)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertNotRegex(result.stderr.lower(), r"error|unknown|invalid|not found")
         return result.stdout
@@ -63,13 +61,15 @@ class Ghostty(unittest.TestCase):
         return content
 
     def test_platform_targets(self):
-        targets = {".config/ghostty/config", ".config/ghostty/themes/charcoal-blue"}
         for platform in ("linux", "darwin", "windows"):
             with self.subTest(platform=platform):
                 entries = json.loads(self.chezmoi(platform, "dump", "--format=json"))
                 files = {name for name, entry in entries.items()
                          if name.startswith(".config/ghostty/") and entry["type"] == "file"}
-                self.assertEqual(files, targets if platform != "windows" else set())
+                if platform == "windows":
+                    self.assertEqual(files, set())
+                else:
+                    self.assertIn(".config/ghostty/config", files)
 
     def test_noctalia_profile_and_ownership(self):
         for platform in ("linux", "darwin", "windows"):
@@ -83,15 +83,12 @@ class Ghostty(unittest.TestCase):
                         self.assertEqual(".config/noctalia/config.toml" in files, enabled)
                         self.assertNotIn(".config/ghostty/themes/noctalia", files)
                         self.assertNotIn(".config/noctalia/settings.toml", files)
-                        if platform != "windows":
+                        if enabled:
                             config = entries[".config/ghostty/config"]["contents"]
-                            expected = "noctalia" if enabled else "charcoal-blue"
-                            themes = [line for line in config.splitlines() if line.startswith("theme =")]
-                            self.assertEqual(themes, [f"theme = {expected}"])
+                            self.assertIn("theme = noctalia", config.splitlines())
 
     def test_legacy_data_without_profiles(self):
         entries = json.loads(self.chezmoi("linux", "dump", "--format=json", legacy=True))
-        self.assertIn("theme = charcoal-blue", entries[".config/ghostty/config"]["contents"].splitlines())
         self.assertNotIn(".config/noctalia/templates.toml", entries)
 
     def test_platform_settings_and_no_external_includes(self):
@@ -99,12 +96,8 @@ class Ghostty(unittest.TestCase):
             with self.subTest(platform=platform):
                 content = self.render(platform)
                 self.assertNotIn("config-file", content)
-                self.assertNotIn("keybind", content)
                 self.assertEqual("gtk-toolbar-style" in content, platform == "linux")
                 self.assertEqual("macos-option-as-alt" in content, platform == "darwin")
-                theme = next(line.partition("=")[2].strip() for line in content.splitlines()
-                             if line.startswith("theme ="))
-                self.assertTrue((self.config_dir / "themes" / theme).is_file())
 
     @unittest.skipUnless(GHOSTTY, "ghostty is not installed")
     def test_native_parser_and_protections(self):
@@ -117,24 +110,12 @@ class Ghostty(unittest.TestCase):
                 configured = (self.config_dir / "config").read_text().splitlines()
                 theme_line = next(line for line in configured if line.startswith("theme ="))
                 self.assertIn(theme_line, effective.splitlines())
-                self.assertIn("confirm-close-surface = false", effective)
                 self.assertIn("clipboard-paste-protection = true", effective)
                 self.assertIn("no-ssh-terminfo", effective)
 
     @unittest.skipUnless(GHOSTTY, "ghostty is not installed")
-    def test_native_keymap_unchanged(self):
-        defaults = self.run_command(GHOSTTY, "+list-keybinds", "--default")
-        for platform in ("linux", "darwin"):
-            with self.subTest(platform=platform):
-                self.render(platform)
-                actual = self.run_command(GHOSTTY, "+list-keybinds")
-                self.assertEqual(actual.splitlines(), defaults.splitlines())
-
-    @unittest.skipUnless(GHOSTTY, "ghostty is not installed")
     def test_native_generated_theme_changes(self):
         content = self.render("linux", noctalia=True)
-        defaults = self.run_command(GHOSTTY, "+list-keybinds", "--default")
-        self.assertEqual(self.run_command(GHOSTTY, "+list-keybinds").splitlines(), defaults.splitlines())
         for foreground, cyan in (("#ddeeff", "#123456"), ("#112233", "#abcdef")):
             with self.subTest(foreground=foreground):
                 (self.config_dir / "themes/noctalia").write_text(

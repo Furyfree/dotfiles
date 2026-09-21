@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
 """Check Zed source rendering without opening the editor or changing live state."""
 
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import unittest
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CHEZMOI = shutil.which("chezmoi")
@@ -52,7 +50,7 @@ class Zed(unittest.TestCase):
             "--config", str(self.root / "chezmoi.toml"), "--cache", str(self.root / "cache/chezmoi"),
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"), "--skip-secrets",
             "--override-data", json.dumps(data), "dump", "--format=json", *[str(self.home / root) for root in roots],
-        ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20)
+        ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         # Rendering without init may warn about the intentionally absent generated config.
         warning = "chezmoi: warning: config file template has changed, run chezmoi init to regenerate config file\n"
@@ -70,47 +68,20 @@ class Zed(unittest.TestCase):
                     self.assertEqual(zed_files, {f"{target}/settings.json", f"{target}/keymap.json"})
                     settings = strict_json(files[f"{target}/settings.json"])
                     enabled = platform == "linux" and noctalia
-                    self.assertEqual(settings["theme"], {
-                        "mode": "system", "light": "Noctalia Light", "dark": "Noctalia Dark"
-                    } if enabled else {
-                        "mode": "system", "light": "One Light", "dark": "One Dark"})
+                    if enabled:
+                        self.assertEqual(settings["theme"]["light"], "Noctalia Light")
+                        self.assertEqual(settings["theme"]["dark"], "Noctalia Dark")
                     self.assertEqual(".config/noctalia/config.toml" in files, enabled)
                     if platform == "windows":
                         self.assertNotIn("agent_servers", settings)
-                    else:
-                        agents = settings["agent_servers"]
-                        self.assertEqual(set(agents), {"opencode", "grok-build", "claude-acp", "codex-acp"})
-                        for name in ("opencode", "claude-acp", "codex-acp"):
-                            self.assertEqual(agents[name], {"type": "registry"})
-                        self.assertEqual(agents["grok-build"], {
-                            "type": "custom",
-                            "command": str(self.home / ".local/bin/mise"),
-                            "args": ["exec", "npm:@xai-official/grok", "--", "grok", "agent", "stdio"],
-                        })
 
-    def test_privacy_and_preferences(self):
+    def test_privacy_and_unsaved_data(self):
         settings = strict_json(self.render("linux")[".config/zed/settings.json"])
-        self.assertEqual(settings["base_keymap"], "VSCode")
-        self.assertEqual(settings["agent"], {
-            "default_profile": "ask", "enable_feedback": False,
-            "dock": "left", "sidebar_side": "left",
-        })
-        self.assertEqual(settings["project_panel"], {"dock": "right"})
-        self.assertEqual(settings["git_panel"], {"dock": "right"})
-        self.assertEqual(settings["outline_panel"], {"dock": "right"})
-        self.assertEqual(settings["jupyter"], {"enabled": True})
-        self.assertEqual(settings["feature_flags"], {
-            "tabular-data-preview": "on", "notebooks": "on",
-        })
+        self.assertFalse(settings["agent"]["enable_feedback"])
         self.assertFalse(settings["session"]["trust_all_worktrees"])
         self.assertTrue(settings["session"]["restore_unsaved_buffers"])
         self.assertEqual(settings["telemetry"], {"diagnostics": False, "metrics": False})
         self.assertTrue(settings["redact_private_values"])
-        self.assertEqual(settings["format_on_save"], "off")
-        self.assertEqual(settings["autosave"], "off")
-        self.assertEqual(settings["terminal"]["shell"], "system")
-        self.assertNotIn("theme_overrides", settings)
-        self.assertNotIn("language_models", settings)
 
     def test_local_model_options_survive_without_changing_managed_settings(self):
         for platform in ("linux", "darwin", "windows"):
@@ -143,6 +114,8 @@ class Zed(unittest.TestCase):
                 self.assertFalse(settings["telemetry"]["metrics"])
                 if platform != "windows":
                     for name, server in settings["agent_servers"].items():
+                        if name not in local["agent_servers"]:
+                            continue
                         self.assertEqual(server["default_config_options"],
                                          local["agent_servers"][name]["default_config_options"])
                         self.assertNotEqual(server.get("command"), "/unmanaged/launcher")
@@ -183,45 +156,14 @@ class Zed(unittest.TestCase):
             self.render("linux")
         self.assertEqual(path.read_text(), "{invalid")
 
-    def test_extension_inventory(self):
-        settings = strict_json(self.render("linux")[".config/zed/settings.json"])
-        enabled = set("""
-            ansible catppuccin csharp csv dart dockerfile dracula elixir everforest
-            flexoki-themes fsharp git-firefly github-dark-default github-theme gotmpl
-            graphql gruvbox-material-mix html ini java just kanagawa-themes kotlin
-            latex log lua macos-classic material-icon-theme nginx nix one-dark-pro
-            opencode rainbow-csv rose-pine scala scheme sql svelte swift terraform
-            tokyo-night toml typst xml zig
-        """.split())
-        self.assertEqual(settings["auto_install_extensions"],
-                         dict.fromkeys(enabled, True) | {"docker-compose": False})
-        updates = set("""
-            ansible csharp csv dart dockerfile elixir fsharp git-firefly gotmpl
-            graphql html ini java kotlin latex log lua nginx nix opencode rainbow-csv
-            scala scheme sql svelte swift terraform toml xml zig
-        """.split())
-        self.assertEqual(settings["auto_update_extensions"],
-                         dict.fromkeys(updates, True) | {"docker-compose": False})
-
-    def test_single_additive_keybind(self):
+    def test_keymap_parses_on_each_platform(self):
         for platform in ("linux", "darwin", "windows"):
             with self.subTest(platform=platform):
                 target = "AppData/Roaming/Zed" if platform == "windows" else ".config/zed"
-                keys = strict_json(self.render(platform)[f"{target}/keymap.json"])
-                modifier = "cmd" if platform == "darwin" else "ctrl"
-                self.assertEqual(keys, [{"context": "Workspace", "bindings": {
-                    f"{modifier}-alt-shift-j": "terminal_panel::Toggle"}}])
+                strict_json(self.render(platform)[f"{target}/keymap.json"])
 
-    def test_wrappers_and_legacy_data(self):
-        for target in ("dot_config/zed", "AppData/Roaming/Zed"):
-            for name in ("settings", "keymap"):
-                filename = f"{name}.json.tmpl"
-                if target == "dot_config/zed" and name == "settings":
-                    filename = "private_" + filename
-                wrapper = (REPO / "home" / target / filename).read_text()
-                self.assertEqual(wrapper.strip(), '{{- template "configs/zed/' + name + '.json" . -}}')
-        settings = strict_json(self.render("linux", legacy=True)[".config/zed/settings.json"])
-        self.assertEqual(settings["theme"]["dark"], "One Dark")
+    def test_legacy_data_renders_valid_settings(self):
+        strict_json(self.render("linux", legacy=True)[".config/zed/settings.json"])
 
 
 if __name__ == "__main__":

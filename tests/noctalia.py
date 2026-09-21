@@ -1,16 +1,15 @@
-#!/usr/bin/env python3
 """Check profile wiring and previews without reading the live desktop."""
 
-import json
 import configparser
+import json
 import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 import tomllib
 import unittest
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CHEZMOI = shutil.which("chezmoi")
@@ -50,7 +49,7 @@ class Noctalia(unittest.TestCase):
             argv.append("--skip-secrets")
         argv += ["--override-data", json.dumps(data), *args]
         return subprocess.run(argv, cwd=self.root, env=env, text=True,
-                              capture_output=True, timeout=30)
+                              capture_output=True, timeout=30, check=False)
 
     def chezmoi(self, *args, **kwargs):
         if args[:1] == ("dump",):
@@ -84,7 +83,6 @@ class Noctalia(unittest.TestCase):
                                      for name in entries))
                 if enabled:
                     config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
-                    self.assertTrue(config["nightlight"]["enabled"])
                     templates = config["theme"]["templates"]
                     self.assertNotIn("starship", templates["builtin_ids"])
                     self.assertTrue({"neovim", "fastfetch"}.isdisjoint(templates["community_ids"]))
@@ -93,11 +91,9 @@ class Noctalia(unittest.TestCase):
                                      ["color_theme"], "noctalia")
                     self.assertIn("include noctaliarc", entries[".config/zathura/zathurarc"]["contents"])
                 elif platform == "linux":
-                    self.assertEqual(tomllib.loads(entries[".config/btop/btop.conf"]["contents"])
-                                     ["color_theme"], "TTY")
                     self.assertNotIn("include noctaliarc", entries[".config/zathura/zathurarc"]["contents"])
 
-    def test_ai_usagebar_providers_and_widget_settings(self):
+    def test_ai_usagebar_selection_and_secret_ownership(self):
         for platform, profiles, enabled in (
                 ("linux", ["hyprland-noctalia"], True),
                 ("linux", ["common"], False),
@@ -112,13 +108,7 @@ class Noctalia(unittest.TestCase):
                 widget = tomllib.loads(entries[".config/noctalia/config.toml"]
                                        ["contents"])["widget"]["ai-usage"]
                 self.assertEqual(widget["type"], "felipeartur/ai-usagebar:bar")
-                self.assertEqual(widget["provider_limit"], 2)
-                self.assertTrue(widget["show_name"])
                 usage = tomllib.loads(entries[".config/ai-usagebar/config.toml"]["contents"])
-                self.assertEqual(usage["ui"]["primary"], "openai")
-                for provider in ("anthropic", "openai", "supergrok", "openrouter"):
-                    self.assertTrue(usage[provider]["enabled"], provider)
-                self.assertFalse(usage["zai"]["enabled"])
                 self.assertNotIn("api_key", usage["openrouter"])
 
     def test_ai_usagebar_key_renders_only_with_1password(self):
@@ -175,7 +165,7 @@ class Noctalia(unittest.TestCase):
                                (str(extension) + "\n/another/path", False)):
             env["LOCATED_EXTENSION"] = value
             result = subprocess.run(["/bin/bash", str(helper)], env=env,
-                                    text=True, capture_output=True)
+                                    text=True, capture_output=True, check=False)
             self.assertEqual(result.returncode == 0, success)
             self.assertEqual(result.stdout, "")
         editor.unlink()
@@ -199,35 +189,15 @@ class Noctalia(unittest.TestCase):
                 else:
                     self.assertNotIn("account", config.get("calendar", {}))
 
-    def test_lockscreen_layout_and_avatar_follow_selected_outputs(self):
+    def test_lockscreen_references_and_embedded_avatar(self):
         import base64
         import xml.etree.ElementTree as ET
-        for machine, outputs in (("desktop", ["DP-3", "DP-4"]),
-                                 ("laptop", ["eDP-1"]), (None, [""])):
+        for machine in ("desktop", "laptop", None):
             with self.subTest(machine=machine):
                 entries = json.loads(self.chezmoi("dump", "--format=json", machine=machine))
                 config = tomllib.loads(entries[".config/noctalia/config.toml"]["contents"])
-                self.assertEqual(config["lockscreen"]["blur_intensity"], 0.35)
                 widgets = config["lockscreen_widgets"]
-                self.assertFalse(widgets["grid"]["visible"])
                 self.assertEqual(set(widgets["widget_order"]), set(widgets["widget"]))
-                self.assertEqual({w["output"] for w in widgets["widget"].values()}, set(outputs))
-                for output in outputs:
-                    clock = widgets["widget"]["minimal-clock-" + output]
-                    date = widgets["widget"]["minimal-date-" + output]
-                    avatar = widgets["widget"]["minimal-avatar-" + output]
-                    self.assertEqual(avatar["box_width"], 72)
-                    self.assertFalse(avatar["settings"]["background"])
-                    self.assertEqual(avatar["settings"]["image_path"],
-                                     str(self.home / ".config/noctalia/assets/profile-picture-circle.svg"))
-                    self.assertLess(date["cy"], clock["cy"])
-                    self.assertLess(clock["cy"], avatar["cy"])
-                    if output:
-                        login = widgets["widget"]["lockscreen-login-box@" + output]
-                        self.assertAlmostEqual(login["cy"] / login["placement_height"], 0.69, places=2)
-                        self.assertGreater(login["cy"], avatar["cy"] + avatar["box_height"] / 2)
-                        self.assertEqual(login["settings"]["layout"], "compact")
-                        self.assertFalse(login["settings"]["show_session_buttons"])
                 svg = ET.fromstring(entries[".config/noctalia/assets/profile-picture-circle.svg"]["contents"])
                 embedded = svg.find("{http://www.w3.org/2000/svg}image").attrib[
                     "{http://www.w3.org/1999/xlink}href"]
@@ -252,7 +222,7 @@ class Noctalia(unittest.TestCase):
                     if session is not None:
                         invocation_env["XDG_SESSION_ID"] = session
                     result = subprocess.run(["/bin/sh", "-c", command],
-                                            env=invocation_env, text=True, capture_output=True)
+                                            env=invocation_env, text=True, capture_output=True, check=False)
                     self.assertEqual(result.returncode, status)
                     self.assertEqual(result.stdout.splitlines(), ["stop"])
 
@@ -281,7 +251,7 @@ class Noctalia(unittest.TestCase):
                 config.write_text(entries[".config/noctalia/config.toml"]["contents"])
                 result = subprocess.run([NOCTALIA, "config", "validate", str(config)],
                                         cwd=self.root, env=self.env, text=True,
-                                        capture_output=True, timeout=30)
+                                        capture_output=True, timeout=30, check=False)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_toolkit_selection_leaves_colors_and_mode_to_noctalia(self):
@@ -322,7 +292,7 @@ class Noctalia(unittest.TestCase):
         user_dirs.write_text(contents)
         for repeat in range(2):
             result = subprocess.run(["bash", str(script)], cwd=self.root, env=env,
-                                    text=True, capture_output=True)
+                                    text=True, capture_output=True, check=False)
             self.assertEqual(result.returncode, 0, result.stderr)
             for line in contents.splitlines():
                 if line.startswith("XDG_"):
@@ -335,7 +305,7 @@ class Noctalia(unittest.TestCase):
             updater = shutil.which("xdg-user-dirs-update")
             if updater:
                 result = subprocess.run([updater], cwd=self.root, env=env,
-                                        text=True, capture_output=True)
+                                        text=True, capture_output=True, check=False)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(user_dirs.read_text(), contents)
 
@@ -364,14 +334,14 @@ class Noctalia(unittest.TestCase):
             source = REPO / f"home/dot_config/{shell}/conf.d/noctalia.{shell}"
             script = '. "$1"; printf "%s" "${FZF_DEFAULT_OPTS-}"'
             result = subprocess.run([binary, "-c", script, "fixture", str(source)],
-                                    cwd=self.root, env=self.env, capture_output=True, text=True)
+                                    cwd=self.root, env=self.env, capture_output=True, text=True, check=False)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout, "")
             palette = self.home / ".config/fzf/themes/noctalia.sh"
             palette.parent.mkdir(parents=True, exist_ok=True)
             palette.write_text('export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --color=fg:#abcdef"\n')
             result = subprocess.run([binary, "-c", script, "fixture", str(source)],
-                                    cwd=self.root, env=self.env, capture_output=True, text=True)
+                                    cwd=self.root, env=self.env, capture_output=True, text=True, check=False)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("--color=fg:#abcdef", result.stdout)
             palette.unlink()

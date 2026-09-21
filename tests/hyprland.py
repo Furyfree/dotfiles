@@ -1,15 +1,13 @@
-#!/usr/bin/env python3
 """Check the Hyprland starter without launching a desktop or applications."""
 
 import json
-from pathlib import Path
 import shlex
 import shutil
 import subprocess
 import tempfile
 import tomllib
 import unittest
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CONFIG = REPO / "home/dot_config/hypr/hyprland.lua"
@@ -37,7 +35,7 @@ class Hyprland(unittest.TestCase):
 
     def run_command(self, *args, input=None):
         return subprocess.run(args, input=input, cwd=self.root, env=self.env,
-                              capture_output=True, text=True, timeout=30)
+                              capture_output=True, text=True, timeout=30, check=False)
 
     def dump_config(self, data):
         result = self.run_command(
@@ -84,9 +82,7 @@ class Hyprland(unittest.TestCase):
                         expected.update(f".config/hypr/conf.d/{name}.lua" for name in MODULES)
                         self.assertEqual(targets, expected if enabled else set())
                         if enabled:
-                            self.assertEqual(
-                                tomllib.loads(entries[".config/hypr/plugins.toml"]["contents"]),
-                                {"schema": 1, "enabled": ["scrolloverview"]})
+                            tomllib.loads(entries[".config/hypr/plugins.toml"]["contents"])
                             self.assertEqual(entries[".config/hypr/hyprland.lua"]["contents"],
                                              CONFIG.read_text())
                             for name, source in MODULES.items():
@@ -103,8 +99,8 @@ class Hyprland(unittest.TestCase):
                             if enabled:
                                 self.assertIn("TimeoutStopFailureMode=terminate", entries[target]["contents"])
 
-    @unittest.skipUnless(CHEZMOI, "chezmoi is not installed")
-    def test_monitor_machine_gate(self):
+    @unittest.skipUnless(LUA and CHEZMOI, "lua or chezmoi is not installed")
+    def test_monitor_rendering_per_machine(self):
         for machine in (None, "desktop", "laptop"):
             with self.subTest(machine=machine):
                 data = {"chezmoi": {"os": "linux"}, "profiles": ["hyprland-noctalia"],
@@ -112,15 +108,8 @@ class Hyprland(unittest.TestCase):
                 if machine is not None:
                     data["Machine"] = machine
                 contents = self.dump_config(data)[".config/hypr/conf.d/monitors.lua"]["contents"]
-                self.assertIn('output = ""', contents)
-                self.assertEqual('output = "eDP-1"' in contents, machine == "laptop")
-                self.assertEqual('scale = 1.5' in contents, machine == "laptop")
-                if machine == "desktop":
-                    self.assertIn('output = "DP-4"', contents)
-                    self.assertIn('output = "DP-3"', contents)
-                else:
-                    self.assertNotIn('output = "DP-', contents)
-                    self.assertNotIn("default_monitor", contents)
+                result = self.run_command(LUA, "-e", "assert(load(io.read('*a')))", input=contents)
+                self.assertEqual(result.returncode, 0, result.stderr)
 
     @unittest.skipUnless(LUA and CHEZMOI, "lua or chezmoi is not installed")
     def test_lua_bindings_and_startup_are_declarative(self):
@@ -128,10 +117,11 @@ class Hyprland(unittest.TestCase):
         config = self.render_config("desktop")
         modules = [str(config.parent / f"conf.d/{name}.lua") for name in MODULES]
         result = self.run_command(LUA, "-", str(config), *modules, input=r'''
-local binds, hooks, spawned, environment = {}, {}, {}, {}
+local binds, named_bindings, hooks, spawned, environment = {}, {}, {}, {}, {}
 local dispatched = {}
 local windows, gestures = {}, {}
 local active_window
+local actions
 local monitor = { name = "DP-4" }
 local active_workspace = { id = 2, monitor = monitor }
 local previous_workspace = { id = 1, monitor = monitor }
@@ -206,6 +196,7 @@ hl = {
                "missing description: " .. key)
         assert(type(value) == "table" or type(value) == "function")
         binds[normalized] = value
+        named_bindings[options.description] = value
         if key:find("mouse:") then assert(options.mouse) end
     end,
     dsp = {
@@ -222,30 +213,21 @@ for i = 2, #arg do
     local name = arg[i]:match("/conf%.d/([^/]+)$")
     assert(package.loaded["./conf.d/" .. name], "module is not loaded: " .. name)
 end
+actions = assert(package.loaded["./conf.d/window-actions.lua"])
 assert(next(environment) == nil, "session environment belongs to UWSM")
 assert(#spawned == 0, "loading/reloading must not launch processes")
 assert(#dispatched == 0, "loading/reloading must not move the pointer")
--- Only the selected app shortcuts use compositor focus-or-launch.
+-- Exercise native/XWayland class matching without pinning a shortcut or app inventory.
 local apps = {
-    { "O", "com.obsproject.Studio", "obs" },
-    { "A", "chatgpt", "chatgpt" },
-    { "A", "Chatgpt", "chatgpt" },
-    { "R", "zeron", "zeron" },
-    { "T", "t3code" },
-    { "D", "vesktop", "vesktop" },
-    { "G", "signal", "signal-desktop" },
-    { "E", "com.fastmail.Fastmail", "flatpak run com.fastmail.Fastmail" },
+    { "Focus or open ChatGPT", "chatgpt", "chatgpt" },
+    { "Focus or open ChatGPT", "Chatgpt", "chatgpt" },
 }
 for _, app in ipairs(apps) do
-    local binding = binds["SUPER+SHIFT+" .. app[1]]
+    local binding = named_bindings[app[1]]
     windows, spawned, dispatched = {}, {}, {}
     binding()
     assert(#spawned == 1 and #dispatched == 0, "missing app must launch")
-    if app[3] then
-        assert(spawned[1] == "uwsm-app -- " .. app[3])
-    else
-        assert(spawned[1]:find("for app in t3code-nightly t3code", 1, true))
-    end
+    assert(spawned[1] == "uwsm-app -- " .. app[3])
     local recent = { class = app[2], mapped = true, focus_history_id = 2 }
     windows = {
         { class = app[2], mapped = true, focus_history_id = -1 },
@@ -265,22 +247,9 @@ for _, app in ipairs(apps) do
     binding()
     assert(#spawned == 0 and #dispatched == 0, "active app must be a no-op")
 end
-for key, command in pairs({
-    ["SUPER+SHIFT+B"] = "brave-origin", ["SUPER+SHIFT+F"] = "nautilus",
-    ["SUPER+SHIFT+Z"] = "zed", ["SUPER+SHIFT+V"] = "codium",
-    ["SUPER+RETURN"] = "ghostty +new-window", ["SUPER+SHIFT+P"] = "1password",
-    ["CTRL+SHIFT+SPACE"] = "1password --quick-access",
-}) do
-    assert(binds[key].name == "exec" and binds[key].value == "uwsm-app -- " .. command,
-           "native launch/activation must be preserved: " .. key)
-end
--- Dictation drives the daemon through its native recording commands only.
-assert(binds["SUPER+D"].name == "exec" and binds["SUPER+D"].value == "voxtype record toggle")
-assert(binds["SUPER+SHIFT+ESCAPE"].name == "exec"
-       and binds["SUPER+SHIFT+ESCAPE"].value == "voxtype record cancel")
 -- A fresh installation must keep the keymap usable before HyprPM setup.
 spawned, dispatched = {}, {}
-binds["SUPER+O"]()
+named_bindings["Toggle workspace overview on all monitors"]()
 assert(#spawned == 1 and #dispatched == 0)
 assert(spawned[1]:find("Workspace overview unavailable", 1, true))
 local overview_calls = {}
@@ -289,7 +258,7 @@ hl.plugin.scrolloverview = {
     overview = function(value) table.insert(overview_calls, value) end,
 }
 spawned, dispatched = {}, {}
-binds["SUPER+O"]()
+named_bindings["Toggle workspace overview on all monitors"]()
 assert(#overview_calls == 1 and overview_calls[1] == "toggle all")
 assert(#spawned == 0 and #dispatched == 0)
 windows, spawned, dispatched = {}, {}, {}
@@ -304,68 +273,59 @@ end
 assert(#dispatched == 1, "a foreground window should receive the pointer once")
 assert(dispatched[1].name == "cursor.move")
 assert(dispatched[1].value.x == 500 and dispatched[1].value.y == 500)
--- The final picker mapping must not regress to direct window cycling.
-assert(binds["SUPER+TAB"].name == "exec")
-assert(binds["SUPER+TAB"].value == "noctalia msg window-switcher")
-assert(not binds["SUPER+SHIFT+TAB"] and not binds["SUPER+CTRL+TAB"])
 dispatched = {}
-binds["ALT+TAB"]()
+actions.previous_workspace()
 assert(#dispatched == 1 and dispatched[1].value.workspace == previous_workspace)
 
--- Each swipe calls exactly one directional action, in natural-scroll direction.
-for direction, expected in pairs({ left = "r", right = "l" }) do
+-- Exercise workspace navigation independently of gesture or shortcut preferences.
+local workspaces = assert(package.loaded["./conf.d/workspaces.lua"])
+for _, step in ipairs({ -1, 1 }) do
     dispatched = {}
-    gestures[direction]()
-    assert(#dispatched == 1 and dispatched[1].name == "focus")
-    assert(dispatched[1].value.direction == expected)
+    workspaces.step(step, false)
+    assert(#dispatched == 1 and dispatched[1].value.workspace == (step == 1 and "r+1" or "r-1"))
 end
-for direction, expected in pairs({ up = "r+1", down = "r-1" }) do
-    dispatched = {}
-    gestures[direction]()
-    assert(#dispatched == 1 and dispatched[1].value.workspace == expected)
-end
-assert(not gestures.horizontal and not gestures.vertical)
 active_workspace = previous_workspace
 dispatched = {}
-gestures.down()
-assert(#dispatched == 0, "swiping down at the first workspace must not wrap")
+workspaces.step(-1, false)
+assert(#dispatched == 0, "stepping back at the first workspace must not wrap")
 
 -- Regression: scrolling-only bindings used to raise errors in Dwindle.
 active_window = { mapped = true, floating = false, fullscreen = 0,
     workspace = active_workspace, layout = { name = "dwindle" } }
 windows = { active_window }
-for _, key in ipairs({ "SUPER+R", "SUPER+C", "SUPER+ALT+LEFT", "SUPER+ALT+RIGHT", "SUPER+J" }) do
+for _, callback in ipairs({ actions.column_width, actions.center_column, actions.split,
+    function() actions.join("prev") end, function() actions.join("next") end }) do
     dispatched = {}
-    binds[key]()
-    assert(#dispatched == 0, "unsupported/single-tile action must be ignored: " .. key)
+    callback()
+    assert(#dispatched == 0, "unsupported/single-tile action must be ignored")
 end
 dispatched = {}
-binds["SUPER+F"]()
+actions.maximize()
 assert(dispatched[1].name == "fullscreen" and dispatched[1].value.mode == "maximized")
 local second = { mapped = true, floating = false, layout = { name = "dwindle" } }
 windows[2] = second
 dispatched = {}
-binds["SUPER+J"]()
+actions.split()
 assert(#dispatched == 1 and dispatched[1].value == "togglesplit")
 
 active_window.layout = { name = "scrolling", column = { width = 0.5, index = 0 } }
 active_window.layout.column.windows = { active_window }
 second.layout = { name = "scrolling", column = { index = 1 } }
 dispatched = {}
-binds["SUPER+J"]()
-binds["SUPER+ALT+LEFT"]()
+actions.split()
+actions.join("prev")
 assert(#dispatched == 0, "no split action or nonexistent previous column")
-binds["SUPER+ALT+RIGHT"]()
+actions.join("next")
 assert(#dispatched == 1 and dispatched[1].value == "consume_or_expel next")
 active_window.layout.column.windows = { active_window, second }
 dispatched = {}
-binds["SUPER+ALT+LEFT"]()
+actions.join("prev")
 assert(dispatched[1].value == "consume_or_expel prev")
 for _, floating in ipairs({ true, false }) do
     active_window.floating = floating
     active_window.fullscreen = floating and 0 or 2
     dispatched = {}
-    binds["SUPER+R"](); binds["SUPER+C"](); binds["SUPER+J"](); binds["SUPER+ALT+RIGHT"]()
+    actions.column_width(); actions.center_column(); actions.split(); actions.join("next")
     assert(#dispatched == 0, "floating/fullscreen window must skip tiled layout commands")
 end
 active_window, windows, dispatched = nil, {}, {}

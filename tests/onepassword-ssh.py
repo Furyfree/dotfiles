@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
 """Exercise SSH rendering in disposable homes with a strict fake op, never a vault."""
 
 import base64
 import json
-from pathlib import Path
 import shutil
 import stat
 import struct
@@ -12,7 +10,7 @@ import sys
 import tempfile
 import tomllib
 import unittest
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CHEZMOI = shutil.which("chezmoi")
@@ -109,7 +107,7 @@ else:
         if enabled is not None:
             override["onePasswordSsh"] = enabled
         return subprocess.run(self.args + ["--override-data", json.dumps(override), *args],
-                              cwd=self.root, env=self.env, text=True, capture_output=True, timeout=20)
+                              cwd=self.root, env=self.env, text=True, capture_output=True, timeout=20, check=False)
 
     def dump(self, **kwargs):
         targets = [str(self.home / ".config")]
@@ -172,7 +170,7 @@ else:
                 for host, role in (("github.com", "github"), ("server.example.com", "work"),
                                    ("192.0.2.20", "work"), ("work-alias", "work")):
                     result = subprocess.run([SSH, "-G", "-F", str(config), host], env=self.env,
-                                            text=True, capture_output=True, timeout=10)
+                                            text=True, capture_output=True, timeout=10, check=False)
                     self.assertEqual(result.returncode, 0, result.stderr)
                     identities = [line for line in result.stdout.splitlines()
                                   if line.startswith("identityfile ")]
@@ -202,7 +200,7 @@ else:
             config.write_text(self.dump(platform=platform)[".ssh/config"]["contents"])
             for host, user, key in (("test-lab", "root", "homelab"), ("github.com", "git", "github")):
                 result = subprocess.run([SSH, "-G", "-F", str(config), host], env=self.env,
-                                        text=True, capture_output=True, timeout=10)
+                                        text=True, capture_output=True, timeout=10, check=False)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertIn(f"user {user}\n", result.stdout)
                 self.assertIn(f"identityfile ~/.ssh/{key}.pub\n", result.stdout)
@@ -239,7 +237,7 @@ else:
             path = self.root / f"{role}.pub"
             path.write_text(paths[f".ssh/{role}.pub"]["contents"])
             result = subprocess.run([SSH_KEYGEN, "-l", "-f", str(path)], env=self.env,
-                                    text=True, capture_output=True, timeout=10)
+                                    text=True, capture_output=True, timeout=10, check=False)
             self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_failed_retrieval_preserves_existing_target(self):

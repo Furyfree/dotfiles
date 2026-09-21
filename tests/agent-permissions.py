@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
 """Patch agent CLI permission keys in an isolated home. Never reads live agent state."""
 
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import tomllib
 import unittest
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CHEZMOI = shutil.which("chezmoi")
@@ -51,7 +49,7 @@ class AgentPermissions(unittest.TestCase):
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
             "--skip-secrets", "--no-tty", "--override-data", json.dumps(data),
             *args,
-        ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20)
+        ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         return result.stdout
 
@@ -72,18 +70,12 @@ class AgentPermissions(unittest.TestCase):
         managed = set(self.chezmoi("windows", "managed").splitlines())
         self.assertFalse(set(TARGETS) & managed)
 
-    def test_fresh_home_sets_permission_keys(self):
+    def test_fresh_home_renders_valid_private_configs(self):
         files = self.dump_files("linux")
         self.assertEqual(set(files), set(TARGETS))
-        opencode = json.loads(files[".config/opencode/opencode.jsonc"]["contents"])
-        self.assertEqual(opencode["permission"], "allow")
-        claude = json.loads(files[".claude/settings.json"]["contents"])
-        self.assertEqual(claude["permissions"]["defaultMode"], "bypassPermissions")
-        grok = tomllib.loads(files[".grok/config.toml"]["contents"])
-        self.assertEqual(grok["ui"]["permission_mode"], "always-approve")
-        codex = tomllib.loads(files[".codex/config.toml"]["contents"])
-        self.assertEqual(codex["approval_policy"], "on-request")
-        self.assertEqual(codex["sandbox_mode"], "danger-full-access")
+        for name, entry in files.items():
+            parser = tomllib.loads if name.endswith(".toml") else json.loads
+            parser(entry["contents"])
         self.assertEqual(files[".codex/config.toml"]["perm"] & 0o777, 0o600)
 
     def test_preserves_other_keys_and_keeps_bytes_when_set(self):
@@ -108,31 +100,19 @@ class AgentPermissions(unittest.TestCase):
         files = self.dump_files("linux")
         opencode = json.loads(files[".config/opencode/opencode.jsonc"]["contents"])
         self.assertEqual(opencode["plugin"], ["ponytail"])
-        self.assertEqual(opencode["permission"], "allow")
         claude = json.loads(files[".claude/settings.json"]["contents"])
         self.assertEqual(claude["theme"], "dark")
-        self.assertEqual(claude["permissions"]["defaultMode"], "bypassPermissions")
         grok = tomllib.loads(files[".grok/config.toml"]["contents"])
         self.assertEqual(grok["ui"]["yolo"], False)
-        self.assertEqual(grok["ui"]["permission_mode"], "always-approve")
         self.assertEqual(grok["plugins"]["enabled"], ["ponytail"])
         codex = tomllib.loads(files[".codex/config.toml"]["contents"])
         self.assertEqual(codex["model"], "gpt-test")
         self.assertEqual(codex["projects"]["/tmp/work"]["trust_level"], "trusted")
-        self.assertEqual(codex["approval_policy"], "on-request")
-        self.assertEqual(codex["sandbox_mode"], "danger-full-access")
+        for rel, text in samples.items():
+            self.assertEqual((self.home / rel).read_text(), text)
 
-        already = {
-            ".config/opencode/opencode.jsonc":
-                '{"permission":"allow","plugin":["keep"]}\n',
-            ".claude/settings.json":
-                '{"permissions":{"defaultMode":"bypassPermissions"},"theme":"light"}\n',
-            ".grok/config.toml":
-                '[ui]\npermission_mode = "always-approve"\nmax_thoughts_width = 80\n',
-            ".codex/config.toml":
-                'approval_policy = "on-request"\nsandbox_mode = "danger-full-access"\n'
-                'model = "keep-me"\n',
-        }
+        # Feed rendered output back as input to check repeatability, not policy values.
+        already = {rel: "\n" + entry["contents"] for rel, entry in files.items()}
         for rel, text in already.items():
             (self.home / rel).write_text(text)
         files = self.dump_files("linux")

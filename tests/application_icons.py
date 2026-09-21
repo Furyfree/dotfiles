@@ -1,14 +1,13 @@
-#!/usr/bin/env python3
 """Exercise icon discovery in disposable homes without changing the desktop."""
 
 import configparser
 import json
 import os
-from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import unittest
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CHEZMOI = shutil.which("chezmoi")
@@ -29,21 +28,21 @@ class ApplicationIcons(unittest.TestCase):
         for name in ("dot_local/share/icons", ".chezmoitemplates/configs/icons"):
             shutil.copytree(REPO / "home" / name, self.source / name)
         shutil.copy2(REPO / "home/.chezmoiignore", self.source)
-        self.env = dict(HOME=str(self.home), PATH=os.defpath,
-                        XDG_CONFIG_HOME=str(self.root / "config"),
-                        XDG_CACHE_HOME=str(self.root / "cache"),
-                        XDG_DATA_HOME=str(self.home / ".local/share"),
-                        XDG_STATE_HOME=str(self.root / "state"))
+        self.env = {"HOME": str(self.home), "PATH": os.defpath,
+                        "XDG_CONFIG_HOME": str(self.root / "config"),
+                        "XDG_CACHE_HOME": str(self.root / "cache"),
+                        "XDG_DATA_HOME": str(self.home / ".local/share"),
+                        "XDG_STATE_HOME": str(self.root / "state")}
 
     def run_chezmoi(self, *args, platform="linux", managed=True, **extra):
-        data = dict(chezmoi=dict(os=platform), profiles=["common"],
+        data = dict(chezmoi={"os": platform}, profiles=["common"],
                     ManagedByNimbus=managed, **extra)
         result = subprocess.run([
             CHEZMOI, "--source", str(self.source), "--destination", str(self.home),
             "--config", str(self.root / "chezmoi.toml"),
             "--persistent-state", str(self.root / "chezmoi.boltdb"),
             "--skip-secrets", "--override-data", json.dumps(data), *args,
-        ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20)
+        ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         return result.stdout
 
@@ -104,7 +103,7 @@ class ApplicationIcons(unittest.TestCase):
         subprocess.run(["/bin/sh"], input=self.hook(), text=True, env=self.env, check=True)
         self.assertTrue((theme / "icon-theme.cache").exists())
         probe = subprocess.run(["/usr/bin/python3", "-c", "import gi; gi.require_version('Gtk','3.0')"],
-                               env=self.env, capture_output=True)
+                               env=self.env, capture_output=True, check=False)
         if probe.returncode == 0:
             script = """import gi, sys
 gi.require_version('Gtk','3.0')

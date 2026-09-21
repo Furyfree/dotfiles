@@ -1,5 +1,8 @@
 # Run the complete local regression gate.
 check:
+    python3 -c 'import sys; sys.exit("Python 3.14+ is required" if sys.version_info < (3, 14) else 0)'
+    ruff check tests
+    python3 tests/check.py --self-test
     python3 tests/check.py
     bash tests/bash-foundation.bash
     git diff --check HEAD

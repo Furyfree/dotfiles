@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
 """Check the native terminal launcher without starting a terminal or app."""
 
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
-
+from pathlib import Path
 
 XTE = shutil.which("xdg-terminal-exec")
 
@@ -35,7 +33,7 @@ class TerminalLaunch(unittest.TestCase):
                    "XDG_CACHE_HOME": str(root / "cache"), "XDG_CURRENT_DESKTOP": "Hyprland"}
             args = ["btop", "argument with spaces", "$(touch bad)", "--flag=value"]
             result = subprocess.run([XTE, *args], env=env, cwd=root,
-                                    capture_output=True, text=True, timeout=15)
+                                    capture_output=True, text=True, timeout=15, check=False)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(json.loads(log.read_text()), ["-e", *args])
             self.assertFalse((root / "bad").exists())

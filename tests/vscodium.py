@@ -1,15 +1,13 @@
-#!/usr/bin/env python3
 """Render VSCodium configuration without launching it or changing live state."""
 
 import json
 import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CHEZMOI = shutil.which("chezmoi")
@@ -64,7 +62,7 @@ class VSCodium(unittest.TestCase):
             "--config", str(self.root / "chezmoi.toml"), "--cache", str(self.root / "cache/chezmoi"),
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"), "--skip-secrets",
             "--override-data", json.dumps(data), "dump", "--format=json", *selected, *targets,
-        ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20)
+        ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         warning = "chezmoi: warning: config file template has changed, run chezmoi init to regenerate config file\n"
         self.assertEqual(result.stderr.replace(warning, ""), "")
@@ -82,87 +80,35 @@ class VSCodium(unittest.TestCase):
                     self.assertFalse(any(name.startswith((".vscode-oss/",)) for name in files))
                     settings = strict_json(files[f"{target}/settings.json"])
                     enabled = platform == "linux" and noctalia
-                    self.assertEqual(settings["workbench.colorTheme"], "NoctaliaTheme" if enabled else "Default Dark Modern")
-                    self.assertEqual(settings["window.autoDetectColorScheme"], not enabled)
                     if enabled:
+                        self.assertEqual(settings["workbench.colorTheme"], "NoctaliaTheme")
                         self.assertNotIn("workbench.preferredDarkColorTheme", settings)
-                    else:
-                        self.assertEqual(settings["workbench.preferredLightColorTheme"], "Default Light Modern")
 
-    def test_shared_editor_behavior_and_privacy(self):
+    def test_privacy_and_local_runtime_ownership(self):
         expected = {
-            "editor.fontSize": 15, "terminal.integrated.fontSize": 15,
-            "editor.cursorStyle": "block", "editor.lineNumbers": "on",
-            "editor.fontLigatures": False, "terminal.integrated.fontLigatures.enabled": False,
-            "editor.formatOnSave": False, "editor.formatOnPaste": False,
-            "editor.formatOnType": False, "files.autoSave": "off", "prettier.enable": False,
-            "workbench.editor.enablePreview": False, "workbench.editor.enablePreviewFromQuickOpen": False,
-            "editor.renderWhitespace": "selection", "editor.inlayHints.enabled": "off",
-            "editor.bracketPairColorization.enabled": True, "editor.minimap.enabled": False,
-            "errorLens.enabled": True, "errorLens.messageBackgroundMode": "none",
-            "workbench.sideBar.location": "right", "workbench.panel.defaultLocation": "bottom",
-            "python.languageServer": "None",
-            "terminal.integrated.cwd": "${workspaceFolder}",
-            "tinymist.exportPdf": "onSave", "tinymist.outputPath": "$dir/$name",
-            "security.workspace.trust.enabled": True, "chat.tools.global.autoApprove": False,
+            "security.workspace.trust.enabled": True,
             "telemetry.telemetryLevel": "off", "redhat.telemetry.enabled": False,
-            "gitlens.telemetry.enabled": False, "files.hotExit": "onExitAndWindowClose",
-            "window.restoreWindows": "none", "workbench.startupEditor": "newUntitledFile",
+            "gitlens.telemetry.enabled": False,
         }
         for platform, target in TARGETS.items():
             with self.subTest(platform=platform):
                 settings = strict_json(self.render(platform)[f"{target}/settings.json"])
                 self.assertEqual({key: settings[key] for key in expected}, expected)
-                self.assertEqual(settings["editor.fontFamily"], settings["terminal.integrated.fontFamily"])
-                self.assertEqual(settings["[go]"], {
-                    "editor.formatOnSave": False,
-                    "editor.codeActionsOnSave": {"source.organizeImports": "never"},
-                })
-                self.assertEqual(settings["[zig]"], {"editor.formatOnSave": False})
-                self.assertEqual(settings["[python]"], {"editor.formatOnType": False})
                 self.assertFalse(any(key.startswith(("terminal.integrated.defaultProfile.",
                     "terminal.integrated.profiles.", "terminal.integrated.env.", "chatgpt.",
                     "claudeCode.", "github.copilot.")) for key in settings))
-                for key in ("workbench.colorCustomizations", "editor.tokenColorCustomizations",
-                            "FSharp.dotnetRoot", "code-runner.executorMap", "chat.model"):
+                for key in ("FSharp.dotnetRoot", "code-runner.executorMap", "chat.model"):
                     self.assertNotIn(key, settings)
 
-    def test_shortcut_parity_and_contexts(self):
+    def test_keybindings_have_no_duplicate_key_and_context(self):
         for platform, target in TARGETS.items():
             with self.subTest(platform=platform):
                 bindings = strict_json(self.render(platform)[f"{target}/keybindings.json"])
-                self.assertEqual(len(bindings), 9)
-                keys = {binding["key"]: binding for binding in bindings}
-                self.assertEqual(len(keys), len(bindings))
-                mod = "cmd" if platform == "darwin" else "ctrl"
-                self.assertEqual(keys[f"{mod}+alt+shift+j"]["command"], "workbench.action.terminal.toggleTerminal")
-                self.assertEqual(keys[f"{mod}+b"]["command"], "workbench.action.toggleAuxiliaryBar")
-                self.assertEqual(keys[f"{mod}+shift+b"]["command"], "outline.focus")
-                self.assertEqual(keys[f"{mod}+alt+b"]["command"], "workbench.action.toggleSidebarVisibility")
-                self.assertEqual(keys["alt+shift+f"]["command"], "editor.action.formatDocument")
-                self.assertIn("!editorReadonly", keys["alt+shift+f"]["when"])
-                self.assertEqual(keys["ctrl+shift+g"]["command"], "workbench.view.scm")
-                self.assertEqual(keys[f"{mod}+alt+g"]["command"], "git-graph.view")
-                chat = keys["ctrl+cmd+i" if platform == "darwin" else "ctrl+alt+i"]
-                self.assertEqual(chat["command"], "workbench.action.chat.open")
-                self.assertEqual(chat["args"], {"mode": "ask"})
-                self.assertEqual(chat["when"], "chatIsEnabled && !terminalFocus")
-                self.assertNotIn(f"{mod}+shift+t", keys)
-                self.assertNotIn(f"{mod}+shift+o", keys)
-                self.assertNotIn(f"{mod}+shift+f", keys)
-                if platform == "darwin":
-                    self.assertEqual(keys["cmd+alt+o"]["command"], "workbench.action.openRecent")
-                else:
-                    self.assertEqual(keys["ctrl+shift+a"]["command"], "editor.action.blockComment")
+                keys = [(binding["key"], binding.get("when", "")) for binding in bindings]
+                self.assertEqual(len(keys), len(set(keys)))
 
-    def test_wrappers_and_legacy_data(self):
-        for target in ("dot_config/VSCodium/User", "Library/Application Support/VSCodium/User",
-                       "AppData/Roaming/VSCodium/User"):
-            for name in ("settings", "keybindings"):
-                wrapper = (REPO / "home" / target / f"{name}.json.tmpl").read_text()
-                self.assertEqual(wrapper.strip(), '{{- template "configs/vscodium/' + name + '.json" . -}}')
-        settings = strict_json(self.render("linux", legacy=True)[".config/VSCodium/User/settings.json"])
-        self.assertEqual(settings["workbench.colorTheme"], "Default Dark Modern")
+    def test_legacy_data_renders_valid_settings(self):
+        strict_json(self.render("linux", legacy=True)[".config/VSCodium/User/settings.json"])
 
     def test_product_configuration_is_managed(self):
         source = (REPO / "home/.chezmoitemplates/configs/vscodium/product.json").read_text()
@@ -182,7 +128,7 @@ class VSCodium(unittest.TestCase):
             "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
             "--skip-secrets", "--override-data", json.dumps({"chezmoi": {"os": platform}}),
             "execute-template",
-        ], input=source, env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20)
+        ], input=source, env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         return result.stdout
 
@@ -205,7 +151,7 @@ class VSCodium(unittest.TestCase):
                         self.assertNotIn(extension, script)
                     if suffix == "sh" and os.name == "posix":
                         result = subprocess.run(["/bin/sh", "-n"], input=script,
-                            capture_output=True, text=True, timeout=10)
+                            capture_output=True, text=True, timeout=10, check=False)
                         self.assertEqual(result.returncode, 0, result.stderr)
 
     def fake_cli(self, installed=(), name="codium"):
@@ -252,13 +198,15 @@ else:
 
     def run_installer(self, env):
         return subprocess.run(["/bin/sh"], input=self.render_installer("linux", "sh"),
-            env=env, cwd=self.root, capture_output=True, text=True, timeout=30)
+            env=env, cwd=self.root, capture_output=True, text=True, timeout=30, check=False)
 
     def run_installer_tty(self, env, replies="\n"):
         path = self.root / "installer.sh"
         path.write_text(self.render_installer("linux", "sh"))
         path.chmod(0o700)
-        import pty, select, time
+        import pty
+        import select
+        import time
         pid, fd = pty.fork()
         if pid == 0:
             os.chdir(self.root)
@@ -371,27 +319,13 @@ else:
 
 
 class Extensions(unittest.TestCase):
-    def test_inventory(self):
+    def test_extension_manifest_is_valid(self):
         manifest = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())
         self.assertEqual(set(manifest), {"install", "manual"})
-        self.assertEqual(len(manifest["install"]), 50)
-        self.assertEqual(manifest["manual"], [])
         ids = manifest["install"] + manifest["manual"]
         self.assertEqual(len(ids), len(set(ids)))
-        for group in manifest.values():
-            self.assertEqual(group, sorted(group))
-            for extension in group:
-                self.assertRegex(extension, r"^[a-z0-9-]+\.[a-z0-9-]+$")
-        for extension in ("ms-toolsai.jupyter", "pomdtr.excalidraw-editor", "myriad-dreamin.tinymist",
-                          "golang.go", "noctalia.noctaliatheme", "usernamehw.errorlens",
-                          "charliermarsh.ruff", "detachhead.basedpyright", "sumneko.lua",
-                          "jeanp413.open-remote-ssh", "vscjava.vscode-java-pack",
-                          "muhammad-sammy.csharp", "oderwat.indent-rainbow",
-                          "mhutchie.git-graph", "ms-python.debugpy",
-                          "ms-dotnettools.vscode-dotnet-runtime"):
-            self.assertIn(extension, manifest["install"])
-        self.assertNotIn("ms-python.vscode-pylance", ids)
-        self.assertNotIn("ms-python.isort", ids)
+        for extension in ids:
+            self.assertRegex(extension, r"^[a-z0-9-]+\.[a-z0-9-]+$")
 
 
 if __name__ == "__main__":

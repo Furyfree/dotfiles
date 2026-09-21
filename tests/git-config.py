@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
 """Validate Git configuration in temporary homes and local repositories only."""
 
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import tempfile
 import unittest
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 SOURCE = REPO / "home/dot_config/git"
@@ -56,7 +54,7 @@ class GitConfig(unittest.TestCase):
 
     def run_command(self, *args, cwd=None, input=None, expected=0):
         result = subprocess.run(args, cwd=cwd or self.root, env=self.env, input=input,
-                                capture_output=True, text=True, timeout=20)
+                                capture_output=True, text=True, timeout=20, check=False)
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         return result.stdout
 
@@ -95,7 +93,7 @@ class GitConfig(unittest.TestCase):
 
     def test_missing_identity_is_not_guessed(self):
         result = subprocess.run([GIT, "var", "GIT_AUTHOR_IDENT"], cwd=self.repo,
-                                env=self.env, capture_output=True, text=True, timeout=20)
+                                env=self.env, capture_output=True, text=True, timeout=20, check=False)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("auto-detection is disabled", result.stderr)
 
@@ -124,7 +122,7 @@ class GitConfig(unittest.TestCase):
             [GIT, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
              "-c", "gpg.ssh.program=" + str(self.root / "missing-signer"),
              "commit", "--allow-empty", "-m", "fixture"],
-            cwd=self.repo, env=self.env, capture_output=True, text=True, timeout=20)
+            cwd=self.repo, env=self.env, capture_output=True, text=True, timeout=20, check=False)
         self.assertNotEqual(result.returncode, 0)
         self.run_git("rev-parse", "--verify", "HEAD", cwd=self.repo, expected=128)
 
@@ -147,8 +145,7 @@ class GitConfig(unittest.TestCase):
                               input="\n".join(ignored + visible) + "\n")
         self.assertEqual(output.splitlines(), ignored)
 
-    def test_main_branch_and_readonly_aliases(self):
-        self.assertEqual(self.run_git("symbolic-ref", "--short", "HEAD", cwd=self.repo).strip(), "main")
+    def test_readonly_aliases(self):
         self.commit(self.repo, "fixture")
         before = self.run_git("rev-parse", "HEAD", cwd=self.repo)
         self.assertEqual(self.run_git("st", cwd=self.repo),
@@ -170,12 +167,13 @@ class GitConfig(unittest.TestCase):
     def test_push_prune_and_fast_forward_pull(self):
         remote = self.root / "remote.git"
         peer = self.root / "peer"
-        self.run_git("init", "--bare", str(remote))
+        branch = self.run_git("symbolic-ref", "--short", "HEAD", cwd=self.repo).strip()
+        self.run_git("init", "--bare", "--initial-branch", branch, str(remote))
         self.commit(self.repo, "base")
         self.run_git("remote", "add", "origin", str(remote), cwd=self.repo)
         self.run_git("push", cwd=self.repo)
         self.assertEqual(self.run_git("rev-parse", "--abbrev-ref", "@{upstream}", cwd=self.repo).strip(),
-                         "origin/main")
+                         "origin/" + branch)
         self.run_git("clone", str(remote), str(peer))
         advanced = self.commit(peer, "remote advance")
         self.run_git("push", cwd=peer)
@@ -194,7 +192,7 @@ class GitConfig(unittest.TestCase):
         self.commit(peer, "remote divergence")
         self.run_git("push", cwd=peer)
         result = subprocess.run([GIT, "pull"], cwd=self.repo, env=self.env,
-                                capture_output=True, text=True, timeout=20)
+                                capture_output=True, text=True, timeout=20, check=False)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("fast-forward", result.stderr)
         self.assertEqual(self.run_git("rev-parse", "HEAD", cwd=self.repo).strip(), local_head)

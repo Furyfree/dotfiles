@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
 """Check Zeron launcher selection and native asset updates in a temporary home."""
 
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
-
+from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CHEZMOI = shutil.which("chezmoi")
@@ -50,7 +48,7 @@ class Zeron(unittest.TestCase):
                     "--cache", str(root / "cache/chezmoi"),
                     "--persistent-state", str(root / "chezmoi-state.boltdb"),
                     "--skip-secrets", "--override-data", json.dumps(data), *args,
-                ], env=env, cwd=root, text=True, capture_output=True, timeout=20)
+                ], env=env, cwd=root, text=True, capture_output=True, timeout=20, check=False)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 return result.stdout
 
@@ -109,7 +107,7 @@ class Zeron(unittest.TestCase):
                 "--quiet", "--force", "--index-only",
                 str(home / ".local/share/icons/hicolor")])
             failed = subprocess.run(["/bin/sh"], input=hook, text=True,
-                                    env=hook_env | {"FAKE_EXIT": "23"})
+                                    env=hook_env | {"FAKE_EXIT": "23"}, check=False)
             self.assertEqual(failed.returncode, 23)
             run(data, "verify", *(str(home / p) for p in ASSETS))
 
