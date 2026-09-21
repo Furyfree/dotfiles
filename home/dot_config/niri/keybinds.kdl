@@ -1,4 +1,4 @@
-// Mod = Super in a normal session. See NIRI_KEYBINDS.md for the workflow.
+// Mod = Super in a normal session. Mod+Escape opens the shortcut overlay.
 recent-windows {
     binds {
         Alt+Tab { next-window scope="output"; }

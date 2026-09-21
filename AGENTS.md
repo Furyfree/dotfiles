@@ -1,90 +1,60 @@
-# Repository instructions
+# dotfiles
 
-Before architecture or ownership changes, read:
+Chezmoi source for user configuration; Nimbus owns workstation provisioning.
+Read README.md and Nimbus's `docs/SPEC.md` before changing ownership.
 
-- this repository's `README.md` and `PROFILES.md`
-- the Nimbus repository's `docs/SPEC.md` for ownership and software-source
-  policy
+## Map
 
-`~/git/docs` is history, not a source of truth. It records past decisions,
-superseded plans, and previous implementations such as niriland.
+- `README.md`: repository usage, profiles, apply/update and verification.
+- `TASKS.md`: open work and unverified live checks only.
+- `KEYBINDS.md`: Neovim, Zed/VSCodium and Zathura shortcut guide.
+- `~/Projects/docs/POSTINSTALLV2.md`: manual desktop setup and troubleshooting.
+- `home/`: Chezmoi source state; repository metadata stays at the root.
+- `home/.chezmoi.toml.tmpl`: consume `Machine`, `ManagedByNimbus` and profile
+  prompts with `prompt*Once`; preserve ordered Nimbus IDs and derive platform
+  profiles. Use Nimbus vocabulary; do not add hardware roles, aliases or dependencies.
+- `home/.chezmoiignore`: platform/profile gates and empty scaffolds; `.keep`
+  reserves directories without deploying them.
+- `home/.chezmoitemplates/configs/`: canonical content for platform wrappers.
+- `home/dot_config/hypr/` and `home/dot_config/uwsm/`: compositor modules and
+  session environment. Match window classes from `hyprctl clients`, not titles;
+  place class tags before shared rules.
+- `home/run_after_*`: scoped user hooks for Mise, VSCodium extensions, Files,
+  ProtonPlus preferences and the GTK icon cache. Keep their scope narrow.
+- `tests/`, `ruff.toml`, `justfile`: isolated checks and Python 3.14+ lint gate.
 
-Keep repository metadata at the root and Chezmoi source state in `home/`.
-Manage only intentional files below the current user's `$HOME`.
-Keep user-facing commands in `README.md`; planning documents should link to it
-instead of duplicating usage instructions.
+## Boundaries
 
-On Nimbus-managed machines, Nimbus owns system packages and system state.
-Nimbus also owns its private local run diagnostics, setup-note history and
-task evidence under
-`$XDG_STATE_HOME/nimbus` (default `~/.local/state/nimbus`). Never manage or sync
-those records. Nimbus also owns the setup-note catalog and its presentation.
-Nimbus may perform the explicitly approved lockscreen-widget override repair
-and retain a private backup. Chezmoi still owns the layout; do not add an
-after-apply runtime-state reset or manage those backups.
-Nimbus coordinates selected greeter appearance authorization through its
-normal approved init/sync. The native greeter owns its Polkit rule; Chezmoi
-only selects automatic sync in user preferences.
-Chezmoi owns Topgrade configuration: managed Linux delegates system updates
-to Nimbus; standalone Linux uses native system/Flatpak steps, and macOS uses
-Homebrew. Applying dotfiles does not run Topgrade.
-Chezmoi owns the selected agent-proxy configuration and the agent CLI
-permission keys on Linux and macOS. Nimbus coordinates
-its native installer and Copilot registration APIs and owns private model
-inventory evidence; never manage proxy credentials or runtime databases.
-Instruction files and skills belong to ai-workflow. Login, plugins, sessions,
-and other agent state stay unmanaged.
-Chezmoi owns native Mise tool configuration, including Cargo tools, and invokes
-`mise install` after applying it. Mise owns tool installation and updates.
-Nimbus supplies the machine ID, the managed-by-Nimbus flag, and the machine
-profile IDs through the `chezmoi init`
-prompt flags; the config template consumes them with the `prompt*Once`
-functions, stores the profile list as sent, and derives platform profiles from
-`.chezmoi.os`. Do not add imports, dependencies, aliases, or another resolver.
-`PROFILES.md` owns the vocabulary and documents which IDs change managed
-files. Machine manifests live in the Nimbus repository, never here.
+- Manage intentional user files only. Nimbus owns system packages, services,
+  greeters, machine manifests, setup guidance and private diagnostic records.
+  Native tools own generated services and downloaded artifacts.
+- Chezmoi owns Mise/Topgrade settings; Mise installs and updates its declared
+  tools. Applying dotfiles does not run Topgrade or install Mise itself.
+- Chezmoi owns agent CLI permission keys and selected proxy configuration.
+  ai-workflow owns agent instructions and skills; accounts and sessions stay local.
+- Noctalia owns generated colors, downloads and GUI state. Nimbus may perform
+  its approved lockscreen-override repair with a private backup; do not add an
+  after-apply state reset. The native greeter owns sync authorization.
+- Keep secrets, private keys, known hosts, VPN/GnuPG data, accounts, history,
+  caches, logs, downloaded plugins and runtime databases unmanaged. Design
+  1Password rendering and secret-safe checks before adding secret-backed targets.
+- Do not adopt Lazygit, Poetry, JGit, Cava, Lazydocker, Fish, Octopi/CachyOS
+  settings or whole app-data trees. Native theme hooks retain generated outputs.
+- Use plain files first, templates for real differences, native ignore gates,
+  and one-line wrappers around shared content. No profile graph, overlay system,
+  custom resolver, blanket reference imports or speculative scaffolding.
+- Required shell modules must fail visibly when missing; optional integrations
+  may be absent. Source ble.sh at top level, not through a helper function.
+- This repo is not in production. Do not add migrations or cleanup of old
+  providers, compatibility layers or `.chezmoiremove` entries unless requested.
+  Preserve existing user files on failure.
+- Hooks must not install system packages, elevate privileges, write `/etc`,
+  select a login shell, or manage services. Do not change live state during tests.
+- Use the HTML skill only when the user asks for it.
 
-Treat the current machine and Niriland as references. Rewrite and review one
-configuration at a time; never import either wholesale.
+## Verify
 
-Match Hyprland application rules by the class reported by `hyprctl clients`,
-not by window titles or launcher names. For example, 1Password's class is
-`com.onepassword.OnePassword`. A rule's `name` is only its descriptive label.
-Use shared tags for reusable window behavior, with class rules before the
-rules that consume their tags.
-
-This repository is not in production. Change or remove source configuration
-directly; do not add migrations, compatibility layers, `.chezmoiremove` entries,
-or cleanup of earlier configurations or tool providers. Revisit this only when
-the user declares a production deployment or explicitly requests a migration.
-
-Keep empty scaffold trees ignored until their files have deliberate, validated
-content. `.keep` files reserve Git directories but must not make target
-directories managed.
-
-For one config rendered to different OS paths, keep canonical content in
-`.chezmoitemplates/configs/` and make target files one-line wrappers.
-
-Never commit secrets, private keys, sessions, history, caches, logs, or runtime
-databases. Design 1Password rendering before adding secret-backed targets, and
-never print their contents during validation.
-
-Chezmoi scripts must stay exceptional and user-scoped. The after-apply script
-may install tools explicitly declared in the native Mise config. The VSCodium
-after-apply scripts install declared editor extensions through its native CLI.
-The Files after-apply script sets selected user preferences through GSettings;
-dconf databases themselves remain unmanaged.
-The ProtonPlus hook also uses GSettings for update preferences only. ProtonPlus
-owns its generated user timer; scripts do not copy credentials or start it.
-The application icon hook refreshes only the user's GTK icon cache after
-applying the local theme index, managed images and package-asset links;
-generated caches and application state stay unmanaged.
-Scripts must not install system packages or Mise itself, use privilege elevation,
-change `/etc`, manage services, or select a login shell.
-
-Do not use the HTML skill unless the user explicitly asks for it.
-
-Before handoff, run `just check` (suites run in parallel; `JOBS=1` gives the
-serial baseline), `chezmoi managed`, `chezmoi status`, `chezmoi diff`,
-`chezmoi verify`, and `git diff --check`. Do not run `chezmoi apply`, commit,
-push, or create remote resources without explicit permission.
+Run `just check`, `chezmoi managed`, `chezmoi status`, `chezmoi diff`,
+`chezmoi verify`, and `git diff --check`; never print secret-backed output.
+`JOBS=1` runs suites serially. Skips and unapplied differences are not passes.
+Do not apply, commit, push, or create remote resources without explicit permission.
