@@ -23,3 +23,6 @@ unset uwsm_mise_data uwsm_directory
 # Respect an inherited choice of editor.
 export EDITOR="${EDITOR:-nvim}"
 export VISUAL="${VISUAL:-$EDITOR}"
+
+# Zed's .ipynb grid is a staff preview; GUI apps do not read shell profiles.
+export LOCAL_NOTEBOOK_DEV=1

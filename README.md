@@ -1377,6 +1377,8 @@ The terminal uses the system shell and project directory; it never forces Zsh
 onto Windows or replaces the machine's chosen shell. The file, Git, and outline
 panels dock on the right; the agent docks on the left. Jupyter REPL is on, and
 the notebook preview flag matches Niriland (`feature_flags.notebooks`).
+The `.ipynb` grid also needs `LOCAL_NOTEBOOK_DEV=1` in the graphical session
+(`~/.config/uwsm/env`); log out and back in, then open the project folder.
 
 Your Chezmoi file associations and Tinymist PDF-on-save settings are kept.
 The extension list retains all 33 enabled selections from your live settings,
@@ -1901,7 +1903,8 @@ application mapping, GUI override precedence, and remaining manual setup.
 The session must start through UWSM (the packaged Hyprland UWSM session entry).
 Nimbus installs that entry; standalone users supply UWSM and select it at login.
 Chezmoi owns `~/.config/uwsm/env` for shared PATH/Mise/editor defaults and
-`~/.config/uwsm/env-hyprland` for toolkit and cursor settings. UWSM resolves
+Zed's notebook preview flag (`LOCAL_NOTEBOOK_DEV=1`).
+`~/.config/uwsm/env-hyprland` holds toolkit and cursor settings. UWSM resolves
 these below `XDG_CONFIG_HOME` when set and publishes the session environment;
 Hyprland does not duplicate it in Lua. Display and session identifiers remain
 runtime-owned. Log out and back in after environment/startup changes.

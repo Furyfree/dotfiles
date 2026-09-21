@@ -37,6 +37,7 @@ class UwsmEnvironment(unittest.TestCase):
                 self.assertEqual(actual["QT_QPA_PLATFORM"], "wayland;xcb")
                 self.assertEqual(actual["GTK_IM_MODULE"], "simple")
                 self.assertEqual(actual["XCURSOR_SIZE"], actual["HYPRCURSOR_SIZE"])
+                self.assertEqual(actual["LOCAL_NOTEBOOK_DEV"], "1")
                 self.assertNotIn("WAYLAND_DISPLAY", actual)
                 self.assertNotIn("XDG_SESSION_ID", actual)
                 self.assertNotIn("uwsm_directory", actual)
