@@ -17,6 +17,7 @@
     "mechatroner.rainbow-csv",
     "mhutchie.git-graph",
     "ms-azuretools.vscode-containers",
+    "ms-dotnettools.vscode-dotnet-runtime",
     "ms-python.debugpy",
     "ms-python.python",
     "ms-python.vscode-python-envs",

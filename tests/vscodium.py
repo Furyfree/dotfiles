@@ -374,7 +374,7 @@ class Extensions(unittest.TestCase):
     def test_inventory(self):
         manifest = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())
         self.assertEqual(set(manifest), {"install", "manual"})
-        self.assertEqual(len(manifest["install"]), 49)
+        self.assertEqual(len(manifest["install"]), 50)
         self.assertEqual(manifest["manual"], [])
         ids = manifest["install"] + manifest["manual"]
         self.assertEqual(len(ids), len(set(ids)))
@@ -387,7 +387,8 @@ class Extensions(unittest.TestCase):
                           "charliermarsh.ruff", "detachhead.basedpyright", "sumneko.lua",
                           "jeanp413.open-remote-ssh", "vscjava.vscode-java-pack",
                           "muhammad-sammy.csharp", "oderwat.indent-rainbow",
-                          "mhutchie.git-graph", "ms-python.debugpy"):
+                          "mhutchie.git-graph", "ms-python.debugpy",
+                          "ms-dotnettools.vscode-dotnet-runtime"):
             self.assertIn(extension, manifest["install"])
         self.assertNotIn("ms-python.vscode-pylance", ids)
         self.assertNotIn("ms-python.isort", ids)

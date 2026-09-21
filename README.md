@@ -1277,7 +1277,7 @@ use VSCodium's **Developer: Reload Window** command. Other setups follow system
 appearance with the built-in Default Light/Dark Modern themes.
 Theme extensions must be installed before these selections can take effect.
 
-`VSCODIUM_EXTENSIONS.json` lists 49 extensions, all available on Open VSX; the
+`VSCODIUM_EXTENSIONS.json` lists 50 extensions, all available on Open VSX; the
 `manual` list is empty and no Microsoft-gallery-only pieces remain. The set
 covers Go, Python and Jupyter, Typst, F#, C# through the open
 `muhammad-sammy.csharp` fork, Java/Maven, C, Lua, Rust, TypeScript/React with
@@ -1285,9 +1285,9 @@ ESLint and Tailwind, OpenTofu, Ansible, Nix, Docker, PowerShell,
 Markdown/TOML/YAML, Git tooling, themes, Error Lens, indent-rainbow and
 Excalidraw. `detachhead.basedpyright` is the Python language server
 (`python.languageServer` is `None`). `jeanp413.open-remote-ssh` replaces the
-Microsoft Remote-SSH trio. Python, Jupyter, and Java-pack satellites that
+Microsoft Remote-SSH trio. Python, Jupyter, Java-pack, and C# satellites that
 those extensions install are listed in `install` so the uninstall prompt does
-not offer them.
+not offer them. The open C# fork needs `ms-dotnettools.vscode-dotnet-runtime`.
 The manifest lives at the repository root because it is installation metadata,
 not a VSCodium user config. VSCodium does not load it; Chezmoi embeds its
 `install` entries into the scripts below when rendering them. Keeping it outside
