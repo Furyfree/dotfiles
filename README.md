@@ -684,16 +684,17 @@ apply.
 
 ### Agent CLI permissions
 
-On Linux and macOS, Chezmoi sets tool auto-approval in the user configs:
+On Linux and macOS, Chezmoi sets tool permissions in the user configs:
 
 | CLI | File | Policy |
 |---|---|---|
 | OpenCode | `~/.config/opencode/opencode.jsonc` | `permission = allow` |
 | Claude | `~/.claude/settings.json` | `permissions.defaultMode = bypassPermissions` |
 | Grok | `~/.grok/config.toml` | `ui.permission_mode = always-approve` |
-| Codex | `~/.codex/config.toml` | `approval_policy = never`, `sandbox_mode = workspace-write` |
+| Codex | `~/.codex/config.toml` | `approval_policy = on-request`, `sandbox_mode = danger-full-access` |
 
-Other keys in those files stay local. Codex keeps the workspace-write sandbox.
+Other keys in those files stay local. Codex runs without its filesystem or
+network sandbox and can request approval when needed.
 Instruction files (`AGENTS.md`, `CLAUDE.md`) and skills belong to ai-workflow.
 Login, plugins, sessions, and the rest of each agent home stay unmanaged.
 

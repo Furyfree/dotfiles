@@ -82,8 +82,8 @@ class AgentPermissions(unittest.TestCase):
         grok = tomllib.loads(files[".grok/config.toml"]["contents"])
         self.assertEqual(grok["ui"]["permission_mode"], "always-approve")
         codex = tomllib.loads(files[".codex/config.toml"]["contents"])
-        self.assertEqual(codex["approval_policy"], "never")
-        self.assertEqual(codex["sandbox_mode"], "workspace-write")
+        self.assertEqual(codex["approval_policy"], "on-request")
+        self.assertEqual(codex["sandbox_mode"], "danger-full-access")
         self.assertEqual(files[".codex/config.toml"]["perm"] & 0o777, 0o600)
 
     def test_preserves_other_keys_and_keeps_bytes_when_set(self):
@@ -97,6 +97,7 @@ class AgentPermissions(unittest.TestCase):
                 '[ui]\npermission_mode = "ask"\nyolo = false\n\n'
                 '[plugins]\nenabled = ["ponytail"]\n',
             ".codex/config.toml":
+                'approval_policy = "never"\nsandbox_mode = "workspace-write"\n'
                 'model = "gpt-test"\n\n[projects."/tmp/work"]\n'
                 'trust_level = "trusted"\n',
         }
@@ -118,8 +119,8 @@ class AgentPermissions(unittest.TestCase):
         codex = tomllib.loads(files[".codex/config.toml"]["contents"])
         self.assertEqual(codex["model"], "gpt-test")
         self.assertEqual(codex["projects"]["/tmp/work"]["trust_level"], "trusted")
-        self.assertEqual(codex["approval_policy"], "never")
-        self.assertEqual(codex["sandbox_mode"], "workspace-write")
+        self.assertEqual(codex["approval_policy"], "on-request")
+        self.assertEqual(codex["sandbox_mode"], "danger-full-access")
 
         already = {
             ".config/opencode/opencode.jsonc":
@@ -129,7 +130,7 @@ class AgentPermissions(unittest.TestCase):
             ".grok/config.toml":
                 '[ui]\npermission_mode = "always-approve"\nmax_thoughts_width = 80\n',
             ".codex/config.toml":
-                'approval_policy = "never"\nsandbox_mode = "workspace-write"\n'
+                'approval_policy = "on-request"\nsandbox_mode = "danger-full-access"\n'
                 'model = "keep-me"\n',
         }
         for rel, text in already.items():

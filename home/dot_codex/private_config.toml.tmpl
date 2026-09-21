@@ -4,7 +4,7 @@
 {{- if stat $target -}}
 {{-   $local = include $target | fromToml -}}
 {{- end -}}
-{{- $new := $local | toJson | fromJson | setValueAtPath "approval_policy" "never" | setValueAtPath "sandbox_mode" "workspace-write" -}}
+{{- $new := $local | toJson | fromJson | setValueAtPath "approval_policy" "on-request" | setValueAtPath "sandbox_mode" "danger-full-access" -}}
 {{- if and (stat $target) (eq ($local | toJson) ($new | toJson)) -}}
 {{- include $target -}}
 {{- else -}}
