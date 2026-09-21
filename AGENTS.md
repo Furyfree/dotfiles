@@ -8,7 +8,8 @@ Read README.md and Nimbus's `docs/SPEC.md` before changing ownership.
 - `README.md`: repository usage, profiles, apply/update and verification.
 - `TASKS.md`: open work and unverified live checks only.
 - `KEYBINDS.md`: Neovim, Zed/VSCodium and Zathura shortcut guide.
-- `~/Projects/docs/POSTINSTALLV2.md`: manual desktop setup and troubleshooting.
+- `~/Projects/docs/POSTINSTALL.md`: manual desktop setup and
+  troubleshooting.
 - `home/`: Chezmoi source state; repository metadata stays at the root.
 - `home/.chezmoi.toml.tmpl`: consume `Machine`, `ManagedByNimbus` and profile
   prompts with `prompt*Once`; preserve ordered Nimbus IDs and derive platform

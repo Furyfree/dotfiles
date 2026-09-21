@@ -8,7 +8,8 @@ session's shortcut guide. Super is the Windows key.
 ## Neovim
 
 Use the same keys on Linux and macOS; Ctrl remains Ctrl. Setup and plugin
-prerequisites are in [post-installation steps](https://github.com/Furyfree/docs/blob/main/POSTINSTALLV2.md#neovim). Language-server navigation,
+prerequisites are in [post-installation steps](https://github.com/Furyfree/docs/blob/main/POSTINSTALL.md#neovim).
+Language-server navigation,
 completion and automatic formatting are not configured.
 
 ### Reading the keys
@@ -92,7 +93,8 @@ These come from Neovim itself, not our plugins:
 | `Ctrl+w h/j/k/l` | Move to the left/down/up/right split |
 
 Clipboard access needs a working platform provider; see the prerequisites in
-[post-installation steps](https://github.com/Furyfree/docs/blob/main/POSTINSTALLV2.md#neovim). Ordinary deletes do not overwrite the system
+[post-installation steps](https://github.com/Furyfree/docs/blob/main/POSTINSTALL.md#neovim).
+Ordinary deletes do not overwrite the system
 clipboard. Ctrl+R here means redo, not the shell's fzf history search.
 
 ### Surround editing
@@ -171,7 +173,7 @@ or Claude extension panels, install Copilot, or configure credentials/providers.
 Zed toggles focus to its own agent, whose default profile is Ask.
 
 OS shortcuts and extensions can intercept keys. Check the actual keyboard
-using the [VSCodium troubleshooting commands](https://github.com/Furyfree/docs/blob/main/POSTINSTALLV2.md#vscodium)
+using the [VSCodium troubleshooting commands](https://github.com/Furyfree/docs/blob/main/POSTINSTALL.md#vscodium)
 or Zed's `zed: open default keymap` and `zed: open keymap` commands.
 Native Ctrl+backtick also toggles Zed's terminal when your keyboard can send it.
 
@@ -184,7 +186,7 @@ and [Zed keybinding inheritance](https://zed.dev/docs/key-bindings).
 Everyday shortcuts for the managed Linux setup, checked against Zathura
 2026.07.18. The [config](home/dot_config/zathura/zathurarc.tmpl) keeps native
 bindings and adds three view shortcuts. Setup is in
-[post-installation steps](https://github.com/Furyfree/docs/blob/main/POSTINSTALLV2.md#zathura-and-webapps).
+[post-installation steps](https://github.com/Furyfree/docs/blob/main/POSTINSTALL.md#zathura-and-webapps).
 
 Letters are case-sensitive: `j` scrolls, while `J` changes page. Type sequences
 such as `18G` and `125=` directly in normal reading mode, without `:` or Enter.

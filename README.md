@@ -90,8 +90,8 @@ not run Topgrade or install system packages. A failure can leave earlier files
 updated, so review the next diff before retrying.
 
 Finish account authorization and manual application setup using
-[POSTINSTALLV2.md][postinstall]. For desktop changes, keep a working TTY or
-alternate session and a private backup for recovery.
+[workstation reference][postinstall]. For desktop changes, keep a working TTY
+or alternate session and a private backup for recovery.
 
 ## Edit configuration
 
@@ -160,6 +160,6 @@ runs the optional Markdown style check. Recipes are in [justfile](justfile).
 - [Agent repository map](AGENTS.md)
 - [MIT license](LICENSE)
 
-[postinstall]: https://github.com/Furyfree/docs/blob/main/POSTINSTALLV2.md
-[ssh]: https://github.com/Furyfree/docs/blob/main/POSTINSTALLV2.md#1password-ssh-and-github
-[work-laptop]: https://github.com/Furyfree/docs/blob/main/POSTINSTALLV2.md#work-laptop
+[postinstall]: https://github.com/Furyfree/docs/blob/main/POSTINSTALL.md
+[ssh]: https://github.com/Furyfree/docs/blob/main/POSTINSTALL.md#1password-ssh-and-github
+[work-laptop]: https://github.com/Furyfree/docs/blob/main/POSTINSTALL.md#work-laptop

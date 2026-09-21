@@ -5,7 +5,18 @@
 - [ ] Install and apply the configuration on the MacBook. Verify shells,
   tools, editors and 1Password SSH/Git integration on macOS.
 
+- [ ] Comment out `herdr = "latest"` in the Mise config, retaining the line
+  for opt-in later. Keep the Noctalia `herdr` color template and the selected
+  agent-proxy config; do not add removal rules or change its selection tests.
+- [ ] After Mise install, prune tools removed from the managed config on
+  apply/sync; warn without failing apply if pruning fails. Verify removal of
+  the Mise Herdr CLI separately from Nimbus's proxy-bundled `herdr.service`,
+  which Nimbus owns. Preserve declared tools and unrelated project installs.
+- [ ] On the laptop, verify apply/sync removes the Mise Herdr CLI while
+  retaining proxy config and colors. Coordinate with Nimbus's proxy removal
+  and reboot trial; leave unrelated services and user lingering unchanged.
+
 Use the [README](README.md) for installation and
 [post-installation steps][setup] for application setup and recovery.
 
-[setup]: https://github.com/Furyfree/docs/blob/main/POSTINSTALLV2.md
+[setup]: https://github.com/Furyfree/docs/blob/main/POSTINSTALL.md
