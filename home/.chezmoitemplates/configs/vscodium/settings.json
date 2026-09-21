@@ -4,7 +4,7 @@
   "files.hotExit": "onExitAndWindowClose",
   "workbench.editor.enablePreview": false,
   "workbench.editor.enablePreviewFromQuickOpen": false,
-  "workbench.sideBar.location": "left",
+  "workbench.sideBar.location": "right",
   "workbench.panel.defaultLocation": "bottom",
   "workbench.secondarySideBar.defaultVisibility": "hidden",
   "window.titleBarStyle": "custom",
@@ -76,5 +76,6 @@
   "telemetry.telemetryLevel": "off",
   "redhat.telemetry.enabled": false,
   "gitlens.telemetry.enabled": false,
+  "python.languageServer": "None",
   "python.terminal.activateEnvironment": false
 }

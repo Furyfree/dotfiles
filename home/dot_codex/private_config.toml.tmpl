@@ -1,0 +1,12 @@
+{{- /* Copy before setValueAtPath; it mutates the map in place. */ -}}
+{{- $target := joinPath .chezmoi.homeDir ".codex/config.toml" -}}
+{{- $local := dict -}}
+{{- if stat $target -}}
+{{-   $local = include $target | fromToml -}}
+{{- end -}}
+{{- $new := $local | toJson | fromJson | setValueAtPath "approval_policy" "never" | setValueAtPath "sandbox_mode" "workspace-write" -}}
+{{- if and (stat $target) (eq ($local | toJson) ($new | toJson)) -}}
+{{- include $target -}}
+{{- else -}}
+{{- $new | toToml -}}
+{{- end -}}

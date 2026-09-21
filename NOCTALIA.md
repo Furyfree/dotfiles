@@ -316,8 +316,8 @@ catalog. Template generation does not install applications or their extensions.
 | Herdr / `herdr` | `.config/herdr/noctalia-colors.toml`; native hook updates custom colors and requests reload. Herdr must have initialized its own config first; choose its terminal theme fallback natively when needed. |
 | Lazygit / `lazygit` | `.config/lazygit/themes/noctalia.yml`; native hook merges colors into its otherwise unmanaged config. |
 | Brave Origin / GTK | Select **Use GTK** in Brave Appearance settings to consume the native GTK theme supplied by Noctalia. No browser-specific template or extension. |
-| Claude Code / `claude-code` | `.claude/themes/noctalia.json`; generated theme only, select it in the application. No authentication or agent settings imported. |
-| Codex / `codex` | `.codex/themes/noctalia.tmTheme`; generated theme only, select it in the application. No agent configuration is managed. |
+| Claude Code / `claude-code` | `.claude/themes/noctalia.json`; generated theme only, select it in the application. Authentication stays unmanaged. |
+| Codex / `codex` | `.codex/themes/noctalia.tmTheme`; generated theme only, select it in the application. |
 | OpenCode / `opencode` | `.config/opencode/themes/matugen.json`; select `matugen` in the application. |
 | Vesktop / `discord` | `.config/vesktop/themes/noctalia.theme.css`; enable this stylesheet once in Vesktop/Vencord theme settings; Noctalia owns subsequent file updates. |
 | LibreOffice / `libreoffice` | `.local/state/noctalia/libreoffice-theme-staging/Theme_Colors.xcu`; native hook installs/activates user theme data while LibreOffice is closed; regenerate with it closed if skipped, then reopen. |

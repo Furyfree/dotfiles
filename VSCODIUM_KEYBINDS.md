@@ -24,9 +24,9 @@ commands. Language actions require the corresponding language support.
 | Format document | Alt+Shift+F | Option+Shift+F |
 | Save | Ctrl+S | Cmd+S |
 | Reopen closed tab | Ctrl+Shift+T | Cmd+Shift+T |
-| Toggle left sidebar | Ctrl+B | Cmd+B |
+| Toggle file explorer | Ctrl+B | Cmd+B |
 | Focus outline | Ctrl+Shift+B | Cmd+Shift+B |
-| Toggle right sidebar | Ctrl+Alt+B | Cmd+Option+B |
+| Toggle agent sidebar | Ctrl+Alt+B | Cmd+Option+B |
 | Toggle bottom panel | Ctrl+J | Cmd+J |
 | Toggle terminal specifically | Ctrl+Alt+Shift+J | Cmd+Option+Shift+J |
 | Source control | Ctrl+Shift+G | Ctrl+Shift+G |

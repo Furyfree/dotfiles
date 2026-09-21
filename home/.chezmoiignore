@@ -42,6 +42,14 @@ Library/**
 .config/topgrade.toml
 .config/zed/**
 .config/zsh/**
+.config/opencode
+.config/opencode/**
+.claude
+.claude/**
+.codex
+.codex/**
+.grok
+.grok/**
 {{ end -}}
 {{ if eq .chezmoi.os "darwin" -}}
 .config/VSCodium/**

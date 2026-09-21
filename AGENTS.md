@@ -28,9 +28,12 @@ only selects automatic sync in user preferences.
 Chezmoi owns Topgrade configuration: managed Linux delegates system updates
 to Nimbus; standalone Linux uses native system/Flatpak steps, and macOS uses
 Homebrew. Applying dotfiles does not run Topgrade.
-Chezmoi owns the selected agent-proxy configuration only. Nimbus coordinates
+Chezmoi owns the selected agent-proxy configuration and the agent CLI
+permission keys on Linux and macOS. Nimbus coordinates
 its native installer and Copilot registration APIs and owns private model
 inventory evidence; never manage proxy credentials or runtime databases.
+Instruction files and skills belong to ai-workflow. Login, plugins, sessions,
+and other agent state stay unmanaged.
 Chezmoi owns native Mise tool configuration, including Cargo tools, and invokes
 `mise install` after applying it. Mise owns tool installation and updates.
 Nimbus supplies the machine ID, the managed-by-Nimbus flag, and the machine

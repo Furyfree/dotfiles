@@ -66,6 +66,7 @@ local function test()
       key[2]()
     end
     assert(vim.deep_equal(calls, { "files", "grep", "buffers", "explorer", "help" }))
+    assert(snacks.opts.picker.sources.explorer.layout.layout.position == "right")
     local escape = snacks.opts.picker.win.input.keys["<Esc>"]
     assert(escape[1] == "close" and vim.deep_equal(escape.mode, { "n", "i" }))
     package.preload.gitsigns = function()

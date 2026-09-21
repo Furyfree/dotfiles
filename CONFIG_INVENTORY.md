@@ -33,6 +33,7 @@ in [README.md](README.md#vscodium).
 | Ghostty | Managed Linux/macOS config; Noctalia theme on the Linux desktop profile, charcoal-blue elsewhere; native keybindings. Enable Noctalia integration in its GUI. |
 | Sheldon | Manages `zsh-completions`, `fzf-tab`, `zsh-autosuggestions`, and `zsh-syntax-highlighting`; review additional plugins individually. |
 | Mise | Managed runtime/CLI selections and minimal settings; LTS where available. The after-apply script installs declared tools through Mise; installed artifacts, credentials, and trust state remain unmanaged. |
+| Agent CLI permissions | Linux/macOS auto-approve in Claude, Codex, Grok, and OpenCode user configs. Codex keeps workspace-write sandbox. Login, plugins, sessions, and instruction files stay unmanaged. |
 | Nix | Managed user feature flags only; installation and daemon state stay outside Chezmoi. |
 | btop | Managed minimal terminal-palette config; no generated defaults, hardware paths, or persistent UI rewrites. |
 | Environment | Review each variable. Share only portable values. |

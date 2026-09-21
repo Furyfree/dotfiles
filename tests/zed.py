@@ -91,7 +91,14 @@ class Zed(unittest.TestCase):
     def test_privacy_and_preferences(self):
         settings = strict_json(self.render("linux")[".config/zed/settings.json"])
         self.assertEqual(settings["base_keymap"], "VSCode")
-        self.assertEqual(settings["agent"], {"default_profile": "ask", "enable_feedback": False})
+        self.assertEqual(settings["agent"], {
+            "default_profile": "ask", "enable_feedback": False,
+            "dock": "left", "sidebar_side": "left",
+        })
+        self.assertEqual(settings["project_panel"], {"dock": "right"})
+        self.assertEqual(settings["git_panel"], {"dock": "right"})
+        self.assertEqual(settings["outline_panel"], {"dock": "right"})
+        self.assertEqual(settings["jupyter"], {"enabled": True})
         self.assertFalse(settings["session"]["trust_all_worktrees"])
         self.assertTrue(settings["session"]["restore_unsaved_buffers"])
         self.assertEqual(settings["telemetry"], {"diagnostics": False, "metrics": False})

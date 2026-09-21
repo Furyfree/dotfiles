@@ -118,7 +118,7 @@ see [Zed](ZED_KEYBINDS.md) and [VSCodium](VSCODIUM_KEYBINDS.md).
 | Find a file | Ctrl+P | `Space Space` |
 | Search project contents | Ctrl+Shift+F | `Space /` |
 | Switch open files | Ctrl+Tab | `Space ,` |
-| Browse files | Left sidebar | `Space e` |
+| Browse files | Right sidebar | `Space e` |
 | Search current file | Ctrl+F | `/text` then Enter |
 | Save | Ctrl+S | Escape, then `:w` and Enter |
 | Language-aware definition/rename | F12 / F2 | Not configured yet |

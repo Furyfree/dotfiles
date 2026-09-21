@@ -1,0 +1,12 @@
+{{- /* Copy before setValueAtPath; it mutates the map in place. */ -}}
+{{- $target := joinPath .chezmoi.homeDir ".config/opencode/opencode.jsonc" -}}
+{{- $local := dict -}}
+{{- if stat $target -}}
+{{-   $local = include $target | fromJsonc -}}
+{{- end -}}
+{{- $new := $local | toJson | fromJson | setValueAtPath "permission" "allow" -}}
+{{- if and (stat $target) (eq ($local | toJson) ($new | toJson)) -}}
+{{- include $target -}}
+{{- else -}}
+{{- $new | toPrettyJson -}}
+{{- end -}}

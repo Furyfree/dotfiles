@@ -10,7 +10,11 @@ return {
       sources = {
         files = { hidden = true, exclude = { ".git" } },
         grep = { hidden = true, exclude = { ".git" } },
-        explorer = { hidden = true, exclude = { ".git" } },
+        explorer = {
+          hidden = true,
+          exclude = { ".git" },
+          layout = { preset = "sidebar", preview = false, layout = { position = "right" } },
+        },
       },
       icons = { files = { enabled = false } },
       win = { input = { keys = { ["<Esc>"] = { "close", mode = { "n", "i" } } } } },

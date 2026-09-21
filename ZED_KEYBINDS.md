@@ -27,7 +27,7 @@ actions need support from the file's language server.
 | Quick fixes/code actions | Ctrl+. | Cmd+. |
 | Format document manually | Alt+Shift+F | Option+Shift+F |
 | Save | Ctrl+S | Cmd+S |
-| Toggle left sidebar | Ctrl+B | Cmd+B |
+| Toggle left dock (agent) | Ctrl+B | Cmd+B |
 | Toggle bottom dock | Ctrl+J | Cmd+J |
 | Focus agent panel | Ctrl+Alt+I | Ctrl+Cmd+I |
 | Reopen closed tab | Ctrl+Shift+T | Cmd+Shift+T |

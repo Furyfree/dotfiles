@@ -100,7 +100,8 @@ class VSCodium(unittest.TestCase):
             "editor.renderWhitespace": "selection", "editor.inlayHints.enabled": "off",
             "editor.bracketPairColorization.enabled": True, "editor.minimap.enabled": False,
             "errorLens.enabled": True, "errorLens.messageBackgroundMode": "none",
-            "workbench.sideBar.location": "left", "workbench.panel.defaultLocation": "bottom",
+            "workbench.sideBar.location": "right", "workbench.panel.defaultLocation": "bottom",
+            "python.languageServer": "None",
             "terminal.integrated.cwd": "${workspaceFolder}",
             "tinymist.exportPdf": "onSave", "tinymist.outputPath": "$dir/$name",
             "security.workspace.trust.enabled": True, "chat.tools.global.autoApprove": False,
@@ -208,9 +209,11 @@ class VSCodium(unittest.TestCase):
 
     def fake_cli(self, installed=(), name="codium"):
         bin_dir = self.root / "bin with spaces"
-        bin_dir.mkdir()
+        bin_dir.mkdir(exist_ok=True)
         for tool in ("grep", "tr"):
-            (bin_dir / tool).symlink_to(shutil.which(tool))
+            link = bin_dir / tool
+            if not link.exists():
+                link.symlink_to(shutil.which(tool))
         identity = bin_dir / "id"
         identity.write_text("#!/bin/sh\nprintf '%s\\n' 1000\n")
         identity.chmod(0o700)
@@ -236,6 +239,10 @@ elif len(args) == 2 and args[0] == "--install-extension":
     if not os.environ.get("FAKE_NOOP"):
         state["installed"].append(args[1])
         path.write_text(json.dumps(state))
+elif len(args) == 2 and args[0] == "--uninstall-extension":
+    wanted = args[1].lower()
+    state["installed"] = [item for item in state["installed"] if item.lower() != wanted]
+    path.write_text(json.dumps(state))
 else:
     sys.exit("unexpected CLI arguments")
 ''')
@@ -245,6 +252,50 @@ else:
     def run_installer(self, env):
         return subprocess.run(["/bin/sh"], input=self.render_installer("linux", "sh"),
             env=env, cwd=self.root, capture_output=True, text=True, timeout=30)
+
+    def run_installer_tty(self, env, replies="\n"):
+        path = self.root / "installer.sh"
+        path.write_text(self.render_installer("linux", "sh"))
+        path.chmod(0o700)
+        import pty, select, time
+        pid, fd = pty.fork()
+        if pid == 0:
+            os.chdir(self.root)
+            os.execve("/bin/sh", ["/bin/sh", str(path)], env)
+        output = b""
+        sent = False
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            ready, _, _ = select.select([fd], [], [], 0.2)
+            if ready:
+                try:
+                    chunk = os.read(fd, 4096)
+                except OSError:
+                    break
+                if not chunk:
+                    break
+                output += chunk
+                if not sent and b"[Y/n]" in output:
+                    os.write(fd, replies.encode())
+                    sent = True
+            waited, status = os.waitpid(pid, os.WNOHANG)
+            if waited:
+                break
+        else:
+            os.kill(pid, 9)
+            os.waitpid(pid, 0)
+            self.fail("installer tty timed out: " + output.decode(errors="replace"))
+        try:
+            _, status = os.waitpid(pid, 0)
+        except ChildProcessError:
+            status = 0
+        class Result:
+            pass
+        result = Result()
+        result.returncode = os.waitstatus_to_exitcode(status) if status else 0
+        result.stdout = output.decode(errors="replace")
+        result.stderr = ""
+        return result
 
     @unittest.skipUnless(os.name == "posix", "POSIX installer execution requires /bin/sh")
     def test_installer_is_repeatable_and_preserves_unrelated_extensions(self):
@@ -261,6 +312,32 @@ else:
         data = strict_json(state.read_text())
         self.assertEqual([args for args in data["calls"] if args[0] == "--install-extension"], installs)
         self.assertEqual(result.stdout, "", "unchanged verification should be quiet")
+        self.assertEqual([args for args in data["calls"] if args[0] == "--uninstall-extension"], [])
+
+    @unittest.skipUnless(os.name == "posix", "POSIX installer execution requires /bin/sh")
+    def test_installer_prompts_to_remove_leftover_extensions(self):
+        desired = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())["install"]
+        env, state, _ = self.fake_cli(desired + ["ms-python.vscode-pylance", "ms-python.isort"])
+        result = self.run_installer_tty(env, "y\n")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("These extensions will be uninstalled:", result.stdout)
+        self.assertIn("ms-python.vscode-pylance", result.stdout)
+        data = strict_json(state.read_text())
+        self.assertEqual(set(data["installed"]), set(desired))
+        env, state, _ = self.fake_cli(desired + ["ms-python.vscode-pylance"])
+        result = self.run_installer_tty(env, "n\n")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(set(strict_json(state.read_text())["installed"]),
+                         set(desired) | {"ms-python.vscode-pylance"})
+
+    @unittest.skipUnless(os.name == "posix", "POSIX installer execution requires /bin/sh")
+    def test_installer_prompt_can_skip_install(self):
+        desired = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())["install"]
+        env, state, _ = self.fake_cli([desired[0]])
+        result = self.run_installer_tty(env, "n\n")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("These extensions will be installed:", result.stdout)
+        self.assertEqual(strict_json(state.read_text())["installed"], [desired[0]])
 
     @unittest.skipUnless(os.name == "posix", "POSIX installer execution requires /bin/sh")
     def test_installer_missing_cli_and_listing_failure(self):
@@ -296,7 +373,7 @@ class Extensions(unittest.TestCase):
     def test_inventory(self):
         manifest = strict_json((REPO / "VSCODIUM_EXTENSIONS.json").read_text())
         self.assertEqual(set(manifest), {"install", "manual"})
-        self.assertEqual(len(manifest["install"]), 36)
+        self.assertEqual(len(manifest["install"]), 49)
         self.assertEqual(manifest["manual"], [])
         ids = manifest["install"] + manifest["manual"]
         self.assertEqual(len(ids), len(set(ids)))
@@ -308,8 +385,11 @@ class Extensions(unittest.TestCase):
                           "golang.go", "noctalia.noctaliatheme", "usernamehw.errorlens",
                           "charliermarsh.ruff", "detachhead.basedpyright", "sumneko.lua",
                           "jeanp413.open-remote-ssh", "vscjava.vscode-java-pack",
-                          "muhammad-sammy.csharp", "oderwat.indent-rainbow"):
+                          "muhammad-sammy.csharp", "oderwat.indent-rainbow",
+                          "mhutchie.git-graph", "ms-python.debugpy"):
             self.assertIn(extension, manifest["install"])
+        self.assertNotIn("ms-python.vscode-pylance", ids)
+        self.assertNotIn("ms-python.isort", ids)
 
 
 if __name__ == "__main__":

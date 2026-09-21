@@ -675,12 +675,27 @@ See [Mise settings](https://mise.jdx.dev/configuration/settings.html).
 
 Your CLI selections remain on `latest`. Keep Claude's package-specific build
 allowlist; no blanket npm build permission or trusted-directory list is added.
-Antigravity, OpenCode, and Herdr use Mise's registry. Their login, agent
-configuration, hooks, and session data are not managed. This requires a recent
+Antigravity, OpenCode, and Herdr use Mise's registry. Login, plugins, hooks,
+and session data are not managed. This requires a recent
 Mise; the config and registry names were checked with 2026.9.0. Chezmoi's
 after-apply script invokes the native installation lifecycle without requesting
 upgrades or blanket trust. Mise's own configuration and trust checks still
 apply.
+
+### Agent CLI permissions
+
+On Linux and macOS, Chezmoi sets tool auto-approval in the user configs:
+
+| CLI | File | Policy |
+|---|---|---|
+| OpenCode | `~/.config/opencode/opencode.jsonc` | `permission = allow` |
+| Claude | `~/.claude/settings.json` | `permissions.defaultMode = bypassPermissions` |
+| Grok | `~/.grok/config.toml` | `ui.permission_mode = always-approve` |
+| Codex | `~/.codex/config.toml` | `approval_policy = never`, `sandbox_mode = workspace-write` |
+
+Other keys in those files stay local. Codex keeps the workspace-write sandbox.
+Instruction files (`AGENTS.md`, `CLAUDE.md`) and skills belong to ai-workflow.
+Login, plugins, sessions, and the rest of each agent home stay unmanaged.
 
 ### Nix
 
@@ -1210,7 +1225,8 @@ history, and extension binaries remain outside Chezmoi's managed files.
 
 The shared behavior matches the Zed slice on `config/zed`: 15px JetBrainsMono
 Nerd Font, no ligatures, block cursor, absolute line numbers, bracket colors,
-selected whitespace, no inlay hints or minimap, persistent tabs, left sidebar,
+selected whitespace, no inlay hints or minimap, persistent tabs, file explorer
+on the right, agents on the left,
 bottom terminal, and manual save/formatting. Formatting stays manual, matching Zed's Prettier policy; choose a language
 formatter or opt in per project. Go format-on-save, Go import organization on
 save, and Python format-on-type defaults are explicitly overridden to keep
@@ -1261,14 +1277,17 @@ use VSCodium's **Developer: Reload Window** command. Other setups follow system
 appearance with the built-in Default Light/Dark Modern themes.
 Theme extensions must be installed before these selections can take effect.
 
-`VSCODIUM_EXTENSIONS.json` lists 36 extensions, all available on Open VSX; the
+`VSCODIUM_EXTENSIONS.json` lists 49 extensions, all available on Open VSX; the
 `manual` list is empty and no Microsoft-gallery-only pieces remain. The set
 covers Go, Python and Jupyter, Typst, F#, C# through the open
 `muhammad-sammy.csharp` fork, Java/Maven, C, Lua, Rust, TypeScript/React with
 ESLint and Tailwind, OpenTofu, Ansible, Nix, Docker, PowerShell,
 Markdown/TOML/YAML, Git tooling, themes, Error Lens, indent-rainbow and
-Excalidraw. `detachhead.basedpyright` replaces Pylance and
-`jeanp413.open-remote-ssh` replaces the Microsoft Remote-SSH trio.
+Excalidraw. `detachhead.basedpyright` is the Python language server
+(`python.languageServer` is `None`). `jeanp413.open-remote-ssh` replaces the
+Microsoft Remote-SSH trio. Python, Jupyter, and Java-pack satellites that
+those extensions install are listed in `install` so the uninstall prompt does
+not offer them.
 The manifest lives at the repository root because it is installation metadata,
 not a VSCodium user config. VSCodium does not load it; Chezmoi embeds its
 `install` entries into the scripts below when rendering them. Keeping it outside
@@ -1288,13 +1307,16 @@ Plain `chezmoi init` without apply does not install extensions. This is not a
 even if the manifest has not changed.
 
 The scripts require an existing `codium` or `vscodium` CLI on PATH. They list
-installed extensions, compare IDs case-insensitively, request only missing
-`install` entries, retry each install three times with backoff, and verify all
-entries through a final native listing. Gallery, network and rate-limit
-failures are logged and reported, never fatal: an incomplete result prints a
-summary pointing at the hook log, and the next `nimbus sync` retries the rest.
-Existing extensions are not forcibly updated or uninstalled; native auto-update
-settings own updates. The `manual` list is reported but never installed.
+installed extensions and compare IDs case-insensitively. In a terminal they
+print extras (installed, not in `install` or `manual`) and missing `install`
+entries, then ask `Uninstall these extensions? [Y/n]` and
+`Install these extensions? [Y/n]` (empty enter is yes). Without a TTY, missing
+entries are installed and extras are left alone, so `nimbus sync` never deletes
+extensions. Installs retry three times with backoff. Gallery, network and
+rate-limit failures are logged and reported, never fatal: an incomplete result
+prints a summary pointing at the hook log, and the next `nimbus sync` retries
+the rest. Native auto-update settings own updates. The `manual` list is kept
+and never installed.
 
 Missing CLI, listing errors, failed installs, or failed verification stop the
 script with an error. Completed installs remain; fix the cause and rerun apply.
@@ -1305,13 +1327,7 @@ The scripts use the CLI's configured gallery, which the managed `product.json`
 sets to Microsoft Marketplace. They do not force versions, install prerequisites,
 or download separate VSIX files.
 
-The eight manual entries are Copilot Chat, C#, Pylance, Microsoft's three SSH/
-remote extensions, and two IntelliCode extensions. They returned no Open VSX
-entry when checked on 2026-09-06. Existing installations are untouched. Evaluate
-publisher-supported distribution, licensing, and VSCodium compatibility before
-reinstalling; a gallery switch does not solve runtime restrictions. BasedPyright
-and Open Remote SSH are possible alternatives, not silently installed replacements.
-Registry presence also does not prove runtime compatibility: VSCodium documents
+Registry presence does not prove runtime compatibility: VSCodium documents
 limitations for Python and LaTeX Workshop despite available Open VSX packages.
 
 ### Validation and migration
@@ -1358,7 +1374,9 @@ tabs, inline diagnostics, and manual save/formatting. Bracket colors follow
 the active theme. Language servers, outline, folding, Git indicators, and
 other features use Zed's defaults instead of copying hundreds of settings.
 The terminal uses the system shell and project directory; it never forces Zsh
-onto Windows or replaces the machine's chosen shell.
+onto Windows or replaces the machine's chosen shell. The file, Git, and outline
+panels dock on the right; the agent docks on the left. Jupyter notebooks and
+the REPL are enabled.
 
 Your Chezmoi file associations and Tinymist PDF-on-save settings are kept.
 The extension list retains all 33 enabled selections from your live settings,

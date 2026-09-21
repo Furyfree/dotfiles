@@ -38,6 +38,9 @@ installed=$(list_extensions) || {
     printf '%s\n' "dotfiles: could not list VSCodium extensions; skipping. See $log" >&2
     exit 0
 }
+keep=$(printf '%s\n'{{ range $manifest.install }} \
+    {{ . | shellQuote }}{{ end }}{{ range $manifest.manual }} \
+    {{ . | shellQuote }}{{ end }})
 set --{{ range $manifest.install }} \
     {{ . | shellQuote }}{{ end }}
 
@@ -59,20 +62,77 @@ install_extension() {
     return 1
 }
 
+print_names() {
+    printf '%s\n' "$1"
+    shift
+    for name do
+        printf '  %s\n' "$name"
+    done
+}
+
+confirm() {
+    # Usage: confirm "Question?" yes|no   (yes|no is the no-tty default)
+    if [ ! -t 0 ]; then
+        [ "$2" = yes ]
+        return $?
+    fi
+    printf '%s [Y/n] ' "$1"
+    read -r reply || return 1
+    case $reply in
+        [nN]|[nN][oO]) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+extras=$(
+    printf '%s\n' "$installed" | while IFS= read -r extension; do
+        [ -n "$extension" ] || continue
+        if ! printf '%s\n' "$keep" | grep -Fqx -- "$extension"; then
+            printf '%s\n' "$extension"
+        fi
+    done
+)
+if [ -n "$extras" ] && [ -t 0 ]; then
+    # shellcheck disable=SC2086
+    print_names "These extensions will be uninstalled:" $extras
+    if confirm "Uninstall these extensions?" no; then
+        printf '%s\n' "$extras" | while IFS= read -r extension; do
+            [ -n "$extension" ] || continue
+            printf 'dotfiles: uninstalling VSCodium extension: %s\n' "$extension"
+            if ! "$cli" --uninstall-extension "$extension" >>"$log" 2>&1; then
+                printf 'dotfiles: could not uninstall %s; see %s\n' "$extension" "$log" >&2
+            fi
+        done
+    fi
+fi
+
 installed_count=0
 failed_count=0
+missing=
 for extension do
     if printf '%s\n' "$installed" | grep -Fqx -- "$extension"; then
         continue
     fi
-    printf 'dotfiles: installing VSCodium extension: %s\n' "$extension"
-    if install_extension "$extension"; then
-        installed_count=$((installed_count + 1))
-    else
-        failed_count=$((failed_count + 1))
-        printf 'dotfiles: could not install %s; the next nimbus sync retries.\n' "$extension" >&2
-    fi
+    missing="$missing $extension"
 done
+if [ -n "$missing" ]; then
+    # shellcheck disable=SC2086
+    if [ -t 0 ]; then
+        print_names "These extensions will be installed:" $missing
+        if ! confirm "Install these extensions?" yes; then
+            missing=
+        fi
+    fi
+    for extension in $missing; do
+        printf 'dotfiles: installing VSCodium extension: %s\n' "$extension"
+        if install_extension "$extension"; then
+            installed_count=$((installed_count + 1))
+        else
+            failed_count=$((failed_count + 1))
+            printf 'dotfiles: could not install %s; the next nimbus sync retries.\n' "$extension" >&2
+        fi
+    done
+fi
 
 installed=$(list_extensions) || installed=
 missing_count=0
