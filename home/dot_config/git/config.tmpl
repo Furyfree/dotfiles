@@ -9,6 +9,15 @@
 	name = Patrick Byrne
 {{- end }}
 
+[core]
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true
+
 [init]
 	defaultBranch = main
 
@@ -21,9 +30,38 @@
 
 [push]
 	autoSetupRemote = true
+	followTags = true
+
+[diff]
+	algorithm = histogram
+	colorMoved = plain
+	mnemonicPrefix = true
 
 [merge]
 	conflictStyle = zdiff3
+
+[rerere]
+	enabled = true
+
+[rebase]
+	autoSquash = true
+	updateRefs = true
+	missingCommitsCheck = error
+
+[branch]
+	sort = -committerdate
+
+[tag]
+	sort = version:refname
+
+[column]
+	ui = auto
+
+[help]
+	autocorrect = prompt
+
+[commit]
+	verbose = true
 
 [alias]
 	st = status --short --branch

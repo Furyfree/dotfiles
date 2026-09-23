@@ -31,6 +31,7 @@ shellcheck = "latest"
 shfmt = "latest"
 taplo = "latest"
 actionlint = "latest"
+delta = "latest"
 
 [settings]
 # Nimbus's contract: Mise updates itself; system packages stay outside Mise.

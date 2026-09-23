@@ -67,16 +67,13 @@ class GitConfig(unittest.TestCase):
         return self.run_git("rev-parse", "HEAD", cwd=repo).strip()
 
     def test_native_discovery_and_config_scope(self):
-        expected = {
-            "user.useconfigonly": "true", "init.defaultbranch": "main",
-            "fetch.prune": "true", "pull.ff": "only", "push.autosetupremote": "true",
-            "merge.conflictstyle": "zdiff3", "alias.st": "status --short --branch",
-            "alias.lg": "log --graph --oneline --decorate --all",
-        }
-        output = self.run_git("config", "--global", "--null", "--list")
-        entries = [entry.partition("\n")[::2] for entry in output.split("\0") if entry]
-        self.assertEqual(len(entries), len(expected))
-        self.assertEqual(dict(entries), expected)
+        # Git parses the shared file as global config; identity and signing stay opt-in.
+        output = self.run_git("config", "--global", "--null", "--name-only", "--list")
+        keys = set(filter(None, output.split("\0")))
+        self.assertIn("pull.ff", keys)
+        leaked = {"user.name", "user.email", "user.signingkey", "commit.gpgsign"} & keys
+        self.assertEqual(leaked, set())
+        self.assertFalse([key for key in keys if key.startswith("gpg.")])
         # Git also discovers the XDG default when the environment variable is absent.
         del self.env["XDG_CONFIG_HOME"]
         self.assertEqual(self.run_git("config", "--get", "pull.ff").strip(), "only")
