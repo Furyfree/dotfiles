@@ -4,7 +4,7 @@
 {{- if stat $target -}}
 {{-   $local = include $target | fromJsonc -}}
 {{- end -}}
-{{- $new := $local | toJson | fromJson | setValueAtPath "permissions.defaultMode" "bypassPermissions" -}}
+{{- $new := $local | toJson | fromJson | setValueAtPath "permissions.defaultMode" "auto" -}}
 {{- if and (stat $target) (eq ($local | toJson) ($new | toJson)) -}}
 {{- include $target -}}
 {{- else -}}

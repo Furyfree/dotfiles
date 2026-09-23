@@ -4,7 +4,9 @@
 {{- if stat $target -}}
 {{-   $local = include $target | fromJsonc -}}
 {{- end -}}
-{{- $new := $local | toJson | fromJson | setValueAtPath "permission" "allow" -}}
+{{- $bash := dict "*" "allow" "rm -rf *" "ask" "git push *" "ask" "git reset --hard*" "ask" "sudo *" "ask" -}}
+{{- $permission := dict "*" "allow" "bash" $bash "doom_loop" "ask" -}}
+{{- $new := $local | toJson | fromJson | setValueAtPath "permission" $permission -}}
 {{- if and (stat $target) (eq ($local | toJson) ($new | toJson)) -}}
 {{- include $target -}}
 {{- else -}}
