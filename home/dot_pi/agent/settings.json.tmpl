@@ -9,7 +9,7 @@
       | setValueAtPath "collapseChangelog" true
       | setValueAtPath "quietStartup" true
       | setValueAtPath "tuiMode" "fullscreen"
-      | setValueAtPath "fullscreenCopyOnSelect" false
+      | setValueAtPath "fullscreenCopyOnSelect" true
       | setValueAtPath "defaultProjectTrust" "ask" -}}
 {{- if and (stat $target) (eq ($local | toJson) ($new | toJson)) -}}
 {{- include $target -}}
