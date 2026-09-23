@@ -13,6 +13,7 @@ uv = "latest"
 antigravity-cli = "latest"
 "npm:@xai-official/grok" = "latest"
 opencode = "latest"
+pi = "latest"
 herdr = "latest"
 
 # Agentic helpers
