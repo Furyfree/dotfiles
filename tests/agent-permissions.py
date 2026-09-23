@@ -15,11 +15,13 @@ TARGETS = (
     ".claude/settings.json",
     ".grok/config.toml",
     ".codex/config.toml",
+    ".pi/agent/settings.json",
 )
 UNMANAGED = (
     ".claude/CLAUDE.md", ".claude/skills", ".claude/auth.json",
     ".codex/AGENTS.md", ".codex/auth.json", ".grok/auth.json",
     ".config/opencode/AGENTS.md", ".agents/skills",
+    ".pi/agent/AGENTS.md", ".pi/agent/auth.json", ".pi/agent/extensions",
 )
 
 
@@ -92,6 +94,8 @@ class AgentPermissions(unittest.TestCase):
                 'approval_policy = "never"\nsandbox_mode = "workspace-write"\n'
                 'model = "gpt-test"\n\n[projects."/tmp/work"]\n'
                 'trust_level = "trusted"\n',
+            ".pi/agent/settings.json":
+                '{\n  "defaultModel": "test-model",\n  "theme": "dark"\n}\n',
         }
         for rel, text in samples.items():
             path = self.home / rel
@@ -108,6 +112,8 @@ class AgentPermissions(unittest.TestCase):
         codex = tomllib.loads(files[".codex/config.toml"]["contents"])
         self.assertEqual(codex["model"], "gpt-test")
         self.assertEqual(codex["projects"]["/tmp/work"]["trust_level"], "trusted")
+        pi = json.loads(files[".pi/agent/settings.json"]["contents"])
+        self.assertEqual((pi["defaultModel"], pi["theme"]), ("test-model", "dark"))
         for rel, text in samples.items():
             self.assertEqual((self.home / rel).read_text(), text)
 

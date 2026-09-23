@@ -1,0 +1,18 @@
+{{- /* Copy before setValueAtPath; it mutates the map in place. Pi owns every other key. */ -}}
+{{- $target := joinPath .chezmoi.homeDir ".pi/agent/settings.json" -}}
+{{- $local := dict -}}
+{{- if stat $target -}}
+{{-   $local = include $target | fromJsonc -}}
+{{- end -}}
+{{- $new := $local | toJson | fromJson
+      | setValueAtPath "enableInstallTelemetry" false
+      | setValueAtPath "collapseChangelog" true
+      | setValueAtPath "quietStartup" true
+      | setValueAtPath "tuiMode" "fullscreen"
+      | setValueAtPath "fullscreenCopyOnSelect" false
+      | setValueAtPath "defaultProjectTrust" "ask" -}}
+{{- if and (stat $target) (eq ($local | toJson) ($new | toJson)) -}}
+{{- include $target -}}
+{{- else -}}
+{{- $new | toPrettyJson -}}
+{{- end -}}

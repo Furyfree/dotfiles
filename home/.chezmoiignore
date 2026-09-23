@@ -50,6 +50,8 @@ Library/**
 .codex/**
 .grok
 .grok/**
+.pi
+.pi/**
 {{ end -}}
 {{ if eq .chezmoi.os "darwin" -}}
 .config/VSCodium/**
