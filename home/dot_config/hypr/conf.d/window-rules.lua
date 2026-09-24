@@ -27,6 +27,15 @@ hl.window_rule({
     tag = "+centered-floating",
 })
 hl.window_rule({
+    name = "obsidian-settings",
+    -- Settings shares the vault window's class; its title names the vault.
+    match = {
+        class = "^md\\.obsidian\\.Obsidian$",
+        initial_title = "^Settings - .* - Obsidian .*$",
+    },
+    tag = "+centered-floating",
+})
+hl.window_rule({
     name = "jetbrains-welcome",
     -- Every JetBrains IDE shares this class prefix and titles its welcome
     -- frame "Welcome to ...". Use a fixed size instead of the shared
