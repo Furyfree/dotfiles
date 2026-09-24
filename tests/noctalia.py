@@ -278,6 +278,8 @@ class Noctalia(unittest.TestCase):
         script.write_text(self.chezmoi("execute-template",
                                      (REPO / "home/run_after_configure-files.sh.tmpl").read_text(),
                                      machine="laptop"))
+        # Chezmoi runs hooks as executables; without a session bus the hook re-executes "$0".
+        script.chmod(0o755)
         binaries = self.root / "bin"
         binaries.mkdir()
         # Exercise directory creation without changing live GSettings.
@@ -291,7 +293,7 @@ class Noctalia(unittest.TestCase):
         contents = entries[".config/user-dirs.dirs"]["contents"]
         user_dirs.write_text(contents)
         for repeat in range(2):
-            result = subprocess.run(["bash", str(script)], cwd=self.root, env=env,
+            result = subprocess.run([str(script)], cwd=self.root, env=env,
                                     text=True, capture_output=True, check=False)
             self.assertEqual(result.returncode, 0, result.stderr)
             for line in contents.splitlines():

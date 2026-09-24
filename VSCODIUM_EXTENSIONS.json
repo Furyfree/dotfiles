@@ -1,11 +1,11 @@
 {
   "install": [
     "anthropic.claude-code",
+    "astral-sh.ty",
     "bradlc.vscode-tailwindcss",
     "charliermarsh.ruff",
     "davidanson.vscode-markdownlint",
     "dbaeumer.vscode-eslint",
-    "detachhead.basedpyright",
     "eamodio.gitlens",
     "foxundermoon.shell-format",
     "golang.go",

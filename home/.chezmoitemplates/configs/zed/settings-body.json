@@ -44,6 +44,9 @@
   "lsp": {
     "tinymist": { "settings": { "exportPdf": "onSave", "outputPath": "$dir/$name" } }
   },
+  "languages": {
+    "Python": { "language_servers": ["ty", "!basedpyright", "..."] }
+  },
   "auto_install_extensions": {
     "ansible": true,
     "catppuccin": true,
