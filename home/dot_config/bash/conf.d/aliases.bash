@@ -53,3 +53,9 @@ fi
 if command -v lazygit >/dev/null 2>&1; then
   alias lg='lazygit'
 fi
+
+if command -v nimbus-pkg >/dev/null 2>&1; then
+  alias npi='nimbus-pkg install'
+  alias npr='nimbus-pkg remove'
+  alias npl='nimbus-pkg installed'
+fi

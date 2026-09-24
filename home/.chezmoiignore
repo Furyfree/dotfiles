@@ -106,6 +106,7 @@ Library/**
 .local/share/applications/GoogleMaps.desktop
 .local/share/applications/FotMob.desktop
 .local/share/icons/hicolor/512x512/apps/nimbus-webapp-*.png
+.local/bin/nimbus-pkg
 {{ end -}}
 
 # Nimbus completion and note history stay local to this user and machine.

@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+# Pick packages with fzf, then hand each one to Nimbus.
+set -euo pipefail
+
+usage() {
+  printf '%s\n' 'usage: nimbus-pkg install|remove|installed [query]' >&2
+  exit 2
+}
+
+# pick PROMPT PREVIEW QUERY [fzf options...]: fzf with a bottom preview.
+pick() {
+  fzf --multi --delimiter '\t' --tiebreak=length \
+    --prompt "$1" --preview "$2" --query "$3" \
+    --preview-window 'down,40%,wrap' \
+    --bind 'ctrl-/:toggle-preview' \
+    --header 'Tab: select several  Ctrl-/: toggle preview' \
+    "${@:4}" || true
+}
+
+cache_error() {
+  printf '%s\n' 'nimbus-pkg: the package cache is empty; run nimbus sync' >&2
+  exit 1
+}
+
+# Rows from nimbus list refs like dnf:name; the preview needs the bare name.
+# Nimbus pads the state column only to the width of "managed".
+installed_rows() {
+  nimbus packages installed | awk '{ sub(/^[^ ]+ +/, sprintf("%-13s", $1)) } 1'
+}
+
+# shellcheck disable=SC2016
+installed_info='sh -c '"'"'dnf5 -q --cacheonly repoquery --installed --info "${1#*:}"'"'"' _ {2}'
+
+[[ $# -ge 1 && $# -le 2 ]] || usage
+cmd=$1
+query=${2:-}
+
+case "$cmd" in
+  install)
+    available=$(dnf5 -q --cacheonly repoquery --available --latest-limit 1 \
+      --qf $'%{name}\t%{evr}\t%{reponame}\t%{summary}\n' 2>/dev/null | sort -u) || true
+    [[ -n $available ]] || cache_error
+    mapfile -t names < <(
+      printf '%s\n' "$available" \
+        | pick 'install> ' 'dnf5 -q --cacheonly repoquery --info {1}' "$query" \
+            --with-nth 1,4 --nth 1,4 \
+        | cut -f1
+    )
+    [[ ${#names[@]} -gt 0 ]] || exit 0
+    for name in "${names[@]}"; do
+      nimbus packages install "$name"
+    done
+    ;;
+  remove)
+    mapfile -t names < <(
+      installed_rows \
+        | grep '^managed' \
+        | pick 'remove> ' "$installed_info" "$query" \
+            --delimiter ' +' --nth 2 \
+        | awk '{ sub(/^[^:]*:/, "", $2); print $2 }'
+    )
+    [[ ${#names[@]} -gt 0 ]] || exit 0
+    for name in "${names[@]}"; do
+      nimbus packages remove "$name"
+    done
+    ;;
+  installed)
+    installed_rows \
+      | pick 'installed> ' "$installed_info" "$query" \
+          --delimiter ' +' --nth 2 --no-multi >/dev/null
+    ;;
+  *)
+    usage
+    ;;
+esac
