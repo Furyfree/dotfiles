@@ -27,7 +27,8 @@ Read README.md and Nimbus's `docs/SPEC.md` before changing ownership.
   reaches Mise shims and the real Git config.
 - `home/run_after_*`: scoped user hooks for Mise, VSCodium extensions, Files,
   ProtonPlus preferences and the GTK icon cache. Keep their scope narrow.
-- `tests/`, `ruff.toml`, `justfile`: isolated checks and Python 3.14+ lint gate.
+- `tests/`, `pyproject.toml`, `ruff.toml`, `justfile`: isolated pytest suites and
+  Ruff lint gate, run through uv.
 
 ## Boundaries
 
@@ -62,5 +63,5 @@ Read README.md and Nimbus's `docs/SPEC.md` before changing ownership.
 
 Run `just check`, `chezmoi managed`, `chezmoi status`, `chezmoi diff`,
 `chezmoi verify`, and `git diff --check`; never print secret-backed output.
-`JOBS=1` runs suites serially. Skips and unapplied differences are not passes.
+`uv run pytest -n 0` runs tests serially. Skips and unapplied differences are not passes.
 Do not apply, commit, push, or create remote resources without explicit permission.

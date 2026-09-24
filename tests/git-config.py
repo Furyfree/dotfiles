@@ -197,13 +197,15 @@ class GitConfig(unittest.TestCase):
     def test_platform_targets(self):
         for platform in ("linux", "darwin", "windows"):
             with self.subTest(platform=platform):
-                output = self.run_command(*self.chezmoi_args(platform), "dump", "--format=json")
+                output = self.run_command(*self.chezmoi_args(platform), "dump", "--format=json",
+                                          str(self.home / ".config"))
                 entries = json.loads(output)
                 files = {name: entry["contents"] for name, entry in entries.items()
                          if name.startswith(".config/git/") and entry["type"] == "file"}
                 self.assertEqual(files, {".config/git/config": self.render_config(platform),
                                          ".config/git/ignore": (SOURCE / "ignore").read_text()})
-                self.assertNotIn(".gitconfig", entries)
+                managed = self.run_command(*self.chezmoi_args(platform), "managed").splitlines()
+                self.assertNotIn(".gitconfig", managed)
                 self.assertNotIn(".gitignore", entries)
 
 

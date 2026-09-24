@@ -143,8 +143,8 @@ From the source checkout, run:
 just check
 ```
 
-This requires Python 3.14+, PyYAML, Ruff, Just and the native tools listed in
-[the CI workflow](.github/workflows/check.yml). Use `JOBS=1 just check` for serial
+This requires Python 3.14+, uv, Just and the native tools listed in
+[the CI workflow](.github/workflows/check.yml). Use `uv run pytest -n 0` for serial
 execution. The isolated checks do not apply this repository to your live home.
 Skipped tools and untested desktop behavior still need verification.
 

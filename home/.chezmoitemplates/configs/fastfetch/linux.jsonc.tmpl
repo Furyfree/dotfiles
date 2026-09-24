@@ -88,6 +88,12 @@
       "timeout": 1000
     },
     {
+      "type": "command",
+      "text": "find /var/lib/flatpak/app \"$HOME/.local/share/flatpak/app\" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l",
+      "format": "lua:ff.flatpakApps = tonumber((...).result)",
+      "timeout": 1000
+    },
+    {
       "type": "custom",
       "format": "{#2}── {#}{#1}SYSTEM{#}{#2} ───────────────────────────────────────────────────{#}"
     },

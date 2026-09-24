@@ -292,19 +292,23 @@ if pathlib.Path(sys.argv[0]).name == "sudo":
     def test_platform_targets(self):
         for platform in ("linux", "darwin", "windows"):
             with self.subTest(platform=platform):
-                result = subprocess.run([
-                    CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
-                    "--config", str(self.root / "chezmoi.toml"),
-                    "--cache", str(self.root / "cache/chezmoi"),
-                    "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
-                    "--skip-secrets", "--override-data", json.dumps({
-                        "chezmoi": {"os": platform}, "profiles": ["common"],
-                        "onePasswordSsh": False}), "dump", "--format=json"],
-                    cwd=self.root, env=self.env, stdin=subprocess.DEVNULL,
-                    text=True, capture_output=True, timeout=30, check=False)
-                self.assertEqual(result.returncode, 0, result.stderr)
-                entries = json.loads(result.stdout)
-                self.assertEqual(".local/bin/topgrade" in entries, platform == "linux")
+                def chezmoi(*args, platform=platform):
+                    result = subprocess.run([
+                        CHEZMOI, "--source", str(REPO), "--destination", str(self.home),
+                        "--config", str(self.root / "chezmoi.toml"),
+                        "--cache", str(self.root / "cache/chezmoi"),
+                        "--persistent-state", str(self.root / "chezmoi-state.boltdb"),
+                        "--skip-secrets", "--override-data", json.dumps({
+                            "chezmoi": {"os": platform}, "profiles": ["common"],
+                            "onePasswordSsh": False}), *args],
+                        cwd=self.root, env=self.env, stdin=subprocess.DEVNULL,
+                        text=True, capture_output=True, timeout=30, check=False)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    return result.stdout
+                managed = chezmoi("managed").splitlines()
+                self.assertEqual(".local/bin/topgrade" in managed, platform == "linux")
+                entries = json.loads(chezmoi("dump", "--format=json", str(self.home / ".config"),
+                                             *([str(self.home / ".local/bin")] if platform == "linux" else [])))
                 if platform == "linux":
                     self.assertEqual(entries[".local/bin/topgrade"]["contents"],
                                      LAUNCHER.read_text())
@@ -315,6 +319,7 @@ if pathlib.Path(sys.argv[0]).name == "sudo":
                 expected = {} if platform == "windows" else {
                     ".config/topgrade.toml": self.render_config(managed=False, platform=platform).read_text()}
                 self.assertEqual(files, expected)
+                self.assertEqual({name for name in managed if name.endswith("topgrade.toml")}, set(expected))
 
 
 if __name__ == "__main__":

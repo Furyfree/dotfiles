@@ -56,7 +56,9 @@ function ff.packageCounts()
   for _, item in ipairs({ {'rpm', 'rpm'}, {'dpkg', 'dpkg'}, {'pacman', 'pacman'},
                          {'apk', 'apk'}, {'flatpakAll', 'flatpak'}, {'nixAll', 'nix'}}) do
     local count = ff.packages[item[1]] or 0
-    if count > 0 then rows[#rows + 1] = count .. ' ' .. item[2]; counted = counted + count end
+    -- Flatpak's total includes runtimes; show installed apps when counted.
+    local shown = item[1] == 'flatpakAll' and ff.flatpakApps or count
+    if count > 0 then rows[#rows + 1] = shown .. ' ' .. item[2]; counted = counted + count end
   end
   local other = (ff.packages.all or 0) - counted
   if other > 0 then rows[#rows + 1] = other .. ' other' end

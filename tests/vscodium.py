@@ -207,10 +207,11 @@ else:
         import pty
         import select
         import time
-        pid, fd = pty.fork()
-        if pid == 0:
-            os.chdir(self.root)
-            os.execve("/bin/sh", ["/bin/sh", str(path)], env)
+        # Popen, not pty.fork: forking a threaded test worker can deadlock.
+        fd, tty = pty.openpty()
+        process = subprocess.Popen(["/bin/sh", str(path)], stdin=tty, stdout=tty, stderr=tty,
+                                   cwd=self.root, env=env, start_new_session=True)
+        os.close(tty)
         output = b""
         sent = False
         deadline = time.monotonic() + 15
@@ -227,24 +228,16 @@ else:
                 if not sent and b"[Y/n]" in output:
                     os.write(fd, replies.encode())
                     sent = True
-            waited, status = os.waitpid(pid, os.WNOHANG)
-            if waited:
+            if process.poll() is not None:
                 break
         else:
-            os.kill(pid, 9)
-            os.waitpid(pid, 0)
+            process.kill()
+            process.wait()
             self.fail("installer tty timed out: " + output.decode(errors="replace"))
-        try:
-            _, status = os.waitpid(pid, 0)
-        except ChildProcessError:
-            status = 0
-        class Result:
-            pass
-        result = Result()
-        result.returncode = os.waitstatus_to_exitcode(status) if status else 0
-        result.stdout = output.decode(errors="replace")
-        result.stderr = ""
-        return result
+        process.wait()
+        os.close(fd)
+        return subprocess.CompletedProcess(process.args, process.returncode,
+                                           output.decode(errors="replace"), "")
 
     @unittest.skipUnless(os.name == "posix", "POSIX installer execution requires /bin/sh")
     def test_installer_is_repeatable_and_preserves_unrelated_extensions(self):

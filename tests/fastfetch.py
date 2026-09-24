@@ -50,7 +50,8 @@ class Fastfetch(unittest.TestCase):
             '--cache', str(self.root / 'cache/chezmoi'),
             '--persistent-state', str(self.root / 'chezmoi-state.boltdb'), '--skip-secrets',
             '--override-data', json.dumps({'chezmoi': {'os': platform},
-                'profiles': ['common'], 'onePasswordSsh': False}), 'dump', '--format=json')
+                'profiles': ['common'], 'onePasswordSsh': False}), 'dump', '--format=json',
+            str(self.home / '.config/fastfetch'))
         files = {k: v['contents'] for k, v in json.loads(output).items()
                  if k.startswith('.config/fastfetch/') and v['type'] == 'file'}
         for name, contents in files.items():
@@ -100,19 +101,22 @@ class Fastfetch(unittest.TestCase):
         setup = (TEMPLATES / 'format.lua').read_text()
         seed = '''ff.gpus = { {name='GeForce RTX 3080 Lite Hash Rate',vendor='NVIDIA'},
           {name='UHD Graphics 770',vendor='Intel'} }; ff.displays = {
-          {width=1920,height=1080,refreshRate='144.001'}, {width=1920,height=1080,refreshRate='144.001'} }'''
+          {width=1920,height=1080,refreshRate='144.001'}, {width=1920,height=1080,refreshRate='144.001'} }
+          ff.packages = {all=2430, rpm=2408, flatpakAll=18, snap=4}; ff.flatpakApps = 4'''
         cfg = {'logo': {'type': 'none'}, 'modules': [
             {'type': 'custom', 'format': 'lua:' + setup + '\n' + seed},
             {'type': 'custom', 'key': 'GPU', 'format': 'lua:return ff.text(ff.gpuNames())'},
             {'type': 'custom', 'key': 'Display', 'format': 'lua:return ff.text(ff.displayNames())'},
+            {'type': 'custom', 'key': 'Packages', 'format': 'lua:return ff.text(ff.packageCounts())'},
             {'type': 'custom', 'key': 'Long', 'format': "lua:return ff.text(string.rep('ø', 80))"}]}
         output = self.native(cfg)
         self.assertIn('RTX 3080 + Intel UHD 770', output)
         self.assertIn('2 × 1920×1080 @ 144 Hz', output)
+        self.assertIn('2408 rpm · 4 flatpak · 4 other', output)
         long_line = next(line for line in output.splitlines() if line.startswith('Long:'))
         self.assertIn('ø', long_line)
         self.assertTrue(long_line.endswith('…'))
-        self.assertEqual(len(output.strip().splitlines()), 3)
+        self.assertEqual(len(output.strip().splitlines()), 4)
         cfg['modules'][0]['format'] = 'lua:' + setup + "\nff.displays = { {width=2880,height=1800,refreshRate='120'} }"
         output = self.native(cfg)
         self.assertIn('not detected', output)
@@ -130,7 +134,8 @@ class Fastfetch(unittest.TestCase):
     def test_native_plain_output_and_commands(self):
         cfg = json.loads(self.render()['.config/fastfetch/config.jsonc'])
         commands = [m['text'] for m in cfg['modules'] if isinstance(m, dict) and m['type'] == 'command']
-        self.assertEqual(commands, [(TEMPLATES / x).read_text() for x in ['os-age.sh', 'noctalia.sh']])
+        self.assertEqual(commands[:2], [(TEMPLATES / x).read_text() for x in ['os-age.sh', 'noctalia.sh']])
+        self.assertIn('/var/lib/flatpak/app', commands[2])
         out = self.native(cfg)
         self.assertNotIn('\x1b', out)
         self.assertIn('~2 days', out)

@@ -75,8 +75,7 @@ class ApplicationIcons(unittest.TestCase):
     def test_platform_gates_and_package_links(self):
         for platform in ("linux", "darwin", "windows"):
             for managed in (False, True):
-                entries = json.loads(self.run_chezmoi("dump", "--format=json",
-                                    platform=platform, managed=managed))
+                entries = self.run_chezmoi("managed", platform=platform, managed=managed).splitlines()
                 for name in ("index.theme", "1024x1024/apps/t3code.png", "1024x1024/apps/yazi.png"):
                     self.assertEqual(f"{THEME}/{name}" in entries, platform == "linux")
                 self.assertEqual(f"{THEME}/512x512/apps/nimbus-webapp-google-maps.png" in entries,

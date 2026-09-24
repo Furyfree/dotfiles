@@ -41,7 +41,8 @@ class Neovim(unittest.TestCase):
             "--skip-secrets", "--override-data", json.dumps({
                 "chezmoi": {"os": platform}, "profiles": ["common"],
                 "onePasswordSsh": False,
-            }), "dump", "--format=json",
+            }), "dump", "--format=json", str(self.home / ".config"),
+            *([str(self.home / "AppData")] if platform == "windows" else []),
         ], env=self.env, cwd=self.root, capture_output=True, text=True, timeout=20, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         return {name: item["contents"] for name, item in json.loads(result.stdout).items()

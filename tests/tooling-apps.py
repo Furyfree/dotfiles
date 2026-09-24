@@ -1,7 +1,6 @@
 """Read-only config checks. All application state is isolated in a temporary tree."""
 
 import gzip
-import importlib.util
 import json
 import os
 import re
@@ -122,12 +121,16 @@ class ToolingApps(unittest.TestCase):
         config = yaml.safe_load((CONFIG / "udiskie/config.yml").read_text())
         self.assertIsInstance(config, dict)
         self.assertIsInstance(config.get("program_options", {}), dict)
-        if not importlib.util.find_spec("udiskie"):
-            self.skipTest("udiskie Python module is not installed; YAML assertions passed")
-        from udiskie.config import Config
+        # udiskie is a system package, so its parser runs under the system Python.
         # This parser does not connect to D-Bus or mount anything.
-        native = Config.from_file(str(CONFIG / "udiskie/config.yml"))
-        self.assertEqual(native.program_options, config.get("program_options", {}))
+        script = ("import json, sys\nfrom udiskie.config import Config\n"
+                  "print(json.dumps(Config.from_file(sys.argv[1]).program_options))")
+        native = subprocess.run(["/usr/bin/python3", "-c", script, str(CONFIG / "udiskie/config.yml")],
+                                capture_output=True, text=True, check=False)
+        if "No module named 'udiskie'" in native.stderr:
+            self.skipTest("udiskie Python module is not installed; YAML assertions passed")
+        self.assertEqual(native.returncode, 0, native.stderr)
+        self.assertEqual(json.loads(native.stdout), config.get("program_options", {}))
 
     def test_gh(self):
         canonical = SOURCE / ".chezmoitemplates/configs/gh/config.yml"
@@ -260,7 +263,10 @@ class ToolingApps(unittest.TestCase):
                 rendered = self.run_tool(*args, "execute-template", input=wrapper.read_text())
                 self.assertEqual(yaml.safe_load(rendered),
                                  yaml.safe_load((SOURCE / ".chezmoitemplates/configs/gh/config.yml").read_text()))
-                dumped = json.loads(self.run_tool(*args, "dump", "--format=json"))
+                # Windows wallpapers are images, not scaffolds, and dominate render time.
+                roots = [str(self.root / "home" / path) for path in managed
+                         if "/" not in path and path != "Pictures"]
+                dumped = json.loads(self.run_tool(*args, "dump", "--format=json", *roots))
                 for target, entry in dumped.items():
                     if entry["type"] == "file":
                         self.assertTrue(entry.get("contents", "").strip(),

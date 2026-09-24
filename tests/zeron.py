@@ -58,7 +58,7 @@ class Zeron(unittest.TestCase):
                         data = {"chezmoi": {"os": platform}, "ManagedByNimbus": managed,
                                 "profiles": ["development"] if development else ["common"]}
                         with self.subTest(data=data):
-                            entries = json.loads(run(data, "dump", "--format=json"))
+                            entries = run(data, "managed").splitlines()
                             for target in ASSETS:
                                 self.assertEqual(target in entries,
                                                  platform == "linux" and development)
