@@ -55,6 +55,17 @@ hl.window_rule({
     opacity = "1.0 override 0.98 override 1.0 override",
 })
 
+hl.window_rule({
+    name = "world-of-warcraft",
+    -- Proton gives games without an app ID this shared class; retail and
+    -- Classic share the title.
+    match = {
+        class = "^steam_app_default$",
+        initial_title = "^World of Warcraft$",
+    },
+    tag = "+game",
+})
+
 -- Assign verified game classes tag = "+game" above this rule to start fullscreen.
 hl.window_rule({
     name = "game",
