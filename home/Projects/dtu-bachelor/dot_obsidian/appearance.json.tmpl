@@ -1,0 +1,17 @@
+{{- $hyprlandNoctalia := false -}}
+{{- if hasKey . "profiles" -}}
+{{-   $hyprlandNoctalia = has "hyprland-noctalia" .profiles -}}
+{{- end -}}
+{
+  "theme": "system",
+{{- if $hyprlandNoctalia }}
+  "enabledCssSnippets": ["noctalia"],
+{{- else }}
+  "cssTheme": "GitHub Theme",
+{{- end }}
+  "interfaceFontFamily": "Inter",
+  "textFontFamily": "Inter",
+  "monospaceFontFamily": "JetBrainsMono Nerd Font",
+  "showRibbon": false,
+  "showViewHeader": false
+}

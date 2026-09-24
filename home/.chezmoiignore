@@ -162,7 +162,8 @@ Library/Application Support/VSCodium/User/snippets/**
 
 # Linux desktop folders and project checkout links.
 {{ if or (ne .chezmoi.os "linux") (not $hyprlandNoctalia) -}}
-Projects/**
+Projects/dotfiles
+Projects/nimbus
 Videos/**
 {{ if ne .chezmoi.os "windows" -}}
 Pictures/**
@@ -170,6 +171,12 @@ Pictures/**
 {{ end -}}
 {{ if not (and (hasKey . "ManagedByNimbus") .ManagedByNimbus) -}}
 Projects/nimbus
+{{ end -}}
+
+# The Obsidian vault's per-machine settings apply only where the vault is checked out.
+{{ if not (stat (joinPath .chezmoi.homeDir "Projects" "dtu-bachelor" ".obsidian")) -}}
+Projects/dtu-bachelor
+Projects/dtu-bachelor/**
 {{ end -}}
 
 # Local-agent proxy configuration is selected with the Nimbus Copilot desktop.

@@ -1,0 +1,6 @@
+{
+  "app:toggle-right-sidebar": [{ "modifiers": ["Mod", "Alt"], "key": "B" }],
+  "outline:open": [{ "modifiers": ["Mod", "Shift"], "key": "B" }],
+  "obsidian-git:open-git-view": [{ "modifiers": ["Mod", "Shift"], "key": "G" }],
+  "agent-client:open-chat-view": [{ "modifiers": ["Mod", "Alt"], "key": "I" }]
+}
