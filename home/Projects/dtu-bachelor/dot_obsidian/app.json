@@ -3,5 +3,8 @@
   "showInlineTitle": false,
   "spellcheck": true,
   "promptDelete": false,
-  "newFileLocation": "current"
+  "newFileLocation": "current",
+  "userIgnoreFilters": [
+    "archive/"
+  ]
 }
