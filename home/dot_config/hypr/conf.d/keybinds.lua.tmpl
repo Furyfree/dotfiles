@@ -365,3 +365,25 @@ hl.bind(
     hl.dsp.window.resize(),
     { mouse = true, description = "Resize window with mouse" }
 )
+
+-- Super+wheel steps workspaces; Shift carries the window; Ctrl focuses monitors.
+for _, wheel in ipairs({
+    { key = "mouse_up", name = "up", step = -1, monitor = "left" },
+    { key = "mouse_down", name = "down", step = 1, monitor = "right" },
+}) do
+    hl.bind(
+        mainMod .. " + " .. wheel.key,
+        function() workspaces.step(wheel.step, false) end,
+        { description = "Switch workspace " .. wheel.name .. " on this monitor" }
+    )
+    hl.bind(
+        mainMod .. " + SHIFT + " .. wheel.key,
+        function() workspaces.step(wheel.step, true) end,
+        { description = "Move window to workspace " .. wheel.name .. " and follow" }
+    )
+    hl.bind(
+        mainMod .. " + CTRL + " .. wheel.key,
+        hl.dsp.focus({ monitor = wheel.monitor:sub(1, 1) }),
+        { description = "Focus monitor " .. wheel.monitor }
+    )
+end
