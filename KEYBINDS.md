@@ -1,6 +1,6 @@
 # Keybindings
 
-[Neovim](#neovim) · [Zed and VSCodium](#zed-and-vscodium) · [Zathura](#zathura)
+[Neovim](#neovim) · [Zed and VSCodium](#zed-and-vscodium) · [Obsidian](#obsidian) · [Zathura](#zathura)
 
 For desktop shortcuts, press **Super+Escape** in Hyprland or Niri to open the
 session's shortcut guide. Super is the Windows key.
@@ -180,6 +180,33 @@ Native Ctrl+backtick also toggles Zed's terminal when your keyboard can send it.
 References: [VS Code keybindings](https://code.visualstudio.com/docs/configure/keybindings),
 [default shortcuts](https://code.visualstudio.com/docs/reference/default-keybindings),
 and [Zed keybinding inheritance](https://zed.dev/docs/key-bindings).
+
+## Obsidian
+
+The dtu-bachelor vault follows the Zed and VSCodium layout: the Agent Client
+chat sits in the left sidebar; files, search, outline and source control in
+the right. Each `chezmoi apply` resets both sidebars. Close Obsidian first; while
+it runs, chezmoi warns and leaves the layout alone. Mod is Ctrl on Linux and
+Cmd on macOS.
+
+| Action | Keys |
+|---|---|
+| Open file by name | Mod+P |
+| Command palette | Mod+Shift+P |
+| Switch vault | Mod+R |
+| Search all notes (Omnisearch) | Mod+Shift+F |
+| Toggle AI sidebar (left) | Mod+Shift+A |
+| Focus outline | Mod+Shift+B |
+| Toggle file explorer (right) | Mod+Alt+B |
+| Focus file explorer | Mod+Shift+E |
+| Split editor right | Mod+\\ |
+| Source control | Mod+Shift+G |
+| Focus agent chat | Mod+Alt+I |
+| Toggle Typst preview | Mod+Shift+V |
+| New Typst file (next to the open file) | Mod+Alt+N |
+| Export Typst PDF (replaces the old one) | Mod+Alt+E |
+
+Mod+B stays bold, so the AI sidebar uses Mod+Shift+A instead of Zed's Mod+B.
 
 ## Zathura
 

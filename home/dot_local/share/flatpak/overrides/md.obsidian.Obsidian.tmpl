@@ -1,0 +1,11 @@
+[Environment]
+PATH={{ .chezmoi.homeDir }}/.local/share/mise/shims:/usr/bin:/app/bin:/app/texlive/bin:/app/texlive/bin/x86_64-linux:/app/texlive/bin/aarch64-linux
+MISE_DATA_DIR={{ .chezmoi.homeDir }}/.local/share/mise
+MISE_STATE_DIR={{ .chezmoi.homeDir }}/.local/state/mise
+MISE_CACHE_DIR={{ .chezmoi.homeDir }}/.cache/mise
+MISE_CONFIG_DIR={{ .chezmoi.homeDir }}/.config/mise
+GIT_CONFIG_GLOBAL={{ .chezmoi.homeDir }}/.config/git/config
+SSH_AUTH_SOCK={{ .chezmoi.homeDir }}/.1password/agent.sock
+GIT_CONFIG_COUNT=1
+GIT_CONFIG_KEY_0=gpg.ssh.program
+GIT_CONFIG_VALUE_0=ssh-keygen

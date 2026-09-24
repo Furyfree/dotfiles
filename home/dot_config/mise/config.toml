@@ -16,6 +16,11 @@ opencode = "latest"
 pi = "latest"
 herdr = "latest"
 
+# ACP adapters for Obsidian's Agent Client; OpenCode and Grok speak ACP natively.
+"npm:@agentclientprotocol/claude-agent-acp" = "latest"
+"npm:@agentclientprotocol/codex-acp" = "latest"
+"npm:pi-acp" = "latest"
+
 # Agentic helpers
 "npm:@llamaindex/liteparse" = "latest"
 

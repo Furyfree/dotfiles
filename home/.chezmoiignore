@@ -174,7 +174,8 @@ Projects/nimbus
 {{ end -}}
 
 # The Obsidian vault's per-machine settings apply only where the vault is checked out.
-{{ if not (stat (joinPath .chezmoi.homeDir "Projects" "dtu-bachelor" ".obsidian")) -}}
+# Windows is skipped: the layout template checks for a running Obsidian with sh.
+{{ if or (eq .chezmoi.os "windows") (not (stat (joinPath .chezmoi.homeDir "Projects" "dtu-bachelor" ".obsidian"))) -}}
 Projects/dtu-bachelor
 Projects/dtu-bachelor/**
 {{ end -}}

@@ -1,5 +1,7 @@
 {
   "readableLineLength": false,
   "showInlineTitle": false,
-  "spellcheck": true
+  "spellcheck": true,
+  "promptDelete": false,
+  "newFileLocation": "current"
 }

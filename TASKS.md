@@ -15,6 +15,10 @@
 - [ ] On the laptop, verify apply/sync removes the Mise Herdr CLI while
   retaining proxy config and colors. Coordinate with Nimbus's proxy removal
   and reboot trial; leave unrelated services and user lingering unchanged.
+- [ ] In Obsidian, verify: a commit from the Git panel is signed through
+  1Password; Ctrl+Shift+V still pastes plain text in Markdown; F2 renames with
+  the header hidden; `preview.typ` renders in the Typst preview; Agent Client
+  connects to Claude Code, Codex and Pi after Mise installs the adapters.
 
 Use the [README](README.md) for installation and
 [post-installation steps][setup] for application setup and recovery.

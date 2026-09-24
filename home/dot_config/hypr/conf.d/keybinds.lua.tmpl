@@ -44,8 +44,8 @@ hl.bind(
 )
 hl.bind(
     mainMod .. " + SHIFT + O",
-    focus_or_launch("com.obsproject.Studio", "uwsm-app -- obs"),
-    { description = "Focus or open OBS Studio" }
+    focus_or_launch("md.obsidian.Obsidian", "uwsm-app -- flatpak run md.obsidian.Obsidian"),
+    { description = "Focus or open Obsidian" }
 )
 -- Native activation targets the main window; Quick Access shares its class.
 hl.bind(
