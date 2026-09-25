@@ -1,6 +1,6 @@
 # Keybindings
 
-[Neovim](#neovim) · [Zed and VSCodium](#zed-and-vscodium) · [Obsidian](#obsidian) · [Zathura](#zathura)
+[Neovim](#neovim) · [Zed and VSCodium](#zed-and-vscodium) · [Obsidian](#obsidian) · [Zathura](#zathura) · [Ghostty](#ghostty)
 
 For desktop shortcuts, press **Super+Escape** in Hyprland or Niri to open the
 session's shortcut guide. Super is the Windows key.
@@ -279,3 +279,31 @@ Recoloring starts off so diagrams and images keep their original colors.
 
 References: [native Zathura shortcuts](https://pwmt.org/projects/zathura/documentation/)
 and [default bindings for 2026.07.18](https://github.com/pwmt/zathura/blob/2026.07.18/zathura/config.c#L273-L290).
+
+## Ghostty
+
+The [config](home/dot_config/ghostty/config.tmpl) keeps Ghostty's native
+shortcuts. Linux keys come from `ghostty +list-keybinds` on Ghostty 1.3.1;
+macOS keys come from Ghostty 1.3.1's
+[default bindings](https://github.com/ghostty-org/ghostty/blob/v1.3.1/src/config/Config.zig).
+
+| Action | Linux | macOS |
+|---|---|---|
+| Copy / paste | Ctrl+Shift+C / Ctrl+Shift+V | Cmd+C / Cmd+V |
+| Search scrollback | Ctrl+Shift+F, Escape to close | Cmd+F, Escape to close |
+| Command palette | Ctrl+Shift+P | Cmd+Shift+P |
+| New tab / close tab | Ctrl+Shift+T / Ctrl+Shift+W | Cmd+T / Cmd+Option+W |
+| Next / previous tab | Ctrl+Tab / Ctrl+Shift+Tab | Ctrl+Tab / Ctrl+Shift+Tab |
+| Go to tab 1-8 / last tab | Alt+1-8 / Alt+9 | Cmd+1-8 / Cmd+9 |
+| Split right / split down | Ctrl+Shift+O / Ctrl+Shift+E | Cmd+D / Cmd+Shift+D |
+| Move between splits | Ctrl+Alt+arrows | Cmd+Option+arrows |
+| Zoom the current split | Ctrl+Shift+Enter | Cmd+Shift+Enter |
+| Close the current split | Ctrl+D or `exit` | Cmd+W, Ctrl+D or `exit` |
+| Previous / next prompt | Ctrl+Shift+Page Up / Page Down | Cmd+Up / Cmd+Down |
+| Scroll a page / to top or bottom | Shift+Page Up/Down / Shift+Home/End | Cmd+Page Up/Down / Cmd+Home/End |
+| Font size bigger / smaller / reset | Ctrl+= / Ctrl+- / Ctrl+0 | Cmd+= / Cmd+- / Cmd+0 |
+| New window | Ctrl+Shift+N | Cmd+N |
+| Reload config | Ctrl+Shift+, | Cmd+Shift+, |
+
+On Linux, selecting text copies it to the primary selection; middle-click
+pastes it. Ctrl+Shift+V still pastes the regular clipboard.
