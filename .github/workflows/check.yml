@@ -20,9 +20,8 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+      # Tests isolate Git config, so the checkout must belong to the container user.
+      - name: Own checkout
+        run: chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE"
       - name: Check with Python 3.14+
         run: just check
-        env:
-          GIT_CONFIG_COUNT: 1
-          GIT_CONFIG_KEY_0: safe.directory
-          GIT_CONFIG_VALUE_0: ${{ github.workspace }}

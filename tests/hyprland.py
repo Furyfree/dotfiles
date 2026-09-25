@@ -158,8 +158,9 @@ hl = {
     gesture = function(value)
         assert(type(value.fingers) == "number" and value.fingers > 0)
         assert(type(value.direction) == "string" and type(value.action) == "function")
-        assert(not gestures[value.direction], "duplicate gesture direction")
-        gestures[value.direction] = value.action
+        local key = value.fingers .. ":" .. value.direction .. ":" .. (value.mods or "")
+        assert(not gestures[key], "duplicate gesture: " .. key)
+        gestures[key] = value.action
     end,
     monitor = function(value) assert(type(value.output) == "string") end,
     config = function(value)
