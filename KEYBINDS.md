@@ -283,7 +283,8 @@ and [default bindings for 2026.07.18](https://github.com/pwmt/zathura/blob/2026.
 ## Ghostty
 
 The [config](home/dot_config/ghostty/config.tmpl) keeps Ghostty's native
-shortcuts. Linux keys come from `ghostty +list-keybinds` on Ghostty 1.3.1;
+shortcuts and adds split resizing on Linux, where the desktop takes the
+default. Linux keys come from `ghostty +list-keybinds` on Ghostty 1.3.1;
 macOS keys come from Ghostty 1.3.1's
 [default bindings](https://github.com/ghostty-org/ghostty/blob/v1.3.1/src/config/Config.zig).
 
@@ -297,6 +298,7 @@ macOS keys come from Ghostty 1.3.1's
 | Go to tab 1-8 / last tab | Alt+1-8 / Alt+9 | Cmd+1-8 / Cmd+9 |
 | Split right / split down | Ctrl+Shift+O / Ctrl+Shift+E | Cmd+D / Cmd+Shift+D |
 | Move between splits | Ctrl+Alt+arrows | Cmd+Option+arrows |
+| Resize the current split | Ctrl+Alt+Shift+arrows | Cmd+Ctrl+arrows |
 | Zoom the current split | Ctrl+Shift+Enter | Cmd+Shift+Enter |
 | Close the current split | Ctrl+D or `exit` | Cmd+W, Ctrl+D or `exit` |
 | Previous / next prompt | Ctrl+Shift+Page Up / Page Down | Cmd+Up / Cmd+Down |

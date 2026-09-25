@@ -34,6 +34,11 @@ quit-after-last-window-closed = true
 gtk-toolbar-style = flat
 # Copy selections to PRIMARY; middle-click pastes PRIMARY, not the regular clipboard.
 copy-on-select = true
+# Hyprland and Niri take Ghostty's default Super+Ctrl+Shift+arrows split resize.
+keybind = ctrl+alt+shift+arrow_up=resize_split:up,10
+keybind = ctrl+alt+shift+arrow_down=resize_split:down,10
+keybind = ctrl+alt+shift+arrow_left=resize_split:left,10
+keybind = ctrl+alt+shift+arrow_right=resize_split:right,10
 {{ else if eq .chezmoi.os "darwin" -}}
 # Left Option reaches shell shortcuts; right Option still types special characters.
 macos-option-as-alt = left
