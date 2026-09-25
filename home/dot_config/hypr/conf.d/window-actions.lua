@@ -40,6 +40,22 @@ function actions.maximize()
     end
 end
 
+-- Floating a tiled window keeps its tiled size, which can fill the screen.
+-- Give it the centered-floating size instead.
+function actions.toggle_float()
+    local window = hl.get_active_window()
+    if not window then return end
+    hl.dispatch(hl.dsp.window.float({ window = window, action = "toggle" }))
+    local monitor = window.monitor or hl.get_active_monitor()
+    if not window.floating or not monitor then return end
+    hl.dispatch(hl.dsp.window.resize({
+        window = window, relative = false,
+        x = math.floor(math.min(900, monitor.width / monitor.scale * 0.7)),
+        y = math.floor(math.min(700, monitor.height / monitor.scale * 0.8)),
+    }))
+    hl.dispatch(hl.dsp.window.center({ window = window }))
+end
+
 function actions.resize(axis, amount)
     local window = hl.get_active_window()
     if not window or window.fullscreen ~= 0 then return end
