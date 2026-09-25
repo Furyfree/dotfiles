@@ -6,5 +6,6 @@
   "newFileLocation": "current",
   "userIgnoreFilters": [
     "archive/"
-  ]
+  ],
+  "showLineNumber": true
 }
