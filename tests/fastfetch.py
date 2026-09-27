@@ -95,6 +95,10 @@ class Fastfetch(unittest.TestCase):
         self.assertEqual(self.run_command('/bin/sh', '-c', script), '')
         self.stub('pgrep', 'exit 0')
         self.assertEqual(self.run_command('/bin/sh', '-c', script), 'Noctalia (desktop shell)')
+        self.stub('noctalia', 'echo "noctalia v5.1.0"')
+        self.assertEqual(self.run_command('/bin/sh', '-c', script), 'Noctalia 5.1.0 (desktop shell)')
+        self.stub('noctalia', 'echo "unexpected output"')
+        self.assertEqual(self.run_command('/bin/sh', '-c', script), 'Noctalia (desktop shell)')
 
     @unittest.skipUnless(LUA, 'Fastfetch with Lua unavailable')
     def test_aggregation_and_long_values(self):
