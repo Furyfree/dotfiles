@@ -36,6 +36,14 @@ hl.config({
     },
 })
 
+-- The NuPhy has US keycaps; AltGr+a/o/' types å/ø/æ as Option does on macOS.
+for _, name in ipairs({
+    "nuphy-nuphy-air75-v3-dongle", "nuphy-nuphy-air75-v3-dongle-1", -- 2.4 GHz dongle
+    "nuphy-air75-v3", "nuphy-air75-v3-1", -- USB cable
+}) do
+    hl.device({ name = name, kb_layout = "us", kb_variant = "mac" })
+end
+
 -- New windows already receive keyboard focus; move the pointer there too.
 -- Background windows must not take the pointer away from the active window.
 hl.on("window.open", function(window)

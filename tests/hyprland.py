@@ -163,6 +163,7 @@ hl = {
         gestures[key] = value.action
     end,
     monitor = function(value) assert(type(value.output) == "string") end,
+    device = function(value) assert(type(value.name) == "string") end,
     config = function(value)
         for section, entries in pairs(value) do
             assert(type(section) == "string" and type(entries) == "table")
