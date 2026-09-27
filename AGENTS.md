@@ -23,8 +23,7 @@ Read README.md and Nimbus's `docs/SPEC.md` before changing ownership.
 - `home/Projects/dtu-bachelor/dot_obsidian/`: per-machine vault settings; the
   vault's Git owns plugins and plugin lists. Write JSON as Obsidian does
   (2-space indent, no final newline); `modify_workspace.json` resets sidebars only.
-- `home/dot_local/share/flatpak/overrides/`: Flatpak environment; Obsidian's
-  reaches Mise shims and the real Git config.
+- `home/dot_local/share/flatpak/overrides/`: per-app Flatpak environment.
 - `home/run_after_*`: scoped user hooks for Mise, VSCodium extensions, Files,
   ProtonPlus preferences and the GTK icon cache. Keep their scope narrow.
 - `tests/`, `pyproject.toml`, `ruff.toml`, `justfile`: isolated pytest suites and

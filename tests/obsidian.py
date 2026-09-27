@@ -1,4 +1,4 @@
-"""Check Obsidian vault settings and its Flatpak override without touching live state."""
+"""Check Obsidian vault settings without touching live state."""
 
 import json
 import os
@@ -110,14 +110,6 @@ class Obsidian(unittest.TestCase):
         self.assertNotIn(VAULT, self.chezmoi("managed", "--include=files", platform="windows").stdout)
         shutil.rmtree(self.home / "Projects")
         self.assertNotIn(VAULT, self.chezmoi("managed", "--include=files").stdout)
-
-    def test_flatpak_override_uses_home_mise_and_git(self):
-        text = self.cat(".local/share/flatpak/overrides/md.obsidian.Obsidian")
-        env = dict(line.split("=", 1) for line in text.splitlines()[1:])
-        self.assertEqual(text.splitlines()[0], "[Environment]")
-        self.assertTrue(env["PATH"].startswith(f"{self.home}/.local/share/mise/shims:"))
-        self.assertEqual(env["GIT_CONFIG_GLOBAL"], f"{self.home}/.config/git/config")
-        self.assertEqual(env["GIT_CONFIG_KEY_0"], "gpg.ssh.program")
 
 
 if __name__ == "__main__":
