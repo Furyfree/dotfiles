@@ -7,11 +7,11 @@ usage() {
   exit 2
 }
 
-# pick PROMPT PREVIEW QUERY [fzf options...]: fzf with a bottom preview.
+# pick PROMPT PREVIEW QUERY [fzf options...]: fzf with a right-hand preview, bottom when narrow.
 pick() {
   fzf --multi --delimiter '\t' --tiebreak=length \
     --prompt "$1" --preview "$2" --query "$3" \
-    --preview-window 'down,40%,wrap' \
+    --preview-window 'right,50%,wrap,<80(down,40%,wrap)' \
     --bind 'ctrl-/:toggle-preview' \
     --header 'Tab: select several  Ctrl-/: toggle preview' \
     "${@:4}" || true
