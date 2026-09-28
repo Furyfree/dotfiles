@@ -25,8 +25,8 @@
 	prune = true
 
 [pull]
-	# Diverged branches need an explicit merge or rebase decision.
-	ff = only
+	# Replay local commits on top of the remote when branches diverge.
+	rebase = true
 
 [push]
 	autoSetupRemote = true
