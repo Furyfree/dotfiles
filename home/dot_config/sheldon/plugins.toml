@@ -17,8 +17,15 @@ hooks.post = 'fi'
 [plugins.zoxide-init]
 inline = 'source "$ZDOTDIR/conf.d/zoxide.zsh"'
 
+# Comment out when enabling deja below.
 [plugins.zsh-autosuggestions]
 github = "zsh-users/zsh-autosuggestions"
+
+# Deja: alternative to zsh-autosuggestions. To enable, uncomment this and
+# "github:Giammarco-Ferranti/deja" in mise/config.toml, and comment out
+# [plugins.zsh-autosuggestions] above.
+# [plugins.deja]
+# github = "Giammarco-Ferranti/deja"
 
 # Highlighting must load after completion and other line-editor plugins.
 [plugins.zsh-syntax-highlighting]

@@ -127,13 +127,14 @@ hl.bind(
     hl.dsp.exec_cmd("noctalia msg panel-toggle clipboard"),
     { description = "Open clipboard history" }
 )
-hl.bind(mainMod .. " + O", function()
+local function toggle_overview()
     if hl.plugin.scrolloverview then
         hl.plugin.scrolloverview.overview("toggle all")
     else
         hl.exec_cmd("notify-send 'Workspace overview unavailable' 'Install and enable ScrollOverview with HyprPM, then reload Hyprland.'")
     end
-end, { description = "Toggle workspace overview on all monitors" })
+end
+hl.bind(mainMod .. " + O", toggle_overview, { description = "Toggle workspace overview on all monitors" })
 hl.bind(
     mainMod .. " + SHIFT + N",
     hl.dsp.exec_cmd("noctalia msg panel-toggle control-center notifications"),
@@ -275,6 +276,30 @@ hl.bind(
     "XF86AudioMicMute",
     hl.dsp.exec_cmd("noctalia msg mic-mute"),
     { description = "Toggle microphone mute", locked = true }
+)
+for _, binding in ipairs({
+    { key = "XF86AudioPrev", action = "previous", description = "Previous track" },
+    { key = "XF86AudioPlay", action = "toggle", description = "Play/pause" },
+    { key = "XF86AudioNext", action = "next", description = "Next track" },
+}) do
+    hl.bind(
+        binding.key,
+        hl.dsp.exec_cmd("noctalia msg media " .. binding.action),
+        { description = binding.description, locked = true }
+    )
+end
+
+-- NuPhy top row without Fn: F3 is Mission Control, F5 dictation, F6 moon.
+hl.bind("XF86LaunchA", toggle_overview, { description = "NuPhy F3: toggle workspace overview" })
+hl.bind(
+    "XF86VoiceCommand",
+    hl.dsp.exec_cmd("noctalia msg mic-mute"),
+    { description = "NuPhy F5: toggle microphone mute", locked = true }
+)
+hl.bind(
+    "XF86DoNotDisturb",
+    hl.dsp.exec_cmd("noctalia msg notification-dnd-toggle"),
+    { description = "NuPhy F6: toggle Do Not Disturb", locked = true }
 )
 -- Dictation: the Voxtype daemon only listens for its native recording
 -- commands, so the compositor owns the shortcut. Toggle avoids the

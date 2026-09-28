@@ -38,6 +38,8 @@ shfmt = "latest"
 taplo = "latest"
 actionlint = "latest"
 delta = "latest"
+# Deja autosuggestions; enable together with [plugins.deja] in sheldon/plugins.toml.
+# "github:Giammarco-Ferranti/deja" = "latest"
 
 [settings]
 # Nimbus's contract: Mise updates itself; system packages stay outside Mise.
