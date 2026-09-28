@@ -24,8 +24,9 @@ Read README.md and Nimbus's `docs/SPEC.md` before changing ownership.
   vault's Git owns plugins and plugin lists. Write JSON as Obsidian does
   (2-space indent, no final newline); `modify_workspace.json` resets sidebars only.
 - `home/dot_local/share/flatpak/overrides/`: per-app Flatpak environment.
-- `home/run_after_*`: scoped user hooks for Mise, VSCodium extensions, Files,
-  ProtonPlus preferences and the GTK icon cache. Keep their scope narrow.
+- `home/run_after_*`, `home/run_onchange_after_*`: scoped user hooks for Mise,
+  VSCodium extensions, Files, ProtonPlus preferences, the GTK icon cache and
+  Hyprland reloads. Keep their scope narrow.
 - `tests/`, `pyproject.toml`, `ruff.toml`, `justfile`: isolated pytest suites and
   Ruff lint gate, run through uv.
 

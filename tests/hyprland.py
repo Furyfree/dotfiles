@@ -445,6 +445,42 @@ assert(rules["3"] == nil and rules.invalid == nil)
 ''')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    @unittest.skipUnless(CHEZMOI and shutil.which("bash"), "chezmoi or bash is not installed")
+    def test_changed_modules_reload_a_running_hyprland(self):
+        source = self.root / "source"
+        shutil.copytree(CONFIG.parent, source / "dot_config/hypr")
+        hook = (REPO / "home/run_onchange_after_reload-hyprland.sh.tmpl").read_text()
+
+        def render():
+            result = self.run_command(
+                CHEZMOI, "--source", str(source), "--config", str(self.root / "chezmoi.toml"),
+                "--override-data", json.dumps({"chezmoi": {"os": "linux"},
+                                               "profiles": ["hyprland-noctalia"]}),
+                "execute-template", hook)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return result.stdout
+
+        script = render()
+        with (source / "dot_config/hypr/conf.d/input.lua").open("a") as module:
+            module.write("-- changed\n")
+        self.assertNotEqual(render(), script, "a changed module must rerun the hook")
+
+        bin_dir = self.root / "bin"
+        bin_dir.mkdir()
+        calls = self.root / "hyprctl-calls"
+        fake = bin_dir / "hyprctl"
+        fake.write_text(f'#!/bin/sh\necho "$@" >> {shlex.quote(str(calls))}\n')
+        fake.chmod(0o755)
+        self.env["PATH"] = f"{bin_dir}:{Path(shutil.which('bash')).parent}"
+        for running in (False, True):
+            with self.subTest(running=running):
+                if running:
+                    self.env["HYPRLAND_INSTANCE_SIGNATURE"] = "fixture"
+                result = self.run_command(shutil.which("bash"), "-c", script)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(calls.read_text() if calls.exists() else "",
+                                 "reload\n" if running else "")
+
     @unittest.skipUnless(HYPRLAND and CHEZMOI, "Hyprland or chezmoi is not installed; native check needs 0.56+")
     def test_native_config(self):
         for machine in ("desktop", "laptop"):

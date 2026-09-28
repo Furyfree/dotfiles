@@ -1,0 +1,15 @@
+{{- if and (eq .chezmoi.os "linux") (hasKey . "profiles") (has "hyprland-noctalia" .profiles) -}}
+{{- $config := include (joinPath .chezmoi.sourceDir "dot_config/hypr/hyprland.lua") -}}
+{{- range glob (joinPath .chezmoi.sourceDir "dot_config/hypr/conf.d/*") -}}
+{{-   $config = print $config (include .) -}}
+{{- end -}}
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Hyprland's autoreload misses changed conf.d modules, so reload when they change.
+# Hyprland config hash: {{ $config | sha256sum }}
+[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] || exit 0
+command -v hyprctl >/dev/null 2>&1 || exit 0
+hyprctl reload >/dev/null ||
+    printf '%s\n' 'dotfiles: Hyprland reload failed; run hyprctl reload.' >&2
+{{- end }}
