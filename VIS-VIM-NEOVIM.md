@@ -86,6 +86,20 @@ from Neovim's built-in `grn`/`grr`/`gra`/`gri` keys.
 - `Space Space`: fzf over `rg --files --hidden -g '!.git'`, which respects
   ignore files and keeps dotfiles, like the Snacks picker in Neovim.
 - `Space /`: live `rg` search through fzf; Enter opens the file at the line.
+- `Space ff` finds files too; `Space sw` searches the current word literally.
+  Both text searches show a bat preview centred on the match, with
+  Ctrl-u/Ctrl-d scrolling. Tab-separated fields preserve colons in paths;
+  filenames containing tabs or newlines remain unsupported in text search.
+- `Space e` browses directories and hidden files in a temporary fzf list.
+  Choose `/..` to go up; Enter on a file opens it and closes the list.
+  `Space ,` focuses an existing window without discarding its edits.
+- `yy`, `yiw` and Visual `y` copy to the system clipboard, with `Copied`
+  feedback after success. `p`/`P` paste globally. Named registers stay local;
+  deletes do not replace the clipboard. Native yank motions and counts remain.
+- A coloured status bar names Normal, Insert, Visual, Replace and pending
+  operator modes. It retains the filename, modified marker and cursor position.
+  An unfinished Space sequence shows `SPACE …`. Clipboard feedback stays in
+  the bar for about two seconds, then clears without another keypress.
 - Optional plugins through [vis-plug](https://github.com/erf/vis-plug), pinned
   to commits and installed with `:plug-install`. Startup never downloads; the
   editor works without them.
@@ -96,11 +110,93 @@ from Neovim's built-in `grn`/`grr`/`gra`/`gri` keys.
 | [vis-commentary](https://github.com/Nomarian/vis-commentary) | `gcc` / `gc`, as in Neovim and Vim's comment package | `223dcc6f3f70` |
 | [vis-editorconfig-options](https://github.com/milhnl/vis-editorconfig-options) | Project indentation from `.editorconfig` | `2f34c4501da7` |
 
-vis-lspc bindings: `gd` definition, `gD` declaration, `gr` references, `gi`
-implementation, `K` hover, `Space e` line diagnostics, `Space n`/`Space N` next
-and previous diagnostic, `Space D` type definition, `Space o` symbols,
-`Ctrl-Space` completion, `Ctrl-]`/`Ctrl-t` definition and back. Commands include
-`:lspc-rename` and `:lspc-format`.
+Our bindings use [LazyVim's keys](https://www.lazyvim.org/keymaps): `gI` implementation, `gy` type definition,
+`Space cd` diagnostics, `[d`/`]d` previous/next diagnostic, `Space ss` symbols,
+`Space cr` rename and `Space cf` format. `gd`, `gD`, `gr`, `K`, Ctrl-Space
+completion and Ctrl-]/Ctrl-t definition/back remain. `Space e` overrides
+the plugin's diagnostic shortcut with the directory browser. Full bindings
+are in [KEYBINDS.md](KEYBINDS.md#vis).
+
+Ruff provides Python diagnostics and formatting, but does not replace a
+Python navigation/completion server. No additional server has been selected
+or installed. Go uses gopls and TOML uses Taplo. Formatting is explicit;
+there is no format-on-save hook. The EditorConfig plugin supports
+`indent_style`, `indent_size`, `tab_width` and `max_line_length`.
+
+**Tree-sitter and Telescope-style search**
+
+Tree-sitter parses code into a syntax tree, which integrations can use for
+highlighting and selecting code structures. A file tree lists directories.
+A fuzzy picker filters a list and previews a selected result. These serve
+different needs.
+
+| Editor | Code highlighting and structure | Search in this setup |
+| --- | --- | --- |
+| Vis | Lua/LPeg highlighting; external `vis-treesitter` exists | fzf, ripgrep and bat; vis-lspc handles language-server requests |
+| Vim on servers | Keyword and pattern-based syntax highlighting | Stock `/`, `?` and file commands |
+| Neovim | Built-in Tree-sitter integration, with language parsers | Snacks file/text pickers and explorer |
+
+Vis uses [LPeg grammars](https://github.com/martanne/vis#readme) for its normal
+highlighting. Its [plugin wiki](https://github.com/martanne/vis/wiki/Plugins)
+lists `vis-treesitter` as basic Tree-sitter support, alongside `vis-fzf-open`
+and `vis-fzf-mru` for file picking and recent files. The Tree-sitter source
+page could not be retrieved during this research. Its dependencies, supported
+languages, text objects and compatibility with installed Vis 0.9 remain
+unverified; our configuration does not load it.
+
+[Vim's syntax engine](https://github.com/vim/vim/blob/4505de43911a/runtime/doc/syntax.txt)
+matches keywords and patterns without parsing the whole file.
+[Neovim integrates Tree-sitter](https://github.com/neovim/neovim/blob/298aea738275/runtime/doc/treesitter.txt)
+and bundles several parsers; other languages need additional parsers. Our
+Neovim configuration starts Tree-sitter when a matching parser exists and
+retains ordinary highlighting otherwise. Tree-sitter does not replace a
+language server for completion, rename or cross-file definitions.
+
+If "looking glass" meant [Telescope](https://github.com/nvim-telescope/telescope.nvim),
+it is a Neovim plugin for searching files, text, symbols and other lists with
+previews. It depends on Neovim's APIs and cannot run as a Vis Lua plugin.
+Our Neovim setup uses Snacks for that role. In Vis, `Space Space`, `Space /`
+and `Space sw` cover file and text search, including match context, through
+fzf/rg/bat. They do not provide Telescope's full set of language-server, help,
+history and Git pickers. The intended name remains unconfirmed.
+
+**Directory browsing and project startup**
+
+Vis's upstream README lists an integrated file/directory browser as a
+[core non-goal](https://github.com/martanne/vis#non-goals). Plugins can still
+extend it. I did not identify a ready-made persistent file tree in the checked
+Vis plugin list. Existing choices include:
+
+| Choice | What exists | Limit for our workflow |
+| --- | --- | --- |
+| Bundled `vis-open` | `:e .` uses an external menu to traverse directories and choose a file | Temporary menu; Vis mappings do not run inside it |
+| Current `Space e` | fzf directory list with hidden files and parent navigation | Closes after selection; fzf takes keyboard input |
+| lf | Standalone file manager with Vim-like navigation and a file-selection mode | Needs Vis integration; owns the keyboard while open |
+| Yazi | Standalone file manager with a chooser interface | Needs Vis integration; owns the keyboard while open |
+
+The [Vis 0.9 helper](https://github.com/martanne/vis/blob/v0.9/vis-open)
+uses `vis-menu`, adds a parent entry and lists directories with `ls -1`, which
+omits hidden files. Daccfiles' `Space fm` calls `:open .`, then switches windows
+and executes `wq!`; it does not implement a directory buffer. That forced
+write-and-close behaviour should not become our browsing shortcut.
+
+[lf's documented `-print-selection` and `-selection-path` options](https://github.com/gokcehan/lf/blob/master/doc.md)
+return selected paths to a caller. Yazi's documentation demonstrates
+[`--chooser-file` integration with Helix](https://yazi-rs.github.io/docs/tips/#file-tree-picker-in-helix).
+Those interfaces could return a file to the existing Vis session with Lua
+glue. Neither example establishes a tested Vis integration or a persistent
+Vis sidebar.
+
+For browsing with `Space Space` and `Space /` available at the same time, a
+directory buffer inside Vis would keep its mappings active. External managers
+would need their own bindings and a way to return a search action to Vis.
+The native directory-buffer approach is a proposed configuration change,
+not an existing feature of our setup. It should preserve unsaved windows and
+keep project searches rooted at the project while browsing parent folders.
+Vis 0.9 rejects `vis .` at startup; handling directory arguments also needs
+an entry-point change. Keep LPeg and the current search tools for now;
+Tree-sitter can be evaluated separately once its source and compatibility
+can be checked.
 
 **Tested on Vis 0.9**
 
@@ -109,7 +205,7 @@ With vis-lspc cloned into a disposable configuration directory:
 | Check | Result |
 | --- | --- |
 | gopls, ruff and taplo start when a matching file opens | Works |
-| `Space e` shows `6:14 UndeclaredName: undefined: undefinedVar` | Works |
+| Line diagnostic shows `6:14 UndeclaredName: undefined: undefinedVar` | Works; now bound to `Space cd` |
 | `gd` jumps to the declaration under the cursor | Works |
 | Hover, rename and completion | Not verified |
 
@@ -119,11 +215,23 @@ focus, and later lspc commands fail with `init.lua:1555: attempt to concatenate
 a nil value (field 'path')`. The configuration sets `message_level = 2`, which
 keeps warnings and errors and fixed the tested commands.
 
-With the committed configuration and no plugins installed, `n`/`N`, both
-pickers, ignore handling and Esc cancellation were checked in a pseudo-terminal.
+The previous configuration passed checks for `n`/`N`, file/text pickers,
+ignore handling and Esc cancellation in a pseudo-terminal. The revised
+configuration passes native Vis 0.9 checks for yank motions/counts, repeated
+yanks, cancellation, named registers, multiple selections, linewise paste,
+non-ASCII clipboard text and clipboard-helper failures, using an isolated
+clipboard substitute. Navigation checks cover special filenames, unsaved
+changes, directory traversal and switching windows. The real rg/fzf/bat search
+shows surrounding context and opens a filename containing colons, quotes and
+backslashes at its matching line. Mode labels and terminal-palette styles
+also pass through Vis's status API.
+
 The complete setup through vis-plug has not been run: executing the downloaded
-plugin code in a test directory was blocked, so the checks below are still
-open.
+plugin code in a test directory was blocked. Formatting, completion,
+EditorConfig and non-ASCII language-server requests still need the live checks
+below. Lua syntax and whitespace checks pass; the repository gate is blocked
+by uv's read-only cache. Chezmoi's secret-skipping status and diff now report
+no pending Vis configuration difference; full verify still exits nonzero.
 
 No Lua JSON library is installed, so vis-lspc uses its bundled fallback, which
 lacks UTF-8 support; non-ASCII source text may break requests. Fedora's
@@ -132,7 +240,8 @@ to Nimbus.
 
 **Setting up Vis**
 
-1. Apply the configuration: `chezmoi apply`.
+1. Apply only this configuration: `chezmoi apply ~/.config/vis/visrc.lua`.
+   Restart Vis to load it.
 2. Install vis-plug at its pinned commit:
 
    ```sh
@@ -142,8 +251,8 @@ to Nimbus.
 
 3. Start `vis`, run `:plug-install`, then restart Vis. Plugins are cloned to
    `~/.cache/vis-plug` and checked out at the pinned commits.
-4. Open a new shell. `EDITOR` changes there immediately and in the Hyprland
-   session after the next login.
+4. Log in again for the session's `EDITOR` environment to change. A new shell
+   may inherit the old value from its parent.
 
 To update a plugin, run `:plug-outdated` (it fetches), change the `ref` in
 `visrc.lua`, apply, restart Vis and run `:plug-install`, which checks out every
@@ -156,11 +265,13 @@ In a Go file inside a module with a deliberate error:
 
 | Keys | Expected |
 | --- | --- |
-| `Space e` on the error line | The gopls diagnostic in the status area |
+| `Space cd` on the error line | The gopls diagnostic in the status area |
 | `gd` on a function call | Jumps to its definition; `Ctrl-t` returns |
 | `K` on an identifier | Hover documentation |
 | `Ctrl-Space` in insert mode after `fmt.` | Completion menu |
-| `:lspc-rename newName` on an identifier | Renames every use |
+| `Space cr`, type a new name, Enter | Renames every use |
+| `Space cf` | Formats the file without saving it |
+| `Space ss` | Opens symbols; Enter jumps to one |
 | `gcc` | Toggles a `//` comment |
 
 Also open a Python file (ruff diagnostics), a TOML file (taplo) and a
@@ -178,7 +289,7 @@ record the result here. If non-ASCII text breaks language-server requests, add
 | Persistent undo ([#43](https://github.com/martanne/vis/issues/43), declined) | None |
 | Swap file ([#58](https://github.com/martanne/vis/issues/58)) | Save often |
 | Git hunk markers and previews | `git diff` with Delta in another pane |
-| File tree | `Space Space` or `:e .` |
+| Persistent file tree | `Space e` temporary directory browser |
 | Diff mode, folding, tabs | Non-goals or open issues |
 | Encodings other than UTF-8; CRLF files | Convert with `iconv` / `dos2unix` |
 | Incremental LSP document sync | vis-lspc resends the whole file before each request |

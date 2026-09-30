@@ -1,9 +1,92 @@
 # Keybindings
 
-[Neovim](#neovim) · [Zed and VSCodium](#zed-and-vscodium) · [Obsidian](#obsidian) · [Zathura](#zathura) · [Ghostty](#ghostty)
+[Vis](#vis) · [Neovim](#neovim) · [Zed and VSCodium](#zed-and-vscodium) · [Obsidian](#obsidian) · [Zathura](#zathura) · [Ghostty](#ghostty)
 
 For desktop shortcuts, press **Super+Escape** in Hyprland or Niri to open the
 session's shortcut guide. Super is the Windows key.
+
+## Vis
+
+Start Vis from the project directory. `Space f f` means press the three keys
+in sequence. These shortcuts use Normal mode unless stated otherwise.
+Escape returns to Normal mode. The status bar shows the mode, filename,
+unsaved changes (`[+]`) and line:column. Normal is cyan, Insert green,
+Visual yellow, Replace magenta and an unfinished operator blue.
+
+### Editing and clipboard
+
+| Keys | Action |
+| --- | --- |
+| `h j k l`, `w b e`, `gg G`, `0 $` | Move as in Vim |
+| `i a o`, `I A O` | Enter Insert mode |
+| `v` / `V` | Select characters / whole lines |
+| `yy`, `yiw`, `y{motion}` | Yank a line, inner word or motion to the system clipboard |
+| `y` in Visual mode | Copy the selection to the system clipboard |
+| `p` / `P` | Paste the system clipboard after / before the cursor |
+| `"ay{motion}`, `"ap` / `"aP` | Use named register `a`, keeping it inside Vis |
+| `"0p` | Paste the last unnamed yank inside Vis |
+| `dd`, `d{motion}`, `c{motion}`, `x` | Native delete/change; keep the system clipboard |
+| `u` / `Ctrl-r`, `.` | Undo / redo, repeat an edit |
+| `/`, `?`, `n`, `N` | Search this file; repeat / reverse the search direction |
+| `:w`, `:q`, `:wq` | Save, quit, save and quit; press Enter |
+| `:!command` | Run a shell command |
+| `gcc`, `gc{motion}`, Visual `gc` | Toggle comments; requires commentary plugin |
+
+Counts still work: `3yy` copies three lines. A successful clipboard copy
+shows `Copied`; failure shows an error. The message lasts until the next key.
+Clipboard access uses `vis-clipboard` and an available desktop provider
+such as `wl-copy`/`wl-paste`. A remote shell needs its own clipboard connection.
+Vis retains linewise/multiple-selection paste for its own yanks; external
+clipboard text uses Vis's native clipboard paste rules.
+On stock Vim, use `"+yy` / `"+p` when clipboard support is available.
+
+### Files and search
+
+| Keys | Action |
+| --- | --- |
+| `Space Space`, `Space f f` | Find files below the working directory |
+| `Space /` | Search project text with surrounding lines in the preview |
+| `Space s w` | Search the word under the cursor as literal text |
+| `Space ,` | Focus another open file, keeping unsaved changes |
+| `Space e` | Browse the current directory, including hidden files |
+| `Ctrl-w v` / `Ctrl-w s` | Split vertically / horizontally |
+| `Ctrl-w j` / `Ctrl-w l`, `Ctrl-w k` / `Ctrl-w h` | Next / previous window; Vis does not use spatial focus |
+
+Pickers use fzf: type to filter, use Up/Down or Ctrl-j/Ctrl-k to select,
+Enter to open and Escape to cancel. Search uses regular expressions;
+`Space s w` uses literal text. Ctrl-d/Ctrl-u scroll the search preview.
+The preview uses bat and centres the matching line. Paths containing colons
+work; project text search does not support paths containing tabs or newlines.
+File/text search respects ignore files and includes dotfiles except `.git`.
+
+The directory browser is a temporary list. Enter a directory to browse it;
+choose the `/..` entry to go up. Enter a file to open it and close the list.
+It shows ignored files too. Opening another file keeps Vis's unsaved-change
+check; save first or open a split. Vis represents open files as windows,
+so `Space ,` differs from Neovim's hidden buffers.
+
+### Language tools
+
+These require the pinned vis-lspc plugin and a server for the current language.
+Without the plugin, the shortcuts show `Language support is not installed`.
+See [the comparison](VIS-VIM-NEOVIM.md) for installation and limitations.
+
+| Keys | Action |
+| --- | --- |
+| `gd`, `gD`, `gI`, `gy`, `gr` | Definition, declaration, implementation, type definition, references |
+| `K` / `gK` | Hover documentation / signature help |
+| `Ctrl-]` / `Ctrl-t` | Definition / return from an LSP jump |
+| `Space s s` | Current-file symbols; Enter jumps, `q` closes the symbol list |
+| `Space c d` | Current-line diagnostics |
+| `[d` / `]d` | Previous / next diagnostic |
+| `Space c r` | Enter a new symbol name, then Enter to rename |
+| `Space c f` | Explicitly format the current file |
+| `Ctrl-Space` in Insert mode | Request completion; terminal support varies |
+
+Go uses gopls. Python uses Ruff for diagnostics/formatting; navigation and
+completion need a separate Python server. TOML uses Taplo. EditorConfig
+controls indentation and line width with its plugin installed. Formatting
+does not run on save. Space shortcuts follow LazyVim; basic edits follow Vim.
 
 ## Neovim
 
