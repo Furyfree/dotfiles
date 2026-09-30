@@ -40,6 +40,7 @@ Library/**
 .config/nvim/**
 .config/sheldon/**
 .config/topgrade.toml
+.config/vis/**
 .config/zed/**
 .config/zsh/**
 .config/opencode
