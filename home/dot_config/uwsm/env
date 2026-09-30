@@ -20,8 +20,11 @@ export PATH
 export DOTNET_ROOT="$uwsm_mise_data/dotnet-root"
 unset uwsm_mise_data uwsm_directory
 
-# Respect an inherited choice of editor.
-export EDITOR="${EDITOR:-nvim}"
+# Respect an inherited choice of editor; Vis is not provisioned everywhere.
+if [ -z "${EDITOR-}" ]; then
+    if command -v vis >/dev/null 2>&1; then EDITOR=vis; else EDITOR=nvim; fi
+fi
+export EDITOR
 export VISUAL="${VISUAL:-$EDITOR}"
 
 # Zed's .ipynb grid is a staff preview; GUI apps do not read shell profiles.

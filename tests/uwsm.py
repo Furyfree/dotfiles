@@ -1,6 +1,7 @@
 """Exercise sourced session settings without changing any user manager."""
 
 import json
+import shutil
 import subprocess
 import unittest
 from pathlib import Path
@@ -31,7 +32,8 @@ class UwsmEnvironment(unittest.TestCase):
                 self.assertIn("/usr/bin", paths)
                 if overrides.get("PATH"):
                     self.assertIn("/custom/bin", paths)
-                self.assertEqual(actual["EDITOR"], overrides.get("EDITOR", "nvim"))
+                default = "vis" if shutil.which("vis", path=actual["PATH"]) else "nvim"
+                self.assertEqual(actual["EDITOR"], overrides.get("EDITOR", default))
                 self.assertEqual(actual["VISUAL"], overrides.get("VISUAL", actual["EDITOR"]))
                 self.assertEqual(actual["QT_QPA_PLATFORM"], "wayland;xcb")
                 self.assertEqual(actual["GTK_IM_MODULE"], "simple")

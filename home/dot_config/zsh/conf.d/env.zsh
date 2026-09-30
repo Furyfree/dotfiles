@@ -2,7 +2,7 @@
   local editor
 
   if [[ -z ${EDITOR-} ]]; then
-    for editor in nvim vim vi; do
+    for editor in vis nvim vim vi; do
       if whence -p "$editor" >/dev/null 2>&1; then
         export EDITOR="$editor"
         break

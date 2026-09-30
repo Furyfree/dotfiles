@@ -1,7 +1,7 @@
 dotfiles_bash_env() {
   local editor
   if [[ -z ${EDITOR-} ]]; then
-    for editor in nvim vim vi; do
+    for editor in vis nvim vim vi; do
       if type -P "$editor" >/dev/null 2>&1; then
         export EDITOR="$editor"
         break
