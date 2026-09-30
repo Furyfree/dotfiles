@@ -45,6 +45,8 @@
     "tinymist": { "settings": { "exportPdf": "onSave", "outputPath": "$dir/$name" } }
   },
   "languages": {
+    "C": { "language_servers": ["!sourcekit-lsp", "..."] },
+    "C++": { "language_servers": ["!sourcekit-lsp", "..."] },
     "Python": { "language_servers": ["ty", "!basedpyright", "..."] }
   },
   "auto_install_extensions": {
