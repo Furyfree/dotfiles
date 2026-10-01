@@ -8,6 +8,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tests.vis import Terminal
+
 SOURCE = Path(__file__).resolve().parents[1] / "home"
 ZSH = shutil.which("zsh")
 
@@ -74,6 +76,24 @@ class ZshFoundation(unittest.TestCase):
                 result = subprocess.run([ZSH, "-d", "-f", "-n", str(path)], env=self.env,
                                         capture_output=True, text=True, timeout=15, check=False)
                 self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_ctrl_d_exits_whitespace_prompt_and_preserves_command_editing(self):
+        for line in ("", " ", "   \t"):
+            with self.subTest(line=line):
+                terminal = Terminal([ZSH, "-d", "-f", "-i"], self.env, self.home)
+                self.addCleanup(terminal.close)
+                terminal.send('source "$ZDOTDIR/conf.d/keybindings.zsh"; PS1="TEST-PROMPT> "\r',
+                              "TEST-PROMPT> ")
+                # A quoted tab inserts whitespace instead of invoking completion.
+                terminal.send(line.replace("\t", "\x16\t") + "\x04")
+                terminal.process.wait(timeout=3)
+                self.assertEqual(terminal.process.returncode, 0, terminal.screen())
+        terminal = Terminal([ZSH, "-d", "-f", "-i"], self.env, self.home)
+        self.addCleanup(terminal.close)
+        terminal.send('source "$ZDOTDIR/conf.d/keybindings.zsh"; PS1="TEST-PROMPT> "\r',
+                      "TEST-PROMPT> ")
+        terminal.send('print -r -- abZc\x1b[D\x1b[D\x04\r', "abc")
+        self.assertIsNone(terminal.process.poll())
 
     def test_xdg_defaults_and_overrides(self):
         self.shell('''

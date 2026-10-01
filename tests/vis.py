@@ -75,6 +75,16 @@ class Vis(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         self.root = Path(temp.name)
         shutil.copytree(REPO / "home/dot_config/vis", self.root / "config/vis")
+        with (self.root / "config/vis/visrc.lua").open("a") as config:
+            config.write("""
+vis:command_register('WindowState', function()
+  local count = 0
+  for _ in vis:windows() do count = count + 1 end
+  vis:info(count .. ' windows, ' ..
+    (vis.ui.layout == vis.ui.layouts.VERTICAL and 'vertical' or 'horizontal'))
+  return true
+end)
+""")
         self.bin = self.root / "bin"
         self.bin.mkdir()
         # Records copies instead of touching the desktop clipboard.
@@ -133,11 +143,137 @@ class Vis(unittest.TestCase):
         self.assertEqual(vis.process.wait(timeout=5), 0)
         self.assertNoErrors(vis)
 
+    def test_explorer_returns_to_saved_file_and_browsed_directory(self):
+        notes = self.project / "notes.txt"
+        vis = self.start(VIS, "notes.txt")
+        vis.send("3Gccchanged\x1b", " 3:8 ")
+        vis.send(":w\r")
+        vis.send("5Gll", " 5:3 ")
+        vis.send(" e", "sub/")
+        vis.send(":WindowState\r", "1 windows, horizontal")
+        vis.send("/sub\rl", "inner.txt")
+        vis.send("/inner\r")
+        vis.send(" e", " 5:3 ")
+        vis.send(":WindowState\r", "1 windows, horizontal")
+        self.assertIn("changed\n", notes.read_text())
+        vis.send(" e", " 2:1 ")
+        vis.send("l", "sub/inner.txt")
+        vis.send(":WindowState\r", "1 windows, horizontal")
+        self.assertNoErrors(vis)
+
+    def test_explorer_selects_current_file_and_closes_after_opening(self):
+        vis = self.start(VIS, "notes.txt")
+        vis.send("5G", " 5:1 ")
+        vis.send(" e", "sub/")
+        vis.send("l", " 5:1 ")
+        vis.send(":WindowState\r", "1 windows, horizontal")
+        vis.send(" e", "sub/")
+        vis.send("/sub\rl", "inner.txt")
+        vis.send("h")
+        vis.send("l", "inner.txt")
+        vis.send("/inner\rl", "inner.txt")
+        vis.send(":WindowState\r", "1 windows, horizontal")
+        # Folder mappings must disappear when we return to editing text.
+        vis.send("l", " 1:2 ")
+        self.assertNoErrors(vis)
+
+    def test_explorer_preserves_unsaved_file_when_open_is_refused(self):
+        vis = self.start(VIS, "notes.txt")
+        vis.send("3Gccchanged\x1b", " 3:8 ")
+        vis.send(" e", "sub/")
+        vis.send("/sub\rl", "inner.txt")
+        vis.send("/inner\rl", "No write since last change")
+        vis.send(":WindowState\r", "2 windows, horizontal")
+        vis.send(" e", " 3:8 ")
+        vis.send(":w\r")
+        self.assertIn("changed\n", (self.project / "notes.txt").read_text())
+        self.assertEqual((self.project / "sub/inner.txt").read_text(), "inner\n")
+        self.assertNoErrors(vis)
+
+    def test_explorer_reuses_listing_and_preserves_unsaved_undo(self):
+        notes = self.project / "notes.txt"
+        original = notes.read_text()
+        vis = self.start(VIS, "notes.txt")
+        vis.send("3Gccchanged\x1b", " 3:8 ")
+        vis.send(" e", "sub/")
+        vis.send(":WindowState\r", "2 windows, horizontal")
+        vis.send("\x17k")
+        vis.send(" e")
+        vis.send(":WindowState\r", "2 windows, horizontal")
+        vis.send("l", " 3:8 ")
+        vis.send(":WindowState\r", "1 windows, horizontal")
+        vis.send("u")
+        vis.send(":w\r")
+        self.assertEqual(notes.read_text(), original)
+        self.assertNoErrors(vis)
+
+    def test_explorer_listing_failure_keeps_editing_window(self):
+        listing = self.bin / "ls"
+        listing.write_text('#!/bin/sh\nprintf "Cannot list fixture\\n" >&2\nexit 1\n')
+        listing.chmod(0o755)
+        vis = self.start(VIS, "notes.txt")
+        vis.send("5G", " 5:1 ")
+        vis.send(" e", "Cannot list fixture")
+        vis.send(":WindowState\r", "1 windows, horizontal")
+        vis.send("j", " 6:1 ")
+        self.assertNoErrors(vis)
+
+    def test_native_shell_keeps_working_directory_and_unsaved_editor(self):
+        self.project = self.project.rename(self.root / "shell's project with spaces")
+        record = self.root / "shell-directory"
+        self.env["SHELL_RECORD"] = str(record)
+        self.env["SHELL"] = "/bin/sh"
+        original = (self.project / "notes.txt").read_text()
+        vis = self.start(VIS, "notes.txt")
+        vis.send("3Gccchanged\x1b", " 3:8 ")
+        vis.send("  ")
+        vis.send('printf "%s" "$PWD" > "$SHELL_RECORD"\n')
+        vis.send("exit\n", " 3:8 ")
+        vis.send(":WindowState\r", "1 windows, horizontal")
+        self.assertEqual(record.read_text(), str(self.project))
+        vis.send("u")
+        vis.send(":w\r")
+        self.assertEqual((self.project / "notes.txt").read_text(), original)
+        picker = self.bin / "fzf"
+        picker.write_text('#!/bin/sh\ncat >/dev/null\nprintf "sub/inner.txt\\0"\n')
+        picker.chmod(0o755)
+        vis.send(" ff", "inner.txt")
+        self.assertNoErrors(vis)
+
+    def test_native_shell_failure_is_visible(self):
+        self.env["SHELL"] = str(self.bin / "missing-shell")
+        vis = self.start(VIS, "notes.txt")
+        vis.send("  ", "Command failed")
+        vis.send("j", " 2:1 ")
+        self.assertNoErrors(vis)
+
+    def test_explorer_shell_uses_browsed_folder_without_changing_project_directory(self):
+        folder = self.project / "folder's space"
+        folder.mkdir()
+        record = self.root / "shell-directory"
+        self.env.update(SHELL="/bin/sh", SHELL_RECORD=str(record))
+        vis = self.start(VIS, "notes.txt")
+        vis.send(" e", "sub/")
+        vis.send("/folder\rl")
+        vis.send("  ")
+        vis.send('printf "%s" "$PWD" > "$SHELL_RECORD"\n')
+        vis.send("exit\n", " 1:1 ")
+        self.assertEqual(record.read_text(), str(folder))
+        vis.send("h", "sub/")
+        vis.send(" e", "notes.txt")
+        vis.send("  ")
+        vis.send('printf "%s" "$PWD" > "$SHELL_RECORD"\n')
+        vis.send("exit\n", " 1:1 ")
+        self.assertEqual(record.read_text(), str(self.project))
+        self.assertNoErrors(vis)
+
     @unittest.skipUnless(shutil.which("zsh"), "zsh is not installed")
     def test_shell_function_opens_directory(self):
         functions = REPO / "home/dot_config/zsh/conf.d/functions.zsh"
         vis = self.start("zsh", "-fc", f'source "{functions}"; vis "$1"', "zsh", str(self.project))
         self.assertIn("sub/", vis.screen())
+        vis.send(":WindowState\r", "1 windows, horizontal")
+        vis.send(" e", "No editing window to return to")
         self.assertNoErrors(vis)
 
     @unittest.skipUnless(shutil.which("git"), "git is not installed")

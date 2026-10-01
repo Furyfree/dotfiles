@@ -50,11 +50,13 @@ plugin, files reopen at the last cursor position, as in stock Vim.
 
 | Keys | Action |
 | --- | --- |
-| `Space Space`, `Space f f` | Find files below the working directory |
+| `Space f f` | Find files below the working directory |
+| `Space Space` | Open a shell in this terminal; exit to return to Vis |
 | `Space /` | Search project text with surrounding lines in the preview |
 | `Space s w` | Search the word under the cursor as literal text |
 | `Space ,` | Focus another open file, keeping unsaved changes |
-| `Space e`, `:Explore [dir]` | List the current file's directory, or `dir` |
+| `Space e` | Browse the current file's directory; return to editing from the explorer |
+| `:Explore [dir]` | Browse `dir`, or the working directory |
 | `]h` / `[h`, `Space g h p` | Next / previous Git hunk, preview the hunk at the cursor |
 | `:grep text`, `]q` / `[q`, `:cw` | Search into the quickfix list, next / previous match, toggle the list; requires quickfix plugin |
 | `Ctrl-w v` / `Ctrl-w s` | Split vertically / horizontally |
@@ -67,12 +69,24 @@ The preview uses bat and centres the matching line. Paths containing colons
 work; project text search does not support paths containing tabs or newlines.
 File/text search respects ignore files and includes dotfiles except `.git`.
 
-The directory listing works like Vim's netrw: Enter opens the entry under the
-cursor, `-` shows the parent, and `/` searches the listing. It shows hidden and
-ignored files. Space searches still start from the directory where Vis started.
-It replaces an unmodified window and splits a modified one. Opening another
-file keeps Vis's unsaved-change check; save first or open a split. Vis represents open files as windows,
-so `Space ,` differs from Neovim's hidden buffers.
+The explorer uses `j`/`k` to move down/up, `l` or Enter to open an entry, and
+`h` or `-` to go to the parent. `/` searches the listing, which includes hidden
+and ignored files. Opening it from a saved file replaces that window and selects
+the current filename; unsaved files stay open in a split. `Space e` returns to
+the previous file and cursor position. Press it again to revisit the last browsed
+folder and entry. Saved files reopen from disk, so their undo history resets;
+unsaved files keep their editing state. Choosing another file closes the explorer;
+save unsaved edits before switching files. `vis .` starts with just the listing.
+File/text searches still use the working directory. Vis represents open files as
+windows, so `Space ,` differs from Neovim's hidden buffers.
+
+The shell uses Vis's native `:!` command and the same terminal. In the explorer,
+it starts in the folder being browsed; while editing, it uses Vis's working
+directory. Exit or Ctrl-d at an empty prompt returns to the editor with its
+editing state intact. Zsh also treats a whitespace-only prompt as empty for
+Ctrl-d. `Space Space` inside the shell is ordinary input. File/text searches
+still use Vis's working directory; changing directory in the child shell does
+not change it in Vis.
 
 ### Language tools
 

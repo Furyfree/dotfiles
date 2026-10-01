@@ -8,7 +8,6 @@ local function files()
   local path = pick(rg .. '--files -0 | fzf --read0 --print0 --no-multi')
   if path then open(path:gsub('%z$', '')) end
 end
-vis:map(vis.modes.NORMAL, '  ', files, 'Find and open a file')
 vis:map(vis.modes.NORMAL, ' ff', files, 'Find and open a file')
 
 local function search(query, literal)

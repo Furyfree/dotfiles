@@ -1,5 +1,17 @@
 bindkey -e
 
+# Treat whitespace as an empty prompt, then let Zsh handle EOF normally.
+_delete_char_or_eof() {
+  if [[ -n $BUFFER && -z ${BUFFER//[[:space:]]/} ]]; then
+    BUFFER=''
+    zle -U $'\x04'
+  else
+    zle .delete-char-or-list
+  fi
+}
+zle -N delete-char-or-eof _delete_char_or_eof
+bindkey '^D' delete-char-or-eof
+
 # Use the terminal's Home, End, and Delete sequences when available.
 if zmodload zsh/terminfo; then
   [[ -n ${terminfo[khome]-} ]] && bindkey "${terminfo[khome]}" beginning-of-line
