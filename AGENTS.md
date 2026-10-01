@@ -20,6 +20,8 @@ Read README.md and Nimbus's `docs/SPEC.md` before changing ownership.
 - `home/dot_config/hypr/` and `home/dot_config/uwsm/`: compositor modules and
   session environment. Match window classes from `hyprctl clients`, not titles;
   place class tags before shared rules.
+- `home/dot_config/vis/`: `visrc.lua` requires the `config/` modules; vis-plug
+  plugins download outside Chezmoi. Keep Vim's default keys.
 - `home/Projects/dtu-bachelor/dot_obsidian/`: per-machine vault settings; the
   vault's Git owns plugins and plugin lists. Write JSON as Obsidian does
   (2-space indent, no final newline); `modify_workspace.json` resets sidebars only.

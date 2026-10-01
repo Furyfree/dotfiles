@@ -7,7 +7,8 @@ session's shortcut guide. Super is the Windows key.
 
 ## Vis
 
-Start Vis from the project directory. `Space f f` means press the three keys
+Start Vis from the project directory; `vis .` or `vis some/dir` opens a
+directory listing, as `nvim .` does. `Space f f` means press the three keys
 in sequence. These shortcuts use Normal mode unless stated otherwise.
 Escape returns to Normal mode. The status bar shows the mode, filename,
 unsaved changes (`[+]`) and line:column. Normal is cyan, Insert green,
@@ -31,6 +32,7 @@ Visual yellow, Replace magenta and an unfinished operator blue.
 | `:w`, `:q`, `:wq` | Save, quit, save and quit; press Enter |
 | `:!command` | Run a shell command |
 | `gcc`, `gc{motion}`, Visual `gc` | Toggle comments; requires commentary plugin |
+| `ys"iw`, `cs"'`, `ds"`, Visual `S"` | Add, change, delete surrounding quotes; requires surround plugin |
 
 Counts still work: `3yy` copies three lines. A successful clipboard copy
 shows `Copied`; failure shows an error. The message lasts until the next key.
@@ -40,6 +42,10 @@ Vis retains linewise/multiple-selection paste for its own yanks; external
 clipboard text uses Vis's native clipboard paste rules.
 On stock Vim, use `"+yy` / `"+p` when clipboard support is available.
 
+Vis's surround takes the delimiter before the motion (`ys"iw`); Neovim's takes
+it after (`ysiw"`). Visual `C` and `D` keep their Vim meaning. With the cursors
+plugin, files reopen at the last cursor position, as in stock Vim.
+
 ### Files and search
 
 | Keys | Action |
@@ -48,7 +54,9 @@ On stock Vim, use `"+yy` / `"+p` when clipboard support is available.
 | `Space /` | Search project text with surrounding lines in the preview |
 | `Space s w` | Search the word under the cursor as literal text |
 | `Space ,` | Focus another open file, keeping unsaved changes |
-| `Space e` | Browse the current directory, including hidden files |
+| `Space e`, `:Explore [dir]` | List the current file's directory, or `dir` |
+| `]h` / `[h`, `Space g h p` | Next / previous Git hunk, preview the hunk at the cursor |
+| `:grep text`, `]q` / `[q`, `:cw` | Search into the quickfix list, next / previous match, toggle the list; requires quickfix plugin |
 | `Ctrl-w v` / `Ctrl-w s` | Split vertically / horizontally |
 | `Ctrl-w j` / `Ctrl-w l`, `Ctrl-w k` / `Ctrl-w h` | Next / previous window; Vis does not use spatial focus |
 
@@ -59,10 +67,11 @@ The preview uses bat and centres the matching line. Paths containing colons
 work; project text search does not support paths containing tabs or newlines.
 File/text search respects ignore files and includes dotfiles except `.git`.
 
-The directory browser is a temporary list. Enter a directory to browse it;
-choose the `/..` entry to go up. Enter a file to open it and close the list.
-It shows ignored files too. Opening another file keeps Vis's unsaved-change
-check; save first or open a split. Vis represents open files as windows,
+The directory listing works like Vim's netrw: Enter opens the entry under the
+cursor, `-` shows the parent, and `/` searches the listing. It shows hidden and
+ignored files. Space searches still start from the directory where Vis started.
+It replaces an unmodified window and splits a modified one. Opening another
+file keeps Vis's unsaved-change check; save first or open a split. Vis represents open files as windows,
 so `Space ,` differs from Neovim's hidden buffers.
 
 ### Language tools

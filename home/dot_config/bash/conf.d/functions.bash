@@ -132,3 +132,13 @@ clip-paste() {
   printf '%s\n' 'clip-paste: no supported clipboard tool/session (pbpaste, wl-paste, or xclip)' >&2
   return 1
 }
+
+# Like `nvim .`: one directory argument opens Vis's :Explore listing.
+vis() {
+  if (( $# == 1 )) && [[ -d $1 ]]; then
+    local dir=${1//\\/\\\\}
+    command vis "+Explore \"${dir//\"/\\\"}\""
+  else
+    command vis "$@"
+  fi
+}
