@@ -1,0 +1,30 @@
+{{- if or (eq .chezmoi.os "linux") (eq .chezmoi.os "darwin") -}}
+#!/bin/bash
+set -euo pipefail
+
+if [ "$(id -u)" = 0 ]; then
+    printf '%s\n' 'dotfiles: run chezmoi apply as your normal user, not root.' >&2
+    exit 1
+fi
+
+mise_binary="$HOME/.local/bin/mise"
+if [ ! -x "$mise_binary" ]; then
+    mise_binary=$(command -v mise) || {
+        printf '%s\n' 'dotfiles: Mise is required; install Mise, then rerun chezmoi apply.' >&2
+        exit 1
+    }
+fi
+
+cd "$HOME"
+export MISE_CONFIG_DIR="$HOME/.config/mise"
+export MISE_CEILING_PATHS="$HOME"
+unset MISE_GLOBAL_CONFIG_FILE
+# The preceding Mise hook owns tool installation and its retry policy.
+export MISE_AUTO_INSTALL=false
+export MISE_AUTO_UPDATE=false
+export PI_CODING_AGENT_DIR="$HOME/.pi/agent"
+
+if ! "$mise_binary" -C "$HOME" exec -- pi install npm:pi-terminal-math; then
+    printf '%s\n' 'dotfiles: Pi packages are incomplete; fix the error and rerun chezmoi apply.' >&2
+fi
+{{ end -}}

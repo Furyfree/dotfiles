@@ -27,7 +27,7 @@ Read README.md and Nimbus's `docs/SPEC.md` before changing ownership.
   (2-space indent, no final newline); `modify_workspace.json` resets sidebars only.
 - `home/dot_local/share/flatpak/overrides/`: per-app Flatpak environment.
 - `home/run_after_*`, `home/run_onchange_after_*`: scoped user hooks for Mise,
-  VSCodium extensions, Files, ProtonPlus preferences, the GTK icon cache and
+  Pi/VSCodium extensions, Files, ProtonPlus preferences, the GTK icon cache and
   Hyprland reloads. Keep their scope narrow.
 - `tests/`, `pyproject.toml`, `ruff.toml`, `justfile`: isolated pytest suites and
   Ruff lint gate, run through uv.
