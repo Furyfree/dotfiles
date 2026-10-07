@@ -53,7 +53,7 @@ Read README.md and Nimbus's `docs/SPEC.md` before changing ownership.
   and one-line wrappers around shared content. No profile graph, overlay system,
   custom resolver, blanket reference imports or speculative scaffolding.
 - Required shell modules must fail visibly when missing; optional integrations
-  may be absent. Source ble.sh at top level, not through a helper function.
+  may be absent.
 - This repo is not in production. Do not add migrations or cleanup of old
   providers, compatibility layers or `.chezmoiremove` entries unless requested.
   Preserve existing user files on failure.

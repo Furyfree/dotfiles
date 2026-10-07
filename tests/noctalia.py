@@ -75,7 +75,6 @@ class Noctalia(unittest.TestCase):
                 self.assertEqual(".config/noctalia/assets/profile-picture.jpg" in entries, enabled)
                 self.assertEqual(".config/noctalia/assets/profile-picture-circle.svg" in entries, enabled)
                 self.assertEqual(".config/zsh/conf.d/noctalia.zsh" in entries, enabled)
-                self.assertEqual(".config/bash/conf.d/noctalia.bash" in entries, enabled)
                 for target in ("gtk-3.0/settings.ini", "gtk-4.0/settings.ini",
                                "qt5ct/qt5ct.conf", "qt6ct/qt6ct.conf"):
                     self.assertEqual(f".config/{target}" in entries, enabled)
@@ -329,24 +328,23 @@ class Noctalia(unittest.TestCase):
         self.chezmoi("verify", "--exclude=scripts")
 
     def test_fzf_missing_and_present_palette(self):
-        for shell in ("bash", "zsh"):
-            binary = shutil.which(shell)
-            if not binary:
-                continue
-            source = REPO / f"home/dot_config/{shell}/conf.d/noctalia.{shell}"
-            script = '. "$1"; printf "%s" "${FZF_DEFAULT_OPTS-}"'
-            result = subprocess.run([binary, "-c", script, "fixture", str(source)],
-                                    cwd=self.root, env=self.env, capture_output=True, text=True, check=False)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(result.stdout, "")
-            palette = self.home / ".config/fzf/themes/noctalia.sh"
-            palette.parent.mkdir(parents=True, exist_ok=True)
-            palette.write_text('export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --color=fg:#abcdef"\n')
-            result = subprocess.run([binary, "-c", script, "fixture", str(source)],
-                                    cwd=self.root, env=self.env, capture_output=True, text=True, check=False)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertIn("--color=fg:#abcdef", result.stdout)
-            palette.unlink()
+        binary = shutil.which("zsh")
+        if not binary:
+            self.skipTest("zsh is not installed")
+        source = REPO / "home/dot_config/zsh/conf.d/noctalia.zsh"
+        script = '. "$1"; printf "%s" "${FZF_DEFAULT_OPTS-}"'
+        result = subprocess.run([binary, "-c", script, "fixture", str(source)],
+                                cwd=self.root, env=self.env, capture_output=True, text=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "")
+        palette = self.home / ".config/fzf/themes/noctalia.sh"
+        palette.parent.mkdir(parents=True, exist_ok=True)
+        palette.write_text('export FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --color=fg:#abcdef"\n')
+        result = subprocess.run([binary, "-c", script, "fixture", str(source)],
+                                cwd=self.root, env=self.env, capture_output=True, text=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--color=fg:#abcdef", result.stdout)
+        palette.unlink()
 
 
 if __name__ == "__main__":

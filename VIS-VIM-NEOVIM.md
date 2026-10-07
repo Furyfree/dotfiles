@@ -94,7 +94,7 @@ search, explorer, plugins, lsp and git. Together they add:
   filenames containing tabs or newlines remain unsupported in text search.
 - `:Explore [dir]` and `Space e` show a netrw-style directory listing:
   Enter opens, `-` goes up, and the listing never counts as unsaved. `vis .`
-  opens it through a shell function in `functions.zsh`/`functions.bash`.
+  opens it through a shell function in `functions.zsh`.
   `Space ,` focuses an existing window without discarding its edits.
 - `]h`/`[h` jump between Git hunks and `Space ghp` previews one, comparing the
   buffer, including unsaved edits, with Git's index. Nothing marks the margin.
@@ -191,7 +191,7 @@ reproduce `nvim .` and netrw:
   starting directory. Like netrw's `:Explore`, it replaces an unmodified window
   and splits a modified one. The listing is marked unmodified, so `:q` closes
   it. `Space e` lists the current file's directory.
-- A `vis` shell function in `functions.zsh` and `functions.bash` turns a
+- A `vis` shell function in `functions.zsh` turns a
   single directory argument into `vis "+Explore dir"`, quoting `"` and `\`.
   Vis runs `+command` after startup. `EDITOR`, Git and other callers run the
   binary directly.
@@ -233,8 +233,8 @@ in a pseudo-terminal and disposable home, without plugins. It checks Vim-style
 listing (hidden files, Enter, `-` returning to the previous entry, `:q`
 without a save prompt), `vis <dir>` through the zsh function, and Git hunk
 jumps and previews that include unsaved edits. Each test failed when one line
-of the code it covers was broken. The bash function and a directory named
-`we"ird\dir` were checked by hand, as were the fzf pickers, which need a
+of the code it covers was broken. A directory named `we"ird\dir` was
+checked by hand, as were the fzf pickers, which need a
 controlling terminal.
 
 The complete setup through vis-plug has not been run: executing the downloaded
@@ -250,7 +250,7 @@ to Nimbus.
 **Setting up Vis**
 
 1. Apply the configuration and shell functions:
-   `chezmoi apply ~/.config/vis ~/.config/zsh/conf.d/functions.zsh ~/.config/bash/conf.d/functions.bash`.
+   `chezmoi apply ~/.config/vis ~/.config/zsh/conf.d/functions.zsh`.
    Restart Vis and open a new shell.
 2. Install vis-plug at its pinned commit:
 

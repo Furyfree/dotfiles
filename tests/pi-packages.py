@@ -59,10 +59,37 @@ source = sys.argv[2]
 if source not in s.get("packages", []):
     s.setdefault("packages", []).append(source)
 p.write_text(json.dumps(s))
+manifest = home / ".pi/agent/npm/package.json"
+manifest.parent.mkdir(parents=True, exist_ok=True)
+if not manifest.exists():
+    manifest.write_text(json.dumps({"name": "pi-extensions", "private": True}))
 (home / "fixture-package").write_text("installed")
 print("fixture Pi: installed", flush=True)
 ''')
         pi.chmod(0o755)
+        npm = self.bin / "npm"
+        npm.write_text(f"#!{sys.executable}\n" + '''
+import json, os, pathlib, sys
+home = pathlib.Path(os.environ["HOME"])
+args = sys.argv[1:]
+assert args[:2] == ["--prefix", str(home / ".pi/agent/npm")]
+with (home / "npm-calls.jsonl").open("a") as log:
+    log.write(json.dumps(args[2:]) + "\\n")
+if (home / "fail-npm").exists():
+    print("fixture npm: update failed", file=sys.stderr)
+    sys.exit(24)
+p = home / ".pi/agent/npm/package.json"
+s = json.loads(p.read_text())
+if args[2:4] == ["pkg", "set"]:
+    assert args[4:] == ["overrides.@xmldom/xmldom=0.9.12"]
+    s.setdefault("overrides", {})["@xmldom/xmldom"] = "0.9.12"
+    p.write_text(json.dumps(s))
+else:
+    assert args[2:] == ["install", "--ignore-scripts", "--legacy-peer-deps"]
+    assert s["overrides"]["@xmldom/xmldom"] == "0.9.12"
+    (home / "patched-package").write_text("installed")
+''')
+        npm.chmod(0o755)
 
     def fake_id(self, uid):
         path = self.bin / "id"
@@ -75,7 +102,8 @@ print("fixture Pi: installed", flush=True)
 import json, os, pathlib, subprocess, sys
 home = pathlib.Path(os.environ["HOME"])
 args = sys.argv[1:]
-assert args == ["-C", str(home), "exec", "--", "pi", "install", "npm:pi-terminal-math"]
+assert args[:4] == ["-C", str(home), "exec", "--"]
+assert args[4] in {"pi", "npm"}
 assert os.getcwd() == str(home)
 assert os.environ["MISE_CONFIG_DIR"] == str(home / ".config/mise")
 assert os.environ["MISE_CEILING_PATHS"] == str(home)
@@ -135,6 +163,28 @@ sys.exit(subprocess.run(args[4:], check=False).returncode)
             self.assertEqual(saved["packages"], [keep, "npm:pi-terminal-math"])
             (self.home / "fixture-package").unlink()
         self.assertEqual(len(self.calls()), 2)
+
+    def test_security_override_preserves_other_packages_and_retries_failed_update(self):
+        manifest = self.home / ".pi/agent/npm/package.json"
+        manifest.parent.mkdir(parents=True)
+        original = {"name": "pi-extensions", "private": True,
+                    "dependencies": {"unrelated": "1.2.3"},
+                    "overrides": {"another": "4.5.6", "@xmldom/xmldom": "0.9.10"}}
+        manifest.write_text(json.dumps(original))
+        (self.home / "fail-npm").touch()
+        result = self.chezmoi("apply")
+        self.assert_success(result)
+        self.assertIn("Pi packages are incomplete", result.stderr)
+        self.assertFalse((self.home / "patched-package").exists())
+        self.assertEqual(json.loads(manifest.read_text()), original)
+        (self.home / "fail-npm").unlink()
+        expected = original | {"overrides": {"another": "4.5.6", "@xmldom/xmldom": "0.9.12"}}
+        for _ in range(2):
+            self.assert_success(self.chezmoi("apply"))
+            self.assertEqual(json.loads(manifest.read_text()), expected)
+            self.assertTrue((self.home / "patched-package").exists())
+            (self.home / "patched-package").unlink()
+        self.assertEqual(len(self.calls("npm")), 5)
 
     def test_failure_warns_and_next_apply_retries_without_resetting_settings(self):
         (self.home / "fail").touch()

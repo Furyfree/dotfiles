@@ -24,7 +24,11 @@ export MISE_AUTO_INSTALL=false
 export MISE_AUTO_UPDATE=false
 export PI_CODING_AGENT_DIR="$HOME/.pi/agent"
 
-if ! "$mise_binary" -C "$HOME" exec -- pi install npm:pi-terminal-math; then
+if ! "$mise_binary" -C "$HOME" exec -- pi install npm:pi-terminal-math ||
+    ! "$mise_binary" -C "$HOME" exec -- npm --prefix "$PI_CODING_AGENT_DIR/npm" \
+        pkg set 'overrides.@xmldom/xmldom=0.9.12' ||
+    ! "$mise_binary" -C "$HOME" exec -- npm --prefix "$PI_CODING_AGENT_DIR/npm" \
+        install --ignore-scripts --legacy-peer-deps; then
     printf '%s\n' 'dotfiles: Pi packages are incomplete; fix the error and rerun chezmoi apply.' >&2
 fi
 {{ end -}}

@@ -25,13 +25,8 @@ Library/**
 {{ if eq .chezmoi.os "windows" -}}
 .zshenv
 .profile
-.bash_profile
-.bashrc
-.bash_logout
-.blerc
 .config/1Password/**
 .config/VSCodium/**
-.config/bash/**
 .config/btop/**
 .config/gh/**
 .config/ghostty/**
@@ -73,7 +68,6 @@ Library/**
 .config/qt5ct/qt5ct.conf
 .config/qt6ct/qt6ct.conf
 .config/zsh/conf.d/noctalia.zsh
-.config/bash/conf.d/noctalia.bash
 .local/share/keyrings/**
 {{ end -}}
 
@@ -148,9 +142,7 @@ AppData/Local
 Documents
 {{ end -}}
 .profile
-.bash_logout
 .config/VSCodium/User/snippets/**
-.config/bash/logout
 .config/ghostty/themes/dankcolors
 .local/share/backgrounds/**
 AppData/Local/1Password/**

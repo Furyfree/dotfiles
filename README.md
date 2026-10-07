@@ -79,7 +79,8 @@ A full apply also runs scoped user hooks:
 - Linux/macOS: install declared Mise tools. Missing Mise or a failed install
   stops apply; fix the error and rerun. Already written files remain.
 - Linux/macOS: install `pi-terminal-math` through Pi after Mise. Use `/math on`
-  in Pi to enable rendering. Package-install failures warn; rerun apply to retry.
+  in Pi to enable rendering. The hook pins its xmldom dependency to 0.9.12
+  for security fixes. Package-install failures warn; rerun apply to retry.
 - VSCodium: install missing declared extensions. Interactive prompts offer
   removal of extras; without a terminal, extras remain. Linux/macOS failures
   warn and can leave extensions missing; Windows install failures stop apply.
