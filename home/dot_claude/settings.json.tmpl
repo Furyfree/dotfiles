@@ -4,7 +4,12 @@
 {{- if stat $target -}}
 {{-   $local = include $target | fromJsonc -}}
 {{- end -}}
-{{- $new := $local | toJson | fromJson | setValueAtPath "permissions.defaultMode" "auto" -}}
+{{- $ask := list "Bash(git commit:*)" "Bash(git push:*)" "Bash(git tag:*)" "Bash(gh pr create:*)" -}}
+{{- $new := $local | toJson | fromJson
+  | setValueAtPath "permissions.defaultMode" "auto"
+  | setValueAtPath "permissions.ask" $ask
+  | setValueAtPath "permissions.deny" (list "Bash(sudo:*)")
+  | setValueAtPath "autoMemoryEnabled" false -}}
 {{- if and (stat $target) (eq ($local | toJson) ($new | toJson)) -}}
 {{- include $target -}}
 {{- else -}}
